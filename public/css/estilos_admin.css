@@ -1,0 +1,45 @@
+/* Estilos globales */
+html, body{
+    padding: 0px;
+    margin: 0px;;
+    height: 100%;
+}
+/* Estilos barra superior */
+.contenedor_flex {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.menu_admin, .footer {
+    height: 50px;
+    background-color: #333; /* Cambia el color de fondo según tus preferencias */
+    color: white; /* Cambia el color del texto según tus preferencias */
+    text-align: center;
+    line-height: 50px;
+}
+
+
+
+
+
+
+
+/* Estilos cuerpo */
+.cuerpo_admin {
+    flex: 1;
+    display: flex;
+}
+
+/* Estilos barra lateral */
+.barra_lateral {
+    width: 15%;
+    color: white; /* Cambia el color del texto según tus preferencias */
+    background-color: #eee;
+}
+
+/* Estilos contenido */
+.contenedor_principal {
+    width: 85%;
+    padding: 20px;
+}
