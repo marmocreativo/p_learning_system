@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Configuracion;
+use App\Models\Clase;
 use Illuminate\Http\Request;
 
 class ConfiguracionesController extends Controller
@@ -12,6 +14,8 @@ class ConfiguracionesController extends Controller
     public function index()
     {
         //
+        $configuraciones = Configuracion::all();
+        return view('admin/configuracion_lista', compact('configuraciones'));
     }
 
     /**
@@ -20,6 +24,8 @@ class ConfiguracionesController extends Controller
     public function create()
     {
         //
+        $clases = Clase::where('elementos','configuraciones')->get();
+        return view('admin/configuracion_form', compact('clases'));
     }
 
     /**
@@ -28,6 +34,18 @@ class ConfiguracionesController extends Controller
     public function store(Request $request)
     {
         //
+
+        $config = new Configuracion();
+
+        $config->nombre = $request->Nombre;
+        $config->valor = $request->Valor;
+        $config->input = $request->Input;
+        $config->clase = $request->Clase;
+        $config->orden = $request->Orden;
+
+        $config->save();
+
+        return redirect()->route('configuraciones.show', $config->id);
     }
 
     /**
@@ -36,6 +54,8 @@ class ConfiguracionesController extends Controller
     public function show(string $id)
     {
         //
+        $configuracion = Configuracion::find($id);
+        return view('admin/configuracion_detalles', compact('configuracion'));
     }
 
     /**

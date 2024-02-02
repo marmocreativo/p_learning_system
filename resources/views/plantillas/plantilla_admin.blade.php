@@ -15,7 +15,10 @@
             <div class="cuerpo_admin">
                 <div class="barra_lateral">
                     <ul class="list">
+                        <li><a href="{{ route('admin_usuarios') }}">Usuarios</a></li>
                         <li><a href="{{ route('clases') }}">Clases</a></li>
+                        <li><a href="{{ route('configuraciones') }}">Configuraciones</a></li>
+                        <li><a href="{{ route('admin.base_de_datos') }}">Base de datos</a></li>
                     </ul>
                 </div>
                 <div class="contenedor_principal">

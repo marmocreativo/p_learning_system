@@ -9,19 +9,19 @@
         @method('PUT')
         <div class="form-group">
             <label for="NombreSistema">Nombre en sistema</label>
-            <input type="text" name="NombreSistema" value="{{ $clase->nombre_sistema }}">
+            <input type="text" name="NombreSistema" class="form-control" value="{{ $clase->nombre_sistema }}">
         </div>
         <div class="form-group">
             <label for="NombreSingular">Nombre Singular</label>
-            <input type="text" name="NombreSingular" value="{{ $clase->nombre_singular }}">
+            <input type="text" name="NombreSingular" class="form-control" value="{{ $clase->nombre_singular }}">
         </div>
         <div class="form-group">
             <label for="NombrePlural">Nombre Plural</label>
-            <input type="text" name="NombrePlural" value="{{ $clase->nombre_plural }}">
+            <input type="text" name="NombrePlural" class="form-control" value="{{ $clase->nombre_plural }}">
         </div>
         <div class="form-group">
             <label for="Elementos"></label>
-            <select name="Elementos" id="Elementos">
+            <select name="Elementos" id="Elementos" class="form-control">
                 <option value="publicaciones" <?php if($clase->elementos=='publicaciones'){ echo 'selected'; }  ?>>Publicaciones</option>
                 <option value="usuarios" <?php if($clase->elementos=='usuarios'){ echo 'selected'; }  ?>>Usuarios</option>
             </select>
