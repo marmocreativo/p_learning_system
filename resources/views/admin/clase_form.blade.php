@@ -23,7 +23,7 @@
             <select name="Elementos" id="Elementos" class="form-control">
                 <option value="publicaciones">Publicaciones</option>
                 <option value="usuarios">Usuarios</option>
-                <option value="usuarios">Configuraciones</option>
+                <option value="configuraciones">Configuraciones</option>
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
