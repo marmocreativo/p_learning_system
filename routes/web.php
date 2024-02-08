@@ -53,6 +53,36 @@ Route::get('admin/clases/edit/{post}', [ClasesController::class, 'edit'])->middl
 Route::put('admin/clases/update/{post}', [ClasesController::class, 'update'])->middleware('auth')->name('clases.update');
 Route::delete('admin/clases/destroy/{post}', [ClasesController::class, 'destroy'])->middleware('auth')->name('clases.destroy');
 
+
+
+// Rutas CRUD para las'cuentas'
+Route::get('admin/cuentas', [CuentasController::class, 'index'])->middleware('auth')->name('cuentas');
+Route::get('admin/cuentas/create', [CuentasController::class, 'create'])->middleware('auth')->name('cuentas.create');
+Route::post('admin/cuentas/store', [CuentasController::class, 'store'])->middleware('auth')->name('cuentas.store');
+Route::get('admin/cuentas/{post}', [CuentasController::class, 'show'])->middleware('auth')->name('cuentas.show');
+Route::get('admin/cuentas/edit/{post}', [CuentasController::class, 'edit'])->middleware('auth')->name('cuentas.edit');
+Route::put('admin/cuentas/update/{post}', [CuentasController::class, 'update'])->middleware('auth')->name('cuentas.update');
+Route::delete('admin/cuentas/destroy/{post}', [CuentasController::class, 'destroy'])->middleware('auth')->name('cuentas.destroy');
+
+// Rutas CRUD para las'distribuidores'
+Route::get('admin/distribuidores', [DistrbuidoresController::class, 'index'])->middleware('auth')->name('distribuidores');
+Route::get('admin/distribuidores/create', [DistrbuidoresController::class, 'create'])->middleware('auth')->name('distribuidores.create');
+Route::post('admin/distribuidores/store', [DistrbuidoresController::class, 'store'])->middleware('auth')->name('distribuidores.store');
+Route::get('admin/distribuidores/{post}', [DistrbuidoresController::class, 'show'])->middleware('auth')->name('distribuidores.show');
+Route::get('admin/distribuidores/edit/{post}', [DistrbuidoresController::class, 'edit'])->middleware('auth')->name('distribuidores.edit');
+Route::put('admin/distribuidores/update/{post}', [DistrbuidoresController::class, 'update'])->middleware('auth')->name('distribuidores.update');
+Route::delete('admin/distribuidores/destroy/{post}', [DistrbuidoresController::class, 'destroy'])->middleware('auth')->name('distribuidores.destroy');
+
+// Rutas CRUD para las'temporadas'
+Route::get('admin/temporadas', [TemporadasController::class, 'index'])->middleware('auth')->name('temporadas');
+Route::get('admin/temporadas/create', [TemporadasController::class, 'create'])->middleware('auth')->name('temporadas.create');
+Route::post('admin/temporadas/store', [TemporadasController::class, 'store'])->middleware('auth')->name('temporadas.store');
+Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->middleware('auth')->name('temporadas.show');
+Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
+Route::put('admin/temporadas/update/{post}', [TemporadasController::class, 'update'])->middleware('auth')->name('temporadas.update');
+Route::delete('admin/temporadas/destroy/{post}', [TemporadasController::class, 'destroy'])->middleware('auth')->name('temporadas.destroy');
+
+
 // Rutas CRUD para los 'usuarios'
 Route::get('admin/usuarios', [UsuariosController::class, 'index'])->middleware('auth')->name('admin_usuarios');
 Route::get('admin/usuarios/create', [UsuariosController::class, 'create'])->middleware('auth')->name('admin_usuarios.create');
