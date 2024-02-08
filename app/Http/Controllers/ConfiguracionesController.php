@@ -63,7 +63,10 @@ class ConfiguracionesController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        ////
+        $clases = Clase::where('elementos','configuraciones')->get();
+        $configuracion = Configuracion::find($id);
+        return view('admin/configuracion_form_actualizar')->with(compact('clases','configuracion'));
     }
 
     /**
@@ -72,6 +75,17 @@ class ConfiguracionesController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $config = Configuracion::find($id);
+
+        $config->nombre = $request->Nombre;
+        $config->valor = $request->Valor;
+        $config->input = $request->Input;
+        $config->clase = $request->Clase;
+        $config->orden = $request->Orden;
+
+        $config->save();
+
+        return redirect()->route('configuraciones.show', $config->id);
     }
 
     /**
@@ -80,5 +94,8 @@ class ConfiguracionesController extends Controller
     public function destroy(string $id)
     {
         //
+        $configuracion = Configuracion::find($id);
+        $configuracion->delete();
+        return redirect()->route('configuraciones');
     }
 }
