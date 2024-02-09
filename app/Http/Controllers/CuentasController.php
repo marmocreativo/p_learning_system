@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Cuentas;
+use App\Models\Cuenta;
 
 use Illuminate\Http\Request;
 
@@ -13,8 +13,8 @@ class CuentasController extends Controller
     public function index(Request $request)
     {
         //
-        $cuentas = Cuentas::paginate();
-        return view('admin/cuenta_lista', compact('clases'));
+        $cuentas = Cuenta::paginate();
+        return view('admin/cuenta_lista', compact('cuentas'));
     }
 
     /**
@@ -32,20 +32,20 @@ class CuentasController extends Controller
     public function store(Request $request)
     {
         //
-        $cuenta = new Cuentas();
+        $cuenta = new Cuenta();
 
         $cuenta->nombre = $request->Nombre;
         $cuenta->sesiones = $request->Sesiones;
         $cuenta->trivias = $request->Trivias;
         $cuenta->jackpots = $request->Jackpots;
         $cuenta->canjeo_puntos = $request->CanjeoPuntos;
-        $cuenta->temporada_actual = $request->TemporadaActual;
+        $cuenta->temporada_actual = null;
         $cuenta->estado = $request->Estado;
 
 
         $cuenta->save();
 
-        return redirect()->route('cuenta.show', $cuenta->id);
+        return redirect()->route('cuentas.show', $cuenta->id);
     }
 
     /**
@@ -54,7 +54,7 @@ class CuentasController extends Controller
     public function show(string $id)
     {
         //
-        $cuenta = Cuentas::find($id);
+        $cuenta = Cuenta::find($id);
         return view('admin/cuenta_detalles', compact('cuenta'));
 
     }
@@ -75,7 +75,7 @@ class CuentasController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $cuenta = Cuentas::find($id);
+        $cuenta = Cuenta::find($id);
 
         $cuenta->nombre = $request->Nombre;
         $cuenta->sesiones = $request->Sesiones;
@@ -96,7 +96,7 @@ class CuentasController extends Controller
     public function destroy(string $id)
     {
         //
-        $cuenta = Cuentas::find($id);
+        $cuenta = Cuenta::find($id);
         $cuenta->delete();
         return redirect()->route('cuentas');
     }
