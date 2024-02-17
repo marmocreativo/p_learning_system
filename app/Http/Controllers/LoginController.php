@@ -39,7 +39,7 @@ class LoginController extends Controller
 
         }else{
             
-            return redirect(route('login.form'));
+            return redirect(route('login'));
         }
 
         

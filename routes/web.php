@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CuentasController;
 use App\Http\Controllers\DistribuidoresController;
 use App\Http\Controllers\TemporadasController;
+use App\Http\Controllers\PublicacionesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ConfiguracionesController;
 use App\Http\Controllers\ClasesController;
@@ -84,6 +85,15 @@ Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->mi
 Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
 Route::put('admin/temporadas/update/{post}', [TemporadasController::class, 'update'])->middleware('auth')->name('temporadas.update');
 Route::delete('admin/temporadas/destroy/{post}', [TemporadasController::class, 'destroy'])->middleware('auth')->name('temporadas.destroy');
+
+// Rutas CRUD para las'publicaciones'
+Route::get('admin/publicaciones', [PublicacionesController::class, 'index'])->middleware('auth')->name('publicaciones');
+Route::get('admin/publicaciones/create', [PublicacionesController::class, 'create'])->middleware('auth')->name('publicaciones.create');
+Route::post('admin/publicaciones/store', [PublicacionesController::class, 'store'])->middleware('auth')->name('publicaciones.store');
+Route::get('admin/publicaciones/{post}', [PublicacionesController::class, 'show'])->middleware('auth')->name('publicaciones.show');
+Route::get('admin/publicaciones/edit/{post}', [PublicacionesController::class, 'edit'])->middleware('auth')->name('publicaciones.edit');
+Route::put('admin/publicaciones/update/{post}', [PublicacionesController::class, 'update'])->middleware('auth')->name('publicaciones.update');
+Route::delete('admin/publicaciones/destroy/{post}', [PublicacionesController::class, 'destroy'])->middleware('auth')->name('publicaciones.destroy');
 
 
 // Rutas CRUD para los 'usuarios'
