@@ -34,6 +34,7 @@
                                     Registrarme
                                 </button>
                             </form>
+                            
                         </div>
                     </div>
                 </div>

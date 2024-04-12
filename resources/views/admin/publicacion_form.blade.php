@@ -5,6 +5,9 @@
 @section('contenido_principal')
     <h1>Formulario de publicaciones</h1>
     <form action="{{ route('publicaciones.store') }}" method="POST">
+        <input type="hidden" name="IdCuenta" value="1">
+        <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
+        <input type="hidden" name="Clase" value="{{$_GET['clase']}}">
         @csrf
         <div class="form-group">
             <label for="Titulo">Titulo de la publicación</label>
@@ -27,14 +30,6 @@
             <textarea name="Keywords" class="form-control"rows="10"></textarea>
         </div>
         <div class="form-group">
-            <label for="Clase">Clase de publicacion</label>
-            <select class="form-control" name="Clase">
-                @foreach ($clases as $clase)
-                    <option value="{{ $clase->nombre_sistema }}" > {{ $clase->nombre_singular}}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group">
             <label for="Destacar">Destacar</label>
             <select name="Destacar" id="Destacar" class="form-control">
                 <option value="si">Si</option>
@@ -48,6 +43,7 @@
                 <option value="inactivo">Inactivo</option>
             </select>
         </div>
+        <hr>
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 @endsection

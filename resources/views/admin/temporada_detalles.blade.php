@@ -4,33 +4,180 @@
 
 @section('contenido_principal')
     <h1>Detalles de la temporada <small>{{$temporada->nombre}}</small></h1>
-    <table class="table table-stripped">
-        <tr>
-            <td>Nombre</td>
-            <td>{{$temporada->nombre}}</td>
-        </tr>
-        <tr>
-            <td>Descripción</td>
-            <td>{{$temporada->descripcion}}</td>
-        </tr>
-        <tr>
-            <td>Titulo para Landing</td>
-            <td>{{$temporada->titulo_landing}}</td>
-        </tr>
-        <tr>
-            <td>Mensaje para Landing</td>
-            <td>{{$temporada->mensaje_landing}}</td>
-        </tr>
-        <tr>
-            <td>Fecha Inicio</td>
-            <td>{{$temporada->fecha_inicio}}</td>
-        </tr>
-        <tr>
-            <td>Fecha Final</td>
-            <td>{{$temporada->fecha_final}}</td>
-        </tr>
+    <hr>
+    <a href="{{ route('temporadas', ['id_cuenta'=> $temporada->id_cuenta]) }}">Lista de temporadas</a>
+    <hr>
+    <div class="row">
+        <div class="col-12 mb-3"><h2>Actividades</h2></div>
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Detalles</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Descripción</b></td>
+                        <td>{{$temporada->descripcion}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Fecha Inicio</b></td>
+                        <td>{{$temporada->fecha_inicio}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Fecha Final</b></td>
+                        <td>{{$temporada->fecha_final}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Sesiones</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Publicadas</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Pendientes</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista de sesiones</a>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Trivias</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Publicadas</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Pendientes</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('trivias', ['id_temporada'=> $temporada->id]) }}">Lista de trivias</a>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Jackpot</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Publicadas</b></td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><b>Pendientes</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('jackpots', ['id_temporada'=> $temporada->id]) }}">Lista de jackpots</a>
+            </div>
+            
+        </div>
 
-    </table>
-    <a href="{{ route('temporadas') }}">Lista de temporadas</a>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-12 mb-3"><h2>Contenido</h2></div>
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Páginas</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Preguntas frecuentes</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Notificaciones</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    
+    <hr>
+    <div class="row">
+        <div class="col-12 mb-3"><h2>Participantes</h2></div>
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Distribuidores</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Usuarios</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Líderes</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    
+    
 
 @endsection

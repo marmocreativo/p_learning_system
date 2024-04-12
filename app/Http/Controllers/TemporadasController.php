@@ -15,7 +15,8 @@ class TemporadasController extends Controller
     public function index(Request $request)
     {
         //
-        $temporadas = Temporada::paginate();
+        $id_cuenta = $request->input('id_cuenta');
+        $temporadas = Temporada::where('id_cuenta', $id_cuenta)->paginate();
         return view('admin/temporada_lista', compact('temporadas'));
     }
 
@@ -101,5 +102,21 @@ class TemporadasController extends Controller
         $temporada = Temporada::find($id);
         $temporada->delete();
         return redirect()->route('temporadas');
+    }
+
+    /* FUNCIONES API */
+    public function show_api(Request $request)
+    {
+        //
+        $temporada = Temporada::find($request->id);
+        return response()->json($temporada);
+        //return 'Hola';  
+    }
+
+    public function lista_api(Request $request)
+    {
+        //
+        $temporadas = Temporada::where('id_cuenta', $request->id_cuenta)->get();
+        return response()->json($temporadas);
     }
 }

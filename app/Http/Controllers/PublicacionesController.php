@@ -14,7 +14,9 @@ class PublicacionesController extends Controller
     public function index(Request $request)
     {
         //
-        $publicaciones = Publicacion::paginate();
+        $id_temporada = $request->input('id_temporada');
+        $clase = $request->input('clase');
+        $publicaciones = Publicacion::where(['id_temporada' => $id_temporada, 'clase' => $clase])->paginate();
         return view('admin/publicacion_lista', compact('publicaciones'));
     }
 
@@ -36,6 +38,8 @@ class PublicacionesController extends Controller
         //
         $publicacion = new Publicacion();
 
+        $publicacion->id_cuenta = $request->IdCuenta;
+        $publicacion->id_temporada = $request->IdTemporada;
         $publicacion->titulo = $request->Titulo;
         $publicacion->url = $request->Url;
         $publicacion->descripcion = $request->Descripcion;

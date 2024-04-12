@@ -8,6 +8,9 @@ use App\Http\Controllers\CuentasController;
 use App\Http\Controllers\DistribuidoresController;
 use App\Http\Controllers\TemporadasController;
 use App\Http\Controllers\PublicacionesController;
+use App\Http\Controllers\SesionesController;
+use App\Http\Controllers\TriviasController;
+use App\Http\Controllers\JackpotsController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ConfiguracionesController;
 use App\Http\Controllers\ClasesController;
@@ -94,6 +97,33 @@ Route::get('admin/publicaciones/{post}', [PublicacionesController::class, 'show'
 Route::get('admin/publicaciones/edit/{post}', [PublicacionesController::class, 'edit'])->middleware('auth')->name('publicaciones.edit');
 Route::put('admin/publicaciones/update/{post}', [PublicacionesController::class, 'update'])->middleware('auth')->name('publicaciones.update');
 Route::delete('admin/publicaciones/destroy/{post}', [PublicacionesController::class, 'destroy'])->middleware('auth')->name('publicaciones.destroy');
+
+// Rutas CRUD para las'sesiones'
+Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('auth')->name('sesiones');
+Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->middleware('auth')->name('sesiones.create');
+Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
+Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
+Route::get('admin/sesiones/edit/{post}', [SesionesController::class, 'edit'])->middleware('auth')->name('sesiones.edit');
+Route::put('admin/sesiones/update/{post}', [SesionesController::class, 'update'])->middleware('auth')->name('sesiones.update');
+Route::delete('admin/sesiones/destroy/{post}', [SesionesController::class, 'destroy'])->middleware('auth')->name('sesiones.destroy');
+
+// Rutas CRUD para las'trivias'
+Route::get('admin/trivias', [TriviasController::class, 'index'])->middleware('auth')->name('trivias');
+Route::get('admin/trivias/create', [TriviasController::class, 'create'])->middleware('auth')->name('trivias.create');
+Route::post('admin/trivias/store', [TriviasController::class, 'store'])->middleware('auth')->name('trivias.store');
+Route::get('admin/trivias/{post}', [TriviasController::class, 'show'])->middleware('auth')->name('trivias.show');
+Route::get('admin/trivias/edit/{post}', [TriviasController::class, 'edit'])->middleware('auth')->name('trivias.edit');
+Route::put('admin/trivias/update/{post}', [TriviasController::class, 'update'])->middleware('auth')->name('trivias.update');
+Route::delete('admin/trivias/destroy/{post}', [TriviasController::class, 'destroy'])->middleware('auth')->name('trivias.destroy');
+
+// Rutas CRUD para las'trivias'
+Route::get('admin/jackpots', [JackpotsController::class, 'index'])->middleware('auth')->name('jackpots');
+Route::get('admin/jackpots/create', [JackpotsController::class, 'create'])->middleware('auth')->name('jackpots.create');
+Route::post('admin/jackpots/store', [JackpotsController::class, 'store'])->middleware('auth')->name('jackpots.store');
+Route::get('admin/jackpots/{post}', [JackpotsController::class, 'show'])->middleware('auth')->name('jackpots.show');
+Route::get('admin/jackpots/edit/{post}', [JackpotsController::class, 'edit'])->middleware('auth')->name('jackpots.edit');
+Route::put('admin/jackpots/update/{post}', [JackpotsController::class, 'update'])->middleware('auth')->name('jackpots.update');
+Route::delete('admin/jackpots/destroy/{post}', [JackpotsController::class, 'destroy'])->middleware('auth')->name('jackpots.destroy');
 
 
 // Rutas CRUD para los 'usuarios'

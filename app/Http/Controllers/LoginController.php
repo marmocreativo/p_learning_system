@@ -83,5 +83,61 @@ class LoginController extends Controller
         
     }
 
+    public function login_api(Request $request){
+
+        // validation
+        $credentials = [
+            "email"=> $request->Email,
+            "password"=> $request->Password,
+            //"estado"=> 'activo'
+        ];
+
+        //$remember = ($request->has('remember') ? true : false);
+        $remember = false;
+
+        if(Auth::attempt($credentials, $remember)){
+
+            $user = User::where('email', $request->Email)->firstOrFail();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'message' => 'Hola '.$user->nombre,
+                'accessToken' => $token,
+                'token_type' => 'Bearer',
+                'user'=>$user,
+            ]);
+
+        }else{
+            
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        
+    }
+
+    public function check_login_api(Request $request){
+
+        // Obtén el usuario autenticado
+        $user = Auth::user();
+
+        // O, si necesitas el ID del usuario, puedes obtenerlo así:
+        // $userId = $request->user()->id;
+        // $user = User::find($userId);
+
+        // Retorna los datos del usuario
+        return response()->json([
+            'user' => $user
+        ]);
+    }
+
+    public function logout_api()
+    {
+        auth()->user()->tokens()->delete();
+        return [
+            'message'=> 'Has cerrado sesión correctamente'
+        ];
+    }
+
     
 }
