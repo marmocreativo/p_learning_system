@@ -99,7 +99,19 @@
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Contenido</h2></div>
-        <div class="col-4">
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Sliders</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <a href="{{ route('sliders', ['id_temporada'=> $temporada->id]) }}">Lista de sliders</a>
+            </div>
+        </div>
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Páginas</h4>
                 <table class="table table-bordered table-sm">
@@ -111,8 +123,7 @@
                 <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
             </div>
         </div>
-        
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Preguntas frecuentes</h4>
                 <table class="table table-bordered table-sm">
@@ -124,7 +135,10 @@
                 <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
             </div>
         </div>
-        <div class="col-4">
+        
+        
+        
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Notificaciones</h4>
                 <table class="table table-bordered table-sm">
@@ -133,6 +147,7 @@
                         <td>{{$temporada->nombre}}</td>
                     </tr>
                 </table>
+                <a href="{{ route('notificaciones', ['id_temporada'=> $temporada->id]) }}">Lista de notificaciones</a>
             </div>
         </div>
 
@@ -141,7 +156,7 @@
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Participantes</h2></div>
-        <div class="col-4">
+        <div class="col-6">
             <div class="card card-body">
                 <h4>Distribuidores</h4>
                 <table class="table table-bordered table-sm">
@@ -150,29 +165,20 @@
                         <td>{{$temporada->nombre}}</td>
                     </tr>
                 </table>
+                <a href="{{ route('distribuidores.suscritos', ['id_temporada'=> $temporada->id]) }}">Distribuidores suscritos</a>
             </div>
         </div>
         
-        <div class="col-4">
+        <div class="col-6">
             <div class="card card-body">
-                <h4>Usuarios</h4>
+                <h4>Usuarios / Líderes</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Nombre</b></td>
                         <td>{{$temporada->nombre}}</td>
                     </tr>
                 </table>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card card-body">
-                <h4>Líderes</h4>
-                <table class="table table-bordered table-sm">
-                    <tr>
-                        <td><b>Nombre</b></td>
-                        <td>{{$temporada->nombre}}</td>
-                    </tr>
-                </table>
+                <a href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Usuarios suscritos</a>
             </div>
         </div>
 

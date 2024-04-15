@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class PublicacionesController extends Controller
 {
-/**
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -116,5 +116,23 @@ class PublicacionesController extends Controller
         $publicacion = Publicacion::find($id);
         $publicacion->delete();
         return redirect()->route('publicaciones');
+    }
+
+    /**
+     * Funciones API
+     */
+    public function lista_api (Request $request)
+    {
+        //
+        $id_temporada = $request->input('id_temporada');
+        $clase = $request->input('clase');
+        $publicaciones = Publicacion::where('id_temporada', $id_temporada)->where('clase', $id_temporada)->get();
+        return response()->json($publicaciones);
+    }
+    public function datos_publicacion_api(Request $request)
+    {
+        //
+        $publicacion = Publicacion::find($request->input('id'));
+        return response()->json($publicacion);
     }
 }

@@ -36,6 +36,9 @@ Route::get('datos_sesion', [SesionesController::class, 'datos_sesion_api'])->nam
 Route::get('datos_trivia', [TriviasController::class, 'datos_trivia_api'])->name('datos_trivia.api');
 // Jackpot
 Route::get('datos_jackpot', [JackpotsController::class, 'datos_jackpot_api'])->name('datos_jackpot.api');
+// Páginas
+Route::get('lista_publicaciones', [PublicacionesController::class, 'lista_api'])->name('lista_publicaciones.api');
+Route::get('datos_publicacion', [PublicacionesController::class, 'datos_publicacion_api'])->name('datos_publicacion.api');
 
 
 Route::get('lista_temporadas', [TemporadasController::class, 'lista_api'])->name('lista_temporadas.api');

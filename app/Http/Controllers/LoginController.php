@@ -92,7 +92,10 @@ class LoginController extends Controller
             //"estado"=> 'activo'
         ];
 
+
+
         //$remember = ($request->has('remember') ? true : false);
+        
         $remember = false;
 
         if(Auth::attempt($credentials, $remember)){
@@ -112,6 +115,7 @@ class LoginController extends Controller
             
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+        
 
         
     }

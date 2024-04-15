@@ -8,6 +8,8 @@ use App\Http\Controllers\CuentasController;
 use App\Http\Controllers\DistribuidoresController;
 use App\Http\Controllers\TemporadasController;
 use App\Http\Controllers\PublicacionesController;
+use App\Http\Controllers\SlidersController;
+use App\Http\Controllers\NotificacionesController;
 use App\Http\Controllers\SesionesController;
 use App\Http\Controllers\TriviasController;
 use App\Http\Controllers\JackpotsController;
@@ -79,6 +81,10 @@ Route::get('admin/distribuidores/{post}', [DistribuidoresController::class, 'sho
 Route::get('admin/distribuidores/edit/{post}', [DistribuidoresController::class, 'edit'])->middleware('auth')->name('distribuidores.edit');
 Route::put('admin/distribuidores/update/{post}', [DistribuidoresController::class, 'update'])->middleware('auth')->name('distribuidores.update');
 Route::delete('admin/distribuidores/destroy/{post}', [DistribuidoresController::class, 'destroy'])->middleware('auth')->name('distribuidores.destroy');
+Route::get('admin/distribuidores_suscritos', [DistribuidoresController::class, 'distribuidores_suscritos'])->middleware('auth')->name('distribuidores.suscritos');
+Route::get('admin/distribuidores_suscritos/suscripcion', [DistribuidoresController::class, 'suscripcion'])->middleware('auth')->name('distribuidores_suscritos.suscripcion');
+Route::post('admin/distribuidores_suscritos/suscribir', [DistribuidoresController::class, 'suscribir'])->middleware('auth')->name('distribuidores_suscritos.suscribir');
+Route::delete('admin/distribuidores_suscritos/desuscribir/{post}', [DistribuidoresController::class, 'desuscribir'])->middleware('auth')->name('distribuidores_suscritos.desuscribir');
 
 // Rutas CRUD para las'temporadas'
 Route::get('admin/temporadas', [TemporadasController::class, 'index'])->middleware('auth')->name('temporadas');
@@ -116,7 +122,7 @@ Route::get('admin/trivias/edit/{post}', [TriviasController::class, 'edit'])->mid
 Route::put('admin/trivias/update/{post}', [TriviasController::class, 'update'])->middleware('auth')->name('trivias.update');
 Route::delete('admin/trivias/destroy/{post}', [TriviasController::class, 'destroy'])->middleware('auth')->name('trivias.destroy');
 
-// Rutas CRUD para las'trivias'
+// Rutas CRUD para las'jackpots'
 Route::get('admin/jackpots', [JackpotsController::class, 'index'])->middleware('auth')->name('jackpots');
 Route::get('admin/jackpots/create', [JackpotsController::class, 'create'])->middleware('auth')->name('jackpots.create');
 Route::post('admin/jackpots/store', [JackpotsController::class, 'store'])->middleware('auth')->name('jackpots.store');
@@ -125,15 +131,43 @@ Route::get('admin/jackpots/edit/{post}', [JackpotsController::class, 'edit'])->m
 Route::put('admin/jackpots/update/{post}', [JackpotsController::class, 'update'])->middleware('auth')->name('jackpots.update');
 Route::delete('admin/jackpots/destroy/{post}', [JackpotsController::class, 'destroy'])->middleware('auth')->name('jackpots.destroy');
 
+// Rutas CRUD para las'sliders'
+Route::get('admin/sliders', [SlidersController::class, 'index'])->middleware('auth')->name('sliders');
+Route::get('admin/sliders/create', [SlidersController::class, 'create'])->middleware('auth')->name('sliders.create');
+Route::post('admin/sliders/store', [SlidersController::class, 'store'])->middleware('auth')->name('sliders.store');
+Route::get('admin/sliders/{post}', [SlidersController::class, 'show'])->middleware('auth')->name('sliders.show');
+Route::get('admin/sliders/edit/{post}', [SlidersController::class, 'edit'])->middleware('auth')->name('sliders.edit');
+Route::put('admin/sliders/update/{post}', [SlidersController::class, 'update'])->middleware('auth')->name('sliders.update');
+Route::delete('admin/sliders/destroy/{post}', [SlidersController::class, 'destroy'])->middleware('auth')->name('sliders.destroy');
+
+// Rutas CRUD para las'notificaciones'
+Route::get('admin/notificaciones', [NotificacionesController::class, 'index'])->middleware('auth')->name('notificaciones');
+Route::get('admin/notificaciones/create', [NotificacionesController::class, 'create'])->middleware('auth')->name('notificaciones.create');
+Route::post('admin/notificaciones/store', [NotificacionesController::class, 'store'])->middleware('auth')->name('notificaciones.store');
+Route::get('admin/notificaciones/{post}', [NotificacionesController::class, 'show'])->middleware('auth')->name('notificaciones.show');
+Route::get('admin/notificaciones/edit/{post}', [NotificacionesController::class, 'edit'])->middleware('auth')->name('notificaciones.edit');
+Route::put('admin/notificaciones/update/{post}', [NotificacionesController::class, 'update'])->middleware('auth')->name('notificaciones.update');
+Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::class, 'destroy'])->middleware('auth')->name('notificaciones.destroy');
+
 
 // Rutas CRUD para los 'usuarios'
 Route::get('admin/usuarios', [UsuariosController::class, 'index'])->middleware('auth')->name('admin_usuarios');
 Route::get('admin/usuarios/create', [UsuariosController::class, 'create'])->middleware('auth')->name('admin_usuarios.create');
 Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middleware('auth')->name('admin_usuarios.store');
+Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');
+Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcion'])->middleware('auth')->name('admin_usuarios.suscripcion');
+Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');
+
+Route::get('admin/usuarios/cambiar_a_lider', [UsuariosController::class, 'cambiar_a_lider'])->middleware('auth')->name('admin_usuarios.cambiar_a_lider');
+Route::get('admin/usuarios/cambiar_a_usuario', [UsuariosController::class, 'cambiar_a_usuario'])->middleware('auth')->name('admin_usuarios.cambiar_a_usuario');
+
 Route::get('admin/usuarios/{post}', [UsuariosController::class, 'show'])->middleware('auth')->name('admin_usuarios.show');
 Route::get('admin/usuarios/edit/{post}', [UsuariosController::class, 'edit'])->middleware('auth')->name('admin_usuarios.edit');
 Route::put('admin/usuarios/update/{post}', [UsuariosController::class, 'update'])->middleware('auth')->name('admin_usuarios.update');
 Route::delete('admin/usuarios/destroy/{post}', [UsuariosController::class, 'destroy'])->middleware('auth')->name('admin_usuarios.destroy');
+
+
+Route::delete('admin/usuarios/desuscribir/{post}', [UsuariosController::class, 'desuscribir'])->middleware('auth')->name('admin_usuarios.desuscribir');
 
 
 Route::get('usuarios/{id}', function ($id) {

@@ -3,6 +3,7 @@
 @section('titulo', 'Detalles del usuario')
 
 @section('contenido_principal')
+    @if($usuario)
     <h1>Detalles del usuario: <small>{{$usuario->nombre}}</small></h1>
     <table class="table table-stripped">
         <tr>
@@ -50,6 +51,7 @@
             <td>{{$usuario->updated_at}}</td>
         </tr>
     </table>
+    @endif
     <a href="{{ route('admin_usuarios') }}">Lista de usuarios</a>
 
 @endsection
