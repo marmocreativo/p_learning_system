@@ -13,7 +13,7 @@
             <div class="col-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3>{{$sesion->titulo}} </h3>
+                        <h3>#{{$sesion->id}}  {{$sesion->titulo}} </h3>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('sesiones.show', $sesion->id)}}">Ver contenido</a>

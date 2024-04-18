@@ -14,7 +14,7 @@
         </div>
         <div class="form-group">
             <label for="Contenido">Contenido</label>
-            <textarea name="Contenido" class="form-control" rows="10"></textarea>
+            <textarea name="Contenido" class="form-control TextEditor" rows="10"></textarea>
         </div>
         <div class="form-group">
             <label for="MostrarEn">Mostrar en </label>

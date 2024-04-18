@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
             <label for="Contenido">Contenido</label>
-            <textarea name="Contenido" class="form-control"rows="20"></textarea>
+            <textarea name="Contenido" class="form-control TextEditor" rows="20"></textarea>
         </div>
         <div class="form-group">
             <label for="Keywords">Keywords</label>

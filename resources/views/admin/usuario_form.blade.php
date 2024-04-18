@@ -56,6 +56,7 @@
                 <option value="inactivo">Inactivo</option>
             </select>
         </div>
+        <hr>
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 @endsection

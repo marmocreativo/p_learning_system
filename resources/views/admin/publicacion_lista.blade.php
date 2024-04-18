@@ -8,18 +8,30 @@
     <hr>
     <a href="{{ route('publicaciones.create', ['id_temporada'=>$_GET['id_temporada'], 'clase'=>$_GET['clase']]) }}">Crear Publicaciones</a>
     <hr>
-    <ul>
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>TITULO</th>
+            <th>CONTROLES</th>
+            <th>BORRAR</th>
+        </tr>
+    
         @foreach ($publicaciones as $publicacion)
-            <li>{{$publicacion->titulo}} 
-                <a href="{{route('publicaciones.show', $publicacion->id)}}">Ver detalles</a> |
-                <a href="{{route('publicaciones.edit', $publicacion->id)}}">Editar</a> |
-                <form action="{{route('publicaciones.destroy', $publicacion->id)}}" method="POST">
-                    @csrf
-                    @method('delete')
-                    <button type="submit" class="btn btn-link">Borrar</button>
-                </form></li>
+            <tr>
+                <td>{{$publicacion->id}}</td>
+                <td>{{$publicacion->titulo}}</td>
+                <td>
+                    <a href="{{route('publicaciones.show', $publicacion->id)}}">Ver detalles</a> |
+                    <a href="{{route('publicaciones.edit', $publicacion->id)}}">Editar</a> |
+                </td>
+                <td>
+                    <form action="{{route('publicaciones.destroy', $publicacion->id)}}" method="POST">
+                        @csrf
+                        @method('delete')
+                        <button type="submit" class="btn btn-link">Borrar</button>
+                    </form>
+                </td>
+            </tr>
         @endforeach
-        
-    </ul>
     {{$publicaciones->links()}}
 @endsection

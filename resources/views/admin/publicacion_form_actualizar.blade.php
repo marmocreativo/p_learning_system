@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Formulario de publicaciones</h1>
-    <form action="{{ route('publicaciones.update') }}" method="POST">
+    <form action="{{ route('publicaciones.update', $publicacion->id) }}" method="POST">
         @csrf
         @method('PUT')
         <div class="form-group">
@@ -13,15 +13,15 @@
         </div>
         <div class="form-group">
             <label for="Url">URL de la publicación</label>
-            <input type="text" class="form-control" name="Url" value="{{$url->titulo}}">
+            <input type="text" class="form-control" name="Url" value="{{$publicacion->url}}">
         </div>
         <div class="form-group">
             <label for="Descripcion">Descripción corta</label>
-            <textarea name="Descripcion" class="form-control"rows="10">value="{{$publicacion->descripcion}}"</textarea>
+            <textarea name="Descripcion" class="form-control"rows="10">{{$publicacion->descripcion}}</textarea>
         </div>
         <div class="form-group">
             <label for="Contenido">Contenido</label>
-            <textarea name="Contenido" class="form-control"rows="20">{{$publicacion->contenido}}</textarea>
+            <textarea name="Contenido" class="form-control TextEditor" rows="20">{{$publicacion->contenido}}</textarea>
         </div>
         <div class="form-group">
             <label for="Keywords">Keywords</label>

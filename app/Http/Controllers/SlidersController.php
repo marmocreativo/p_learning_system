@@ -120,5 +120,12 @@ class SlidersController extends Controller
         $sliders = Slider::where('id_temporada', $id_temporada)->get();
         return response()->json($sliders);
     }
+    public function datos_slider_api(Request $request)
+    {
+        //
+        $id_temporada = $request->input('id_temporada');
+        $slider = Slider::where('id_temporada', $id_temporada)->first();
+        return response()->json($slider);
+    }
 
 }

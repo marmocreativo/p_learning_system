@@ -235,4 +235,17 @@ class UsuariosController extends Controller
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
         
     }
+
+    public function usuarios_suscritos_api (Request $request)
+    {
+        //
+        $id_temporada = $request->input('id_temporada');
+        $suscripciones = DB::table('usuarios')
+            ->join('usuarios_suscripciones', 'usuarios.id', '=', 'usuarios_suscripciones.id_usuario')
+            ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
+            ->select('usuarios.*', 'usuarios_suscripciones.*')
+            ->get();
+        //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
+        return response()->json($suscripciones);
+    }
 }

@@ -77,7 +77,8 @@ class PublicacionesController extends Controller
     {
         //
         $publicacion = Publicacion::find($id);
-        return view('admin/publicacion_form_actualizar', compact('publicacion'));
+        $clases = Clase::where('elementos','publicaciones')->get();
+        return view('admin/publicacion_form_actualizar', compact('publicacion', 'clases'));
     }
 
     /**
@@ -126,7 +127,7 @@ class PublicacionesController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $clase = $request->input('clase');
-        $publicaciones = Publicacion::where('id_temporada', $id_temporada)->where('clase', $id_temporada)->get();
+        $publicaciones = Publicacion::where('id_temporada', $id_temporada)->where('clase', $clase)->get();
         return response()->json($publicaciones);
     }
     public function datos_publicacion_api(Request $request)

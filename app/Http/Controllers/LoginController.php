@@ -122,17 +122,9 @@ class LoginController extends Controller
 
     public function check_login_api(Request $request){
 
-        // Obtén el usuario autenticado
-        $user = Auth::user();
+        $user = User::find($request->input('id'));
+        return response()->json($user);
 
-        // O, si necesitas el ID del usuario, puedes obtenerlo así:
-        // $userId = $request->user()->id;
-        // $user = User::find($userId);
-
-        // Retorna los datos del usuario
-        return response()->json([
-            'user' => $user
-        ]);
     }
 
     public function logout_api()
