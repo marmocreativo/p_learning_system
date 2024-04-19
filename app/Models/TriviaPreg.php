@@ -9,4 +9,5 @@ class TriviaPreg extends Model
 {
     protected $table = 'trivias_preguntas';
     use HasFactory;
+    public $timestamps = false;
 }

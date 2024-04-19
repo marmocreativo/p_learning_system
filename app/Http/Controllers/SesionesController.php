@@ -86,7 +86,8 @@ class SesionesController extends Controller
     {
         //
         $sesion = SesionEv::find($id);
-        return view('admin/sesion_detalles', compact('sesion'));
+        $preguntas = EvaluacionPreg::where('id_sesion',$id)->get();
+        return view('admin/sesion_detalles', compact('sesion', 'preguntas'));
     }
 
     /**
@@ -162,6 +163,70 @@ class SesionesController extends Controller
         $sesion->delete();
         return redirect()->route('sesiones', ['id_temporada'=>$id_temporada]);
     }
+
+    /**
+     * Funciones evaluaciones
+     */
+
+     public function store_pregunta(Request $request)
+    {
+        //
+        $pregunta = new EvaluacionPreg();
+
+        $pregunta->id_sesion = $request->IdSesion;
+        $pregunta->pregunta = $request->Pregunta;
+        $pregunta->respuesta_a = $request->RespuestaA;
+        $pregunta->respuesta_b = $request->RespuestaB;
+        $pregunta->respuesta_c = $request->RespuestaC;
+        $pregunta->respuesta_d = $request->RespuestaD;
+        $pregunta->resultado_a = $request->ResultadoA;
+        $pregunta->resultado_b = $request->ResultadoB;
+        $pregunta->resultado_c = $request->ResultadoC;
+        $pregunta->resultado_d = $request->ResultadoD;
+        $pregunta->orden = 0;
+        
+
+        $pregunta->save();
+
+        return redirect()->route('sesiones.show', $request->IdSesion);
+    }
+
+    public function update_pregunta(Request $request, string $id)
+    {
+        //
+
+         //
+         $pregunta = EvaluacionPreg::find($id);
+
+        $pregunta->id_sesion = $request->IdSesion;
+        $pregunta->pregunta = $request->Pregunta;
+        $pregunta->respuesta_a = $request->RespuestaA;
+        $pregunta->respuesta_b = $request->RespuestaB;
+        $pregunta->respuesta_c = $request->RespuestaC;
+        $pregunta->respuesta_d = $request->RespuestaD;
+        $pregunta->resultado_a = $request->ResultadoA;
+        $pregunta->resultado_b = $request->ResultadoB;
+        $pregunta->resultado_c = $request->ResultadoC;
+        $pregunta->resultado_d = $request->ResultadoD;
+ 
+         $pregunta->save();
+
+         return redirect()->route('sesiones.show', $pregunta->id_sesion);
+    }
+
+    public function destroy_pregunta(string $id)
+    {
+        //
+        $pregunta = EvaluacionPreg::findOrFail($id);
+        $id_sesion =  $pregunta->id_sesion;
+        // Buscar y eliminar registros relacionados en otras tablas
+        EvaluacionRes::where('id_evaluacion', $id)->delete();
+
+
+        $pregunta->delete();
+        return redirect()->route('sesiones.show', $id_sesion);
+    }
+
 
     /**
      * Funciones API

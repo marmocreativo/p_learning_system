@@ -9,4 +9,5 @@ class TriviaRes extends Model
 {
     protected $table = 'trivias_respuestas';
     use HasFactory;
+    public $timestamps = false;
 }

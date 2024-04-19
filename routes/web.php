@@ -108,18 +108,24 @@ Route::delete('admin/publicaciones/destroy/{post}', [PublicacionesController::cl
 Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('auth')->name('sesiones');
 Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->middleware('auth')->name('sesiones.create');
 Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
+Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_pregunta'])->middleware('auth')->name('sesiones.store_pregunta');
 Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
 Route::get('admin/sesiones/edit/{post}', [SesionesController::class, 'edit'])->middleware('auth')->name('sesiones.edit');
+Route::put('admin/sesiones/update_pregunta/{post}', [SesionesController::class, 'update_pregunta'])->middleware('auth')->name('sesiones.update_pregunta');
 Route::put('admin/sesiones/update/{post}', [SesionesController::class, 'update'])->middleware('auth')->name('sesiones.update');
+Route::delete('admin/sesiones/destroy_pregunta/{post}', [SesionesController::class, 'destroy_pregunta'])->middleware('auth')->name('sesiones.destroy_pregunta');
 Route::delete('admin/sesiones/destroy/{post}', [SesionesController::class, 'destroy'])->middleware('auth')->name('sesiones.destroy');
 
 // Rutas CRUD para las'trivias'
 Route::get('admin/trivias', [TriviasController::class, 'index'])->middleware('auth')->name('trivias');
 Route::get('admin/trivias/create', [TriviasController::class, 'create'])->middleware('auth')->name('trivias.create');
+Route::post('admin/trivias/store_pregunta', [TriviasController::class, 'store_pregunta'])->middleware('auth')->name('trivias.store_pregunta');
 Route::post('admin/trivias/store', [TriviasController::class, 'store'])->middleware('auth')->name('trivias.store');
 Route::get('admin/trivias/{post}', [TriviasController::class, 'show'])->middleware('auth')->name('trivias.show');
 Route::get('admin/trivias/edit/{post}', [TriviasController::class, 'edit'])->middleware('auth')->name('trivias.edit');
+Route::put('admin/trivias/update_pregunta/{post}', [TriviasController::class, 'update_pregunta'])->middleware('auth')->name('trivias.update_pregunta');
 Route::put('admin/trivias/update/{post}', [TriviasController::class, 'update'])->middleware('auth')->name('trivias.update');
+Route::delete('admin/trivias/destroy_pregunta/{post}', [TriviasController::class, 'destroy_pregunta'])->middleware('auth')->name('trivias.destroy_pregunta');
 Route::delete('admin/trivias/destroy/{post}', [TriviasController::class, 'destroy'])->middleware('auth')->name('trivias.destroy');
 
 // Rutas CRUD para las'jackpots'
