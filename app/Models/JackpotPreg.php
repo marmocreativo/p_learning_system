@@ -9,4 +9,5 @@ class JackpotPreg extends Model
 {
     use HasFactory;
     protected $table = "jackpot_preguntas";
+    public $timestamps = false;
 }

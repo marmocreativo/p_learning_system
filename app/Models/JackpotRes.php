@@ -9,4 +9,5 @@ class JackpotRes extends Model
 {
     use HasFactory;
     protected $table = "jackpot_respuestas";
+    public $timestamps = false;
 }

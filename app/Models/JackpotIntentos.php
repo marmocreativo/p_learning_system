@@ -9,4 +9,5 @@ class JackpotIntentos extends Model
 {
     use HasFactory;
     protected $table = "jackpot_intentos";
+    
 }

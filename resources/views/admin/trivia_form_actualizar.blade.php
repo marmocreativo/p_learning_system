@@ -36,7 +36,7 @@
                     <label for="Estado">Estado</label>
                     <select name="Estado" id="Estado" class="form-control">
                         <option value="activo" @if($trivia->estado == 'activo') selected @endif >Activo</option>
-                        <option value="inactivo" @if($trivia->estado == 'activo') selected @endif >Inactivo</option>
+                        <option value="inactivo" @if($trivia->estado == 'inactivo') selected @endif >Inactivo</option>
                     </select>
                 </div>
                 <hr>

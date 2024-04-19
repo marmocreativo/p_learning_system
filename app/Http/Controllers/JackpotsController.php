@@ -45,11 +45,14 @@ class JackpotsController extends Controller
          $jackpot->id_cuenta = $request->IdCuenta;
          $jackpot->id_temporada = $request->IdTemporada;
          $jackpot->titulo = $request->Titulo;
+         $jackpot->mensaje_antes = $request->MensajeAntes;
+         $jackpot->mensaje_despues = $request->MensajeDespues;
          
          $jackpot->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
          $jackpot->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaVigencia.' '.$request->HoraVigencia));
          $jackpot->intentos = $request->Intentos;
          $jackpot->trivia = $request->Trivia;
+         $jackpot->estado = $request->Estado;
  
          $jackpot->save();
  
@@ -64,7 +67,8 @@ class JackpotsController extends Controller
         //
         //
         $jackpot = Jackpot::find($id);
-        return view('admin/jackpot_detalles', compact('jackpot'));
+        $preguntas = JackpotPreg::where('id_jackpot',$id)->get();
+        return view('admin/jackpot_detalles', compact('jackpot', 'preguntas'));
     }
 
     /**
@@ -73,6 +77,10 @@ class JackpotsController extends Controller
     public function edit(string $id)
     {
         //
+        
+        //
+        $jackpot = Jackpot::find($id);
+        return view('admin/jackpot_form_actualizar', compact('jackpot'));
     }
 
     /**
@@ -81,6 +89,23 @@ class JackpotsController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $jackpot = Jackpot::find($id);
+        $jackpot->id_cuenta = $request->IdCuenta;
+         $jackpot->id_temporada = $request->IdTemporada;
+         $jackpot->titulo = $request->Titulo;
+         $jackpot->mensaje_antes = $request->MensajeAntes;
+         $jackpot->mensaje_despues = $request->MensajeDespues;
+         
+         $jackpot->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
+         $jackpot->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaVigencia.' '.$request->HoraVigencia));
+         $jackpot->intentos = $request->Intentos;
+         $jackpot->trivia = $request->Trivia;
+         $jackpot->estado = $request->Estado;
+ 
+         $jackpot->save();
+
+         return redirect()->route('jackpots.show', $jackpot->id);
+
     }
 
     /**
@@ -100,6 +125,62 @@ class JackpotsController extends Controller
          $jackpot->delete();
          return redirect()->route('jackpots', ['id_temporada'=>$id_temporada]);
     }
+
+    /**
+     * Funciones de preguntas
+     */
+
+     public function store_pregunta(Request $request)
+    {
+        //
+         //
+         $pregunta = new JackpotPreg();
+
+        $pregunta->id_jackpot = $request->IdJackpot;
+        $pregunta->pregunta = $request->Pregunta;
+        $pregunta->respuesta_a = $request->RespuestaA;
+        $pregunta->respuesta_b = $request->RespuestaB;
+        $pregunta->respuesta_c = $request->RespuestaC;
+        $pregunta->respuesta_d = $request->RespuestaD;
+        $pregunta->respuesta_correcta = $request->RespuestaCorrecta;
+        $pregunta->orden = 0;
+
+        $pregunta->save();
+ 
+        return redirect()->route('jackpots.show', $pregunta->id_jackpot);
+    }
+
+    public function update_pregunta(Request $request, string $id)
+    {
+        //
+         $pregunta = JackpotPreg::find($id);
+
+         $pregunta->id_jackpot = $request->IdJackpot;
+         $pregunta->pregunta = $request->Pregunta;
+         $pregunta->respuesta_a = $request->RespuestaA;
+         $pregunta->respuesta_b = $request->RespuestaB;
+         $pregunta->respuesta_c = $request->RespuestaC;
+         $pregunta->respuesta_d = $request->RespuestaD;
+         $pregunta->respuesta_correcta = $request->RespuestaCorrecta;
+         $pregunta->orden = 0;
+ 
+         $pregunta->save();
+
+         return redirect()->route('jackpots.show', $pregunta->id_jackpot);
+    }
+
+    public function destroy_pregunta(string $id)
+    {
+        //
+        $pregunta = JackpotPreg::findOrFail($id);
+        $id_jackpot = $pregunta->id_jackpot;
+        // Buscar y eliminar registros relacionados en otras tablas
+        JackpotRes::where('id_pregunta', $pregunta->id)->delete();
+
+        $pregunta->delete();
+        return redirect()->route('jackpots.show', $id_jackpot);
+    }
+
 
     /**
      * Funciones API

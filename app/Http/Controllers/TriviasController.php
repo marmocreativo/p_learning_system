@@ -172,7 +172,7 @@ class TriviasController extends Controller
         $pregunta = TriviaPreg::findOrFail($id);
         $id_trivia = $pregunta->id_trivia;
         // Buscar y eliminar registros relacionados en otras tablas
-        TriviaRes::where('id_trivia', $id_trivia)->delete();
+        TriviaRes::where('id_pregunta', $pregunta->id)->delete();
 
         $pregunta->delete();
         return redirect()->route('trivias.show', $id_trivia);

@@ -1,5 +1,7 @@
 <?php
 
+
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use App\Models\EvaluacionRes;
 use App\Models\Publicacion;
 use App\Models\Clase;
 use App\Models\Temporada;
+
 
 
 class SesionesController extends Controller
@@ -44,12 +47,50 @@ class SesionesController extends Controller
         //
         $sesion = new SesionEv();
 
+        // Validar la solicitud
+       $request->validate([
+        'Imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenFondo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenInstructor' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+
+        // Guardar la imagen en la carpeta publicaciones
+        
+        
+        
+        
+        
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = 'default.jpg';
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = 'default.jpg';
+        }
+        if ($request->hasFile('ImagenInstructor')) {
+            $imagen_instructor = $request->file('ImagenInstructor');
+            $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
+            $imagen_instructor->move(public_path('img/publicaciones'), $nombreImagenInstructor);
+        }else{
+            $nombreImagenInstructor = 'default.jpg';
+        }
+
         $sesion->id_cuenta = $request->IdCuenta;
         $sesion->id_temporada = $request->IdTemporada;
         $sesion->titulo = $request->Titulo;
         $sesion->descripcion = $request->Descripcion;
         $sesion->contenido = $request->Contenido;
         $sesion->nombre_instructor = $request->NombreInstructor;
+        $sesion->puesto_instructor = $request->PuestoInstructor;
+        $sesion->bio_instructor = $request->BioInstructor;
+        $sesion->correo_instructor = $request->CorreoInstructor;
         $sesion->duracion_aproximada = $request->DuracionAproximada;
         $sesion->video_1 = $request->IdVideo1;
         $sesion->video_2 = $request->IdVideo2;
@@ -70,8 +111,9 @@ class SesionesController extends Controller
         $sesion->preguntas_puntaje_estreno = $request->PreguntasPuntajeEstreno;
         $sesion->horas_estreno = $request->HorasEstreno;
         $sesion->evaluacion_obligatoria = $request->EvaluacionObligatoria;
-        $sesion->imagen = 'default.jpg';
-        $sesion->imagen_fondo = 'fondo_default.jpg';
+        $sesion->imagen = $nombreImagen;
+         $sesion->imagen_fondo = $nombreImagenFondo;
+         $sesion->imagen_instructor = $nombreImagenInstructor;
         $sesion->estado = $request->Estado;
 
         $sesion->save();
@@ -107,9 +149,45 @@ class SesionesController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $sesion = SesionEv::find($id);
+       // Validar la solicitud
+       $request->validate([
+        'Imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenFondo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenInstructor' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
 
-         //
-         $sesion = SesionEv::find($id);
+        // Guardar la imagen en la carpeta publicaciones
+        
+        
+        
+        
+        
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $sesion->imagen;
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = $sesion->imagen_fondo;
+        }
+        if ($request->hasFile('ImagenInstructor')) {
+            $imagen_instructor = $request->file('ImagenInstructor');
+            $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
+            $imagen_instructor->move(public_path('img/publicaciones'), $nombreImagenInstructor);
+        }else{
+            $nombreImagenInstructor = $sesion->imagen_instructor;
+        }
+        
+        
+
+        
 
          $sesion->id_cuenta = $request->IdCuenta;
          $sesion->id_temporada = $request->IdTemporada;
@@ -117,6 +195,9 @@ class SesionesController extends Controller
          $sesion->descripcion = $request->Descripcion;
          $sesion->contenido = $request->Contenido;
          $sesion->nombre_instructor = $request->NombreInstructor;
+         $sesion->puesto_instructor = $request->PuestoInstructor;
+            $sesion->bio_instructor = $request->BioInstructor;
+            $sesion->correo_instructor = $request->CorreoInstructor;
          $sesion->duracion_aproximada = $request->DuracionAproximada;
          $sesion->video_1 = $request->IdVideo1;
          $sesion->video_2 = $request->IdVideo2;
@@ -137,13 +218,15 @@ class SesionesController extends Controller
          $sesion->preguntas_puntaje_estreno = $request->PreguntasPuntajeEstreno;
          $sesion->horas_estreno = $request->HorasEstreno;
          $sesion->evaluacion_obligatoria = $request->EvaluacionObligatoria;
-         $sesion->imagen = 'default.jpg';
-         $sesion->imagen_fondo = 'fondo_default.jpg';
+         $sesion->imagen = $nombreImagen;
+         $sesion->imagen_fondo = $nombreImagenFondo;
+         $sesion->imagen_instructor = $nombreImagenInstructor;
          $sesion->estado = $request->Estado;
  
          $sesion->save();
 
          return redirect()->route('sesiones.show', $sesion->id);
+         
     }
 
     /**
@@ -220,7 +303,7 @@ class SesionesController extends Controller
         $pregunta = EvaluacionPreg::findOrFail($id);
         $id_sesion =  $pregunta->id_sesion;
         // Buscar y eliminar registros relacionados en otras tablas
-        EvaluacionRes::where('id_evaluacion', $id)->delete();
+        EvaluacionRes::where('id_pregunta', $pregunta->id)->delete();
 
 
         $pregunta->delete();

@@ -131,11 +131,14 @@ Route::delete('admin/trivias/destroy/{post}', [TriviasController::class, 'destro
 // Rutas CRUD para las'jackpots'
 Route::get('admin/jackpots', [JackpotsController::class, 'index'])->middleware('auth')->name('jackpots');
 Route::get('admin/jackpots/create', [JackpotsController::class, 'create'])->middleware('auth')->name('jackpots.create');
+Route::post('admin/jackpots/store_pregunta', [JackpotsController::class, 'store_pregunta'])->middleware('auth')->name('jackpots.store_pregunta');
 Route::post('admin/jackpots/store', [JackpotsController::class, 'store'])->middleware('auth')->name('jackpots.store');
 Route::get('admin/jackpots/{post}', [JackpotsController::class, 'show'])->middleware('auth')->name('jackpots.show');
 Route::get('admin/jackpots/edit/{post}', [JackpotsController::class, 'edit'])->middleware('auth')->name('jackpots.edit');
+Route::put('admin/jackpots/update_pregunta/{post}', [JackpotsController::class, 'update_pregunta'])->middleware('auth')->name('jackpots.update_pregunta');
 Route::put('admin/jackpots/update/{post}', [JackpotsController::class, 'update'])->middleware('auth')->name('jackpots.update');
 Route::delete('admin/jackpots/destroy/{post}', [JackpotsController::class, 'destroy'])->middleware('auth')->name('jackpots.destroy');
+Route::delete('admin/jackpots/destroy_pregunta/{post}', [JackpotsController::class, 'destroy_pregunta'])->middleware('auth')->name('jackpots.destroy_pregunta');
 
 // Rutas CRUD para las'sliders'
 Route::get('admin/sliders', [SlidersController::class, 'index'])->middleware('auth')->name('sliders');

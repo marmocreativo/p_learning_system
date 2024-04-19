@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Formulario de sesiones</h1>
-    <form action="{{ route('sesiones.update', $sesion->id) }}" method="POST">
+    <form action="{{ route('sesiones.update', $sesion->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <input type="hidden" name="IdCuenta" value="{{$sesion->id_cuenta}}">
@@ -101,8 +101,37 @@
             </div>
             <div class="col-4">
                 <div class="form-group">
+                    <label for="Imagen">Imagen</label>
+                    <input type="file" class="form-control" name="Imagen" >
+                </div>
+
+                <div class="form-group">
+                    <label for="ImagenFondo">Imagen Video</label>
+                    <input type="file" class="form-control" name="ImagenFondo" >
+                </div>
+                <hr>
+                <h5>Instructor</h5>
+                <div class="form-group">
+                    <label for="ImagenInstructor">Imagen Instructor</label>
+                    <input type="file" class="form-control" name="ImagenInstructor" >
+                </div>
+
+
+                <div class="form-group">
                     <label for="NombreInstructor">Instructor</label>
                     <input type="text" class="form-control" name="NombreInstructor" value="{{$sesion->nombre_instructor}}">
+                </div>
+                <div class="form-group">
+                    <label for="PuestoInstructor">Puesto</label>
+                    <input type="text" class="form-control" name="PuestoInstructor" value="{{$sesion->puesto_instructor}}">
+                </div>
+                <div class="form-group">
+                    <label for="BioInstructor">Bio Instructor</label>
+                    <textarea class="form-control" name="BioInstructor" id="BioInstructor" rows="5">{{$sesion->bio_instructor}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="Correoinstructor">Correo</label>
+                    <input type="text" class="form-control" name="Correoinstructor" value="{{$sesion->correo_instructor}}">
                 </div>
                 <div class="form-group">
                     <label for="DuracionAproximada">Duración Aprox</label>

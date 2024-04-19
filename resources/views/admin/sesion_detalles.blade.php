@@ -15,6 +15,9 @@
                 <tr>
                     <th>Título</th>
                     <td>{{$sesion->titulo}}</td>
+                    <td rowspan="4">
+                        <img class="img-fluid" src="{{ asset('img/publicaciones/'.$sesion->imagen) }}" alt="Ejemplo">
+                    </td>
                 </tr>
                 <tr>
                     <th>Descripción</th>
@@ -25,10 +28,6 @@
                     <td>{{$sesion->contenido}}</td>
                 </tr>
                 <tr>
-                    <th>Nombre del instructor</th>
-                    <td>{{$sesion->nombre_instructor}}</td>
-                </tr>
-                <tr>
                     <th>Duración aproximada</th>
                     <td>{{$sesion->duracion_aproximada}}</td>
                 </tr>
@@ -37,7 +36,10 @@
             <h5>Videos</h5>
             <table class="table table-bordered">
                 <tr>
-                    <th>Video</ 1th>
+                    <td colspan="4"> <img class="img-fluid" src="{{ asset('img/publicaciones/'.$sesion->imagen_fondo) }}" alt="Ejemplo"></td>
+                </tr>
+                <tr>
+                    <th>Video 1 </th>
                     <td>{{$sesion->video_1}}</td>
                     <th>Título</th>
                     <td>{{$sesion->titulo_video_1}}</td>
@@ -94,6 +96,28 @@
                 <tr>
                     <th>Evaluación obligatoria</th>
                     <td>{{$sesion->evaluacion_obligatoria}}</td>
+                </tr>
+            </table>
+            <h5>Instructor</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <td colspan="2"><img class="img-fluid" src="{{ asset('img/publicaciones/'.$sesion->imagen_instructor) }}" alt="Ejemplo"></td>
+                </tr>
+                <tr>
+                    <th>Nombre del instructor</th>
+                    <td>{{$sesion->nombre_instructor}}</td>
+                </tr>
+                <tr>
+                    <th>Puesto del instructor</th>
+                    <td>{{$sesion->puesto_instructor}}</td>
+                </tr>
+                <tr>
+                    <th>Bio del instructor</th>
+                    <td>{{$sesion->bio_instructor}}</td>
+                </tr>
+                <tr>
+                    <th>Correo del instructor</th>
+                    <td>{{$sesion->correo_instructor}}</td>
                 </tr>
             </table>
             <h5>Puntajes</h5>
