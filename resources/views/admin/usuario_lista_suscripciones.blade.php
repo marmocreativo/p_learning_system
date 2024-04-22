@@ -42,4 +42,10 @@
                 </tr>
         @endforeach
     </table>
+    <hr>
+    <form action="{{ route('upload.excel') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="excel_file">
+        <button type="submit">Subir archivo</button>
+    </form>
 @endsection

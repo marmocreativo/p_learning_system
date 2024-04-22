@@ -35,10 +35,24 @@ Route::get('prueba', function () {
 Route::get('lista_sesiones', [SesionesController::class, 'lista_api'])->name('lista_sesiones.api');
 Route::get('lista_sesiones_pendientes', [SesionesController::class, 'lista_pendientes_api'])->name('lista_temporadas.api');
 Route::get('datos_sesion', [SesionesController::class, 'datos_sesion_api'])->name('datos_sesion.api');
+Route::get('preguntas_sesion', [SesionesController::class, 'preguntas_sesion_api'])->name('preguntas_sesion.api');
+Route::get('respuestas_sesion', [SesionesController::class, 'respuestas_sesion_api'])->name('respuestas_sesion.api');
+Route::get('dudas_sesion', [SesionesController::class, 'dudas_sesion_api'])->name('dudas_sesion.api');
+Route::get('anexos_sesion', [SesionesController::class, 'anexos_sesion_api'])->name('anexos_sesion.api');
+Route::get('checar_visualizacion', [SesionesController::class, 'checar_visualizacion_api'])->name('checar_visualizacion.api');
+Route::post('registrar_visualizacion', [SesionesController::class, 'registrar_visualizacion_api'])->name('registrar_visualizacion.api');
+Route::post('registrar_respuestas_evaluacion', [SesionesController::class, 'registrar_respuestas_evaluacion_api'])->name('registrar_respuestas_evaluacion.api');
+Route::post('registrar_duda', [SesionesController::class, 'registrar_duda_api'])->name('registrar_duda.api');
 // trivia
 Route::get('datos_trivia', [TriviasController::class, 'datos_trivia_api'])->name('datos_trivia.api');
 // Jackpot
+Route::get('todos_datos_jackpot', [JackpotsController::class, 'todos_datos_jackpot_api'])->name('todos_datos_jackpot.api');
 Route::get('datos_jackpot', [JackpotsController::class, 'datos_jackpot_api'])->name('datos_jackpot.api');
+Route::get('preguntas_jackpot', [JackpotsController::class, 'preguntas_jackpot_api'])->name('preguntas_jackpot.api');
+Route::get('respuestas_jackpot', [JackpotsController::class, 'respuestas_jackpot_api'])->name('respuestas_jackpot.api');
+Route::get('intentos_jackpot', [JackpotsController::class, 'intentos_jackpot_api'])->name('intentos_jackpot.api');
+Route::post('registrar_respuestas_jackpot', [JackpotsController::class, 'registrar_respuestas_jackpot_api'])->name('registrar_respuestas_jackpot.api');
+Route::post('registrar_intento_jackpot', [JackpotsController::class, 'registrar_intento_jackpot_api'])->name('registrar_intento_jackpot.api');
 // Páginas
 Route::get('lista_publicaciones', [PublicacionesController::class, 'lista_api'])->name('lista_publicaciones.api');
 Route::get('datos_publicacion', [PublicacionesController::class, 'datos_publicacion_api'])->name('datos_publicacion.api');
@@ -58,6 +72,7 @@ Route::get('check', [LoginController::class, 'check_login_api'])->name('checklog
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('logout', [LoginController::class, 'logout_api']);
+    
     
 });
 

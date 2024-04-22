@@ -9,4 +9,5 @@ class EvaluacionRes extends Model
 {
     use HasFactory;
     protected $table = "evaluaciones_respuestas";
+    public $timestamps = false;
 }

@@ -9,4 +9,5 @@ class SesionVis extends Model
 {
     use HasFactory;
     protected $table = "sesiones_visualizaciones";
+    public $timestamps = false;
 }

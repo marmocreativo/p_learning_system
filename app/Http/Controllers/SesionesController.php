@@ -8,11 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\SesionEv;
 use App\Models\SesionVis;
+use App\Models\SesionDudas;
+use App\Models\SesionAnexos;
 use App\Models\EvaluacionPreg;
 use App\Models\EvaluacionRes;
 use App\Models\Publicacion;
 use App\Models\Clase;
 use App\Models\Temporada;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -129,6 +132,8 @@ class SesionesController extends Controller
         //
         $sesion = SesionEv::find($id);
         $preguntas = EvaluacionPreg::where('id_sesion',$id)->get();
+        $dudas = SesionDudas::where('id_sesion',$id)->get();
+        $anexos = SesionAnexos::where('id_sesion',$id)->get();
         return view('admin/sesion_detalles', compact('sesion', 'preguntas'));
     }
 
@@ -152,9 +157,9 @@ class SesionesController extends Controller
         $sesion = SesionEv::find($id);
        // Validar la solicitud
        $request->validate([
-        'Imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
-        'ImagenFondo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
-        'ImagenInstructor' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenInstructor' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
         ]);
 
         // Guardar la imagen en la carpeta publicaciones
@@ -166,21 +171,21 @@ class SesionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $sesion->imagen;
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = $sesion->imagen_fondo;
         }
         if ($request->hasFile('ImagenInstructor')) {
             $imagen_instructor = $request->file('ImagenInstructor');
             $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
-            $imagen_instructor->move(public_path('img/publicaciones'), $nombreImagenInstructor);
+            $imagen_instructor->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenInstructor);
         }else{
             $nombreImagenInstructor = $sesion->imagen_instructor;
         }
@@ -322,19 +327,19 @@ class SesionesController extends Controller
         return response()->json($sesiones);
     }
     public function lista_pendientes_api(Request $request)
-{
-    // variables
-    $id_temporada = $request->input('id_temporada');
-    $fecha_actual = now()->format('Y-m-d H:i:s');
-    
-    // consulta
-    $sesiones = SesionEv::where('id_temporada', $id_temporada)
-                        ->whereDate('fecha_publicacion', '>', $fecha_actual)
-                        ->limit(2) // Limitar a dos resultados
-                        ->get();
-    
-    return response()->json($sesiones);
-}
+    {
+        // variables
+        $id_temporada = $request->input('id_temporada');
+        $fecha_actual = now()->format('Y-m-d H:i:s');
+        
+        // consulta
+        $sesiones = SesionEv::where('id_temporada', $id_temporada)
+                            ->whereDate('fecha_publicacion', '>', $fecha_actual)
+                            ->limit(2) // Limitar a dos resultados
+                            ->get();
+        
+        return response()->json($sesiones);
+    }
 
     public function datos_sesion_api(Request $request)
     {
@@ -342,4 +347,165 @@ class SesionesController extends Controller
         $sesion = SesionEv::find($request->input('id'));
         return response()->json($sesion);
     }
+
+    public function respuestas_sesion_api(Request $request)
+    {
+        //
+        $respuestas = EvaluacionRes::where('id_sesion',$request->input('id_sesion'))->where('id_usuario',$request->input('id_usuario'))->get();
+        return response()->json($respuestas);
+    }
+
+    public function preguntas_sesion_api(Request $request)
+    {
+        //
+        $preguntas = EvaluacionPreg::where('id_sesion',$request->input('id'))->get();
+        return response()->json($preguntas);
+    }
+    public function dudas_sesion_api(Request $request)
+    {
+        //
+        $dudas = DB::table('sesiones_dudas')
+            ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_dudas.id_sesion', '=', $request->input('id_sesion'))
+            ->select('sesiones_dudas.*', 'usuarios.*')
+            ->orderBy('sesiones_dudas.created_at', 'desc')
+            ->get();
+        return response()->json($dudas);
+    }
+    public function anexos_sesion_api(Request $request)
+    {
+        //
+        $anexos = SesionAnexos::where('id_sesion',$request->input('id_sesion'))->get();
+        return response()->json($anexos);
+    }
+
+    public function checar_visualizacion_api(Request $request)
+    {
+        //
+        $visualizacion = SesionVis::where('id_sesion', $request->input('id_sesion'))
+        ->where('id_usuario', $request->input('id_usuario'))
+        ->first();
+
+        $resultado = ($visualizacion !== null);
+
+        return $resultado ? 'true' : 'false';
+    }
+
+    public function registrar_visualizacion_api(Request $request)
+    {
+        $id_sesion = $request->input('id_sesion');
+        $id_usuario = $request->input('id_usuario');
+        $sesion = SesionEv::find($id_sesion);
+
+        $fecha_publicacion = $sesion->fecha_publicacion;
+        $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
+        $fecha_actual = date('Y-m-d H:i:s');
+
+        if($fecha_actual<$fecha_limite_estreno){
+            $puntaje = $sesion->visualizar_puntaje_estreno;
+        }else{
+            $puntaje = $sesion->visualizar_puntaje_evaluacion;
+        }
+        $visualizacion = SesionVis::where('id_sesion', $id_sesion)->first();
+
+        // Verificar si la visualización existe
+        if(!$visualizacion){
+            // Si no existe, crear una nueva visualización
+            $visualizacion = new SesionVis();
+            $visualizacion->id_usuario = $id_usuario;
+            $visualizacion->id_sesion = $id_sesion;
+            $visualizacion->puntaje = $puntaje;
+            $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
+
+            $visualizacion->save();
+            return('Almacenado');
+        }else{
+            return('No almacenado');
+        }
+
+        
+    }
+
+    public function registrar_respuestas_evaluacion_api(Request $request)
+    {
+        $id_sesion = $request->input('id_sesion');
+        $id_usuario = $request->input('id_usuario');
+        $respuestas_json = $request->input('respuestas');
+        $sesion = SesionEv::find($id_sesion);
+
+        $fecha_publicacion = $sesion->fecha_publicacion;
+        $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
+        $fecha_actual = date('Y-m-d H:i:s');
+
+        if($fecha_actual<$fecha_limite_estreno){
+            $puntaje_preguntas = $sesion->preguntas_puntaje_estreno;
+        }else{
+            $puntaje_preguntas = $sesion->preguntas_puntaje_evaluacion;
+        }
+        //$respuestas_array = json_decode($respuestas_json, true);
+        $hay_respuestas = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
+        if(!$hay_respuestas){
+            foreach ($respuestas_json as $pregunta=>$respuesta) {
+                $registro_respuesta = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->where('id_pregunta', $pregunta)->first();
+                // Verificar si la visualización existe
+                if(!$registro_respuesta){
+                    $pregunta_reg = EvaluacionPreg::find($pregunta);
+                    switch ($respuesta) {
+                        case 'A':
+                            $respuesta_correcta = $pregunta_reg->resultado_a;
+                            break;
+                        case 'B':
+                            $respuesta_correcta = $pregunta_reg->resultado_b;
+                            break;
+                        case 'C':
+                            $respuesta_correcta = $pregunta_reg->resultado_c;
+                            break;
+                        case 'D':
+                            $respuesta_correcta = $pregunta_reg->resultado_d;
+                            break;
+                        default:
+                        $respuesta_correcta = 'incorrecto';
+                            break;
+                    }
+
+                    if($respuesta_correcta=='correcto'){
+                        $puntaje = $puntaje_preguntas;
+                    }else{
+                        $puntaje = 0;
+                    }
+                    // Si no existe, crear una nueva visualización
+                    $registro_respuesta = new EvaluacionRes();
+                    $registro_respuesta->id_usuario = $id_usuario;
+                    $registro_respuesta->id_sesion = $id_sesion;
+                    $registro_respuesta->id_pregunta = $pregunta;
+                    $registro_respuesta->respuesta_usuario = $respuesta;
+                    $registro_respuesta->respuesta_correcta = $respuesta_correcta;
+                    $registro_respuesta->puntaje = $puntaje;
+                    $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
+
+                    $registro_respuesta->save();
+                }
+            }
+        }
+
+        
+    }
+
+    public function registrar_duda_api(Request $request)
+    {
+        $id_sesion = $request->input('id_sesion');
+        $id_usuario = $request->input('id_usuario');
+        $duda_texto = $request->input('duda');
+
+        $duda = new SesionDudas();
+        $duda->id_usuario = $id_usuario;
+        $duda->id_sesion = $id_sesion;
+        $duda->duda = $duda_texto;
+
+        $duda->save();
+
+        
+    }
+
+    
 }

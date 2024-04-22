@@ -186,14 +186,126 @@ class JackpotsController extends Controller
      * Funciones API
      */
 
+     public function todos_datos_jackpot_api(Request $request)
+     {
+         //Variables
+         $fecha_actual = Carbon::now();
+         $id_temporada = $request->input('id_temporada');
+         // consulta
+         $jackpot = Jackpot::where('id_temporada', $id_temporada)
+                       ->where('estado', 'activo')
+                       ->first();
+        $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();
+        $respuestas = JackpotRes::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+        $intentos = JackpotIntentos::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+        
+        $completo = [
+            'jackpot' => $jackpot,
+            'preguntas' => $preguntas,
+            'respuestas' => $respuestas,
+            'intentos' => $intentos,
+        ];
+
+         return response()->json($completo);
+     }
+
+
      public function datos_jackpot_api(Request $request)
      {
          //Variables
          $fecha_actual = Carbon::now();
+         $id_temporada = $request->input('id_temporada');
          // consulta
-         $trivia = Jackpot::where('fecha_publicacion', '<=', $fecha_actual)
-                       ->where('fecha_vigencia', '>', $fecha_actual)
+         $jackpot = Jackpot::where('id_temporada', $id_temporada)
+                       ->where('estado', 'activo')
                        ->first();
-         return response()->json($trivia);
+         return response()->json($jackpot);
      }
+
+     public function preguntas_jackpot_api(Request $request)
+    {
+        //
+        $preguntas = JackpotPreg::where('id_jackpot',$request->input('id'))->get();
+        return response()->json($preguntas);
+    }
+
+     public function respuestas_jackpot_api(Request $request)
+    {
+        //
+        $respuestas = JackpotRes::where('id_jackpot',$request->input('id_jackpot'))->where('id_usuario',$request->input('id_usuario'))->get();
+        return response()->json($respuestas);
+    }
+
+    public function intentos_jackpot_api(Request $request)
+    {
+        //
+        $intentos = JackpotIntentos::where('id_jackpot',$request->input('id_jackpot'))->where('id_usuario',$request->input('id_usuario'))->get();
+        return response()->json($intentos);
+    }
+
+    public function registrar_respuestas_jackpot_api(Request $request)
+    {
+        $id_jackpot = $request->input('id_jackpot');
+        $id_usuario = $request->input('id_usuario');
+        $respuestas_json = $request->input('respuestas');
+        $jackpot = Jackpot::find($id_jackpot);
+
+        //$respuestas_array = json_decode($respuestas_json, true);
+        $hay_respuestas = JackpotRes::where('id_jackpot', $id_jackpot)->where('id_usuario', $id_usuario)->first();
+        if(!$hay_respuestas){
+            foreach ($respuestas_json as $pregunta=>$respuesta) {
+                $registro_respuesta = JackpotRes::where('id_jackpot', $id_jackpot)->where('id_usuario', $id_usuario)->where('id_pregunta', $pregunta)->first();
+                // Verificar si la visualización existe
+                if(!$registro_respuesta){
+                    $pregunta_reg = JackpotPreg::find($pregunta);
+                    if($respuesta==$pregunta_reg->respuesta_correcta){
+                        $respuesta_correcta = 'correcto';
+                    }else{
+                        $respuesta_correcta = 'incorrecto';
+                    }
+                    // Si no existe, crear una nueva visualización
+                    $registro_respuesta = new JackpotRes();
+                    $registro_respuesta->id_usuario = $id_usuario;
+                    $registro_respuesta->id_jackpot = $id_jackpot;
+                    $registro_respuesta->id_pregunta = $pregunta;
+                    $registro_respuesta->respuesta_usuario = $respuesta;
+                    $registro_respuesta->respuesta_correcta = $respuesta_correcta;
+                    $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
+
+                    $registro_respuesta->save();
+                }
+            }
+        }
+
+        
+    }
+
+    public function registrar_intento_jackpot_api(Request $request)
+    {
+        $id_jackpot = $request->input('id_jackpot');
+        $id_usuario = $request->input('id_usuario');
+        $tiro = $request->input('tiro');
+        $slot_1 = $request->input('slot_1');
+        $slot_2 = $request->input('slot_2');
+        $slot_3 = $request->input('slot_3');
+        $slot_premio = $request->input('slot_premio');
+        $puntaje = $request->input('puntaje');
+
+        $registro_intento = new JackpotIntentos();
+        $registro_intento->id_usuario = $id_usuario;
+        $registro_intento->id_jackpot = $id_jackpot;
+        $registro_intento->tiro = $tiro;
+        $registro_intento->slot_1 = $slot_1;
+        $registro_intento->slot_2 = $slot_2;
+        $registro_intento->slot_3 = $slot_3;
+        $registro_intento->slot_premio = $slot_premio;
+        $registro_intento->puntaje = $puntaje;
+        $registro_intento->fecha_registro = date('Y-m-d H:i:s');
+
+        $registro_intento->save();
+
+        
+    }
+
+    
 }

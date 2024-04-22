@@ -17,6 +17,7 @@ use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ConfiguracionesController;
 use App\Http\Controllers\ClasesController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ExcelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -166,6 +167,7 @@ Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middl
 Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');
 Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcion'])->middleware('auth')->name('admin_usuarios.suscripcion');
 Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');
+Route::post('admin/usuarios/upload-excel', [ExcelController::class, 'upload'])->name('upload.excel');
 
 Route::get('admin/usuarios/cambiar_a_lider', [UsuariosController::class, 'cambiar_a_lider'])->middleware('auth')->name('admin_usuarios.cambiar_a_lider');
 Route::get('admin/usuarios/cambiar_a_usuario', [UsuariosController::class, 'cambiar_a_usuario'])->middleware('auth')->name('admin_usuarios.cambiar_a_usuario');

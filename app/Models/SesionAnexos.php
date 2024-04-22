@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JackpotIntentos extends Model
+class SesionAnexos extends Model
 {
     use HasFactory;
-    protected $table = "jackpot_intentos";
+    protected $table = "sesiones_anexos";
     public $timestamps = false;
-    
 }
