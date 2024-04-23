@@ -43,9 +43,9 @@
         @endforeach
     </table>
     <hr>
-    <form action="{{ route('upload.excel') }}" method="POST" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('upload-csv') }}" enctype="multipart/form-data">
         @csrf
-        <input type="file" name="excel_file">
-        <button type="submit">Subir archivo</button>
+        <input type="file" name="csv_file" accept=".csv">
+        <button type="submit">Subir CSV</button>
     </form>
 @endsection

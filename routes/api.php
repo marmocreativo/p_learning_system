@@ -65,6 +65,7 @@ Route::get('lista_temporadas', [TemporadasController::class, 'lista_api'])->name
 Route::get('datos_temporada', [TemporadasController::class, 'show_api'])->name('datos_temporada.api');
 
 Route::get('usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos_api'])->name('usuarios_suscritos.api');
+Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api'])->name('puntaje_usuario.api');
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 

@@ -8,6 +8,10 @@ use App\Models\Temporada;
 use App\Models\Clase;
 use App\Models\Distribuidor;
 use App\Models\DistribuidorSuscripciones;
+use App\Models\SesionVis;
+use App\Models\EvaluacionesRespuestas;
+use App\Models\TriviaRes;
+use App\Models\JackpotIntentos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -247,5 +251,23 @@ class UsuariosController extends Controller
             ->get();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
         return response()->json($suscripciones);
+    }
+    public function puntaje_usuario_api (Request $request)
+    {
+        //
+        $id_temporada = $request->input('id_temporada');
+        $id_usuario = $request->input('id_usuario');
+        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+        $evaluaciones = EvaluacionesRespuestas::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+        $trivia = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+        $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+
+        $puntajes = [
+            'visualizaciones' =>$visualizaciones,
+            'evaluaciones' =>$evaluaciones,
+            'trivia' =>$trivia,
+            'jackpots' =>$jackpots,
+        ];
+        return response()->json($puntajes);
     }
 }
