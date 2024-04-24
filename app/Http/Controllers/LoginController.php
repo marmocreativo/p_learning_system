@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\UsuariosSuscripciones;
+use App\Models\Distribuidor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -124,6 +126,20 @@ class LoginController extends Controller
 
         $user = User::find($request->input('id'));
         return response()->json($user);
+
+    }
+
+    public function full_check_api(Request $request){
+
+        $user = User::find($request->input('id'));
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id'))->where('id_temporada', $request->input('id_temporada'))->first();
+        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+        $completo = [
+            'usuario'=> $user,
+            'sucripcion' => $suscripcion,
+            'distribuidor' => $distribuidor
+        ];
+        return response()->json($completo);
 
     }
 

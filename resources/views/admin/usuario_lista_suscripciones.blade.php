@@ -20,9 +20,9 @@
         @foreach ($suscripciones as $suscripcion)
                 <tr>
                     <td>{{$suscripcion->id_usuario}}</td>
-                    <td>{{$suscripcion->nombre}}</td>
+                    <td>{{$suscripcion->nombre}} {{$suscripcion->apellidos}}</td>
                     <td>{{$suscripcion->email}} </td>
-                    <td>{{$suscripcion->id_distribuidor}}</td>
+                    <td>{{$suscripcion->nombre_distribuidor}}</td>
                     <td>
                         {{$suscripcion->funcion}}
                         @if($suscripcion->funcion === 'usuario')

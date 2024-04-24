@@ -139,8 +139,9 @@ class UsuariosController extends Controller
         $id_temporada = $request->input('id_temporada');
         $suscripciones = DB::table('usuarios')
             ->join('usuarios_suscripciones', 'usuarios.id', '=', 'usuarios_suscripciones.id_usuario')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
-            ->select('usuarios.*', 'usuarios_suscripciones.*')
+            ->select('usuarios.*', 'usuarios_suscripciones.*', 'distribuidores.nombre as nombre_distribuidor')
             ->get();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
         return view('admin/usuario_lista_suscripciones', compact('suscripciones'));

@@ -70,6 +70,7 @@ Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api']
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
+Route::get('full_check', [LoginController::class, 'full_check_api'])->name('full_check.api');
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('logout', [LoginController::class, 'logout_api']);

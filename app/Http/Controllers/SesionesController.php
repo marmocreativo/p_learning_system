@@ -406,7 +406,7 @@ class SesionesController extends Controller
         }else{
             $puntaje = $sesion->visualizar_puntaje_evaluacion;
         }
-        $visualizacion = SesionVis::where('id_sesion', $id_sesion)->first();
+        $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
 
         // Verificar si la visualización existe
         if(!$visualizacion){
@@ -420,7 +420,7 @@ class SesionesController extends Controller
             $visualizacion->save();
             return('Almacenado');
         }else{
-            return('No almacenado');
+            return('No almacenado '.$id_sesion.' - '.$id_usuario);
         }
 
         

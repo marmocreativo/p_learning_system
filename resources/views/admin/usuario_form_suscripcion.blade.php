@@ -41,8 +41,8 @@
             <input class="form-control" type="text" name="Password">
         </div>
         <div class="form-group">
-            <label for="Clase">Distribuidor</label>
-            <select class="form-control" name="Clase">
+            <label for="IdDistribuidor">Distribuidor</label>
+            <select class="form-control" name="IdDistribuidor">
                 @foreach ($distribuidores as $distribuidor)
                     <option value="{{ $distribuidor->id }}" > {{ $distribuidor->nombre}}</option>
                 @endforeach
