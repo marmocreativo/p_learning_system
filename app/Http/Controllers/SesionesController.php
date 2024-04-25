@@ -137,6 +137,31 @@ class SesionesController extends Controller
         return view('admin/sesion_detalles', compact('sesion', 'preguntas'));
     }
 
+     /**
+     * Display the specified resource.
+     */
+    public function resultados(string $id)
+    {
+        //
+        $sesion = SesionEv::find($id);
+
+        $visualizaciones = DB::table('sesiones_visualizaciones')
+            ->join('usuarios', 'sesiones_visualizaciones.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_visualizaciones.id_sesion', '=', $id)
+            ->select('sesiones_visualizaciones.id as id_visualizacion', 'sesiones_visualizaciones.*', 'usuarios.id as id_usuario', 'usuarios.*')
+            ->orderBy('sesiones_visualizaciones.fecha_ultimo_video', 'desc')
+            ->get();
+
+        $respuestas = DB::table('evaluaciones_respuestas')
+            ->join('evaluaciones_preguntas', 'evaluaciones_respuestas.id_pregunta', '=', 'evaluaciones_preguntas.id')
+            ->join('usuarios', 'evaluaciones_respuestas.id_usuario', '=', 'usuarios.id')
+            ->where('evaluaciones_respuestas.id_sesion', '=', $id)
+            ->select('evaluaciones_respuestas.id as id_respuesta', 'evaluaciones_respuestas.*', 'evaluaciones_preguntas.id as id_pregunta', 'evaluaciones_preguntas.*', 'usuarios.id as id_usuario', 'usuarios.*')
+            ->get();
+
+        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -250,6 +275,25 @@ class SesionesController extends Controller
 
         $sesion->delete();
         return redirect()->route('sesiones', ['id_temporada'=>$id_temporada]);
+    }
+
+    public function destroy_visualizacion(string $id)
+    {
+        //
+        $visualizacion = SesionVis::findOrFail($id);
+        $id_sesion =  $visualizacion->id_sesion;
+        
+        $visualizacion->delete();
+        return redirect()->route('sesiones.resultados', $id_sesion);
+    }
+
+    public function destroy_respuesta(string $id)
+    {
+        //
+        $respuesta = EvaluacionRes::findOrFail($id);
+        $id_sesion =  $respuesta->id_sesion;
+        $respuesta->delete();
+        return redirect()->route('sesiones.resultados', $id_sesion);
     }
 
     /**

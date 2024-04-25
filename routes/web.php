@@ -111,10 +111,13 @@ Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->midd
 Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
 Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_pregunta'])->middleware('auth')->name('sesiones.store_pregunta');
 Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
+Route::get('admin/sesiones/resultados/{post}', [SesionesController::class, 'resultados'])->middleware('auth')->name('sesiones.resultados');
 Route::get('admin/sesiones/edit/{post}', [SesionesController::class, 'edit'])->middleware('auth')->name('sesiones.edit');
 Route::put('admin/sesiones/update_pregunta/{post}', [SesionesController::class, 'update_pregunta'])->middleware('auth')->name('sesiones.update_pregunta');
 Route::put('admin/sesiones/update/{post}', [SesionesController::class, 'update'])->middleware('auth')->name('sesiones.update');
 Route::delete('admin/sesiones/destroy_pregunta/{post}', [SesionesController::class, 'destroy_pregunta'])->middleware('auth')->name('sesiones.destroy_pregunta');
+Route::delete('admin/sesiones/destroy_visualizacion{post}', [SesionesController::class, 'destroy_visualizacion'])->middleware('auth')->name('sesiones.destroy_visualizacion');
+Route::delete('admin/sesiones/destroy_respuesta{post}', [SesionesController::class, 'destroy_respuesta'])->middleware('auth')->name('sesiones.destroy_respuesta');
 Route::delete('admin/sesiones/destroy/{post}', [SesionesController::class, 'destroy'])->middleware('auth')->name('sesiones.destroy');
 
 // Rutas CRUD para las'trivias'

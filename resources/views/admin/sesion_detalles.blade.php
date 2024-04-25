@@ -4,6 +4,7 @@
 
 @section('contenido_principal')
     <h1>Detalles de la sesión: <small>{{$sesion->titulo}}</small></h1>
+    <p>{{ date('Y-m-d H:i:s')}}</p>
     <a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Lista de sesiones</a>
     <hr>
     <a href="{{route('sesiones.edit', $sesion->id)}}">Editar sesión</a>

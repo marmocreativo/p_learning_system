@@ -16,8 +16,9 @@
                         <h3>#{{$sesion->id}}  {{$sesion->titulo}} </h3>
                     </div>
                     <div class="card-footer">
-                        <a href="{{route('sesiones.show', $sesion->id)}}">Ver contenido</a>
-                        <a href="{{route('sesiones.edit', $sesion->id)}}">Editar</a>
+                        <a href="{{route('sesiones.show', $sesion->id)}}" className="btn btn-primary">Ver contenido</a>
+                        <a href="{{route('sesiones.resultados', $sesion->id)}}" className="btn btn-primary">Ver resultados</a>
+                        <a href="{{route('sesiones.edit', $sesion->id)}}" className="btn btn-primary">Editar</a>
                         <hr>
                         <form action="{{route('sesiones.destroy', $sesion->id)}}" method="POST">
                             @csrf
