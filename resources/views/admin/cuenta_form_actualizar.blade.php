@@ -41,7 +41,11 @@
         </div>
         <div class="form-group">
             <label for="TemporadaActual">Temporada Actual</label>
-            <input type="text" class="form-control" name="TemporadaActual" value="{{$cuenta->temporada_actual}}">
+            <select class="form-control" name="TemporadaActual" id="TemporadaActual">
+                @foreach($temporadas as $temporada)
+                <option value="{{$temporada->id}}" @if($temporada->id == $cuenta->temporada_actual) selected @endif>{{$temporada->nombre}}</option>
+                @endforeach
+            </select>
         </div>
         <div class="form-group">
             <label for="Estado"></label>
@@ -50,6 +54,7 @@
                 <option value="inactivo" <?php if($cuenta->estado=='inactivo'){ echo 'selected'; } ?>>Inactivo</option>
             </select>
         </div>
+        <hr>
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 @endsection

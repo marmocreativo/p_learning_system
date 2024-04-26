@@ -65,6 +65,7 @@ Route::get('datos_slider', [SlidersController::class, 'datos_slider_api'])->name
 
 Route::get('lista_temporadas', [TemporadasController::class, 'lista_api'])->name('lista_temporadas.api');
 Route::get('datos_temporada', [TemporadasController::class, 'show_api'])->name('datos_temporada.api');
+Route::get('temporada_y_sesiones', [TemporadasController::class, 'temporada_y_sesiones'])->name('temporada_y_sesiones.api');
 
 Route::get('usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos_api'])->name('usuarios_suscritos.api');
 Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api'])->name('puntaje_usuario.api');

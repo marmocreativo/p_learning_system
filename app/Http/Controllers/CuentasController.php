@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Cuenta;
+use App\Models\Temporada;
 
 use Illuminate\Http\Request;
 
@@ -66,7 +67,8 @@ class CuentasController extends Controller
     {
         //
         $cuenta = Cuenta::find($id);
-        return view('admin/cuenta_form_actualizar', compact('cuenta'));
+        $temporadas = Temporada::where('id_cuenta', $id)->get();
+        return view('admin/cuenta_form_actualizar', compact('cuenta','temporadas'));
     }
 
     /**

@@ -100,9 +100,38 @@
             </div>
             <div class="col-4">
                 <div class="form-group">
-                    <label for="NombreInstructor">Instructor</label>
-                    <input type="text" class="form-control" name="NombreInstructor">
+                    <label for="Imagen">Imagen</label>
+                    <input type="file" class="form-control" name="Imagen" >
                 </div>
+
+                <div class="form-group">
+                    <label for="ImagenFondo">Imagen Video</label>
+                    <input type="file" class="form-control" name="ImagenFondo" >
+                </div>
+                <hr>
+                <h5>Instructor</h5>
+                <div class="form-group">
+                    <label for="ImagenInstructor">Imagen Instructor</label>
+                    <input type="file" class="form-control" name="ImagenInstructor" >
+                </div>
+
+                <div class="form-group">
+                    <label for="NombreInstructor">Instructor</label>
+                    <input type="text" class="form-control" name="NombreInstructor" value="">
+                </div>
+                <div class="form-group">
+                    <label for="PuestoInstructor">Puesto</label>
+                    <input type="text" class="form-control" name="PuestoInstructor" value="">
+                </div>
+                <div class="form-group">
+                    <label for="BioInstructor">Bio Instructor</label>
+                    <textarea class="form-control" name="BioInstructor" id="BioInstructor" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="Correoinstructor">Correo</label>
+                    <input type="text" class="form-control" name="Correoinstructor" value="">
+                </div>
+
                 <div class="form-group">
                     <label for="DuracionAproximada">Duración Aprox</label>
                     <input type="text" class="form-control" name="DuracionAproximada">
@@ -122,8 +151,8 @@
                 <div class="form-group">
                     <label for="EvaluacionObligatoria">¿La evaluación es obligatoria?</label>
                     <select class="form-control" name="EvaluacionObligatoria" id="EvaluacionObligatoria">
-                        <option value="no">No</option>
                         <option value="si">Si</option>
+                        <option value="no">No</option>
                     </select>
                 </div>
                 <hr>

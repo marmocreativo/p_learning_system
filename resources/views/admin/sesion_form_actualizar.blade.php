@@ -152,8 +152,9 @@
                 <div class="form-group">
                     <label for="EvaluacionObligatoria">¿La evaluación es obligatoria?</label>
                     <select class="form-control" name="EvaluacionObligatoria" id="EvaluacionObligatoria">
-                        <option value="no"  @if($sesion->orden_preguntas_evaluacion == 'no') selected @endif>No</option>
                         <option value="si"  @if($sesion->orden_preguntas_evaluacion == 'si') selected @endif>Si</option>
+                        <option value="no"  @if($sesion->orden_preguntas_evaluacion == 'no') selected @endif>No</option>
+                        
                     </select>
                 </div>
                 <hr>

@@ -52,9 +52,9 @@ class SesionesController extends Controller
 
         // Validar la solicitud
        $request->validate([
-        'Imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
-        'ImagenFondo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
-        'ImagenInstructor' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenInstructor' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
         ]);
 
         // Guardar la imagen en la carpeta publicaciones
@@ -75,14 +75,14 @@ class SesionesController extends Controller
             $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
             $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
         }else{
-            $nombreImagenFondo = 'default.jpg';
+            $nombreImagenFondo = 'default_fondo.jpg';
         }
         if ($request->hasFile('ImagenInstructor')) {
             $imagen_instructor = $request->file('ImagenInstructor');
             $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
             $imagen_instructor->move(public_path('img/publicaciones'), $nombreImagenInstructor);
         }else{
-            $nombreImagenInstructor = 'default.jpg';
+            $nombreImagenInstructor = 'default_instructor.jpg';
         }
 
         $sesion->id_cuenta = $request->IdCuenta;

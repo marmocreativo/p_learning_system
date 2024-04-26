@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\Temporada;
+use App\Models\Cuenta;
+use App\Models\SesionEv;
 
 use Illuminate\Http\Request;
 
@@ -108,11 +110,24 @@ class TemporadasController extends Controller
     public function show_api(Request $request)
     {
         //
-        $temporada = Temporada::find($request->id);
+        $cuenta = Cuenta::find($request->id);
+        $temporada = Temporada::find($cuenta->temporada_actual);
         return response()->json($temporada);
         //return 'Hola';  
     }
 
+    public function temporada_y_sesiones(Request $request)
+    {
+
+        $temporada = Temporada::find($request->input('id'));
+        $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+
+        $completo = [
+            'temporada' => $temporada,
+            'sesiones' => $sesiones,
+        ];
+        return response()->json($completo);
+    }
     public function lista_api(Request $request)
     {
         //
