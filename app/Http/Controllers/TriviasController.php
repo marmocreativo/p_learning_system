@@ -13,6 +13,7 @@ use App\Models\TriviaGanador;
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Distribuidor;
+use Illuminate\Support\Facades\DB;
 
 
 class TriviasController extends Controller
@@ -75,6 +76,29 @@ class TriviasController extends Controller
         return view('admin/trivia_detalles', compact('trivia', 'preguntas'));
     }
 
+    public function resultados(string $id)
+    {
+        //
+        $trivia = Trivia::find($id);
+        $preguntas = TriviaPreg::where('id_trivia',$id)->get();
+        
+        $respuestas = DB::table('trivias_respuestas')
+            ->join('usuarios', 'trivias_respuestas.id_usuario', '=', 'usuarios.id')
+            ->join('trivias_preguntas', 'trivias_respuestas.id_pregunta', '=', 'trivias_preguntas.id')
+            ->where('trivias_respuestas.id_trivia', '=', $id)
+            ->select('trivias_respuestas.id as id_respuesta','trivias_respuestas.respuesta_correcta as respuesta_resultado' , 'trivias_respuestas.*', 'usuarios.id as id_usuario', 'usuarios.*', 'trivias_preguntas.*')
+            ->orderBy('trivias_respuestas.fecha_registro', 'desc')
+            ->get();
+        $ganadores = DB::table('trivias_ganadores')
+            ->join('usuarios', 'trivias_ganadores.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'trivias_ganadores.id_distribuidor', '=', 'distribuidores.id')
+            ->where('trivias_ganadores.id_trivia', '=', $id)
+            ->select('trivias_ganadores.id as id_ganador', 'trivias_ganadores.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*', 'distribuidores.nombre as nombre_distribuidor', 'distribuidores.*')
+            ->orderBy('trivias_ganadores.fecha_registro', 'desc')
+            ->get();
+        return view('admin/trivia_resultados', compact('trivia', 'preguntas', 'respuestas', 'ganadores'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -124,6 +148,25 @@ class TriviasController extends Controller
 
         $trivia->delete();
         return redirect()->route('trivias', ['id_temporada'=>$id_temporada]);
+    }
+
+    public function destroy_ganador(string $id)
+    {
+        //
+        $ganador = TriviaGanador::findOrFail($id);
+        $id_trivia =  $ganador->id_trivia;
+        
+        $ganador->delete();
+        return redirect()->route('trivias.resultados', $id_trivia);
+    }
+
+    public function destroy_respuesta(string $id)
+    {
+        //
+        $respuesta = TriviaRes::findOrFail($id);
+        $id_trivia =  $respuesta->id_trivia;
+        $respuesta->delete();
+        return redirect()->route('trivias.resultados', $id_trivia);
     }
 
     /**
@@ -280,6 +323,7 @@ class TriviasController extends Controller
         
         if(!$hay_respuestas){
             $guardadas = true;
+            $todas_correctas = true;
             foreach ($respuestas_json as $pregunta=>$respuesta) {
                 $registro_respuesta = TriviaRes::where('id_trivia', $id_trivia)->where('id_usuario', $id_usuario)->where('id_pregunta', $pregunta)->first();
                 
@@ -287,10 +331,13 @@ class TriviasController extends Controller
                     $pregunta_reg = TriviaPreg::find($pregunta);
                     if($respuesta==$pregunta_reg->respuesta_correcta){
                         $respuesta_correcta = 'correcto';
+                        $puntaje = $trivia->puntaje;
                     }else{
                         $respuesta_correcta = 'incorrecto';
+                        $puntaje = 0;
+                        $todas_correctas = false;
                     }
-                    $puntaje = $trivia->puntaje;
+                    
                     // Si no existe, crear una nueva visualización
                     $nueva_respuesta = new TriviaRes();
                     $nueva_respuesta->id_usuario = $id_usuario;
@@ -304,10 +351,11 @@ class TriviasController extends Controller
                         $guardadas = false;
                         return response()->json(['success' => false, 'message' => 'No se pudo guardar la respuesta '.$registro_respuesta]);
                     }
+                    
                 }
                 
             }
-            if(!$hay_ganador){
+            if(!$hay_ganador&&$todas_correctas){
                 $nuevo_ganador = new TriviaGanador();
                 $nuevo_ganador->id_trivia = $id_trivia;
                 $nuevo_ganador->id_usuario = $id_usuario;

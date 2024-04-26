@@ -17,6 +17,7 @@
                     </div>
                     <div class="card-footer">
                         <a href="{{route('trivias.show', $trivia->id)}}">Ver contenido</a>
+                        <a href="{{route('trivias.resultados', $trivia->id)}}">Ver resultados</a>
                         <a href="{{route('trivias.edit', $trivia->id)}}">Editar</a>
                         <hr>
                         <form action="{{route('trivias.destroy', $trivia->id)}}" method="POST">

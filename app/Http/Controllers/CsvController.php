@@ -65,11 +65,11 @@ class CsvController extends Controller
                 if (!$distribuidor) {
                     $distribuidor = new Distribuidor();
                     
-                    $distribuidor->nombre = $request->Nombre;
-                    $distribuidor->pais = $request->Pais;
-                    $distribuidor->region = $request->Region;
-                    $distribuidor->nivel = $request->Nivel;
-                    $distribuidor->estado = $request->Estado;
+                    $distribuidor->nombre = $registro['DISTY'];
+                    $distribuidor->pais = $registro['REGIÓN'];
+                    $distribuidor->region = $registro['REGIÓN'];
+                    $distribuidor->nivel = $registro['NIVEL DISTY'];
+                    $distribuidor->estado = 'activo';
 
                     $distribuidor->save();
                 }
