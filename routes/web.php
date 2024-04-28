@@ -30,7 +30,8 @@ use App\Http\Controllers\CsvController;
 |
 */
 
-Route::get('/', FrontController::class);
+Route::get('/', [FrontController::class, 'index']);
+Route::get('scripts_ajustes', [FrontController::class, 'scripts_ajustes'])->name('scripts.ajustes');
 
 Route::get('admin', [AdminController::class, 'index'])->middleware('auth')->name('admin');
 Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->middleware('auth')->name('admin.base_de_datos');

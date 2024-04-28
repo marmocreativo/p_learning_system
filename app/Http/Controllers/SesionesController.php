@@ -15,6 +15,7 @@ use App\Models\EvaluacionRes;
 use App\Models\Publicacion;
 use App\Models\Clase;
 use App\Models\Temporada;
+use App\Models\UsuariosSuscripciones;
 use Illuminate\Support\Facades\DB;
 
 
@@ -440,6 +441,8 @@ class SesionesController extends Controller
         $id_sesion = $request->input('id_sesion');
         $id_usuario = $request->input('id_usuario');
         $sesion = SesionEv::find($id_sesion);
+        $temporada = Temporada::find($sesion->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
@@ -457,6 +460,11 @@ class SesionesController extends Controller
             // Si no existe, crear una nueva visualización
             $visualizacion = new SesionVis();
             $visualizacion->id_usuario = $id_usuario;
+            $visualizacion->id_temporada = $temporada->id;
+            if($suscripcion){
+                $visualizacion->id_distribuidor = $suscripcion->id_distribuidor;
+            }
+            
             $visualizacion->id_sesion = $id_sesion;
             $visualizacion->puntaje = $puntaje;
             $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
@@ -476,6 +484,9 @@ class SesionesController extends Controller
         $id_usuario = $request->input('id_usuario');
         $respuestas_json = $request->input('respuestas');
         $sesion = SesionEv::find($id_sesion);
+        $temporada = Temporada::find($sesion->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
+
 
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
@@ -519,6 +530,10 @@ class SesionesController extends Controller
                     }
                     // Si no existe, crear una nueva visualización
                     $registro_respuesta = new EvaluacionRes();
+                    $registro_respuesta->id_temporada = $temporada->id;
+                    if($suscripcion){
+                        $registro_respuesta->id_distribuidor = $suscripcion->id_distribuidor;
+                    }
                     $registro_respuesta->id_usuario = $id_usuario;
                     $registro_respuesta->id_sesion = $id_sesion;
                     $registro_respuesta->id_pregunta = $pregunta;

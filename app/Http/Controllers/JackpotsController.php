@@ -10,6 +10,7 @@ use App\Models\JackpotRes;
 use App\Models\JackpotIntentos;
 use App\Models\Clase;
 use App\Models\Temporada;
+use App\Models\UsuariosSuscripciones;
 
 class JackpotsController extends Controller
 {
@@ -249,6 +250,8 @@ class JackpotsController extends Controller
         $id_usuario = $request->input('id_usuario');
         $respuestas_json = $request->input('respuestas');
         $jackpot = Jackpot::find($id_jackpot);
+        $temporada = Temporada::find($jackpot->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 
         //$respuestas_array = json_decode($respuestas_json, true);
         $hay_respuestas = JackpotRes::where('id_jackpot', $id_jackpot)->where('id_usuario', $id_usuario)->first();
@@ -267,6 +270,10 @@ class JackpotsController extends Controller
                     $registro_respuesta = new JackpotRes();
                     $registro_respuesta->id_usuario = $id_usuario;
                     $registro_respuesta->id_jackpot = $id_jackpot;
+                    $registro_respuesta->id_temporada = $temporada->id;
+                    if($suscripcion){
+                        $registro_respuesta->id_distribuidor = $suscripcion->id_distribuidor;
+                    }
                     $registro_respuesta->id_pregunta = $pregunta;
                     $registro_respuesta->respuesta_usuario = $respuesta;
                     $registro_respuesta->respuesta_correcta = $respuesta_correcta;
@@ -284,6 +291,10 @@ class JackpotsController extends Controller
     {
         $id_jackpot = $request->input('id_jackpot');
         $id_usuario = $request->input('id_usuario');
+        $jackpot = Temporada::find($id_jackpot);
+        $temporada = Temporada::find($jackpot->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
+
         $tiro = $request->input('tiro');
         $slot_1 = $request->input('slot_1');
         $slot_2 = $request->input('slot_2');
@@ -294,6 +305,10 @@ class JackpotsController extends Controller
         $registro_intento = new JackpotIntentos();
         $registro_intento->id_usuario = $id_usuario;
         $registro_intento->id_jackpot = $id_jackpot;
+        $registro_intento->id_temporada = $temporada->id;
+        if($suscripcion){
+            $registro_intento->id_distribuidor = $suscripcion->id_distribuidor;
+        }
         $registro_intento->tiro = $tiro;
         $registro_intento->slot_1 = $slot_1;
         $registro_intento->slot_2 = $slot_2;

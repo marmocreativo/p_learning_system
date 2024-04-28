@@ -6,12 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Clase;
 use App\Models\Temporada;
+use App\Models\UsuariosSuscripciones;
 use App\Models\Trivia;
 use App\Models\TriviaPreg;
 use App\Models\TriviaRes;
 use App\Models\TriviaGanador;
 use App\Models\User;
-use App\Models\UsuariosSuscripciones;
 use App\Models\Distribuidor;
 use Illuminate\Support\Facades\DB;
 
@@ -313,6 +313,7 @@ class TriviasController extends Controller
         $id_usuario = $request->input('id_usuario');
         $respuestas_json = $request->input('respuestas');
         $trivia = Trivia::find($id_trivia);
+        $temporada = Temporada::find($jackpot->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario', $id_usuario)->where('id_temporada', $trivia->id_temporada)->first();
         $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
         //return response()->json($respuestas_json);
@@ -342,6 +343,10 @@ class TriviasController extends Controller
                     $nueva_respuesta = new TriviaRes();
                     $nueva_respuesta->id_usuario = $id_usuario;
                     $nueva_respuesta->id_trivia = $id_trivia;
+                    $nueva_respuesta->id_temporada = $temporada->id;
+                    if($suscripcion){
+                        $nueva_respuesta->id_distribuidor = $suscripcion->id_distribuidor;
+                    }
                     $nueva_respuesta->id_pregunta = $pregunta;
                     $nueva_respuesta->puntaje = $puntaje;
                     $nueva_respuesta->respuesta_usuario = $respuesta;
@@ -358,6 +363,10 @@ class TriviasController extends Controller
             if(!$hay_ganador&&$todas_correctas){
                 $nuevo_ganador = new TriviaGanador();
                 $nuevo_ganador->id_trivia = $id_trivia;
+                $nuevo_ganador->id_temporada = $temporada->id;
+                if($suscripcion){
+                    $nuevo_ganador->id_distribuidor = $suscripcion->id_distribuidor;
+                }
                 $nuevo_ganador->id_usuario = $id_usuario;
                 $nuevo_ganador->id_distribuidor = $distribuidor->id;
                 $nuevo_ganador->fecha_registro = date('Y-m-d H:i:s');
