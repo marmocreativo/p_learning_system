@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LogroParticipacion extends Model
+class Tokens extends Model
 {
     use HasFactory;
-    protected $table = "logros_participantes";
-    public $timestamps = false;
+    protected $table = "personal_access_tokens";
 }

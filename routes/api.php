@@ -70,6 +70,7 @@ Route::get('temporada_y_sesiones', [TemporadasController::class, 'temporada_y_se
 Route::get('usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos_api'])->name('usuarios_suscritos.api');
 Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api'])->name('puntaje_usuario.api');
 Route::get('datos_lider', [UsuariosController::class, 'datos_lider_api'])->name('datos_lider.api');
+Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lider_api'])->name('datos_basicos_lider.api');
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 

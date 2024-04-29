@@ -156,7 +156,7 @@
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Participantes</h2></div>
-        <div class="col-6">
+        <div class="col-4">
             <div class="card card-body">
                 <h4>Distribuidores</h4>
                 <table class="table table-bordered table-sm">
@@ -169,7 +169,7 @@
             </div>
         </div>
         
-        <div class="col-6">
+        <div class="col-4">
             <div class="card card-body">
                 <h4>Usuarios / Líderes</h4>
                 <table class="table table-bordered table-sm">
@@ -179,6 +179,18 @@
                     </tr>
                 </table>
                 <a href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Usuarios suscritos</a>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card card-body">
+                <h4>Logros (Champions)</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Nombre</b></td>
+                        <td>{{$temporada->nombre}}</td>
+                    </tr>
+                </table>
+                <a href="{{ route('logros', ['id_temporada'=> $temporada->id]) }}">Logros</a>
             </div>
         </div>
 

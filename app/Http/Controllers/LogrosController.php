@@ -50,48 +50,36 @@ class LogrosController extends Controller
 
          $logro->id_temporada = $request->IdTemporada;
          $logro->nombre = $request->Nombre;
-         $logro->intrucciones = $request->Instrucciones;
+         $logro->instrucciones = $request->Instrucciones;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
          $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
          $logro->save();
  
-         return redirect()->route('logro.show', $logro->id);
+         return redirect()->route('logros.show', $logro->id);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
+    public function show(string $id)
+    {
+        //
+        $logro = Logro::find($id);
+        $participaciones = LogroParticipacion::where('id_logro', $id)->get();
+        
+        return view('admin/logro_detalles', compact('logro', 'participaciones'));
+    }
+
+    public function participacion(Request $request)
     {
         //
         $logro = Logro::find($request->input('id_logro'));
         $participacion = LogroParticipacion::find($request->input('id_participacion'));
         $anexos = LogroAnexo::where('id_participacion',$request->input('id_participacion'))->get();
-        return view('admin/logro_participacion_detalles', compact('logro', 'participantes'));
-    }
-
-    public function participacion(string $id)
-    {
-        //
-        $logro = Logro::find($id);
-        $preguntas = TriviaPreg::where('id_trivia',$id)->get();
         
-        $respuestas = DB::table('trivias_respuestas')
-            ->join('usuarios', 'trivias_respuestas.id_usuario', '=', 'usuarios.id')
-            ->join('trivias_preguntas', 'trivias_respuestas.id_pregunta', '=', 'trivias_preguntas.id')
-            ->where('trivias_respuestas.id_trivia', '=', $id)
-            ->select('trivias_respuestas.id as id_respuesta','trivias_respuestas.respuesta_correcta as respuesta_resultado' , 'trivias_respuestas.*', 'usuarios.id as id_usuario', 'usuarios.*', 'trivias_preguntas.*')
-            ->orderBy('trivias_respuestas.fecha_registro', 'desc')
-            ->get();
-        $ganadores = DB::table('trivias_ganadores')
-            ->join('usuarios', 'trivias_ganadores.id_usuario', '=', 'usuarios.id')
-            ->join('distribuidores', 'trivias_ganadores.id_distribuidor', '=', 'distribuidores.id')
-            ->where('trivias_ganadores.id_trivia', '=', $id)
-            ->select('trivias_ganadores.id as id_ganador', 'trivias_ganadores.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*', 'distribuidores.nombre as nombre_distribuidor', 'distribuidores.*')
-            ->orderBy('trivias_ganadores.fecha_registro', 'desc')
-            ->get();
-        return view('admin/trivia_resultados', compact('trivia', 'preguntas', 'respuestas', 'ganadores'));
+        
+        return view('admin/logro_participacion', compact('logro', 'participacion', 'anexos'));
     }
 
     /**
@@ -100,8 +88,8 @@ class LogrosController extends Controller
     public function edit(string $id)
     {
         //
-        $trivia = Trivia::find($id);
-        return view('admin/trivia_form_actualizar', compact('trivia'));
+        $logro = Logro::find($id);
+        return view('admin/logro_form_actualizar', compact('logro'));
     }
 
     /**
@@ -110,22 +98,17 @@ class LogrosController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $trivia = Trivia::find($id);
+        $logro = Logro::find($id);
 
-         $trivia->id_cuenta = $request->IdCuenta;
-         $trivia->id_temporada = $request->IdTemporada;
-         $trivia->titulo = $request->Titulo;
-         $trivia->descripcion = $request->Descripcion;
-         $trivia->mensaje_antes = $request->MensajeAntes;
-         $trivia->mensaje_despues = $request->MensajeDespues;
-         $trivia->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
-         $trivia->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaVigencia.' '.$request->HoraVigencia));
-         $trivia->puntaje = $request->Puntaje;
-         $trivia->estado = $request->Estado;
+        $logro->id_temporada = $request->IdTemporada;
+        $logro->nombre = $request->Nombre;
+        $logro->instrucciones = $request->Instrucciones;
+        $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
+        $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
-         $trivia->save();
+         $logro->save();
  
-         return redirect()->route('trivias.show', $trivia->id);
+         return redirect()->route('logros.show', $logro->id);
     }
 
     /**
@@ -134,14 +117,27 @@ class LogrosController extends Controller
     public function destroy(string $id)
     {
         //
-        $trivia = Trivia::findOrFail($id);
-        $id_temporada = $trivia->id_temporada;
+        $logro = Logro::find($id);
+        $id_temporada = $logro->id_temporada;
         // Buscar y eliminar registros relacionados en otras tablas
-        TriviaPreg::where('id_trivia', $id)->delete();
-        TriviaRes::where('id_trivia', $id)->delete();
+        LogroAnexo::where('id_logro', $id)->delete();
+        LogroParticipacion::where('id_logro', $id)->delete();
 
 
-        $trivia->delete();
-        return redirect()->route('trivias', ['id_temporada'=>$id_temporada]);
+        $logro->delete();
+        return redirect()->route('logros', ['id_temporada'=>$id_temporada]);
+    }
+
+    public function destroy_participacion(string $id)
+    {
+        //
+        $participacion = LogroParticipacion::find($id);
+        $id_temporada = $participacion->id_temporada;
+        // Buscar y eliminar registros relacionados en otras tablas
+        LogroAnexo::where('id_participacion', $participacion->$id)->delete();
+
+
+        $logro->delete();
+        return redirect()->route('logros', ['id_temporada'=>$id_temporada]);
     }
 }
