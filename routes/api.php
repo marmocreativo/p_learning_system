@@ -72,6 +72,9 @@ Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api']
 Route::get('datos_lider', [UsuariosController::class, 'datos_lider_api'])->name('datos_lider.api');
 Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lider_api'])->name('datos_basicos_lider.api');
 
+Route::post('agregar_usuario', [UsuariosController::class, 'agregar_usuario_api'])->name('agregar_usuario.api');
+Route::post('actualizar_usuario', [UsuariosController::class, 'actualizar_usuario_api'])->name('actualizar_usuario.api');
+
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');

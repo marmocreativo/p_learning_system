@@ -10,6 +10,23 @@
     <hr>
     <table class="table table-stripped">
         <tr>
+            <td>
+                <h3>Usuarios totales</h3>
+                <h5>{{$suscriptores_totales}}</h5>
+            </td>
+            <td>
+                <h3>Usuarios activos</h3>
+                <h5>{{$suscriptores_activos}}</h5>
+            </td>
+            <td>
+                <h3>Usuarios participantes</h3>
+                <h5>{{$suscriptores_participantes}}</h5>
+            </td>
+        </tr>
+    </table>
+    <hr>
+    <table class="table table-stripped">
+        <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Correo</th>

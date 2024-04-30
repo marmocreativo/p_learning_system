@@ -143,6 +143,7 @@ Route::get('admin/jackpots/create', [JackpotsController::class, 'create'])->midd
 Route::post('admin/jackpots/store_pregunta', [JackpotsController::class, 'store_pregunta'])->middleware('auth')->name('jackpots.store_pregunta');
 Route::post('admin/jackpots/store', [JackpotsController::class, 'store'])->middleware('auth')->name('jackpots.store');
 Route::get('admin/jackpots/{post}', [JackpotsController::class, 'show'])->middleware('auth')->name('jackpots.show');
+Route::get('admin/jackpots/resultados/{post}', [JackpotsController::class, 'resultados'])->middleware('auth')->name('jackpots.resultados');
 Route::get('admin/jackpots/edit/{post}', [JackpotsController::class, 'edit'])->middleware('auth')->name('jackpots.edit');
 Route::put('admin/jackpots/update_pregunta/{post}', [JackpotsController::class, 'update_pregunta'])->middleware('auth')->name('jackpots.update_pregunta');
 Route::put('admin/jackpots/update/{post}', [JackpotsController::class, 'update'])->middleware('auth')->name('jackpots.update');

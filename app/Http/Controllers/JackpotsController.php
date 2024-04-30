@@ -11,6 +11,7 @@ use App\Models\JackpotIntentos;
 use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
+use Illuminate\Support\Facades\DB;
 
 class JackpotsController extends Controller
 {
@@ -70,6 +71,33 @@ class JackpotsController extends Controller
         $jackpot = Jackpot::find($id);
         $preguntas = JackpotPreg::where('id_jackpot',$id)->get();
         return view('admin/jackpot_detalles', compact('jackpot', 'preguntas'));
+    }
+
+    public function resultados(string $id)
+    {
+        //
+        $jackpot = Jackpot::find($id);
+        $preguntas = JackpotPreg::where('id_jackpot',$id)->get();
+        
+        $respuestas = DB::table('jackpot_respuestas')
+            ->join('usuarios', 'jackpot_respuestas.id_usuario', '=', 'usuarios.id')
+            ->join('jackpot_preguntas', 'jackpot_respuestas.id_pregunta', '=', 'jackpot_preguntas.id')
+            ->where('jackpot_respuestas.id_jackpot', '=', $id)
+            ->select('jackpot_respuestas.id as id_respuesta',
+                    'jackpot_respuestas.respuesta_correcta as respuesta_resultado',
+                    'jackpot_respuestas.*', 
+                    'usuarios.id as id_usuario',
+                    'usuarios.*',
+                    'jackpot_preguntas.*')
+            ->orderBy('jackpot_respuestas.fecha_registro', 'desc')
+            ->get();
+        $ganadores = DB::table('jackpot_intentos')
+            ->join('usuarios', 'jackpot_intentos.id_usuario', '=', 'usuarios.id')
+            ->where('jackpot_intentos.id_jackpot', '=', $id)
+            ->select('jackpot_intentos.id as id_ganador', 'jackpot_intentos.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*')
+            ->orderBy('jackpot_intentos.fecha_registro', 'desc')
+            ->get();
+        return view('admin/jackpot_resultados', compact('jackpot', 'preguntas', 'respuestas', 'ganadores'));
     }
 
     /**

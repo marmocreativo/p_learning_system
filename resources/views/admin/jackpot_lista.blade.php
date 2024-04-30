@@ -17,6 +17,7 @@
                     </div>
                     <div class="card-footer">
                         <a href="{{route('jackpots.show', $jackpot->id)}}">Ver contenido</a>
+                        <a href="{{route('jackpots.resultados', $jackpot->id)}}">Ver resultados</a>
                         <a href="{{route('jackpots.edit', $jackpot->id)}}">Editar</a>
                         <hr>
                         <form action="{{route('jackpots.destroy', $jackpot->id)}}" method="POST">
