@@ -11,7 +11,7 @@
             <label for="Nombre">Nombre de la temporada</label>
             <input type="text" class="form-control" name="Nombre" value="{{$temporada->nombre}}">
         </div>
-        <input type="hidden" name="IdCuenta" value="1">
+        <input type="hidden" name="IdCuenta" value="{{$temporada->id_cuenta}}">
         <div class="form-group">
             <label for="Descripcion">Descripción</label>
             <textarea class="form-control" name="Descripcion" id="Descripcion" rows="10">{{$temporada->descripcion}}</textarea>

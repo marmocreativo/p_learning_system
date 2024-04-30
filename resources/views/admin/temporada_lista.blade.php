@@ -5,7 +5,7 @@
 @section('contenido_principal')
     <h1>Temporada</h1>
     <hr>
-    <a href="{{ route('temporadas.create') }}">Crear Temporada</a>
+    <a href="{{ route('temporadas.create',['id_cuenta'=>$_GET['id_cuenta']]) }}">Crear Temporada</a>
     <hr>
     <div class="row">
         @foreach ($temporadas as $temporada)

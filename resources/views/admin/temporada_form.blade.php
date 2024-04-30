@@ -1,16 +1,16 @@
 @extends('plantillas/plantilla_admin')
 
-@section('titulo', 'Cuentas')
+@section('titulo', 'Temporadas')
 
 @section('contenido_principal')
     <h1>Formulario de Temporadas</h1>
     <form action="{{ route('temporadas.store') }}" method="POST">
         @csrf
+        <input type="hidden" name="IdCuenta" value='{{$_GET['id_cuenta']}}'>
         <div class="form-group">
             <label for="Nombre">Nombre de la temporada</label>
             <input type="text" class="form-control" name="Nombre">
         </div>
-        <input type="hidden" name="IdCuenta" value="1">
         <div class="form-group">
             <label for="Descripcion">Descripción</label>
             <textarea class="form-control" name="Descripcion" id="Descripcion" rows="10"></textarea>

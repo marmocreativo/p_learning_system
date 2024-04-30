@@ -74,6 +74,8 @@ Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lid
 
 Route::post('agregar_usuario', [UsuariosController::class, 'agregar_usuario_api'])->name('agregar_usuario.api');
 Route::post('actualizar_usuario', [UsuariosController::class, 'actualizar_usuario_api'])->name('actualizar_usuario.api');
+Route::post('eliminar_usuario', [UsuariosController::class, 'eliminar_usuario_api'])->name('eliminar_usuario.api');
+
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 
