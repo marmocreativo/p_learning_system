@@ -36,7 +36,7 @@ class FrontController extends Controller
         //
         echo 'No hay ajustes por ejecutar';
         // Ejecutar la migración
-        /*
+        
         Artisan::call('migrate');
 
         // Obtener el resultado de la ejecución de la migración
@@ -44,6 +44,6 @@ class FrontController extends Controller
 
         // Puedes hacer algo con la salida (por ejemplo, devolverla como respuesta)
         return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
-        */
+        
     }
 }

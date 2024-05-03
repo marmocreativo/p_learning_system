@@ -7,7 +7,6 @@
     <form action="{{ route('admin_usuarios.suscribir') }}" method="POST">
         <input type="hidden" name="IdTemporada" value='{{$_GET['id_temporada']}}'>
         <input type="hidden" name="IdCuenta" value='{{$temporada->id}}'>
-        <input type="hidden" name="IdDistribuidor" value="1">
         @csrf
         <div class="form-group">
             <label for="Nombre">Nombre</label>
@@ -49,13 +48,20 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="Clase">Clase de usuario</label>
-            <select class="form-control" name="Clase">
-                @foreach ($clases as $clase)
-                    <option value="{{ $clase->nombre_sistema }}" > {{ $clase->nombre_singular}}</option>
-                @endforeach
+            <label for="NivelUsuario">Nivel Usuario</label>
+            <select class="form-control" name="NivelUsuario">
+                <option value="ventas" > Ventas</option>
+                <option value="especialista" > Especialista</option>
             </select>
         </div>
+        <div class="form-group">
+            <label for="Funcion">Función</label>
+            <select class="form-control" name="Funcion">
+                <option value="usuario" > Usuario</option>
+                <option value="lider" >Lider</option>
+            </select>
+        </div>
+        <input type="hidden" name="Clase" value="usuario">
         <div class="form-group">
             <label for="ListaCorreo">Lista de correo</label>
             <select class="form-control" name="ListaCorreo" id="ListaCorreo">

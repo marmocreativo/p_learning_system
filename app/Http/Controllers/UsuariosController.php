@@ -176,8 +176,65 @@ class UsuariosController extends Controller
             if($participante){ $suscriptores_participantes++; }
             $suscriptores_totales ++;
         }
+
+        $clases = Clase::where('elementos','usuarios')->get();
+        $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_suscripciones', compact('suscripciones', 'suscriptores_totales', 'suscriptores_activos', 'suscriptores_participantes'));
+        return view('admin/usuario_lista_suscripciones', compact('suscripciones', 'suscriptores_totales', 'suscriptores_activos', 'suscriptores_participantes', 'clases', 'distribuidores'));
+    }
+
+
+    public function suscribir_update(Request $request, string $id)
+    {
+        
+        $suscripcion = UsuariosSuscripciones::find($id);
+        $id_usuario = $suscripcion->id_usuario;
+        $id_temporada = $request->IdTemporada;
+
+        //Actualizo
+        $suscripcion->id_distribuidor = $request->IdDistribuidor;
+        $suscripcion->funcion = $request->Funcion;
+        $suscripcion->save();
+
+        // reasigno el distribuidor en las actividades
+        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($visualizaciones as $visualizacion){
+            $visualizacion->id_distribuidor = $request->IdDistribuidor;
+            $visualizacion->save();
+        }
+
+        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($evaluaciones_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_respuestas = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($trivias_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_ganadores = TriviaGanador::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($trivias_ganadores as $ganador){
+            $ganador->id_distribuidor = $request->IdDistribuidor;
+            $ganador->save();
+        }
+
+        $jackpot_respuestas = JackpotRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($jackpot_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $jackpot_intentos = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($jackpot_intentos as $intento){
+            $intento->id_distribuidor = $request->IdDistribuidor;
+            $intento->save();
+        }
+        
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
+        
     }
 
     public function suscripcion(Request $request)
@@ -186,11 +243,7 @@ class UsuariosController extends Controller
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
         $clases = Clase::where('elementos','usuarios')->get();
-        $distribuidores = DB::table('distribuidores')
-            ->join('distribuidores_suscripciones', 'distribuidores.id', '=', 'distribuidores_suscripciones.id_distribuidor')
-            ->where('distribuidores_suscripciones.id_temporada', '=', $id_temporada)
-            ->select('distribuidores.*', 'distribuidores_suscripciones.*')
-            ->get();
+        $distribuidores = Distribuidor::all();
         return view('admin/usuario_form_suscripcion', compact('clases', 'temporada', 'distribuidores'));
     }
 
@@ -270,7 +323,7 @@ class UsuariosController extends Controller
         $id_temporada = $request->input('id_temporada');
         $suscripcion = UsuariosSuscripciones::find($id);
         $suscripcion->delete();
-        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$id_temporada]);
         
     }
 
@@ -291,10 +344,10 @@ class UsuariosController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $id_usuario = $request->input('id_usuario');
-        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
-        $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
-        $trivia = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
-        $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
 
         $puntajes = [
             'visualizaciones' =>$visualizaciones,
@@ -571,6 +624,7 @@ class UsuariosController extends Controller
         $lista_trivias = Trivia::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '<=', now())->get();
         $jackpots = Jackpot::where('id_temporada', $id_temporada)->count();
         $jackpots_pendientes = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '>', now())->count();
+        $lista_jackpots = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '<=', now())->get();
        
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
         $suscriptores = DB::table('usuarios_suscripciones')
@@ -588,18 +642,28 @@ class UsuariosController extends Controller
         $array_nombres_sesiones = array();
         $top_trivias = array();
         $array_nombres_trivias = array();
+        $top_jackpots = array();
+        $array_jackpots = array();
         $top_10 = array();
+        $no_usuarios_sesiones = 0;
+        $no_usuarios_trivias = 0;
+        $no_usuarios_jackpots = 0;
 
         foreach($lista_sesiones as $sesion){
-            $conteo_vis = SesionVis::where('id_sesion', $sesion->id)->count();
-            $conteo_res = EvaluacionRes::where('id_sesion', $sesion->id)->count();
+            $conteo_vis = SesionVis::where('id_sesion', $sesion->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
+            $conteo_res = EvaluacionRes::where('id_sesion', $sesion->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
             $top_sesiones[$sesion->id] =  $conteo_vis;
             $array_nombres_sesiones[$sesion->id] = $sesion->titulo;        }
 
         foreach($lista_trivias as $trivia){
-            $conteo_res = TriviaRes::where('id_trivia', $trivia->id)->count();
+            $conteo_res = TriviaRes::where('id_trivia', $trivia->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
             $top_trivias[$trivia->id] = $conteo_res;
             $array_nombres_trivias[$trivia->id] = $trivia->titulo;
+        }
+        foreach($lista_jackpots as $jackpot){
+            $conteo_res = JackpotRes::where('id_jackpot', $jackpot->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
+            $top_jacpots[$jackpot->id] = $conteo_res;
+            $array_nombres_jackpots[$jackpot->id] = $jackpot->titulo;
         }
 
 
@@ -614,11 +678,11 @@ class UsuariosController extends Controller
             $hay_sesiones = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
             if($hay_sesiones){ $participante=true; }
             $hay_evaluaciones = EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_evaluaciones){ $participante=true; }
+            if($hay_evaluaciones){ $participante=true; $no_usuarios_sesiones++;}
             $hay_trivias = TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_trivias){ $participante=true; }
+            if($hay_trivias){ $participante=true; $no_usuarios_trivias++;}
             $hay_jackpot = JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_jackpot){ $participante=true; }
+            if($hay_jackpot){ $participante=true; $no_usuarios_jackpots++;}
 
             if($participante){ $activo=true; }
 
@@ -667,6 +731,12 @@ class UsuariosController extends Controller
             $top_trivias_ordenado[] = ['id' => $id, 'puntos' => $puntos];
         }
 
+        $top_jackpots_ordenado = array();
+        arsort($top_jackpots);
+        foreach($top_jackpots as $id=>$puntos){
+            $top_jackpots_ordenado[] = ['id' => $id, 'puntos' => $puntos];
+        }
+
         // ordeno top 10
         $top_10_ordenado = array();
         arsort($top_10);
@@ -689,7 +759,7 @@ class UsuariosController extends Controller
             $engagement_visualizaciones[] = (int) SesionVis::where('id_temporada', $id_temporada)->whereDate('fecha_ultimo_video', $fecha->toDateString())->count();
             $engagement_evaluaciones[] = (int) EvaluacionRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
             $engagement_trivias[] = (int) TriviaRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
-            $engagement_jackpot[] = (int) JackpotIntentos::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_jackpots[] = (int) JackpotIntentos::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
         }
 
 
@@ -713,7 +783,54 @@ class UsuariosController extends Controller
                 'array_nombres_trivias' => $array_nombres_trivias,
                 'top_sesiones' => $top_sesiones_ordenado,
                 'top_trivias' => $top_trivias_ordenado,
+                'top_jackpots' => $top_trivias_ordenado,
                 'top_10' => $top_10_ordenado,
+                'no_usuarios_sesiones' => $no_usuarios_sesiones,
+                'no_usuarios_trivias' => $no_usuarios_trivias,
+                'no_usuarios_jackpots' => $no_usuarios_jackpots,
+                'fechas_array' => $fechas_array,
+                'engagement_visualizaciones' => $engagement_visualizaciones,
+                'engagement_evaluaciones' => $engagement_evaluaciones,
+                'engagement_trivias' => $engagement_trivias,
+                'engagement_jackpots' => $engagement_jackpots,
+            ];
+            return response()->json($completo);
+
+
+    }
+
+    public function panel_lider_api (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $id_usuario = $request->input('id_usuario');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $usuario = User::find($id_usuario);
+        $temporada = Temporada::find($id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+       
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+
+        //Gráfica
+        $fecha_inicio = $request->input('fecha_inicio') ? Carbon::parse($request->input('fecha_inicio')) : Carbon::now()->subDays(15);
+        $fecha_final = $request->input('fecha_final') ? Carbon::parse($request->input('fecha_final')) : Carbon::now();
+
+        $fechas_array = [];
+        $engagement_visualizaciones = [];
+        $engagement_evaluaciones = [];
+        $engagement_trivias = [];
+        $engagement_jackpots = [];
+
+        for ($fecha = $fecha_inicio; $fecha->lte($fecha_final); $fecha->addDay()) {
+            $fechas_array[] = $fecha->toDateString();
+            $engagement_visualizaciones[] = (int) SesionVis::where('id_temporada', $id_temporada)->whereDate('fecha_ultimo_video', $fecha->toDateString())->count();
+            $engagement_evaluaciones[] = (int) EvaluacionRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_trivias[] = (int) TriviaRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_jackpots[] = (int) JackpotIntentos::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
+        }
+
+
+            $completo = [
                 'fechas_array' => $fechas_array,
                 'engagement_visualizaciones' => $engagement_visualizaciones,
                 'engagement_evaluaciones' => $engagement_evaluaciones,

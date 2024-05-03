@@ -15,6 +15,10 @@
             <label for="Pais">Pais</label>
             <input type="text" class="form-control" name="Pais" value="{{$distribuidor->pais}}">
         </div>
+        <div class="form-group">
+            <label for="DefaultPass">Contraseña Default</label>
+            <input type="text" class="form-control" name="DefaultPass" value="{{$distribuidor->default_pass}}">
+        </div>
         
         <div class="form-group">
             <label for="Region">Region</label>

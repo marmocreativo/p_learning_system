@@ -31,9 +31,7 @@
                 <div class="barra_lateral">
                     <ul class="list">
                         <li><a href="{{ route('cuentas') }}">Cuentas</a></li>
-                        <li><a href="{{ route('temporadas') }}">Temporadas</a></li>
                         <li><a href="{{ route('distribuidores') }}">Distribuidores</a></li>
-                        <li><a href="{{ route('publicaciones') }}">Publicaciones</a></li>
                         <li><a href="{{ route('admin_usuarios') }}">Usuarios</a></li>
                         <li><a href="{{ route('clases') }}">Clases</a></li>
                         <li><a href="{{ route('configuraciones') }}">Configuraciones</a></li>

@@ -33,5 +33,6 @@
                 </td>
             </tr>
         @endforeach
+    </table>
     {{$publicaciones->links()}}
 @endsection

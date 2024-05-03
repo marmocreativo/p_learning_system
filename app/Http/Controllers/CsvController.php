@@ -48,7 +48,8 @@ class CsvController extends Controller
                 $usuario->apellidos = $registro['APELLIDO(s)'];
                 $usuario->email = $registro['MAIL'];
                 $usuario->telefono = '';
-                $usuario->whatsapp = $registro['WHATSAPP LIDER'];
+                //$usuario->whatsapp = $registro['WHATSAPP LIDER'];
+                $usuario->whatsapp = '';
                 $usuario->fecha_nacimiento = null;
                 $usuario->password = Hash::make($registro['PASS']);
                 $usuario->lista_correo = 'si';
@@ -66,8 +67,9 @@ class CsvController extends Controller
                     $distribuidor = new Distribuidor();
                     
                     $distribuidor->nombre = $registro['DISTY'];
-                    $distribuidor->pais = $registro['REGIÓN'];
-                    $distribuidor->region = $registro['REGIÓN'];
+                    $distribuidor->pais = $registro['PAÍS'];
+                    //$distribuidor->region = $registro['REGIÓN'];
+                    $distribuidor->region = 'México';
                     $distribuidor->nivel = $registro['NIVEL DISTY'];
                     $distribuidor->estado = 'activo';
 
@@ -88,19 +90,22 @@ class CsvController extends Controller
                 
     
     
-            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 9)->first();
             if (!$suscripcion) {
                 $suscripcion = new UsuariosSuscripciones();
                 $suscripcion->id_usuario = $usuario->id;
                 $suscripcion->id_cuenta = 1;
-                $suscripcion->id_temporada = 1;
+                $suscripcion->id_temporada = 9;
                 $suscripcion->id_distribuidor = $distribuidor->id;
                 $suscripcion->confirmacion_puntos = 'pendiente';
+                /*
                 if($registro['LÍDER']=='no'){
                     $suscripcion->funcion = 'usuario';
                 }else{
                     $suscripcion->funcion = 'lider';
                 }
+                */
+                $suscripcion->funcion = 'usuario';
                 $suscripcion->save();
             }
         }

@@ -186,6 +186,7 @@ Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middl
 Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');
 Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcion'])->middleware('auth')->name('admin_usuarios.suscripcion');
 Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');
+Route::put('admin/usuarios/suscribir_update/{post}', [UsuariosController::class, 'suscribir_update'])->middleware('auth')->name('admin_usuarios.suscribir_update');
 Route::post('/upload-csv', [CsvController::class, 'subirCSV'])->name('upload-csv');
 
 Route::get('admin/usuarios/cambiar_a_lider', [UsuariosController::class, 'cambiar_a_lider'])->middleware('auth')->name('admin_usuarios.cambiar_a_lider');

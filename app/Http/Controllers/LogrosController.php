@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\Cuenta;
 use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
@@ -51,6 +52,13 @@ class LogrosController extends Controller
          $logro->id_temporada = $request->IdTemporada;
          $logro->nombre = $request->Nombre;
          $logro->instrucciones = $request->Instrucciones;
+         $logro->contenido = $request->Contenido;
+         $logro->premio = $request->Premio;
+         $logro->nivel_a = $request->NivelA;
+         $logro->nivel_b = $request->NivelB;
+         $logro->nivel_c = $request->NivelC;
+         $logro->nivel_especial = $request->NivelEspecial;
+         $logro->nivel_usuario = $request->NivelUsuario;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
          $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
@@ -103,6 +111,13 @@ class LogrosController extends Controller
         $logro->id_temporada = $request->IdTemporada;
         $logro->nombre = $request->Nombre;
         $logro->instrucciones = $request->Instrucciones;
+        $logro->premio = $request->Premio;
+        $logro->contenido = $request->Contenido;
+        $logro->nivel_a = $request->NivelA;
+        $logro->nivel_b = $request->NivelB;
+        $logro->nivel_c = $request->NivelC;
+        $logro->nivel_especial = $request->NivelEspecial;
+        $logro->nivel_usuario = $request->NivelUsuario;
         $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
@@ -139,5 +154,37 @@ class LogrosController extends Controller
 
         $logro->delete();
         return redirect()->route('logros', ['id_temporada'=>$id_temporada]);
+    }
+
+    public function lista_logros_api(Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $id_usuario = $request->input('id_usuario');
+        $logros = Logro::where('id_temporada', $id_temporada)->get();
+        $participaciones = LogroParticipacion::where('id_usuario', $id_usuario)->get();
+        $completo = [
+            'logros' => $logros,
+            'participaciones' => $participaciones
+        ];
+        return response()->json($completo);
+    }
+
+    public function detalles_logro_api (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $id_usuario = $request->input('id_usuario');
+        $logro = Logro::find($request->input('id'));
+        $participaciones = LogroParticipacion::where('id_logro', $id_usuario)->get();
+
+        $completo = [
+            'logro' => $logro,
+            'participaciones' => $participaciones
+        ];
+
+        return response()->json($completo);
     }
 }

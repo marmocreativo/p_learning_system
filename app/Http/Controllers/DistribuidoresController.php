@@ -83,6 +83,7 @@ class DistribuidoresController extends Controller
         $distribuidor->nombre = $request->Nombre;
         $distribuidor->pais = $request->Pais;
         $distribuidor->region = $request->Region;
+        $distribuidor->default_pass = $request->DefaultPass;
         $distribuidor->nivel = $request->Nivel;
         $distribuidor->estado = $request->Estado;
 

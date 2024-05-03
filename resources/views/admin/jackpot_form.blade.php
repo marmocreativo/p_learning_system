@@ -16,11 +16,11 @@
                 </div>
                 <div class="form-group">
                     <label for="MensajeAntes">Mensaje Antes del inicio</label>
-                    <textarea class="form-control TextEditor" name="MensajeAntes" id="MensajeAntes" rows="5">{{ $trivia->mensaje_antes }}</textarea>
+                    <textarea class="form-control TextEditor" name="MensajeAntes" id="MensajeAntes" rows="5"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="MensajeDespues">Mensaje Después del término</label>
-                    <textarea class="form-control TextEditor" name="MensajeDespues" id="MensajeDespues" rows="5">{{ $trivia->mensaje_despues }}</textarea>
+                    <textarea class="form-control TextEditor" name="MensajeDespues" id="MensajeDespues" rows="5"></textarea>
                 </div>
                 
                 
@@ -29,8 +29,8 @@
                 <div class="form-group">
                     <label for="Estado">Estado</label>
                     <select name="Estado" id="Estado" class="form-control">
-                        <option value="activo" @if($jackpot->estado == 'activo') selected @endif >Activo</option>
-                        <option value="inactivo" @if($jackpot->estado == 'inactivo') selected @endif >Inactivo</option>
+                        <option value="activo"  >Activo</option>
+                        <option value="inactivo"  >Inactivo</option>
                     </select>
                 </div>
                 <h5>Intentos</h5>

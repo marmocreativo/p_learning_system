@@ -14,6 +14,10 @@
             <label for="Pais">Pais</label>
             <input type="text" class="form-control" name="Pais">
         </div>
+        <div class="form-group">
+            <label for="DefaultPass">Contraseña Default</label>
+            <input type="text" class="form-control" name="DefaultPass">
+        </div>
         
         <div class="form-group">
             <label for="Region">Region</label>

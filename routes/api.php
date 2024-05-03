@@ -10,6 +10,7 @@ use App\Http\Controllers\SlidersController;
 use App\Http\Controllers\SesionesController;
 use App\Http\Controllers\TriviasController;
 use App\Http\Controllers\JackpotsController;
+use App\Http\Controllers\LogrosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,10 +72,14 @@ Route::get('usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos
 Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api'])->name('puntaje_usuario.api');
 Route::get('datos_lider', [UsuariosController::class, 'datos_lider_api'])->name('datos_lider.api');
 Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lider_api'])->name('datos_basicos_lider.api');
+Route::get('panel_lider', [UsuariosController::class, 'panel_lider_api'])->name('panel_lider.api');
 
 Route::post('agregar_usuario', [UsuariosController::class, 'agregar_usuario_api'])->name('agregar_usuario.api');
 Route::post('actualizar_usuario', [UsuariosController::class, 'actualizar_usuario_api'])->name('actualizar_usuario.api');
 Route::post('eliminar_usuario', [UsuariosController::class, 'eliminar_usuario_api'])->name('eliminar_usuario.api');
+
+Route::get('lista_logros', [LogrosController::class, 'lista_logros_api'])->name('lista_logros.api');
+Route::get('detalles_logro', [LogrosController::class, 'detalles_logro_api'])->name('lista_logros.api');
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
