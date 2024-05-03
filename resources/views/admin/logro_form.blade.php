@@ -50,6 +50,17 @@
             </div>
             <div class="col-4">
                 <div class="form-group">
+                    <label for="Imagen">Imagen</label>
+                    <input type="file" class="form-control" name="Imagen" >
+                </div>
+
+                <div class="form-group">
+                    <label for="ImagenFondo">Imagen tabla de datos</label>
+                    <input type="file" class="form-control" name="ImagenFondo" >
+                </div>
+                <hr>
+                
+                <div class="form-group">
                     <label for="NivelUsuario">Nivel Usuario</label>
                     <select name="NivelUsuario" id="" class="form-control">
                         <option value="ventas">Ventas</option>

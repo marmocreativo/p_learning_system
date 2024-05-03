@@ -49,6 +49,27 @@ class LogrosController extends Controller
          //
          $logro = new Logro();
 
+         // Validar la solicitud
+       $request->validate([
+        'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'logro_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = 'default.jpg';
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = 'default_fondo.jpg';
+        }
+
          $logro->id_temporada = $request->IdTemporada;
          $logro->nombre = $request->Nombre;
          $logro->instrucciones = $request->Instrucciones;
@@ -59,6 +80,8 @@ class LogrosController extends Controller
          $logro->nivel_c = $request->NivelC;
          $logro->nivel_especial = $request->NivelEspecial;
          $logro->nivel_usuario = $request->NivelUsuario;
+         $logro->imagen = $nombreImagen;
+         $logro->imagen_fondo = $nombreImagenFondo;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
          $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
@@ -108,6 +131,26 @@ class LogrosController extends Controller
         //
         $logro = Logro::find($id);
 
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            ]);
+
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'logro'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $logro->imagen;
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = $logro->imagen_fondo;
+        }
+
         $logro->id_temporada = $request->IdTemporada;
         $logro->nombre = $request->Nombre;
         $logro->instrucciones = $request->Instrucciones;
@@ -118,6 +161,8 @@ class LogrosController extends Controller
         $logro->nivel_c = $request->NivelC;
         $logro->nivel_especial = $request->NivelEspecial;
         $logro->nivel_usuario = $request->NivelUsuario;
+        $logro->imagen = $nombreImagen;
+        $logro->imagen_fondo = $nombreImagenFondo;
         $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
@@ -186,5 +231,29 @@ class LogrosController extends Controller
         ];
 
         return response()->json($completo);
+    }
+
+    public function participar_logro_api (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $id_usuario = $request->input('id_usuario');
+        $id_logro = $request->input('id_logro');
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $id_distribuidor = $suscripcion->id_distribuidor;
+        $logro = Logro::find($id_logro);
+
+        $participacion = new LogroParticipacion();
+        $participacion->id_logro = $id_logro;
+        $participacion->id_temporada = $id_temporada;
+        $participacion->id_distribuidor = $id_distribuidor;
+        $participacion->id_usuario = $id_usuario;
+        $participacion->estado = 'participante';
+        $participacion->fecha_registro = date('Y-m-d H:i:s');
+
+        $participacion->save();
+
+        return 'guardado';
     }
 }

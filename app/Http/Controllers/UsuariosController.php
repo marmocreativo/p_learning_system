@@ -651,18 +651,18 @@ class UsuariosController extends Controller
 
         foreach($lista_sesiones as $sesion){
             $conteo_vis = SesionVis::where('id_sesion', $sesion->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
-            $conteo_res = EvaluacionRes::where('id_sesion', $sesion->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
+            $conteo_res = EvaluacionRes::where('id_sesion', $sesion->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->distinct('id_usuario')->count();
             $top_sesiones[$sesion->id] =  $conteo_vis;
             $array_nombres_sesiones[$sesion->id] = $sesion->titulo;        }
 
         foreach($lista_trivias as $trivia){
-            $conteo_res = TriviaRes::where('id_trivia', $trivia->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
+            $conteo_res = TriviaRes::where('id_trivia', $trivia->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->distinct('id_usuario')->count();
             $top_trivias[$trivia->id] = $conteo_res;
             $array_nombres_trivias[$trivia->id] = $trivia->titulo;
         }
         foreach($lista_jackpots as $jackpot){
-            $conteo_res = JackpotRes::where('id_jackpot', $jackpot->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->count();
-            $top_jacpots[$jackpot->id] = $conteo_res;
+            $conteo_res = JackpotIntentos::where('id_jackpot', $jackpot->id)->where('id_distribuidor', $suscripcion->id_distribuidor)->where('puntaje', '>', 0)->count();
+            $top_jackpots[$jackpot->id] = $conteo_res;
             $array_nombres_jackpots[$jackpot->id] = $jackpot->titulo;
         }
 
@@ -719,22 +719,28 @@ class UsuariosController extends Controller
         }
         // ordeno sesiones 
         $top_sesiones_ordenado = array();
+        $participaciones_sesiones = 0;
         arsort($top_sesiones);
         foreach($top_sesiones as $id=>$puntos){
             $top_sesiones_ordenado[] = ['id' => $id, 'puntos' => $puntos];
+            $participaciones_sesiones +=$puntos;
         }
 
         // ordeno trivias 
         $top_trivias_ordenado = array();
+        $participaciones_trivias = 0;
         arsort($top_trivias);
         foreach($top_trivias as $id=>$puntos){
             $top_trivias_ordenado[] = ['id' => $id, 'puntos' => $puntos];
+            $participaciones_trivias +=$puntos;
         }
 
         $top_jackpots_ordenado = array();
         arsort($top_jackpots);
+        $participaciones_jackpots = 0;
         foreach($top_jackpots as $id=>$puntos){
             $top_jackpots_ordenado[] = ['id' => $id, 'puntos' => $puntos];
+            $participaciones_jackpots +=$puntos;
         }
 
         // ordeno top 10
@@ -788,6 +794,9 @@ class UsuariosController extends Controller
                 'no_usuarios_sesiones' => $no_usuarios_sesiones,
                 'no_usuarios_trivias' => $no_usuarios_trivias,
                 'no_usuarios_jackpots' => $no_usuarios_jackpots,
+                'participaciones_sesiones' => $participaciones_sesiones,
+                'participaciones_trivias' => $participaciones_trivias,
+                'participaciones_jackpots' => $participaciones_jackpots,
                 'fechas_array' => $fechas_array,
                 'engagement_visualizaciones' => $engagement_visualizaciones,
                 'engagement_evaluaciones' => $engagement_evaluaciones,
