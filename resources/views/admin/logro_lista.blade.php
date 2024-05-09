@@ -14,6 +14,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3>{{$logro->nombre}} </h3>
+                        <p>{{$logro->nivel_usuario}} </p>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('logros.show', $logro->id)}}">Ver contenido</a>

@@ -81,12 +81,18 @@ Route::post('eliminar_usuario', [UsuariosController::class, 'eliminar_usuario_ap
 Route::get('lista_logros', [LogrosController::class, 'lista_logros_api'])->name('lista_logros.api');
 Route::get('detalles_logro', [LogrosController::class, 'detalles_logro_api'])->name('lista_logros.api');
 Route::post('participar_logro', [LogrosController::class, 'participar_logro_api'])->name('participar_logro.api');
+Route::post('validar_logro', [LogrosController::class, 'validar_logro_api'])->name('validar_logro.api');
+Route::post('subir_evidencia', [LogrosController::class, 'subir_evidencia_api'])->name('subir_evidencia.api');
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
+Route::post('login_suscripcion', [LoginController::class, 'login_suscripcion_api'])->name('login_suscripcion.api');
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
 Route::get('full_check', [LoginController::class, 'full_check_api'])->name('full_check.api');
+Route::post('actualizar_usuario_perfil', [UsuariosController::class, 'actualizar_usuario_perfil_api'])->name('actualizar_usuario_perfil.api');
+Route::post('actualizar_pass_perfil', [UsuariosController::class, 'actualizar_pass_perfil_api'])->name('actualizar_pass_perfil.api');
+
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('logout', [LoginController::class, 'logout_api']);

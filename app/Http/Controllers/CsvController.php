@@ -10,6 +10,7 @@ use App\Models\Temporada;
 use App\Models\Clase;
 use App\Models\Distribuidor;
 use App\Models\DistribuidoresSuscripciones;
+use App\Models\SesionVis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +38,22 @@ class CsvController extends Controller
         //     TuModelo::create($registro);
         // }
         foreach ($registros as $registro) {
+            $distribuidor = Distribuidor::where('nombre', $registro['DISTY'])->first();
+        
+
+                if (!$distribuidor) {
+                    $distribuidor = new Distribuidor();
+                    
+                    $distribuidor->nombre = $registro['DISTY'];
+                    $distribuidor->pais = $registro['REGIÓN'];
+                    $distribuidor->region = 'RoLA';
+                    //$distribuidor->region = 'México';
+                    $distribuidor->nivel = $registro['NIVEL DISTY'];
+                    $distribuidor->estado = 'activo';
+
+                    $distribuidor->save();
+                }
+
             $usuario = User::where('email', $registro['MAIL'])->first();
         
 
@@ -60,21 +77,7 @@ class CsvController extends Controller
                 $usuario->save();
             }
 
-            $distribuidor = Distribuidor::where('nombre', $registro['DISTY'])->first();
-        
-
-                if (!$distribuidor) {
-                    $distribuidor = new Distribuidor();
-                    
-                    $distribuidor->nombre = $registro['DISTY'];
-                    $distribuidor->pais = $registro['PAÍS'];
-                    //$distribuidor->region = $registro['REGIÓN'];
-                    $distribuidor->region = 'México';
-                    $distribuidor->nivel = $registro['NIVEL DISTY'];
-                    $distribuidor->estado = 'activo';
-
-                    $distribuidor->save();
-                }
+            
 
 
                 $suscripcion_dist = DistribuidoresSuscripciones::where('id_distribuidor', $distribuidor->id)->where('id_temporada', 1)->first();
@@ -84,7 +87,7 @@ class CsvController extends Controller
                     $suscripcion_dist->id_cuenta = 1;
                     $suscripcion_dist->id_temporada = 1;
                     $suscripcion_dist->cantidad_usuarios = 0;
-                    $suscripcion_dist->nivel = 'completo';
+                    $suscripcion_dist->nivel = $registro['NIVEL DISTY'];
                     $suscripcion_dist->save();
                 }
                 
@@ -95,20 +98,177 @@ class CsvController extends Controller
                 $suscripcion = new UsuariosSuscripciones();
                 $suscripcion->id_usuario = $usuario->id;
                 $suscripcion->id_cuenta = 1;
-                $suscripcion->id_temporada = 9;
+                $suscripcion->id_temporada = 1;
                 $suscripcion->id_distribuidor = $distribuidor->id;
                 $suscripcion->confirmacion_puntos = 'pendiente';
-                /*
+                $suscripcion->nivel_usuario = $registro['VENTAS/ESPECIALISTA'];
+                
                 if($registro['LÍDER']=='no'){
                     $suscripcion->funcion = 'usuario';
                 }else{
                     $suscripcion->funcion = 'lider';
                 }
-                */
-                $suscripcion->funcion = 'usuario';
+                
                 $suscripcion->save();
             }
         }
         
     }
+
+    public function registros_pasados(Request $request)
+    {
+        // Validar el formulario para asegurar que se haya enviado un archivo CSV
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        // Obtener el archivo CSV
+        $archivoCSV = $request->file('csv_file');
+
+        // Procesar el archivo CSV
+        $csv = Reader::createFromPath($archivoCSV->getPathname(), 'r');
+        $csv->setHeaderOffset(0); // Especifica que la primera fila contiene encabezados
+        $encabezados = $csv->getHeader(); // Obtiene los encabezados
+        $registros = $csv->getRecords(); // Obtiene los registros
+
+        // Puedes hacer algo con los registros, como guardarlos en la base de datos
+        // Por ejemplo:
+        // foreach ($registros as $registro) {
+        //     TuModelo::create($registro);
+        // }
+        foreach ($registros as $registro) {
+            $distribuidor = Distribuidor::where('nombre', $registro['DISTRIBUIDOR'])->first();
+        
+
+                if (!$distribuidor) {
+                    $distribuidor = new Distribuidor();
+                    
+                    $distribuidor->nombre = $registro['DISTRIBUIDOR'];
+                    $distribuidor->pais = 'México';
+                    //$distribuidor->region = $registro['REGIÓN'];
+                    $distribuidor->region = 'México';
+                    $distribuidor->nivel = 'completo';
+                    $distribuidor->default_pass = '123456';
+                    $distribuidor->estado = 'activo';
+
+                    $distribuidor->save();
+                }
+
+            $usuario = User::where('email', $registro['CORREO'])->first();
+        
+
+            if (!$usuario) {
+                $usuario = new User();
+                
+                $usuario->legacy_id = uniqid('',true);
+                $usuario->nombre = $registro['NOMBRE'];
+                $usuario->apellidos = $registro['APELLIDOS'];
+                $usuario->email = $registro['CORREO'];
+                $usuario->telefono = '';
+                $usuario->whatsapp = '';
+                $usuario->fecha_nacimiento = null;
+                $usuario->password = Hash::make($distribuidor->default_pass);
+                $usuario->lista_correo = 'si';
+                $usuario->imagen = 'default.jpg';
+                $usuario->clase = 'usuario';
+                $usuario->estado = 'activo';
+                $usuario->save();
+            }
+
+            
+
+
+            $suscripcion_dist = DistribuidoresSuscripciones::where('id_distribuidor', $distribuidor->id)->where('id_temporada', 6)->first();
+            if (!$suscripcion_dist) {
+                $suscripcion_dist = new DistribuidoresSuscripciones();
+                $suscripcion_dist->id_distribuidor = $distribuidor->id;
+                $suscripcion_dist->id_cuenta = 1;
+                $suscripcion_dist->id_temporada = 6;
+                $suscripcion_dist->cantidad_usuarios = 0;
+                $suscripcion_dist->nivel = 'completo';
+                $suscripcion_dist->save();
+            }
+                
+
+            $visualizacion = SesionVis::where('id_usuario', $usuario->id)->where('id_sesion', $registro['ID SESION'])->where('id_sesion', $registro['ID SESION'])->first();
+            if (!$visualizacion) {
+                $visualizacion = new SesionVis();
+                $visualizacion->id_sesion = $registro['ID SESION'];
+                $visualizacion->id_temporada = 6;
+                $visualizacion->id_distribuidor = $distribuidor->id;
+                $visualizacion->id_usuario = $usuario->id;
+                $visualizacion->fecha_ultimo_video = $registro['FECHA'];
+                $visualizacion->puntaje = $registro['PUNTAJE'];
+                $visualizacion->save();
+            }
+
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 6)->first();
+            if (!$suscripcion) {
+                $suscripcion = new UsuariosSuscripciones();
+                $suscripcion->id_usuario = $usuario->id;
+                $suscripcion->id_cuenta = 1;
+                $suscripcion->id_temporada = 6;
+                $suscripcion->id_distribuidor = $distribuidor->id;
+                $suscripcion->confirmacion_puntos = 'pendiente';
+                $suscripcion->funcion = 'usuario';
+                $suscripcion->champions_a = 'si';
+                $suscripcion->save();
+            }
+
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
+            if (!$suscripcion) {
+                $suscripcion = new UsuariosSuscripciones();
+                $suscripcion->id_usuario = $usuario->id;
+                $suscripcion->id_cuenta = 1;
+                $suscripcion->id_temporada = 6;
+                $suscripcion->id_distribuidor = $distribuidor->id;
+                $suscripcion->confirmacion_puntos = 'pendiente';
+                $suscripcion->funcion = 'usuario';
+                $suscripcion->champions_a = 'si';
+                $suscripcion->save();
+            }else{
+                $suscripcion->champions_a = 'si';
+                $suscripcion->save();
+            }
+
+        }
+        
+    }
+
+    public function actualizar_pass(Request $request)
+    {
+        // Validar el formulario para asegurar que se haya enviado un archivo CSV
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        // Obtener el archivo CSV
+        $archivoCSV = $request->file('csv_file');
+
+        // Procesar el archivo CSV
+        $csv = Reader::createFromPath($archivoCSV->getPathname(), 'r');
+        $csv->setHeaderOffset(0); // Especifica que la primera fila contiene encabezados
+        $encabezados = $csv->getHeader(); // Obtiene los encabezados
+        $registros = $csv->getRecords(); // Obtiene los registros
+
+        // Puedes hacer algo con los registros, como guardarlos en la base de datos
+        // Por ejemplo:
+        // foreach ($registros as $registro) {
+        //     TuModelo::create($registro);
+        // }
+        foreach ($registros as $registro) {
+            $distribuidor = Distribuidor::where('nombre', $registro['DISTY'])->first();
+
+            $usuario = User::where('email', $registro['MAIL'])->first();
+            if($distribuidor&&$usuario){
+                $usuario->password = Hash::make($distribuidor->default_pass);
+                $usuario->save();
+                echo 'correo: '.$registro['MAIL'].' contraseña: '.$distribuidor->default_pass.'<br>';
+            }
+            
+        }
+        
+    }
+
+
 }

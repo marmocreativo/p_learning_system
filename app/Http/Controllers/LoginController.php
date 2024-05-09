@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
+use App\Models\Cuenta;
 use App\Models\Distribuidor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -87,9 +88,11 @@ class LoginController extends Controller
 
     public function login_api(Request $request){
 
+        $loginType = filter_var($request->Email, FILTER_VALIDATE_EMAIL) ? 'email' : 'legacy_id';
+
         // validation
         $credentials = [
-            "email"=> $request->Email,
+            $loginType=> $request->Email,
             "password"=> $request->Password,
             //"estado"=> 'activo'
         ];
@@ -102,7 +105,7 @@ class LoginController extends Controller
 
         if(Auth::attempt($credentials, $remember)){
 
-            $user = User::where('email', $request->Email)->firstOrFail();
+            $user = User::where($loginType, $request->Email)->firstOrFail();
 
             $token = $user->createToken('auth_token')->plainTextToken;
     
@@ -118,7 +121,50 @@ class LoginController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         
+    }
 
+    public function login_suscripcion_api(Request $request){
+
+        $loginType = filter_var($request->Email, FILTER_VALIDATE_EMAIL) ? 'email' : 'legacy_id';
+
+        // validation
+        $credentials = [
+            $loginType=> $request->Email,
+            "password"=> $request->Password,
+            //"estado"=> 'activo'
+        ];
+
+
+
+        //$remember = ($request->has('remember') ? true : false);
+        
+        $remember = false;
+
+        if(Auth::attempt($credentials, $remember)){
+
+            $user = User::where($loginType, $request->Email)->firstOrFail();
+            $id_usuario = $user->id;
+            $id_cuenta = $request->input('id_cuenta');
+            $cuenta = Cuenta::find($id_cuenta);
+            $id_temporada = $cuenta->temporada_actual;
+            $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'message' => 'Hola '.$user->nombre,
+                'accessToken' => $token,
+                'token_type' => 'Bearer',
+                'user'=>$user,
+                'distribuidor'=>$distribuidor->nombre,
+                'region'=>$distribuidor->region,
+            ]);
+
+        }else{
+            
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         
     }
 

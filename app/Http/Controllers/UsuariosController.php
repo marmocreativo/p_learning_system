@@ -150,7 +150,7 @@ class UsuariosController extends Controller
             ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
             ->select('usuarios.*', 'usuarios_suscripciones.*', 'distribuidores.nombre as nombre_distribuidor')
-            ->get();
+            ->paginate(20);
             $suscriptores_activos = 0;
             $suscriptores_participantes = 0;
             $suscriptores_totales = 0;
@@ -194,6 +194,9 @@ class UsuariosController extends Controller
         //Actualizo
         $suscripcion->id_distribuidor = $request->IdDistribuidor;
         $suscripcion->funcion = $request->Funcion;
+        $suscripcion->nivel_usuario = $request->NivelUsuario;
+        $suscripcion->champions_a = $request->ChampionsA;
+        $suscripcion->champions_b = $request->ChampionsB;
         $suscripcion->save();
 
         // reasigno el distribuidor en las actividades
@@ -873,5 +876,64 @@ class UsuariosController extends Controller
         return 'Eliminado';
         
        
+    }
+
+    public function actualizar_usuario_perfil_api (Request $request)
+    {
+            // Verificar si el usuario ya existe
+
+        $usuario = User::find($request->id_usuario);
+        if($usuario){
+            $usuario->legacy_id = $request->legacy_id;
+
+            if(!empty($request->telefono)){
+                $usuario->telefono = $request->telefono;
+            }else{
+                $usuario->telefono = '';
+            }
+            
+            $usuario->fecha_nacimiento = date('Y-m-d', strtotime($request->fecha_nacimiento));
+            $usuario->save();
+            
+            return 'Guardado';
+        }else{
+            return 'No hay usuario: '.$request->id_usuario;
+        }
+        
+        
+    }
+
+    public function actualizar_pass_perfil_api (Request $request)
+    {
+            // Verificar si el usuario ya existe
+        $id_usuario = $request->id_usuario;
+        $old_pass = $request->old_pass;
+        $new_pass = $request->new_pass;
+        $confirm_pass = $request->confirm_pass;
+
+        $usuario = User::find($request->id_usuario);
+        
+        if($usuario){
+            if(Hash::check($old_pass, $usuario->password)){
+                if(($new_pass==$confirm_pass)){
+                    $usuario->password = Hash::make($new_pass);
+                    $usuario->save();
+                    return 'ok';
+                }else{
+                    return 'new_pass';
+                }
+                
+            }else{
+                return 'old_pass';
+            }
+            
+            
+            
+        }else{
+            return 'user';
+        }
+
+        
+        
     }
 }

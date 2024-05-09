@@ -32,6 +32,8 @@
             <th>Correo</th>
             <th>Distribuidor</th>
             <th>Permisos</th>
+            <th>champions_a</th>
+            <th>champions_b</th>
             <th>Controles</th>
         </tr>
         @foreach ($suscripciones as $suscripcion)
@@ -48,6 +50,8 @@
                             <a href="{{ route('admin_usuarios.cambiar_a_usuario', ['id' => $suscripcion->id, 'id_temporada' => $_GET['id_temporada']]) }}">Cambiar a usuario</a>
                         @endif
                     </td>
+                    <td>{{$suscripcion->champions_a}} </td>
+                    <td>{{$suscripcion->champions_b}} </td>
                     <td>
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$suscripcion->id}}">
                             Editar
@@ -98,6 +102,20 @@
                                                     <option value="lider" @if($suscripcion->funcion=='lider') selected @endif>Lider</option>
                                                 </select>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="ChampionsA">Champions A</label>
+                                                <select class="form-control" name="ChampionsA">
+                                                    <option value="no" @if($suscripcion->champions_a=='no') selected @endif> No</option>
+                                                    <option value="si" @if($suscripcion->champions_a=='si') selected @endif> Si</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="ChampionsB">Champions B</label>
+                                                <select class="form-control" name="ChampionsB">
+                                                    <option value="no" @if($suscripcion->champions_b=='no') selected @endif> No</option>
+                                                    <option value="si" @if($suscripcion->champions_b=='si') selected @endif> Si</option>
+                                                </select>
+                                            </div>
                                             <hr>
                                             <button type="submit" class="btn btn-primary">Actualizar</button>
                                         </form>
@@ -115,8 +133,24 @@
                 </tr>
         @endforeach
     </table>
+    {{$suscripciones->links()}}
     <hr>
+    <h5>Subida masiva de usuarios</h5>
     <form method="POST" action="{{ route('upload-csv') }}" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="csv_file" accept=".csv">
+        <button type="submit">Subir CSV</button>
+    </form>
+    <hr>
+    <h5>Subir visualizaciones pasadas</h5>
+    <form method="POST" action="{{ route('registros_pasados.csv') }}" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="csv_file" accept=".csv">
+        <button type="submit">Subir CSV</button>
+    </form>
+    <hr>
+    <h5>Actualizar pass</h5>
+    <form method="POST" action="{{ route('actualizar_pass.csv') }}" enctype="multipart/form-data">
         @csrf
         <input type="file" name="csv_file" accept=".csv">
         <button type="submit">Subir CSV</button>

@@ -8,9 +8,11 @@ use App\Models\Jackpot;
 use App\Models\JackpotPreg;
 use App\Models\JackpotRes;
 use App\Models\JackpotIntentos;
+use App\Models\Distribuidor;
 use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class JackpotsController extends Controller
@@ -227,12 +229,17 @@ class JackpotsController extends Controller
         $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();
         $respuestas = JackpotRes::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
         $intentos = JackpotIntentos::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+        $usuario = User::find($request->input('id_usuario'));
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id_usuario'))->where('id_temporada', $id_temporada )->first();
+        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
         
         $completo = [
             'jackpot' => $jackpot,
             'preguntas' => $preguntas,
             'respuestas' => $respuestas,
             'intentos' => $intentos,
+            'suscripcion' => $suscripcion,
+            'distribuidor' => $distribuidor,
         ];
 
          return response()->json($completo);

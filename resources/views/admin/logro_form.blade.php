@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Formulario de logros</h1>
-    <form action="{{ route('logros.store') }}" method="POST">
+    <form action="{{ route('logros.store') }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
         @csrf
@@ -15,7 +15,7 @@
                     <input type="text" class="form-control" name="Nombre">
                 </div>
                 <div class="form-group">
-                    <label for="Premio">Premio</label>
+                    <label for="Premio">Premio en texto</label>
                     <input type="text" class="form-control" name="Premio">
                 </div>
                 
@@ -28,25 +28,62 @@
                     <textarea class="form-control TextEditor" name="Contenido" id="Contenido" rows="5"></textarea>
                 </div>
                 <hr>
-                <div class="form-group">
-                    <label for="NivelA">Describe el Nivel A</label>
-                    <textarea class="form-control" name="NivelA" id="NivelA" rows="5"></textarea>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-group">
+                            <label for="NivelA">Describe el Nivel A</label>
+                            <textarea class="form-control TextEditor" name="NivelA" id="NivelA" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioA">Premio nivel A (número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioA">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="NivelB">Describe el Nivel B</label>
-                    <textarea class="form-control" name="NivelB" id="NivelB" rows="5"></textarea>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-group">
+                            <label for="NivelB">Describe el Nivel B</label>
+                            <textarea class="form-control TextEditor" name="NivelB" id="NivelB" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioB">Premio nivel B (número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioB">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="NivelC">Describe el Nivel C</label>
-                    <textarea class="form-control" name="NivelC" id="NivelC" rows="5"></textarea>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-group">
+                            <label for="NivelC">Describe el Nivel C</label>
+                            <textarea class="form-control TextEditor" name="NivelC" id="NivelC" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioC">Premio nivel C (número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioC">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="NivelEspecial">Describe el Nivel Especial</label>
-                    <textarea class="form-control" name="NivelEspecial" id="NivelEspecial" rows="5"></textarea>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-group">
+                            <label for="NivelEspecial">Describe el Nivel Especial</label>
+                            <textarea class="form-control TextEditor" name="NivelEspecial" id="NivelEspecial" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioEspecial">Premio nivel Especial (número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioEspecial">
+                        </div>
+                    </div>
                 </div>
-
-                
-                
             </div>
             <div class="col-4">
                 <div class="form-group">
@@ -66,6 +103,10 @@
                         <option value="ventas">Ventas</option>
                         <option value="especialista">Especialista</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="CantidadEvidencias">Cantidad de evidencias (Max)</label>
+                    <input type="number" class="form-control" step="1" name="CantidadEvidencias">
                 </div>
                 <div class="row mb-3">
                     <div class="col-6">

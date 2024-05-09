@@ -188,6 +188,8 @@ Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcio
 Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');
 Route::put('admin/usuarios/suscribir_update/{post}', [UsuariosController::class, 'suscribir_update'])->middleware('auth')->name('admin_usuarios.suscribir_update');
 Route::post('/upload-csv', [CsvController::class, 'subirCSV'])->name('upload-csv');
+Route::post('/registros_pasados', [CsvController::class, 'registros_pasados'])->name('registros_pasados.csv');
+Route::post('/actualizar_pass', [CsvController::class, 'actualizar_pass'])->name('actualizar_pass.csv');
 
 Route::get('admin/usuarios/cambiar_a_lider', [UsuariosController::class, 'cambiar_a_lider'])->middleware('auth')->name('admin_usuarios.cambiar_a_lider');
 Route::get('admin/usuarios/cambiar_a_usuario', [UsuariosController::class, 'cambiar_a_usuario'])->middleware('auth')->name('admin_usuarios.cambiar_a_usuario');
