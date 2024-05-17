@@ -326,7 +326,7 @@ class JackpotsController extends Controller
     {
         $id_jackpot = $request->input('id_jackpot');
         $id_usuario = $request->input('id_usuario');
-        $jackpot = Temporada::find($id_jackpot);
+        $jackpot = Jackpot::find($id_jackpot);
         $temporada = Temporada::find($jackpot->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 

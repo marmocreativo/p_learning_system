@@ -370,4 +370,14 @@ class LogrosController extends Controller
         
 
     }
+
+    public function borrar_evidencia_api(Request $request)
+    {
+        //
+        $evidencia = LogroAnexo::where('documento', $request->id)->first();
+
+
+        $evidencia->delete();
+        return ('borrado');
+    }
 }

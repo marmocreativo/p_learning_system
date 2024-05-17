@@ -70,6 +70,7 @@ Route::get('temporada_y_sesiones', [TemporadasController::class, 'temporada_y_se
 
 Route::get('usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos_api'])->name('usuarios_suscritos.api');
 Route::get('puntaje_usuario', [UsuariosController::class, 'puntaje_usuario_api'])->name('puntaje_usuario.api');
+Route::get('detalles_puntaje_usuario', [UsuariosController::class, 'detalles_puntaje_usuario_api'])->name('detalles_puntaje_usuario.api');
 Route::get('datos_lider', [UsuariosController::class, 'datos_lider_api'])->name('datos_lider.api');
 Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lider_api'])->name('datos_basicos_lider.api');
 Route::get('panel_lider', [UsuariosController::class, 'panel_lider_api'])->name('panel_lider.api');
@@ -83,6 +84,7 @@ Route::get('detalles_logro', [LogrosController::class, 'detalles_logro_api'])->n
 Route::post('participar_logro', [LogrosController::class, 'participar_logro_api'])->name('participar_logro.api');
 Route::post('validar_logro', [LogrosController::class, 'validar_logro_api'])->name('validar_logro.api');
 Route::post('subir_evidencia', [LogrosController::class, 'subir_evidencia_api'])->name('subir_evidencia.api');
+Route::post('borrar_evidencia', [LogrosController::class, 'borrar_evidencia_api'])->name('borrar_evidencia.api');
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');

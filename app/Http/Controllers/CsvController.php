@@ -23,6 +23,8 @@ class CsvController extends Controller
             'csv_file' => 'required|file|mimes:csv,txt'
         ]);
 
+        $temporada = Temporada::find($request->input('id_temporada'));
+
         // Obtener el archivo CSV
         $archivoCSV = $request->file('csv_file');
 
@@ -37,7 +39,10 @@ class CsvController extends Controller
         // foreach ($registros as $registro) {
         //     TuModelo::create($registro);
         // }
+
+        echo '<table>';
         foreach ($registros as $registro) {
+            echo '<tr>';
             $distribuidor = Distribuidor::where('nombre', $registro['DISTY'])->first();
         
 
@@ -46,12 +51,15 @@ class CsvController extends Controller
                     
                     $distribuidor->nombre = $registro['DISTY'];
                     $distribuidor->pais = $registro['REGIÓN'];
-                    $distribuidor->region = 'RoLA';
-                    //$distribuidor->region = 'México';
+                    //$distribuidor->region = 'RoLA';
+                    $distribuidor->region = 'México';
                     $distribuidor->nivel = $registro['NIVEL DISTY'];
                     $distribuidor->estado = 'activo';
 
                     $distribuidor->save();
+                    echo'<td>Nuevo Distribuidor</td><td>'.$distribuidor->nombre.'</td><td>'.$distribuidor->region.'</td>';
+                }else{
+                    echo'<td>Distribuidor Existente</td><td>'.$distribuidor->nombre.'</td><td>'.$distribuidor->region.'</td>';
                 }
 
             $usuario = User::where('email', $registro['MAIL'])->first();
@@ -75,6 +83,9 @@ class CsvController extends Controller
                 $usuario->estado = 'activo';
     
                 $usuario->save();
+                echo'<td>Nuevo usuario</td><td>'.$usuario->nombre.' '.$usuario->apellidos.'</td><td>'.$usuario->email.'</td>';
+            }else{
+                echo'<td>Usuario existente</td><td>'.$usuario->nombre.' '.$usuario->apellidos.'</td><td>'.$usuario->email.'</td>';
             }
 
             
@@ -84,11 +95,14 @@ class CsvController extends Controller
                 if (!$suscripcion_dist) {
                     $suscripcion_dist = new DistribuidoresSuscripciones();
                     $suscripcion_dist->id_distribuidor = $distribuidor->id;
-                    $suscripcion_dist->id_cuenta = 1;
-                    $suscripcion_dist->id_temporada = 1;
+                    $suscripcion_dist->id_cuenta = $temporada->id_cuenta;
+                    $suscripcion_dist->id_temporada = $temporada->id;
                     $suscripcion_dist->cantidad_usuarios = 0;
                     $suscripcion_dist->nivel = $registro['NIVEL DISTY'];
                     $suscripcion_dist->save();
+                    echo'<td>Nueva Suscripción Dist</td><td>'.$suscripcion_dist->id_distribuidor.'</td><td>'.$suscripcion_dist->nivel.'</td>';
+                }else{
+                    echo'<td>Suscripcion Existente Dist</td><td>'.$suscripcion_dist->id_distribuidor.'</td><td>'.$suscripcion_dist->nivel.'</td>';
                 }
                 
     
@@ -97,21 +111,28 @@ class CsvController extends Controller
             if (!$suscripcion) {
                 $suscripcion = new UsuariosSuscripciones();
                 $suscripcion->id_usuario = $usuario->id;
-                $suscripcion->id_cuenta = 1;
-                $suscripcion->id_temporada = 1;
+                $suscripcion->id_cuenta = $temporada->id_cuenta;
+                $suscripcion->id_temporada = $temporada->id;
                 $suscripcion->id_distribuidor = $distribuidor->id;
                 $suscripcion->confirmacion_puntos = 'pendiente';
                 $suscripcion->nivel_usuario = $registro['VENTAS/ESPECIALISTA'];
-                
+                /*
                 if($registro['LÍDER']=='no'){
                     $suscripcion->funcion = 'usuario';
                 }else{
                     $suscripcion->funcion = 'lider';
                 }
+                */
+                $suscripcion->funcion = 'usuario';
                 
                 $suscripcion->save();
+                echo'<td>Nueva Suscripción Usuario</td><td>'.$suscripcion->id_usuario.'</td><td>'.$suscripcion_dist->funcion.'</td>';
+            }else{
+                echo'<td>Suscripcion Existente Usuario</td><td>'.$suscripcion->id_usuario.'</td><td>'.$suscripcion_dist->funcion.'</td>';
             }
+            echo '</tr>';
         }
+        echo '</table>';
         
     }
 

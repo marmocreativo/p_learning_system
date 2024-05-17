@@ -120,6 +120,12 @@ class DistribuidoresController extends Controller
         return view('admin/distribuidor_lista_suscripciones', compact('suscripciones'));
     }
 
+    public function reporte_usuarios(Request $request)
+    {
+        //
+        // Aquí van los usuarios
+    }
+
     public function suscripcion(Request $request,)
     {
         //

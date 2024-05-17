@@ -37,6 +37,7 @@ Route::get('scripts_ajustes', [FrontController::class, 'scripts_ajustes'])->name
 Route::get('admin', [AdminController::class, 'index'])->middleware('auth')->name('admin');
 Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->middleware('auth')->name('admin.base_de_datos');
 Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.backup');
+Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
 
 
 // Rutas Login
@@ -183,6 +184,8 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 Route::get('admin/usuarios', [UsuariosController::class, 'index'])->middleware('auth')->name('admin_usuarios');
 Route::get('admin/usuarios/create', [UsuariosController::class, 'create'])->middleware('auth')->name('admin_usuarios.create');
 Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middleware('auth')->name('admin_usuarios.store');
+Route::get('admin/usuarios_suscritos/reporte', [UsuariosController::class, 'usuarios_suscritos_reporte'])->name('admin_usuarios_suscritos_reporte');
+Route::get('admin/usuarios_suscritos/puntaje', [UsuariosController::class, 'usuarios_suscritos_puntaje'])->name('admin_usuarios_suscritos_puntaje');
 Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');
 Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcion'])->middleware('auth')->name('admin_usuarios.suscripcion');
 Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');

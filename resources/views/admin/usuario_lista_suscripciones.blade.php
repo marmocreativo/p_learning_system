@@ -8,6 +8,12 @@
     <hr>
     <a href="{{ route('admin_usuarios.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}">Inscribir usuario</a>
     <hr>
+    <form action="{{ route('admin_usuarios_suscritos') }}" method="GET">
+        <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+        <input type="text" name="search" placeholder="Buscar...">
+        <button type="submit">Buscar</button>
+    </form>
+    <hr>
     <table class="table table-stripped">
         <tr>
             <td>
@@ -80,6 +86,7 @@
                                                     <td>{{$suscripcion->email}}</td>
                                                 </tr>
                                             </table>
+                                            <a href="{{ route('admin_usuarios.edit', $suscripcion->id_usuario) }}">Editar datos personales</a>
                                             <div class="form-group">
                                                 <label for="IdDistribuidor">Distribuidor</label>
                                                 <select class="form-control" name="IdDistribuidor">
@@ -133,11 +140,19 @@
                 </tr>
         @endforeach
     </table>
-    {{$suscripciones->links()}}
+    <?php 
+        $appends = array();
+        $appends['id_temporada'] = $_GET['id_temporada'];
+        if(isset($_GET['search']) && !empty($_GET['search'])){
+            $appends['search'] = $_GET['search'];
+        }
+    ?>
+    {{ $suscripciones->appends($appends)->links() }}
     <hr>
     <h5>Subida masiva de usuarios</h5>
     <form method="POST" action="{{ route('upload-csv') }}" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="id_temporada" value={{$_GET['id_temporada']}}>
         <input type="file" name="csv_file" accept=".csv">
         <button type="submit">Subir CSV</button>
     </form>

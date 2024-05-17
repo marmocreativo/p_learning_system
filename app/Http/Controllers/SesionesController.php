@@ -492,11 +492,12 @@ class SesionesController extends Controller
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
 
+        $puntaje_preguntas = $sesion->preguntas_puntaje_normal;
+
         if($fecha_actual<$fecha_limite_estreno){
             $puntaje_preguntas = $sesion->preguntas_puntaje_estreno;
-        }else{
-            $puntaje_preguntas = $sesion->preguntas_puntaje_evaluacion;
         }
+        
         //$respuestas_array = json_decode($respuestas_json, true);
         $hay_respuestas = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
         if(!$hay_respuestas){

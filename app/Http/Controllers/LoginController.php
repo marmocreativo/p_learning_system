@@ -151,19 +151,24 @@ class LoginController extends Controller
             $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
 
             $token = $user->createToken('auth_token')->plainTextToken;
-    
-            return response()->json([
-                'message' => 'Hola '.$user->nombre,
-                'accessToken' => $token,
-                'token_type' => 'Bearer',
-                'user'=>$user,
-                'distribuidor'=>$distribuidor->nombre,
-                'region'=>$distribuidor->region,
-            ]);
+            
+            if(!empty($suscripcion)){
+                return response()->json([
+                    'message' => 'Hola '.$user->nombre,
+                    'accessToken' => $token,
+                    'token_type' => 'Bearer',
+                    'user'=>$user,
+                    'distribuidor'=>$distribuidor->nombre,
+                    'region'=>$distribuidor->region,
+                ]);
+            }else{
+                return response()->json(['message' => 'No estás participando en este programa.'], 401);
+            }
+            
 
         }else{
             
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Las credenciales no coinciden'], 401);
         }
         
     }
