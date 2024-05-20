@@ -15,6 +15,11 @@ use App\Models\User;
 use App\Models\Distribuidor;
 use Illuminate\Support\Facades\DB;
 
+use App\Mail\ConfirmacionNivelChampions;
+use App\Mail\FinalizacionChampions;
+use Illuminate\Support\Facades\Mail;
+
+
 class LogrosController extends Controller
 {
     //
@@ -217,6 +222,126 @@ class LogrosController extends Controller
         return redirect()->route('logros', ['id_temporada'=>$id_temporada]);
         
     }
+
+    public function destroy_anexo(string $id)
+    {
+        //
+        $anexo = LogroParticipacion::find($id);
+        $id_temporada = $anexo->id_temporada;
+        $id_participacion = $anexo->id_participacion;
+        // Buscar y eliminar registros relacionados en otras tablas
+        
+        LogroAnexo::where('id', $anexo->$id)->delete();
+
+
+        $anexo->delete();
+        return redirect()->route('logros.detalles_participacion', ['id'=>$id_temporada]);
+        
+    }
+
+    public function detalles_participacion(Request $request)
+    {
+        //
+        $participacion = LogroParticipacion::find($request->input('id'));
+        $logro = Logro::find($participacion->id_logro);
+        $usuario = User::find($participacion->id_usuario);
+        $id_temporada = $participacion->id_temporada;
+        // Buscar y eliminar registros relacionados en otras tablas
+        
+        $anexos = LogroAnexo::where('id_participacion', $request->input('id'))->get();
+
+        return view('admin/logro_detalles_participacion', compact('participacion', 'usuario', 'logro', 'anexos'));
+        
+    }
+
+    public function participacion_update(Request $request, string $id)
+    {
+        //
+        $participacion = LogroParticipacion::find($id);
+
+
+        $participacion->confirmacion_nivel_a = $request->ConfirmacionNivelA;
+        $participacion->confirmacion_nivel_b = $request->ConfirmacionNivelB;
+        $participacion->confirmacion_nivel_c = $request->ConfirmacionNivelC;
+        $participacion->confirmacion_nivel_especial = $request->ConfirmacionNivelEspecial;
+        $participacion->estado = $request->Estado;
+
+
+        if($participacion->estado=='finalizado'){
+            $data = [
+                'titulo' => ' ¡Eres una leyenda! ',
+                'contenido' => '<p>"Has superado TODOS los niveles de los Desafíos Champions de esta temporada. Queremos darte una felicitación muy especial. Tu logro representa mucho para nosotros, y esperamos que tu bono acumulado refleje lo importante que es para nosotros tu compromiso. ¡Gracias por participar, y prepárate para mantener tu estatus legendario la próxima temporada!</p>',
+                'boton_texto' => 'Desafío Champions',
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+            ];
+            Mail::to($request->UsuarioEmail)->send(new FinalizacionChampions($data));
+        }else{
+            if($participacion->confirmacion_nivel_especial=='si'){
+                $data = [
+                    'titulo' => '¡Has subido de nivel',
+                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
+                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel Especial. ¡Continúa participando hasta desbloquear todos los bonos!
+                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
+    
+            }elseif($participacion->confirmacion_nivel_c=='si'){
+                $data = [
+                    'titulo' => '¡Has subido de nivel',
+                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
+                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel C. ¡Continúa participando hasta desbloquear todos los bonos!
+                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
+    
+            }elseif($participacion->confirmacion_nivel_b=='si'){
+                $data = [
+                    'titulo' => '¡Has subido de nivel',
+                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
+                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel B. ¡Continúa participando hasta desbloquear todos los bonos!
+                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
+    
+            }elseif($participacion->confirmacion_nivel_a=='si'){
+                $data = [
+                    'titulo' => '¡Has subido de nivel',
+                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
+                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel A. ¡Continúa participando hasta desbloquear todos los bonos!
+                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
+                
+            }
+        }
+
+ 
+         $participacion->save();
+ 
+         return redirect()->route('logros.detalles_participacion', ['id'=>$participacion->id]);
+    }
+
+    
 
     public function lista_logros_api(Request $request)
     {

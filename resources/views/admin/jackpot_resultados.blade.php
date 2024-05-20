@@ -31,7 +31,7 @@
             </table>
         </div>
         <div class="col-4">
-            <h5>Ganadores {{count($ganadores)}}</h5>
+            <h5>Intentos {{count($ganadores)}}</h5>
             <table class="table table-bordered">
                 <tr>
                     <th>Ganador</th>
@@ -45,6 +45,13 @@
                 
                     <td>{{$ganador->puntaje}}</td>
                     <td>{{$ganador->fecha_registro}}</td>
+                    <td>
+                        <form action="{{route('jackpots.destroy_intento', $ganador->id_ganador)}}" method="POST">
+                            @csrf
+                            @method('delete')
+                            <button type="submit" class="btn btn-link">Borrar</button>
+                        </form>
+                    </td>
                 </tr>
                 @endforeach
             </table>
@@ -68,7 +75,7 @@
                     <td>{{$respuesta->respuesta_usuario}}<br>{{$respuesta->respuesta_resultado}}</td>
                     <td>{{$respuesta->fecha_registro}}</td>
                     <td>
-                        <form action="{{route('trivias.destroy_respuesta', $respuesta->id_respuesta)}}" method="POST">
+                        <form action="{{route('jackpots.destroy_respuesta', $respuesta->id_respuesta)}}" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

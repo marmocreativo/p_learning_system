@@ -93,6 +93,7 @@ Route::post('login_suscripcion', [LoginController::class, 'login_suscripcion_api
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
 Route::get('full_check', [LoginController::class, 'full_check_api'])->name('full_check.api');
 Route::post('actualizar_usuario_perfil', [UsuariosController::class, 'actualizar_usuario_perfil_api'])->name('actualizar_usuario_perfil.api');
+Route::post('actualizar_imagen_perfil', [UsuariosController::class, 'actualizar_imagen_perfil_api'])->name('actualizar_imagen_perfil.api');
 Route::post('actualizar_pass_perfil', [UsuariosController::class, 'actualizar_pass_perfil_api'])->name('actualizar_pass_perfil.api');
 
 

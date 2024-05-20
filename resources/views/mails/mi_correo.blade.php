@@ -49,7 +49,7 @@
             display: inline-block;
             padding: 10px 20px;
             color: #fff;
-            background-color: #007BFF;
+            background-color: #213746;
             border-radius: 5px;
             text-decoration: none;
             margin-bottom: 20px;
@@ -68,10 +68,12 @@
                 <img src="https://pl-electrico.panduitlatam.com/assets/images/micrositio/PLe_HeadLogo_2024.png" alt="Logo">
             </div>
             <h1>{{ $data['titulo'] }}</h1>
-            <p>{{ $data['contenido'] }}</p>
+            <div>{!! $data['contenido'] !!}</div>
             @if (!empty($data['boton_enlace']) && !empty($data['boton_texto']))
                 <a href="{{ $data['boton_enlace'] }}" class="button">{{ $data['boton_texto'] }}</a>
             @endif
+            <p>Atte. Equipo PLearning</p>
+
             <div class="footer">
                 &copy; {{ date('Y') }} Todos los derechos reservados.
             </div>

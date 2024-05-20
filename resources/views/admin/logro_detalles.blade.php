@@ -92,7 +92,7 @@
                 </tr>
                 @foreach ($participaciones as $participacion)
                 <tr>
-                    <td>{{$participacion->nombre}} {{$participacion->apellidos}}</td>
+                    <td> <a href="{{ route('logros.detalles_participacion', ['id'=>$participacion->id_participacion]) }}">{{$participacion->nombre}} {{$participacion->apellidos}}</a> </td>
                     <td>{{$participacion->nombre_distribuidor}}</td>
                     <td>{{$participacion->estado}}</td>
                     <td>{{$participacion->fecha_registro}}</td>

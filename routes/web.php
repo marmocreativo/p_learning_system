@@ -150,16 +150,21 @@ Route::put('admin/jackpots/update_pregunta/{post}', [JackpotsController::class, 
 Route::put('admin/jackpots/update/{post}', [JackpotsController::class, 'update'])->middleware('auth')->name('jackpots.update');
 Route::delete('admin/jackpots/destroy/{post}', [JackpotsController::class, 'destroy'])->middleware('auth')->name('jackpots.destroy');
 Route::delete('admin/jackpots/destroy_pregunta/{post}', [JackpotsController::class, 'destroy_pregunta'])->middleware('auth')->name('jackpots.destroy_pregunta');
+Route::delete('admin/jackpots/destroy_intento/{post}', [JackpotsController::class, 'destroy_intento'])->middleware('auth')->name('jackpots.destroy_intento');
+Route::delete('admin/jackpots/destroy_respuesta/{post}', [JackpotsController::class, 'destroy_respuesta'])->middleware('auth')->name('jackpots.destroy_respuesta');
 
 // Rutas CRUD para las'logros'
 Route::get('admin/logros', [LogrosController::class, 'index'])->middleware('auth')->name('logros');
 Route::get('admin/logros/create', [LogrosController::class, 'create'])->middleware('auth')->name('logros.create');
+Route::get('admin/logros/detalles_participacion', [LogrosController::class, 'detalles_participacion'])->middleware('auth')->name('logros.detalles_participacion');
 Route::post('admin/logros/store', [LogrosController::class, 'store'])->middleware('auth')->name('logros.store');
 Route::get('admin/logros/{post}', [LogrosController::class, 'show'])->middleware('auth')->name('logros.show');
 Route::get('admin/logros/edit/{post}', [LogrosController::class, 'edit'])->middleware('auth')->name('logros.edit');
 Route::put('admin/logros/update/{post}', [LogrosController::class, 'update'])->middleware('auth')->name('logros.update');
+Route::put('admin/logros/participacion_update/{post}', [LogrosController::class, 'participacion_update'])->middleware('auth')->name('logros.participacion_update');
 Route::delete('admin/logros/destroy/{post}', [LogrosController::class, 'destroy'])->middleware('auth')->name('logros.destroy');
 Route::delete('admin/logros/destroy_participacion/{post}', [LogrosController::class, 'destroy_participacion'])->middleware('auth')->name('logros.destroy_participacion');
+Route::delete('admin/logros/destroy_anexo/{post}', [LogrosController::class, 'destroy_anexo'])->middleware('auth')->name('logros.destroy_anexo');
 
 // Rutas CRUD para las'sliders'
 Route::get('admin/sliders', [SlidersController::class, 'index'])->middleware('auth')->name('sliders');

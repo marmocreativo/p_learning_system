@@ -9,7 +9,7 @@
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Actividades</h2></div>
-        <div class="col-3">
+        <div class="col-3 d-none">
             <div class="card card-body">
                 <h4>Detalles</h4>
                 <table class="table table-bordered table-sm">
@@ -33,7 +33,7 @@
             </div>
         </div>
         
-        <div class="col-3">
+        <div class="col-4">
             <div class="card card-body">
                 <h4>Sesiones</h4>
                 <table class="table table-bordered table-sm">
@@ -53,7 +53,7 @@
                 <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista de sesiones</a>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-4">
             <div class="card card-body">
                 <h4>Trivias</h4>
                 <table class="table table-bordered table-sm">
@@ -73,7 +73,7 @@
                 <a href="{{ route('trivias', ['id_temporada'=> $temporada->id]) }}">Lista de trivias</a>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-4">
             <div class="card card-body">
                 <h4>Jackpot</h4>
                 <table class="table table-bordered table-sm">

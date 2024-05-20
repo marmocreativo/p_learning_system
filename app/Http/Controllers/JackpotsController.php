@@ -157,6 +157,26 @@ class JackpotsController extends Controller
          return redirect()->route('jackpots', ['id_temporada'=>$id_temporada]);
     }
 
+    public function destroy_intento(string $id)
+    {
+        //
+        $intento = JackpotIntentos::findOrFail($id);
+        $id_jackpot =  $intento->id_jackpot;
+        
+        $intento->delete();
+        return redirect()->route('jackpots.resultados', $id_jackpot);
+    }
+
+    public function destroy_respuesta(string $id)
+    {
+        //
+        $respuesta = JackpotRes::findOrFail($id);
+        $id_jackpot =  $respuesta->id_jackpot;
+        $respuesta->delete();
+        return redirect()->route('jackpots.resultados', $id_jackpot);
+    }
+
+
     /**
      * Funciones de preguntas
      */

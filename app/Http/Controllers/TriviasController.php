@@ -15,6 +15,9 @@ use App\Models\User;
 use App\Models\Distribuidor;
 use Illuminate\Support\Facades\DB;
 
+use App\Mail\GanadorTrivia;
+use Illuminate\Support\Facades\Mail;
+
 
 class TriviasController extends Controller
 {
@@ -311,9 +314,10 @@ class TriviasController extends Controller
     {
         $id_trivia = $request->input('id_trivia');
         $id_usuario = $request->input('id_usuario');
+        $usuario = User::find($id_usuario);
         $respuestas_json = $request->input('respuestas');
         $trivia = Trivia::find($id_trivia);
-        $temporada = Temporada::find($jackpot->id_temporada);
+        $temporada = Temporada::find($trivia->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario', $id_usuario)->where('id_temporada', $trivia->id_temporada)->first();
         $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
         //return response()->json($respuestas_json);
@@ -339,7 +343,7 @@ class TriviasController extends Controller
                         $todas_correctas = false;
                     }
                     
-                    // Si no existe, crear una nueva visualización
+                    // Si no existe, crear una nueva respuesta
                     $nueva_respuesta = new TriviaRes();
                     $nueva_respuesta->id_usuario = $id_usuario;
                     $nueva_respuesta->id_trivia = $id_trivia;
@@ -371,6 +375,17 @@ class TriviasController extends Controller
                 $nuevo_ganador->id_distribuidor = $distribuidor->id;
                 $nuevo_ganador->fecha_registro = date('Y-m-d H:i:s');
                 $nuevo_ganador->save();
+                $data = [
+                    'titulo' => 'Ganador trivia '.$distribuidor->region,
+                    'boton_texto' => '',
+                    'boton_enlace' => '#'
+                ];
+                if($distribuidor->region=='RoLA'){
+                    $data['contenido'] = '"<p>¡Fuiste el mejor participante de tu compañía en la <b>Trivia Mensual iLovePanduit!</b> Enviaremos otro correo con tu tarjeta de regalo Amazon lo antes posible, para que puedas disfrutar de tu victoria.</p><p> Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>"';
+                }else{
+                    $data['contenido'] = '"<p><b>En la Trivia mensual iLovePanduit, ¡fuiste el mejor participante de tu compañía!</b> Tu premio ya está en camino a la dirección proporcionada. Nuestros envíos toman de 9 a 11 días hábiles, debido los proceso de empaque y mensajería.</p><p> Si recibiste este correo por error o necesitas comunicarte con nostros, contáctanos.</p>"';
+                }
+                Mail::to($usuario->email)->send(new GanadorTrivia($data));
 
             }
             if($guardadas){

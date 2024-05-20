@@ -4,8 +4,8 @@
 
 @section('contenido_principal')
     <h1>Formulario de trivias</h1>
-    <form action="{{ route('trivias.update', $trivia->id_temporada ) }}" method="POST">
-        <input type="hidden" name="IdCuenta" value="1">
+    <form action="{{ route('trivias.update', $trivia->id ) }}" method="POST">
+        <input type="hidden" name="IdCuenta" value="{{$trivia->id_cuenta}}">
         <input type="hidden" name="IdTemporada" value="{{$trivia->id_temporada}}">
         @csrf
         @method('PUT')

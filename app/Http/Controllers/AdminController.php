@@ -73,14 +73,6 @@ class AdminController extends Controller
                     'boton_enlace' => '#'
                 ];
                 break;
-            case 'canje_recompenza':
-                $data = [
-                    'titulo' => '!Tu recompenza está en camino¡ ',
-                    'contenido' => 'Gracias por elegir tu recompenza',
-                    'boton_texto' => '',
-                    'boton_enlace' => '#'
-                ];
-                break;
             case 'inscripcion_logro':
                 $data = [
                     'titulo' => '!Bienvenido al desafío Champions¡ ',

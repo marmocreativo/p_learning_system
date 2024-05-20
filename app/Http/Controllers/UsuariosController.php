@@ -24,6 +24,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use App\Mail\CambioPass;
+use App\Mail\InscripcionChampions;
+use App\Mail\RegistroUsuario;
+use Illuminate\Support\Facades\Mail;
+
 use App\Exports\UsersExport;
 use App\Exports\PuntajeExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -58,11 +63,17 @@ class UsuariosController extends Controller
         //
         
         $usuario = new User();
+        $usuario->email = $request->Email;
 
-        $usuario->legacy_id = uniqid('',true);
+        $emailPrefix = explode('@', $request->Email)[0];
+        do {
+            $randomNumbers = rand(100, 999);
+            $newLegacyId = $emailPrefix . $randomNumbers;
+        } while (User::where('legacy_id', $newLegacyId)->exists());
+        $usuario->legacy_id = $newLegacyId;
+
         $usuario->nombre = $request->Nombre;
         $usuario->apellidos = $request->Apellidos;
-        $usuario->email = $request->Email;
         $usuario->telefono = $request->Telefono;
         $usuario->whatsapp = $request->Whatsapp;
         $usuario->fecha_nacimiento = $request->FechaNacimiento;
@@ -214,6 +225,7 @@ class UsuariosController extends Controller
         
         $suscripcion = UsuariosSuscripciones::find($id);
         $id_usuario = $suscripcion->id_usuario;
+        $usuario = User::find($id_usuario);
         $id_temporada = $request->IdTemporada;
 
         //Actualizo
@@ -260,6 +272,27 @@ class UsuariosController extends Controller
             $intento->id_distribuidor = $request->IdDistribuidor;
             $intento->save();
         }
+
+        if($request->ChampionsA=='si'&& $request->ChampionsB=='si'){
+            $data = [
+                'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
+                'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
+                <p>• Elige una categoría entre oas que están disponibles.</p>
+                <p>• Vende los productos participantes para subir de nivel.</p>
+                <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
+                <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
+                
+                <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
+                
+                
+                <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                'boton_texto' => 'Desafío Champions',
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+            ];
+            Mail::to($usuario->email)->send(new InscripcionChampions($data));
+        }
+
+        
         
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
         
@@ -284,10 +317,17 @@ class UsuariosController extends Controller
         if (!$usuario) {
             $usuario = new User();
             
-            $usuario->legacy_id = uniqid('',true);
+            $usuario->email = $request->Email;
+
+            $emailPrefix = explode('@', $request->Email)[0];
+            do {
+                $randomNumbers = rand(100, 999);
+                $newLegacyId = $emailPrefix . $randomNumbers;
+            } while (User::where('legacy_id', $newLegacyId)->exists());
+            $usuario->legacy_id = $newLegacyId;
+
             $usuario->nombre = $request->Nombre;
             $usuario->apellidos = $request->Apellidos;
-            $usuario->email = $request->Email;
             $usuario->telefono = $request->Telefono;
             $usuario->whatsapp = $request->Whatsapp;
             $usuario->fecha_nacimiento = $request->FechaNacimiento;
@@ -599,19 +639,32 @@ class UsuariosController extends Controller
     {
             // Verificar si el usuario ya existe
         $usuario = User::where('email', $request->correo)->first();
+        $distribuidor = Distribuidor::where('id', $request->id_distribuidor)->first();
         
 
         if (!$usuario) {
             $usuario = new User();
             
-            $usuario->legacy_id = uniqid('',true);
+            $usuario->email = $request->correo;
+
+            $emailPrefix = explode('@', $request->correo)[0];
+            do {
+                $randomNumbers = rand(100, 999);
+                $newLegacyId = $emailPrefix . $randomNumbers;
+            } while (User::where('legacy_id', $newLegacyId)->exists());
+            $usuario->legacy_id = $newLegacyId;
+
             $usuario->nombre = $request->nombre;
             $usuario->apellidos = $request->apellidos;
-            $usuario->email = $request->correo;
             $usuario->telefono = '';
             $usuario->whatsapp = '';
             $usuario->fecha_nacimiento = null;
-            $usuario->password = Hash::make('12345');
+            if(!empty($distribuidor->default_pass)){
+                $usuario->password = Hash::make($distribuidor->default_pass);
+            }else{
+                $usuario->password = Hash::make('12345');
+            }
+            
             $usuario->lista_correo = 'si';
             $usuario->imagen = 'default.jpg';
             $usuario->clase = 'usuario';
@@ -632,6 +685,35 @@ class UsuariosController extends Controller
             $suscripcion->funcion = 'usuario';
             $suscripcion->save();
         }
+        $mensaje = '<p><b>¡Te han seleccionado para participar en PLearning! Anexamos tu nombre de usuario y contraseña</b>, y te invitamos a cambiar esta última tan pronto como ingreses al programa. ¡Que tengas mucho éxito y disfrutes tu participación en esta temporada de PLearning!</p>';
+        $mensaje .= '<table>';
+        $mensaje .= '<tbody>';
+        $mensaje .= '<tr>';
+        $mensaje .= '<th>Nombre</th>';
+        $mensaje .= '<td>'.$usuario->nombre.' '.$usuario->apellidos.'</td>';
+        $mensaje .= '</tr>';
+        $mensaje .= '<tr>';
+        $mensaje .= '<th>Correo</th>';
+        $mensaje .= '<td>'.$usuario->email.'</td>';
+        $mensaje .= '</tr>';
+        $mensaje .= '<tr>';
+        $mensaje .= '<th>Nombre de Usuario</th>';
+        $mensaje .= '<td>'.$usuario->legacy_id.'</td>';
+        $mensaje .= '</tr>';
+        $mensaje .= '<tr>';
+        $mensaje .= '<th>Contraseña</th>';
+        $mensaje .= '<td>'.$distribuidor->default_pass.'</td>';
+        $mensaje .= '</tr>';
+        $mensaje .= '</tbody>';
+        $mensaje .= '<table>';
+
+        $data = [
+            'titulo' => '¡Bienvenido a PL-Electrico!',
+        'contenido' => $mensaje,
+        'boton_texto' => 'Entrar',
+        'boton_enlace' => 'https://pl-electrico.panduitlatam.com/'
+        ];
+        Mail::to($usuario->email)->send(new RegistroUsuario($data));
         
         return 'Guardado';
         
@@ -966,6 +1048,44 @@ class UsuariosController extends Controller
         
     }
 
+    public function actualizar_imagen_perfil_api (Request $request)
+    {
+            // Verificar si el usuario ya existe
+
+            $request->validate([
+                'photo' => 'nullable|mimes:jpeg,png,jpg,gif,pdf|max:10048' // Ajusta las reglas de validación según tus necesidades}
+            ]);
+            $subido = false;
+            if ($request->hasFile('photo')) {
+                $archivo = $request->file('photo');
+                $nombreArchivo = 'photo'.time().'.'.$archivo->extension();
+                if($archivo->move(base_path('../public_html/plsystem/img/usuarios'), $nombreArchivo)){
+                    $subido = true;
+                }
+            }
+            
+           
+
+        $usuario = User::find($request->id_usuario);
+        if($usuario){
+            if ($subido) {
+                $usuario->imagen = $nombreArchivo;
+                $usuario->save();
+            }
+            
+            
+            if ($subido) {
+                return 'Guardado con foto';
+            }else{
+                return 'Guardado sin foto';
+            }
+        }else{
+            return 'No hay usuario: '.$request->id_usuario;
+        }
+        
+        
+    }
+
     public function actualizar_pass_perfil_api (Request $request)
     {
             // Verificar si el usuario ya existe
@@ -975,12 +1095,26 @@ class UsuariosController extends Controller
         $confirm_pass = $request->confirm_pass;
 
         $usuario = User::find($request->id_usuario);
+
+        $data = [
+            'titulo' => 'Tu contraseña de PLearning ha sido cambiada',
+            'contenido' => '<p>Tu contraseña para ingresar al sitio de PLearning fue actualizada con éxito; de ahora en adelante debes usar sólo tu nueva contraseña. Si no solicitaste el cambio de contraseña, comunícate inmediatamente con nosotros para informar de un problema de seguridad.</p>
+
+            <p>Está es tu contraseña</p>
+            <p>'.$request->new_pass.'</p>
+           <p> No comparte o revele su contraseña a nadie.</p>',
+            'boton_texto' => 'ENTRAR AHORA',
+            'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login'
+        ];
+
+
         
         if($usuario){
             if(Hash::check($old_pass, $usuario->password)){
                 if(($new_pass==$confirm_pass)){
                     $usuario->password = Hash::make($new_pass);
                     $usuario->save();
+                    Mail::to($usuario->email)->send(new CambioPass($data));
                     return 'ok';
                 }else{
                     return 'new_pass';

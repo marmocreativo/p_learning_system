@@ -118,7 +118,7 @@ class LoginController extends Controller
 
         }else{
             
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'No autorizado'], 401);
         }
         
     }
