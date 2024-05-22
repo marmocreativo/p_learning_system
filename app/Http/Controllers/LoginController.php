@@ -11,6 +11,10 @@ use App\Models\Distribuidor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+use App\Mail\RestaurarPass;
+use App\Mail\CambioPass;
+use Illuminate\Support\Facades\Mail;
+
 
 class LoginController extends Controller
 {
@@ -177,6 +181,53 @@ class LoginController extends Controller
 
         $user = User::find($request->input('id'));
         return response()->json($user);
+
+    }
+
+    public function olvide_pass_api(Request $request){
+        $user = User::where('email', $request->input('Email'))->first();
+        if($user){
+            $id_cuenta = $request->input('id_cuenta');
+            $cuenta = Cuenta::find($id_cuenta);
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $cuenta->temporada_actual)->first();
+            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+            $data = [
+                'titulo' => 'Se ha solicitado restaurar la contraseña',
+                'contenido' => '<p>Da click en el siguiente enlace y tu contraseña será restaurada a una por defecto relacionada con tu empresa. Si no solicitaste el cambio de contraseña, comunícate inmediatamente con nosotros para informar de un problema de seguridad.</p>',
+                'boton_texto' => 'RESTAURAR CONTRASEÑA',
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
+            ];
+    Mail::to($user->email)->send(new RestaurarPass($data));
+        }
+
+    }
+
+    public function restaurar_pass_api(Request $request){
+       
+
+        $usuario = User::find($request->input('id'));
+        $id_distribuidor = $request->input('di');
+        $distribuidor = Distribuidor::find($request->input('di'));
+        
+
+        
+
+        $usuario->password = Hash::make($distribuidor->default_pass);
+        $usuario->save();
+        $data = [
+            'titulo' => 'Tu contraseña de PLearning ha sido cambiada',
+            'contenido' => '<p>Tu contraseña para ingresar al sitio de PLearning fue actualizada con éxito; de ahora en adelante debes usar sólo tu nueva contraseña. Si no solicitaste el cambio de contraseña, comunícate inmediatamente con nosotros para informar de un problema de seguridad.</p>
+
+            <p>Está es tu contraseña</p>
+            <p>'.$distribuidor->default_pass.'</p>
+           <p> No comparte o revele su contraseña a nadie.</p>',
+            'boton_texto' => 'ENTRAR AHORA',
+            'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login'
+        ];
+        Mail::to($usuario->email)->send(new CambioPass($data));
+
+        
+        return response()->json($distribuidor->default_pass);
 
     }
 

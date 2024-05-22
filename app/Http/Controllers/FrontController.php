@@ -35,6 +35,19 @@ class FrontController extends Controller
 
     public function scripts_ajustes()
     {
+        //
+        // Ejecutar la migración
+        Artisan::call('migrate');
+
+        // Obtener el resultado de la ejecución de la migración
+        $output = Artisan::output();
+
+        // Puedes hacer algo con la salida (por ejemplo, devolverla como respuesta)
+        return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
+    }
+
+    public function relacion_susccripciones()
+    {
         /*
         // Ejecutar la migración
         Artisan::call('migrate');
@@ -45,6 +58,116 @@ class FrontController extends Controller
         // Puedes hacer algo con la salida (por ejemplo, devolverla como respuesta)
         return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
         */
+
+        $usuarios = User::all();
+
+        echo '<table border="1">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th>Correo</th>';
+        echo '<th>PLE 2024</th>';
+        echo '<th>PLE 2023</th>';
+        echo '<th>PL</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        foreach($usuarios as $usuario){
+            echo '<tr>';
+            echo '<td>'.$usuario->email.'</td>';
+            $suscripcion_1 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
+            $suscripcion_2 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 9)->first();
+            $suscripcion_3 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 6)->first();
+
+            if($suscripcion_1){
+                $distribuidor = Distribuidor::where('id', $suscripcion_1->id_distribuidor)->first();
+                if($distribuidor){
+                    echo '<td>'.$distribuidor->nombre.'</td>';
+                }else{
+                    echo '<td style="color: red;">Sin distribuidor</td>';
+                }
+                
+            }else{
+                echo '<td style="color: red;">N/P</td>';
+            }
+            if($suscripcion_2){
+                $distribuidor = Distribuidor::where('id', $suscripcion_2->id_distribuidor)->first();
+                if($distribuidor){
+                    echo '<td>'.$distribuidor->nombre.'</td>';
+                }else{
+                    echo '<td style="color: red;">Sin distribuidor</td>';
+                }
+                
+            }else{
+                echo '<td style="color: red;">N/P</td>';
+            }
+            if($suscripcion_3){
+                $distribuidor = Distribuidor::where('id', $suscripcion_3->id_distribuidor)->first();
+                if($distribuidor){
+                    echo '<td>'.$distribuidor->nombre.'</td>';
+                }else{
+                    echo '<td style="color: red;">Sin distribuidor</td>';
+                }
+                
+            }else{
+                echo '<td style="color: red;">N/P</td>';
+            }
+            
+            echo '</tr>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+    }
+
+    public function verificar_pass_default()
+    {
+        /*
+        // Ejecutar la migración
+        Artisan::call('migrate');
+
+        // Obtener el resultado de la ejecución de la migración
+        $output = Artisan::output();
+
+        // Puedes hacer algo con la salida (por ejemplo, devolverla como respuesta)
+        return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
+        */
+
+        $usuarios = User::paginate(200);
+
+        echo '<table>';
+        echo '<tbody>';
+        foreach($usuarios as $usuario){
+            echo '<tr>';
+            echo '<td>'.$usuario->email.'</td>';
+            echo '<td>'.$usuario->password.'</td>';
+            
+            if (Hash::check('123456', $usuario->password)) {
+                echo '<td style="color:red">Se debe cambiar</td>';
+                $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
+                if(!$suscripcion){
+                    $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 9)->first();
+                }
+                if($suscripcion){
+                    $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+                    $nuevo_pass = Hash::make($distribuidor->default_pass);
+                    echo '<td style="color:green">'.$distribuidor->default_pass.'</td>';
+                    $usuario->password = $nuevo_pass;
+                    $usuario->save();
+                }else{
+                    echo '<td style="color:green">No suscripcion</td>';
+                }
+                
+            } else {
+                echo '<td style="color:green">Es seguro</td>';
+                echo '<td style="color:green">No se cambia</td>';
+            }
+            
+            echo '</tr>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+
+        // Mostrar enlaces de paginación
+        echo $usuarios->links();
     }
     public function reparar_evaluaciones()
     {

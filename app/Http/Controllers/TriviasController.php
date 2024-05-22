@@ -292,6 +292,7 @@ class TriviasController extends Controller
             'respuestas' => $respuestas,
             'premios' => $ganadores,
             'ganador' => $soy_ganador,
+            'premio_ganador' => $ganador,
             'mis_premios' => $mis_premios,
             'respuestas_historico' => $respuestas_historico
         ];
@@ -396,6 +397,29 @@ class TriviasController extends Controller
         }else{
             return response()->json(['success' => false, 'message' => 'Ya hay respuestas']);
         }
+        
+        
+        
+    }
+
+    public function direccion_trivia_api(Request $request)
+    {
+        $id_ganador = $request->input('id_premio');
+        $ganador = TriviaGanador::find($id_ganador);
+
+        $ganador->direccion_nombre = $request->input('nombre');
+        $ganador->direccion_calle = $request->input('calle');
+        $ganador->direccion_numero = $request->input('numero');
+        $ganador->direccion_colonia = $request->input('colonia');
+        $ganador->direccion_ciudad = $request->input('ciudad');
+        $ganador->direccion_codigo_postal = $request->input('codigoPostal');
+        $ganador->direccion_horario = $request->input('horario');
+        $ganador->direccion_referencia = $request->input('referencia');
+        $ganador->direccion_notas = $request->input('notas');
+
+        $ganador->save();
+
+        return('Guardado');
         
         
         

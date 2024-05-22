@@ -48,6 +48,7 @@ Route::post('registrar_duda', [SesionesController::class, 'registrar_duda_api'])
 Route::get('todos_datos_trivia', [TriviasController::class, 'todos_datos_trivia_api'])->name('todos_datos_trivia.api');
 Route::get('datos_trivia', [TriviasController::class, 'datos_trivia_api'])->name('datos_trivia.api');
 Route::post('registrar_respuestas_trivia', [TriviasController::class, 'registrar_respuestas_trivia_api'])->name('registrar_respuestas_trivia.api');
+Route::post('direccion_trivia', [TriviasController::class, 'direccion_trivia_api'])->name('direccion_trivia.api');
 // Jackpot
 Route::get('todos_datos_jackpot', [JackpotsController::class, 'todos_datos_jackpot_api'])->name('todos_datos_jackpot.api');
 Route::get('datos_jackpot', [JackpotsController::class, 'datos_jackpot_api'])->name('datos_jackpot.api');
@@ -88,6 +89,8 @@ Route::post('borrar_evidencia', [LogrosController::class, 'borrar_evidencia_api'
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
+Route::post('olvide_pass', [LoginController::class, 'olvide_pass_api'])->name('olvide_pass.api');
+Route::post('restaurar_pass', [LoginController::class, 'restaurar_pass_api'])->name('restaurar_pass.api');
 Route::post('login_suscripcion', [LoginController::class, 'login_suscripcion_api'])->name('login_suscripcion.api');
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
