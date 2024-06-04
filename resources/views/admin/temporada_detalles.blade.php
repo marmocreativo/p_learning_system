@@ -9,7 +9,7 @@
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Actividades</h2></div>
-        <div class="col-3 d-none">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Detalles</h4>
                 <table class="table table-bordered table-sm">
@@ -33,63 +33,64 @@
             </div>
         </div>
         
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Sesiones</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
-                        <td>5</td>
+                        <td>{{$sesiones_totales}}</td>
                     </tr>
                     <tr>
                         <td><b>Publicadas</b></td>
-                        <td>5</td>
+                        <td>{{$sesiones_publicadas}}</td>
                     </tr>
                     <tr>
                         <td><b>Pendientes</b></td>
-                        <td>5</td>
+                        <td>{{$sesiones_pendientes}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista de sesiones</a>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Trivias</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
-                        <td>5</td>
+                        <td>{{$trivias_totales}}</td>
                     </tr>
                     <tr>
                         <td><b>Publicadas</b></td>
-                        <td>5</td>
+                        <td>{{$trivias_publicadas}}</td>
                     </tr>
                     <tr>
                         <td><b>Pendientes</b></td>
-                        <td>5</td>
+                        <td>{{$trivias_pendientes}}</td>
                     </tr>
                 </table>
+                @if($trivia_activa)
+                <a class="btn btn-success" href="{{ route('trivias.resultados', $trivia_activa->id) }}">Trivia activa {{$trivia_activa->titulo}}</a>
+                @endif
+                <hr>
+
                 <a href="{{ route('trivias', ['id_temporada'=> $temporada->id]) }}">Lista de trivias</a>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Jackpot</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td><b>Publicadas</b></td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td><b>Pendientes</b></td>
-                        <td>5</td>
+                        <td>{{$jackpots_totales}}</td>
                     </tr>
                 </table>
+                @if($jackpot_activo)
+                <a class="btn btn-success" href="{{ route('jackpots.resultados', $jackpot_activo->id) }}">Jackpot activo {{$jackpot_activo->titulo}}</a>
+                @endif
+                <hr>
                 <a href="{{ route('jackpots', ['id_temporada'=> $temporada->id]) }}">Lista de jackpots</a>
             </div>
             
@@ -98,9 +99,9 @@
     </div>
     <hr>
     <div class="row">
-        <div class="col-12 mb-3"><h2>Contenido</h2></div>
+        <div class="col-12 mb-3"><h2>Contenido / Participantes</h2></div>
         <div class="col-3">
-            <div class="card card-body">
+            <div class="card card-body d-none">
                 <h4>Sliders</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
@@ -110,84 +111,75 @@
                 </table>
                 <a href="{{ route('sliders', ['id_temporada'=> $temporada->id]) }}">Lista de sliders</a>
             </div>
-        </div>
-        <div class="col-3">
             <div class="card card-body">
                 <h4>Páginas</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
-                        <td>5</td>
+                        <td>{{$paginas_totales}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
             </div>
-        </div>
-        <div class="col-3">
+            <hr>
             <div class="card card-body">
                 <h4>Preguntas frecuentes</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
-                        <td>5</td>
+                        <td>{{$faq_totales}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
             </div>
-        </div>
-        
-        
-        
-        <div class="col-3">
+            <hr>
             <div class="card card-body">
                 <h4>Notificaciones</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
-                        <td><b>Nombre</b></td>
-                        <td>{{$temporada->nombre}}</td>
+                        <td><b>Total</b></td>
+                        <td>{{$paginas_totales}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('notificaciones', ['id_temporada'=> $temporada->id]) }}">Lista de notificaciones</a>
             </div>
         </div>
-
-    </div>
-    
-    <hr>
-    <div class="row">
-        <div class="col-12 mb-3"><h2>Participantes</h2></div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Distribuidores</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
-                        <td><b>Nombre</b></td>
-                        <td>{{$temporada->nombre}}</td>
+                        <td><b>Total</b></td>
+                        <td>{{$distribuidores_suscritos}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('distribuidores.suscritos', ['id_temporada'=> $temporada->id]) }}">Distribuidores suscritos</a>
             </div>
         </div>
         
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Usuarios / Líderes</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
-                        <td><b>Nombre</b></td>
-                        <td>{{$temporada->nombre}}</td>
+                        <td><b>Total</b></td>
+                        <td>{{$usuarios_suscritos}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Usuarios suscritos</a>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <div class="card card-body">
                 <h4>Logros (Champions)</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
-                        <td><b>Nombre</b></td>
-                        <td>{{$temporada->nombre}}</td>
+                        <td><b>Retos</b></td>
+                        <td>{{$logros_totales}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Participantes</b></td>
+                        <td>{{$logros_participantes}}</td>
                     </tr>
                 </table>
                 <a href="{{ route('logros', ['id_temporada'=> $temporada->id]) }}">Logros</a>

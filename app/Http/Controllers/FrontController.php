@@ -33,6 +33,50 @@ class FrontController extends Controller
         return view('front/home');
     }
 
+    public function reparar_suscripciones(){
+        $suscripciones = DB::table('usuarios_suscripciones')
+            ->select('id', 'id_usuario', 'id_temporada')
+            ->orderBy('id')
+            ->get();
+
+        $duplicates = [];
+
+        // Recorrer todas las suscripciones para encontrar duplicados
+        foreach ($suscripciones as $suscripcion) {
+            $key = $suscripcion->id_usuario . '-' . $suscripcion->id_temporada;
+
+            // Si la clave ya existe en el array de duplicados, significa que es un duplicado
+            if (isset($duplicates[$key])) {
+                $duplicates[$key][] = $suscripcion->id;
+            } else {
+                $duplicates[$key] = [$suscripcion->id];
+            }
+        }
+
+        $idsToDelete = [];
+
+        // Encontrar los IDs de los duplicados para eliminarlos
+        foreach ($duplicates as $key => $ids) {
+            // Si hay más de un ID en el array, significa que hay duplicados
+            if (count($ids) > 1) {
+                // Ordenar los IDs de forma ascendente y mantener solo el primero (el más pequeño)
+                sort($ids);
+                // Eliminar todos los IDs excepto el primero
+                $idsToDelete = array_merge($idsToDelete, array_slice($ids, 1));
+            }
+        }
+
+        
+        // Eliminar las entradas duplicadas
+        DB::table('usuarios_suscripciones')
+            ->whereIn('id', $idsToDelete)
+            ->delete();
+            
+
+        echo "Se han eliminado los siguientes IDs duplicados: " . implode(', ', $idsToDelete) . "\n";
+    }
+
+    //public function migrar()
     public function scripts_ajustes()
     {
         //
@@ -46,7 +90,7 @@ class FrontController extends Controller
         return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
     }
 
-    public function relacion_susccripciones()
+    public function relacion_suscripciones()
     {
         /*
         // Ejecutar la migración
@@ -118,7 +162,7 @@ class FrontController extends Controller
         echo '</table>';
     }
 
-    public function verificar_pass_default()
+    public function revisar_passwords()
     {
         /*
         // Ejecutar la migración
@@ -169,7 +213,9 @@ class FrontController extends Controller
         // Mostrar enlaces de paginación
         echo $usuarios->links();
     }
+
     public function reparar_evaluaciones()
+    
     {
         /*
         // Ejecutar la migración
@@ -264,17 +310,8 @@ class FrontController extends Controller
     }
 
     public function reparar_puntajes_visualizaciones()
+    
     {
-        /*
-        // Ejecutar la migración
-        Artisan::call('migrate');
-
-        // Obtener el resultado de la ejecución de la migración
-        $output = Artisan::output();
-
-        // Puedes hacer algo con la salida (por ejemplo, devolverla como respuesta)
-        return response()->json(['message' => 'Migraciones ejecutadas', 'output' => $output]);
-        */
 
         $visualizaciones = SesionVis::all();
 

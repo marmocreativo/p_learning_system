@@ -15,6 +15,9 @@ use App\Models\UsuariosSuscripciones;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
+use App\Exports\ReporteJackpotExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class JackpotsController extends Controller
 {
     /**
@@ -56,6 +59,7 @@ class JackpotsController extends Controller
          $jackpot->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaVigencia.' '.$request->HoraVigencia));
          $jackpot->intentos = $request->Intentos;
          $jackpot->trivia = $request->Trivia;
+         $jackpot->region = $request->Region;
          $jackpot->estado = $request->Estado;
  
          $jackpot->save();
@@ -131,6 +135,7 @@ class JackpotsController extends Controller
          $jackpot->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaVigencia.' '.$request->HoraVigencia));
          $jackpot->intentos = $request->Intentos;
          $jackpot->trivia = $request->Trivia;
+         $jackpot->region = $request->Region;
          $jackpot->estado = $request->Estado;
  
          $jackpot->save();
@@ -230,6 +235,16 @@ class JackpotsController extends Controller
 
         $pregunta->delete();
         return redirect()->route('jackpots.show', $id_jackpot);
+    }
+
+     /**
+     * Exports de excel
+     */
+
+     public function resultados_excel (Request $request)
+    {
+        return Excel::download(new ReporteJackpotExport($request), 'reporte_jackpot.xlsx');
+        
     }
 
 

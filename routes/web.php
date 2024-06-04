@@ -31,10 +31,10 @@ use App\Http\Controllers\CsvController;
 |
 */
 
-Route::get('/', [FrontController::class, 'index']);
+Route::get('/', [CuentasController::class, 'index'])->middleware('auth')->name('home');
 Route::get('scripts_ajustes', [FrontController::class, 'scripts_ajustes'])->name('scripts.ajustes');
 
-Route::get('admin', [AdminController::class, 'index'])->middleware('auth')->name('admin');
+Route::get('admin', [CuentasController::class, 'index'])->middleware('auth')->name('admin');
 Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->middleware('auth')->name('admin.base_de_datos');
 Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.backup');
 Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
@@ -113,8 +113,10 @@ Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('
 Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->middleware('auth')->name('sesiones.create');
 Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
 Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_pregunta'])->middleware('auth')->name('sesiones.store_pregunta');
+Route::get('admin/sesiones/resultados_excel', [SesionesController::class, 'resultados_excel'])->middleware('auth')->name('sesiones.resultados_excel');
 Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
 Route::get('admin/sesiones/resultados/{post}', [SesionesController::class, 'resultados'])->middleware('auth')->name('sesiones.resultados');
+
 Route::get('admin/sesiones/edit/{post}', [SesionesController::class, 'edit'])->middleware('auth')->name('sesiones.edit');
 Route::put('admin/sesiones/update_pregunta/{post}', [SesionesController::class, 'update_pregunta'])->middleware('auth')->name('sesiones.update_pregunta');
 Route::put('admin/sesiones/update/{post}', [SesionesController::class, 'update'])->middleware('auth')->name('sesiones.update');
@@ -143,6 +145,7 @@ Route::get('admin/jackpots', [JackpotsController::class, 'index'])->middleware('
 Route::get('admin/jackpots/create', [JackpotsController::class, 'create'])->middleware('auth')->name('jackpots.create');
 Route::post('admin/jackpots/store_pregunta', [JackpotsController::class, 'store_pregunta'])->middleware('auth')->name('jackpots.store_pregunta');
 Route::post('admin/jackpots/store', [JackpotsController::class, 'store'])->middleware('auth')->name('jackpots.store');
+Route::get('admin/jackpots/resultados_excel', [JackpotsController::class, 'resultados_excel'])->middleware('auth')->name('jackpots.resultados_excel');
 Route::get('admin/jackpots/{post}', [JackpotsController::class, 'show'])->middleware('auth')->name('jackpots.show');
 Route::get('admin/jackpots/resultados/{post}', [JackpotsController::class, 'resultados'])->middleware('auth')->name('jackpots.resultados');
 Route::get('admin/jackpots/edit/{post}', [JackpotsController::class, 'edit'])->middleware('auth')->name('jackpots.edit');
@@ -165,6 +168,7 @@ Route::put('admin/logros/participacion_update/{post}', [LogrosController::class,
 Route::delete('admin/logros/destroy/{post}', [LogrosController::class, 'destroy'])->middleware('auth')->name('logros.destroy');
 Route::delete('admin/logros/destroy_participacion/{post}', [LogrosController::class, 'destroy_participacion'])->middleware('auth')->name('logros.destroy_participacion');
 Route::delete('admin/logros/destroy_anexo/{post}', [LogrosController::class, 'destroy_anexo'])->middleware('auth')->name('logros.destroy_anexo');
+Route::put('admin/logros/actualizar_anexo/{post}', [LogrosController::class, 'actualizar_anexo'])->middleware('auth')->name('logros.actualizar_anexo');
 
 // Rutas CRUD para las'sliders'
 Route::get('admin/sliders', [SlidersController::class, 'index'])->middleware('auth')->name('sliders');
@@ -189,12 +193,17 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 Route::get('admin/usuarios', [UsuariosController::class, 'index'])->middleware('auth')->name('admin_usuarios');
 Route::get('admin/usuarios/create', [UsuariosController::class, 'create'])->middleware('auth')->name('admin_usuarios.create');
 Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middleware('auth')->name('admin_usuarios.store');
+Route::get('admin/usuarios_suscritos/reporte_temporada', [UsuariosController::class, 'usuarios_suscritos_reporte_temporada'])->name('admin_usuarios_suscritos_reporte_temporada');
+Route::get('admin/usuarios_suscritos/reporte_interno', [UsuariosController::class, 'usuarios_suscritos_reporte_interno'])->name('admin_usuarios_suscritos_reporte_interno');
 Route::get('admin/usuarios_suscritos/reporte', [UsuariosController::class, 'usuarios_suscritos_reporte'])->name('admin_usuarios_suscritos_reporte');
 Route::get('admin/usuarios_suscritos/puntaje', [UsuariosController::class, 'usuarios_suscritos_puntaje'])->name('admin_usuarios_suscritos_puntaje');
 Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');
 Route::get('admin/usuarios/suscripcion', [UsuariosController::class, 'suscripcion'])->middleware('auth')->name('admin_usuarios.suscripcion');
 Route::post('admin/usuarios/suscribir', [UsuariosController::class, 'suscribir'])->middleware('auth')->name('admin_usuarios.suscribir');
 Route::put('admin/usuarios/suscribir_update/{post}', [UsuariosController::class, 'suscribir_update'])->middleware('auth')->name('admin_usuarios.suscribir_update');
+Route::put('admin/usuarios/suscribir_full_update/{post}', [UsuariosController::class, 'suscribir_full_update'])->middleware('auth')->name('admin_usuarios.suscribir_full_update');
+Route::put('admin/usuarios/restaurar_pass', [UsuariosController::class, 'restaurar_pass'])->middleware('auth')->name('admin_usuarios.restaurar_pass');
+Route::post('admin/usuarios/importar', [CsvController::class, 'importar_usuarios'])->name('admin_usuarios.importar');
 Route::post('/upload-csv', [CsvController::class, 'subirCSV'])->name('upload-csv');
 Route::post('/registros_pasados', [CsvController::class, 'registros_pasados'])->name('registros_pasados.csv');
 Route::post('/actualizar_pass', [CsvController::class, 'actualizar_pass'])->name('actualizar_pass.csv');

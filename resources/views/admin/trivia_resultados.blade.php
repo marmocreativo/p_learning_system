@@ -35,11 +35,25 @@
             </table>
         </div>
         <div class="col-4">
+            <div class="card card-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Participantes: {{$numero_participantes}}</td>
+                        <td>Ganadores: {{$numero_ganadores}}</td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
             <h5>Ganadores</h5>
             <table class="table table-bordered">
                 <tr>
                     <th>Ganador</th>
                     <th>Distribuidor</th>
+                    <th>Dirección</th>
                     <th>Fecha</th>
                     <th>Controles</th>
                 </tr>
@@ -47,9 +61,18 @@
                 <tr>
                     <td>{{$ganador->nombre_usuario}} {{$ganador->apellidos}}</td>
                     <td>{{$ganador->nombre_distribuidor}}</td>
+                    <td>
+                            @if($ganador->direccion_confirmada)
+                            <p><b>{{ $ganador->direccion_nombre }}</b> {{ $ganador->direccion_calle }}, {{ $ganador->direccion_numero }},{{ $ganador->direccion_numeroint }}, {{ $ganador->direccion_colonia }}, {{ $ganador->direccion_ciudad }}
+                                {{ $ganador->direccion_codigo_postal }}, Horario: {{ $ganador->direccion_horario }}, Referencia: {{ $ganador->direccion_referencia }}, Notas: {{ $ganador->direccion_notas }}
+                            </p>
+                            @else
+                            <p>Dirección no confirmada</p>
+                            @endif
+                    </td>
                     <td>{{$ganador->fecha_registro}}</td>
                     <td>
-                        <form action="{{route('trivias.destroy_ganador', $ganador->id_ganador)}}" method="POST">
+                        <form action="{{route('trivias.destroy_ganador', $ganador->id_ganador)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>
@@ -58,10 +81,7 @@
                 </tr>
                 @endforeach
             </table>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
+            <hr>
             <h5>Respuestas</h5>
             <table class="table table-bordered">
                 <tr>
@@ -78,7 +98,7 @@
                     <td>{{$respuesta->respuesta_usuario}}<br>{{$respuesta->respuesta_resultado}}</td>
                     <td>{{$respuesta->fecha_registro}}</td>
                     <td>
-                        <form action="{{route('trivias.destroy_respuesta', $respuesta->id_respuesta)}}" method="POST">
+                        <form action="{{route('trivias.destroy_respuesta', $respuesta->id_respuesta)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

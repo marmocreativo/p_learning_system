@@ -105,6 +105,14 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="Region">Región</label>
+                    <select class="form-control" name="Region" id="Region">
+                        <option value="Todas" >Todas</option>
+                        <option value="México" >México</option>
+                        <option value="RoLA" >RoLA</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="CantidadEvidencias">Cantidad de evidencias (Max)</label>
                     <input type="number" class="form-control" step="1" name="CantidadEvidencias">
                 </div>

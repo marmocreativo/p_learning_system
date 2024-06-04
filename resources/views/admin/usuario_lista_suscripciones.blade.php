@@ -8,85 +8,118 @@
     <hr>
     <a href="{{ route('admin_usuarios.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}">Inscribir usuario</a>
     <hr>
-    <form action="{{ route('admin_usuarios_suscritos') }}" method="GET">
-        <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
-        <input type="text" name="search" placeholder="Buscar...">
-        <button type="submit">Buscar</button>
-    </form>
+    <a href="{{ route('admin_usuarios_suscritos_reporte_temporada', ['id_temporada'=>$_GET['id_temporada']]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>
+    <hr>
+    <div class="row">
+        <div class="col-6">
+            <form class="d-flex" action="{{ route('admin_usuarios_suscritos') }}" method="GET">
+                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+                <div class="form-group me-2">
+                    <input type="text" class="form-control" name="search" placeholder="Buscar...">
+                </div>
+                <div class="form-group me-2">
+                <select name="region" id="" class="form-control">
+                    <option value="">Cualquier región</option>
+                    <option value="RoLA">RoLA</option>
+                    <option value="México">México</option>
+                </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+        </div>
+        <div class="col-6">
+            <form action="{{ route('admin_usuarios.importar') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+                <div class="form-group">
+                    <input type="file" name="file" accept=".xlsx">
+                </div>
+                <div class="form-group">
+                    <select name="accion" id="accion">
+                        <option value="comparar">Comparar</option>
+                        <option value="agregar">Agregar</option>
+                        <option value="actualizar">Actualizar</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Import</button>
+            </form>
+        </div>
+    </div>
+    
     <hr>
     <table class="table table-stripped">
         <tr>
-            <td>
-                <h3>Usuarios totales</h3>
-                <h5>{{$suscriptores_totales}}</h5>
-            </td>
-            <td>
-                <h3>Usuarios activos</h3>
-                <h5>{{$suscriptores_activos}}</h5>
-            </td>
-            <td>
-                <h3>Usuarios participantes</h3>
-                <h5>{{$suscriptores_participantes}}</h5>
-            </td>
-        </tr>
-    </table>
-    <hr>
-    <table class="table table-stripped">
-        <tr>
+            <th>#</th>
             <th>ID</th>
             <th>Nombre</th>
+            <th>Apellidos</th>
             <th>Correo</th>
-            <th>Distribuidor</th>
-            <th>Permisos</th>
-            <th>champions_a</th>
-            <th>champions_b</th>
+            <th>Usuario</th>
+            <th>V/E</th>
+            <th>Lider</th>
+            <th>Disty</th>
+            <th>Region</th>
+            <th>Pass</th>
             <th>Controles</th>
         </tr>
-        @foreach ($suscripciones as $suscripcion)
+        <?php $i=1; ?>
+        @foreach ($suscriptores as $suscripcion)
                 <tr>
+                    <td>{{$i}}</td>
                     <td>{{$suscripcion->id_usuario}}</td>
-                    <td>{{$suscripcion->nombre}} {{$suscripcion->apellidos}}</td>
+                    <td>{{$suscripcion->nombre_usuario}}</td>
+                    <td>{{$suscripcion->apellidos}}</td>
                     <td>{{$suscripcion->email}} </td>
+                    <td>{{$suscripcion->legacy_id}}</td>
+                    <td>{{$suscripcion->nivel_usuario}}</td>
+                    <td>{{$suscripcion->funcion}}</td>
                     <td>{{$suscripcion->nombre_distribuidor}}</td>
+                    <td>{{$suscripcion->region}}</td>
+                    
                     <td>
-                        {{$suscripcion->funcion}}
-                        @if($suscripcion->funcion === 'usuario')
-                            <a href="{{ route('admin_usuarios.cambiar_a_lider', ['id' => $suscripcion->id, 'id_temporada' => $_GET['id_temporada']]) }}">Cambiar a líder</a>
-                        @else
-                            <a href="{{ route('admin_usuarios.cambiar_a_usuario', ['id' => $suscripcion->id, 'id_temporada' => $_GET['id_temporada']]) }}">Cambiar a usuario</a>
+                        @if(!$suscripcion->pass_restaurado)
+                        <form action="{{route('admin_usuarios.restaurar_pass', $suscripcion->id)}}" class="form-confirmar" method="POST">
+                            @csrf
+                            @method('put')
+                            <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
+                            <input type="hidden" name="id_usuario" value='{{$suscripcion->id_usuario}}'>
+                            <input type="hidden" name="id_distribuidor" value='{{$suscripcion->id_distribuidor}}'>
+                            <button type="submit" class="btn btn-danger">Restaurar pass</button>
+                        </form>
+                        @endif
+                        @if($suscripcion->pass_restaurado)
+                        <span class="badge bg-secondary">Default</span>
                         @endif
                     </td>
-                    <td>{{$suscripcion->champions_a}} </td>
-                    <td>{{$suscripcion->champions_b}} </td>
                     <td>
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$suscripcion->id}}">
                             Editar
                         </button>
                         <!-- Modal -->
                             <div class="modal fade" id="formulario{{$suscripcion->id}}" tabindex="-1" aria-labelledby="formulario{{$suscripcion->id}}Label" aria-hidden="true">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-dialog-lg">
                                 <div class="modal-content">
                                     <div class="modal-body">
-                                        <form action="{{ route('admin_usuarios.suscribir_update', $suscripcion->id) }}" method="POST">
+                                        <form action="{{ route('admin_usuarios.suscribir_full_update', $suscripcion->id_suscripcion) }}" method="POST">
                                             <input type="hidden" name="IdTemporada" value="{{$suscripcion->id_temporada}}">
                                             <input type="hidden" name="IdUsuario" value="{{$suscripcion->id_usuario}}">
                                             @method('PUT')
                                             @csrf
-                                            <table class='table table-bordered'>
-                                                <tr>
-                                                    <th>Nombre:</th>
-                                                    <td>{{$suscripcion->nombre}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Apellidos:</th>
-                                                    <td>{{$suscripcion->apellidos}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Email:</th>
-                                                    <td>{{$suscripcion->email}}</td>
-                                                </tr>
-                                            </table>
-                                            <a href="{{ route('admin_usuarios.edit', $suscripcion->id_usuario) }}">Editar datos personales</a>
+                                            <h6>Datos del usuario</h6>
+                                            <div class="form-group">
+                                                <label for="Nombre">Nombre</label>
+                                                <input class="form-control" type="text" name="Nombre" value="{{$suscripcion->nombre_usuario}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="Apellidos">Apellidos</label>
+                                                <input class="form-control" type="text" name="Apellidos" value="{{$suscripcion->apellidos}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="Whatsapp">Whatsapp</label>
+                                                <input class="form-control" type="text" name="Whatsapp" value="{{$suscripcion->whatsapp}}">
+                                            </div>
+                                            <hr>
+                                            <h6>Datos del distribuidor</h6>
                                             <div class="form-group">
                                                 <label for="IdDistribuidor">Distribuidor</label>
                                                 <select class="form-control" name="IdDistribuidor">
@@ -96,10 +129,21 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
+                                                <label for="NivelDistribuidor">Nivel Distribuidor</label>
+                                                <select name="NivelDistribuidor" class="form-control">
+                                                    <option value="Oyente" <?php if($suscripcion->nivel=='Oyente'){ echo 'selected'; } ?>>Oyente</option>
+                                                    <option value="Básico" <?php if($suscripcion->nivel=='Básico'){ echo 'selected'; } ?>>Básico</option>
+                                                    <option value="Medio" <?php if($suscripcion->nivel=='Medio'){ echo 'selected'; } ?>>Medio</option>
+                                                    <option value="Completo" <?php if($suscripcion->nivel=='Completo'){ echo 'selected'; } ?>>Completo</option>
+                                                </select>
+                                            </div>
+                                            <hr>
+                                            <h6>Datos de la suscripción</h6>
+                                            <div class="form-group">
                                                 <label for="NivelUsuario">Nivel Usuario</label>
                                                 <select class="form-control" name="NivelUsuario">
-                                                    <option value="ventas" @if($suscripcion->id_distribuidor=='ventas') selected @endif> Ventas</option>
-                                                    <option value="especialista" @if($suscripcion->id_distribuidor=='especialista') selected @endif> Especialista</option>
+                                                    <option value="ventas" @if($suscripcion->nivel_usuario=='ventas') selected @endif> Ventas</option>
+                                                    <option value="especialista" @if($suscripcion->nivel_usuario=='especialista') selected @endif> Especialista</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -110,19 +154,25 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="ChampionsA">Champions A</label>
+                                                <label for="ChampionsA">Champions A (Vieron las sesiones 2023)</label>
                                                 <select class="form-control" name="ChampionsA">
                                                     <option value="no" @if($suscripcion->champions_a=='no') selected @endif> No</option>
                                                     <option value="si" @if($suscripcion->champions_a=='si') selected @endif> Si</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="ChampionsB">Champions B</label>
+                                                <label for="ChampionsB">Champions B (university)</label>
                                                 <select class="form-control" name="ChampionsB">
                                                     <option value="no" @if($suscripcion->champions_b=='no') selected @endif> No</option>
                                                     <option value="si" @if($suscripcion->champions_b=='si') selected @endif> Si</option>
                                                 </select>
                                             </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="CorreoChampions" name="CorreoChampions" value="1">
+                                                <label class="form-check-label" for="CorreoChampions">Enviar correo Champions?</label>
+                                            </div>
+                                            
+                                            
                                             <hr>
                                             <button type="submit" class="btn btn-primary">Actualizar</button>
                                         </form>
@@ -130,14 +180,16 @@
                                 </div>
                                 </div>
                             </div>
-                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id)}}" method="POST">
+                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
                             <button type="submit" class="btn btn-link">Desuscribir</button>
                         </form>
+
                     </td>
                 </tr>
+                <?php $i++; ?>
         @endforeach
     </table>
     <?php 
@@ -146,9 +198,13 @@
         if(isset($_GET['search']) && !empty($_GET['search'])){
             $appends['search'] = $_GET['search'];
         }
+        if(isset($_GET['region']) && !empty($_GET['region'])){
+            $appends['region'] = $_GET['region'];
+        }
     ?>
-    {{ $suscripciones->appends($appends)->links() }}
+    {{ $suscriptores->appends($appends)->links() }}
     <hr>
+    <!--
     <h5>Subida masiva de usuarios</h5>
     <form method="POST" action="{{ route('upload-csv') }}" enctype="multipart/form-data">
         @csrf
@@ -170,4 +226,5 @@
         <input type="file" name="csv_file" accept=".csv">
         <button type="submit">Subir CSV</button>
     </form>
+-->
 @endsection

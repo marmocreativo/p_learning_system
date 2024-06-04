@@ -18,7 +18,7 @@
                         <a href="{{route('temporadas.show', $temporada->id)}}">Ver contenido</a>
                         <a href="{{route('temporadas.edit', $temporada->id)}}">Editar</a>
                         <hr>
-                        <form action="{{route('temporadas.destroy', $temporada->id)}}" method="POST">
+                        <form action="{{route('temporadas.destroy', $temporada->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

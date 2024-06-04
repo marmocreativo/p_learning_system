@@ -15,12 +15,13 @@
                     <div class="card-body">
                         <h3>{{$logro->nombre}} </h3>
                         <p>{{$logro->nivel_usuario}} </p>
+                        <p>{{$logro->region}} </p>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('logros.show', $logro->id)}}">Ver contenido</a>
                         <a href="{{route('logros.edit', $logro->id)}}">Editar</a>
                         <hr>
-                        <form action="{{route('logros.destroy', $logro->id)}}" method="POST">
+                        <form action="{{route('logros.destroy', $logro->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\Distribuidor;
 use App\Models\SesionEv;
 use App\Models\SesionVis;
 use App\Models\SesionDudas;
@@ -17,6 +18,9 @@ use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
 use Illuminate\Support\Facades\DB;
+
+use App\Exports\ReporteSesionExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 
@@ -152,6 +156,18 @@ class SesionesController extends Controller
             ->select('sesiones_visualizaciones.id as id_visualizacion', 'sesiones_visualizaciones.*', 'usuarios.id as id_usuario', 'usuarios.*')
             ->orderBy('sesiones_visualizaciones.fecha_ultimo_video', 'desc')
             ->get();
+
+        foreach($visualizaciones as $visualizacion){
+            
+            $detalles_distribuidor = Distribuidor::find($visualizacion->id_distribuidor);
+            if($detalles_distribuidor){
+                $visualizacion->nombre_distribuidor = $detalles_distribuidor->nombre;
+            }else{
+                $visualizacion->nombre_distribuidor = 'N/A';
+            }
+            
+
+        }
 
         $respuestas = DB::table('evaluaciones_respuestas')
             ->join('evaluaciones_preguntas', 'evaluaciones_respuestas.id_pregunta', '=', 'evaluaciones_preguntas.id')
@@ -358,6 +374,16 @@ class SesionesController extends Controller
 
         $pregunta->delete();
         return redirect()->route('sesiones.show', $id_sesion);
+    }
+
+    /**
+     * Exports de excel
+     */
+
+     public function resultados_excel (Request $request)
+    {
+        return Excel::download(new ReporteSesionExport($request), 'reporte_sesion.xlsx');
+        
     }
 
 

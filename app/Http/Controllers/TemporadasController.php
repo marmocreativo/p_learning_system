@@ -4,6 +4,15 @@ namespace App\Http\Controllers;
 use App\Models\Temporada;
 use App\Models\Cuenta;
 use App\Models\SesionEv;
+use App\Models\Trivia;
+use App\Models\Jackpot;
+use App\Models\Slider;
+use App\Models\Publicacion;
+use App\Models\Notificacion;
+use App\Models\DistribuidoresSuscripciones;
+use App\Models\UsuariosSuscripciones;
+use App\Models\Logro;
+use App\Models\LogroParticipacion;
 
 use Illuminate\Http\Request;
 
@@ -60,7 +69,41 @@ class TemporadasController extends Controller
     {
         //
         $temporada = Temporada::find($id);
-        return view('admin/temporada_detalles', compact('temporada'));
+        $hoy = date('Y-m-d H:i:s');
+        $sesiones_totales = SesionEv::where('id_temporada', $temporada->id)->count();
+        $sesiones_publicadas = SesionEv::where('id_temporada', $temporada->id)->where('fecha_publicacion', '<=', $hoy)->count();
+        $sesiones_pendientes = SesionEv::where('id_temporada', $temporada->id)->where('fecha_publicacion', '>', $hoy)->count();
+        $trivias_totales = Trivia::where('id_temporada', $temporada->id)->count();
+        $trivias_publicadas = Trivia::where('id_temporada', $temporada->id)->where('fecha_publicacion', '<=', $hoy)->count();
+        $trivias_pendientes = Trivia::where('id_temporada', $temporada->id)->where('fecha_publicacion', '>', $hoy)->count();
+        $trivia_activa = Trivia::where('id_temporada', $temporada->id)->where('estado', 'activo')->first();
+        $jackpots_totales = Jackpot::where('id_temporada', $temporada->id)->count();
+        $jackpot_activo = Jackpot::where('id_temporada', $temporada->id)->where('estado', 'activo')->first();
+        $paginas_totales = Publicacion::where('id_temporada', $temporada->id)->where('clase', 'pagina')->count();
+        $faq_totales = Publicacion::where('id_temporada', $temporada->id)->where('clase', 'faq')->count();
+        $notificaciones_totales = Notificacion::where('id_temporada', $temporada->id)->count();
+        $distribuidores_suscritos = DistribuidoresSuscripciones::where('id_temporada', $temporada->id)->count();
+        $usuarios_suscritos = UsuariosSuscripciones::where('id_temporada', $temporada->id)->count();
+        $logros_totales = Logro::where('id_temporada', $temporada->id)->count();
+        $logros_participantes = LogroParticipacion::where('id_temporada', $temporada->id)->count();
+        return view('admin/temporada_detalles', compact('temporada',
+                                                        'sesiones_totales',
+                                                        'sesiones_publicadas',
+                                                        'sesiones_pendientes',
+                                                        'trivias_totales',
+                                                        'trivias_publicadas',
+                                                        'trivias_pendientes',
+                                                        'trivia_activa',
+                                                        'jackpots_totales',
+                                                        'jackpot_activo',
+                                                        'paginas_totales',
+                                                        'faq_totales',
+                                                        'notificaciones_totales',
+                                                        'distribuidores_suscritos',
+                                                        'usuarios_suscritos',
+                                                        'logros_totales',
+                                                        'logros_participantes'
+                                                    ));
 
     }
 

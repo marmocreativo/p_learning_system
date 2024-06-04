@@ -45,6 +45,14 @@
                         <option value="no">No</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="Region">Región</label>
+                    <select class="form-control" name="Region" id="Region">
+                        <option value="Todas" >Todas</option>
+                        <option value="México" >México</option>
+                        <option value="RoLA" >RoLA</option>
+                    </select>
+                </div>
                 <hr>
                 <div class="row mb-3">
                     <div class="col-6">

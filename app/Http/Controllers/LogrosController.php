@@ -90,6 +90,7 @@ class LogrosController extends Controller
          $logro->premio_especial = $request->PremioEspecial;
          $logro->cantidad_evidencias = $request->CantidadEvidencias;
          $logro->nivel_usuario = $request->NivelUsuario;
+         $logro->region = $request->Region;
          $logro->imagen = $nombreImagen;
          $logro->imagen_fondo = $nombreImagenFondo;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
@@ -137,6 +138,7 @@ class LogrosController extends Controller
         $logro = Logro::find($id);
         return view('admin/logro_form_actualizar', compact('logro'));
     }
+    
 
     /**
      * Update the specified resource in storage.
@@ -176,6 +178,7 @@ class LogrosController extends Controller
         $logro->nivel_c = $request->NivelC;
         $logro->nivel_especial = $request->NivelEspecial;
         $logro->nivel_usuario = $request->NivelUsuario;
+        $logro->region = $request->Region;
         $logro->premio_a = $request->PremioA;
          $logro->premio_b = $request->PremioB;
          $logro->premio_c = $request->PremioC;
@@ -189,6 +192,17 @@ class LogrosController extends Controller
          $logro->save();
  
          return redirect()->route('logros.show', $logro->id);
+    }
+
+    public function actualizar_anexo(Request $request, string $id)
+    {
+        //
+        $anexo = LogroAnexo::find($id);
+        $anexo->nivel = $request->Nivel;
+        $anexo->validado = $request->Validado;
+        $anexo->save();
+ 
+         return redirect()->route('logros.detalles_participacion', ['id'=>$anexo->id_participacion]);
     }
 
     /**
@@ -259,18 +273,44 @@ class LogrosController extends Controller
         //
         $participacion = LogroParticipacion::find($id);
 
+        switch ($request->ConfirmacionNivel) {
+            case 'a':
+                $participacion->confirmacion_nivel_a = 'si';
+                $participacion->confirmacion_nivel_b = 'no';
+                $participacion->confirmacion_nivel_c = 'no';
+                $participacion->confirmacion_nivel_especial = 'no';
+                break;
+            case 'b':
+                $participacion->confirmacion_nivel_a = 'si';
+                $participacion->confirmacion_nivel_b = 'si';
+                $participacion->confirmacion_nivel_c = 'no';
+                $participacion->confirmacion_nivel_especial = 'no';
+                break;
+            case 'c':
+                $participacion->confirmacion_nivel_a = 'si';
+                $participacion->confirmacion_nivel_b = 'si';
+                $participacion->confirmacion_nivel_c = 'si';
+                $participacion->confirmacion_nivel_especial = 'no';
+                break;
 
-        $participacion->confirmacion_nivel_a = $request->ConfirmacionNivelA;
-        $participacion->confirmacion_nivel_b = $request->ConfirmacionNivelB;
-        $participacion->confirmacion_nivel_c = $request->ConfirmacionNivelC;
-        $participacion->confirmacion_nivel_especial = $request->ConfirmacionNivelEspecial;
+            case 'especial':
+                $participacion->confirmacion_nivel_a = 'si';
+                $participacion->confirmacion_nivel_b = 'si';
+                $participacion->confirmacion_nivel_c = 'si';
+                $participacion->confirmacion_nivel_especial = 'si';
+                break;
+            
+            default:
+                # code...
+                break;
+        }
         $participacion->estado = $request->Estado;
 
 
         if($participacion->estado=='finalizado'){
             $data = [
-                'titulo' => ' ¡Eres una leyenda! ',
-                'contenido' => '<p>"Has superado TODOS los niveles de los Desafíos Champions de esta temporada. Queremos darte una felicitación muy especial. Tu logro representa mucho para nosotros, y esperamos que tu bono acumulado refleje lo importante que es para nosotros tu compromiso. ¡Gracias por participar, y prepárate para mantener tu estatus legendario la próxima temporada!</p>',
+                'titulo' => ' ¡Desafío completado! ',
+                'contenido' => '<p>"Has superado los niveles de tu desafio Champions  ¡Gracias por participar, y prepárate para la próxima temporada!</p>',
                 'boton_texto' => 'Desafío Champions',
                 'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
             ];
@@ -349,8 +389,15 @@ class LogrosController extends Controller
         $cuenta = Cuenta::find($id_cuenta);
         $id_temporada = $cuenta->temporada_actual;
         $id_usuario = $request->input('id_usuario');
-        $logros = Logro::where('id_temporada', $id_temporada)->get();
+       
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        $logros = Logro::where('id_temporada', $id_temporada)
+                        ->where(function($query) use ($distribuidor) {
+                            $query->where('region', $distribuidor->region)
+                                ->orWhere('region', 'Todas');
+                        })
+                        ->get();
         
         $participaciones = DB::table('logros_participantes')
             ->join('logros', 'logros_participantes.id_logro', '=', 'logros.id')

@@ -30,6 +30,7 @@ use App\Mail\RegistroUsuario;
 use Illuminate\Support\Facades\Mail;
 
 use App\Exports\UsersExport;
+use App\Exports\UsersGeneralExport;
 use App\Exports\PuntajeExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -41,8 +42,16 @@ class UsuariosController extends Controller
     public function index(Request $request)
     {
         //
-        $usuarios = User::paginate();
-        return view('admin/usuario_lista', compact('usuarios'));
+        $query = User::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('email', 'like', "%{$search}%");
+        }
+
+        $usuarios = $query->paginate();
+
+        return view('admin.usuario_lista', compact('usuarios'));
     }
 
     /**
@@ -159,57 +168,104 @@ class UsuariosController extends Controller
     public function usuarios_suscritos (Request $request)
     {
         //
-        $id_temporada = $request->input('id_temporada');
-        $query = DB::table('usuarios')
-            ->join('usuarios_suscripciones', 'usuarios.id', '=', 'usuarios_suscripciones.id_usuario')
-            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
-            ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada);
 
+        $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($id_temporada);
+        $id_cuenta = $temporada->id_cuenta;
+        if($request->input('region')){
+            $region = $request->input('region');
+            $distribuidores = Distribuidor::where('region', $region)->get();
+        }
+        else{
+            $region = '';
+            $distribuidores = Distribuidor::all();
+        }
+        
+
+        // Obtener la colección de distribuidores
+        
+
+        // Extraer los IDs de los distribuidores
+        $distribuidorIds = $distribuidores->pluck('id')->toArray();
+
+            // Obtener los suscriptores filtrando por los IDs de distribuidores y la temporada
+        $query = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', $id_temporada)
+            ->whereIn('usuarios_suscripciones.id_distribuidor', $distribuidorIds)
+            ->distinct('usuarios.id');
+            
             if ($request->has('search') && !empty($request->input('search'))) {
                 $query->where(function($query) use ($request) {
                     $query->where('usuarios.nombre', 'like', '%'.$request->input('search').'%')
-                          ->orWhere('usuarios.email', 'like', '%'.$request->input('search').'%')
-                          ->orWhere('distribuidores.nombre', 'like', '%'.$request->input('search').'%');
+                            ->orWhere('usuarios.email', 'like', '%'.$request->input('search').'%')
+                            ->orWhere('distribuidores.nombre', 'like', '%'.$request->input('search').'%');
                 });
             }
 
-            $suscripciones = $query->select('usuarios.*', 'usuarios_suscripciones.*', 'distribuidores.nombre as nombre_distribuidor')
-            ->paginate(20);
-            $suscriptores_activos = 0;
-            $suscriptores_participantes = 0;
-            $suscriptores_totales = 0;
+            
+            $suscriptores = $query->select( 'usuarios.id as id_usuario',
+                                            'usuarios.nombre as nombre_usuario',
+                                            'usuarios.password', 'usuarios.*',
+                                            'usuarios_suscripciones.id as id_suscripcion',
+                                            'usuarios_suscripciones.*',
+                                            'distribuidores.id as id_distribuidor',
+                                            'distribuidores.nombre as nombre_distribuidor',
+                                            'distribuidores.nivel as nivel_distribuidor',
+                                            'distribuidores.*')
+            ->paginate(10);
 
-        foreach($suscripciones as $suscriptor){
-            $activo = false;
-            $participante = false;
-            $hay_login = Tokens::where('tokenable_id', $suscriptor->id_usuario)->first();
-            if($hay_login){ $activo=true; }
-            $hay_sesiones = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_sesiones){ $participante=true; }
-            $hay_evaluaciones = EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_evaluaciones){ $participante=true; }
-            $hay_trivias = TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_trivias){ $participante=true; }
-            $hay_jackpot = JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->first();
-            if($hay_jackpot){ $participante=true; }
+            $suscriptores->getCollection()->transform(function ($suscriptor) {
+                // Asegúrate de acceder correctamente a la propiedad de la contraseña que necesitas comparar
+                $suscriptor->pass_restaurado = Hash::check($suscriptor->default_pass, $suscriptor->password);
+                return $suscriptor;
+            });
 
-            if($participante){ $activo=true; }
-
-
-            if($activo){ $suscriptores_activos++; }
-            if($participante){ $suscriptores_participantes++; }
-            $suscriptores_totales ++;
-        }
 
         $clases = Clase::where('elementos','usuarios')->get();
         $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_suscripciones', compact('suscripciones', 'suscriptores_totales', 'suscriptores_activos', 'suscriptores_participantes', 'clases', 'distribuidores'));
+        return view('admin/usuario_lista_suscripciones', compact('temporada', 'suscriptores', 'clases', 'distribuidores'));
+    }
+
+    public function usuarios_suscritos_reporte_temporada (Request $request)
+    {
+        return Excel::download(new UsersGeneralExport($request), 'reporte_usuarios.xlsx');
+        
     }
 
     public function usuarios_suscritos_reporte (Request $request)
     {
         return Excel::download(new UsersExport($request), 'reporte_usuarios.xlsx');
+        
+    }
+
+    public function usuarios_suscritos_reporte_interno (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $id_temporada = $request->input('id_temporada');
+        $region = $request->input('region');
+
+        // Obtener la colección de distribuidores
+        $distribuidores = Distribuidor::where('region', $region)->get();
+
+        // Extraer los IDs de los distribuidores
+        $distribuidorIds = $distribuidores->pluck('id')->toArray();
+
+        // Obtener los suscriptores filtrando por los IDs de distribuidores y la temporada
+        $suscriptores = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', $id_temporada)
+            ->whereIn('usuarios_suscripciones.id_distribuidor', $distribuidorIds)
+            ->distinct('usuarios.id')
+            ->select('usuarios.id as id_usuario','usuarios.nombre as nombre_usuario', 'usuarios.*', 'usuarios_suscripciones.*', 'distribuidores.nombre as nombre_distribuidor','distribuidores.nivel as nivel_distribuidor','distribuidores.*')
+            ->get();
+
+       
+        return view('admin/usuario_lista_suscripciones_full', compact('suscriptores'));
+
         
     }
 
@@ -295,6 +351,94 @@ class UsuariosController extends Controller
         
         
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
+        
+    }
+
+    public function suscribir_full_update(Request $request, string $id)
+    {
+        
+        $suscripcion = UsuariosSuscripciones::find($id);
+        
+        $id_usuario = $suscripcion->id_usuario;
+        $usuario = User::find($id_usuario);
+        $id_temporada = $request->IdTemporada;
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+
+        //Actualizo
+        $usuario->nombre = $request->Nombre;
+        $usuario->apellidos = $request->Apellidos;
+        $usuario->whatsapp = $request->Whatsapp;
+
+        $suscripcion->id_distribuidor = $request->IdDistribuidor;
+        $suscripcion->funcion = $request->Funcion;
+        $suscripcion->nivel_usuario = $request->NivelUsuario;
+        $suscripcion->champions_a = $request->ChampionsA;
+        $suscripcion->champions_b = $request->ChampionsB;
+        $suscripcion->save();
+
+        // reasigno el distribuidor en las actividades
+        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($visualizaciones as $visualizacion){
+            $visualizacion->id_distribuidor = $request->IdDistribuidor;
+            $visualizacion->save();
+        }
+
+        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($evaluaciones_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_respuestas = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($trivias_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_ganadores = TriviaGanador::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($trivias_ganadores as $ganador){
+            $ganador->id_distribuidor = $request->IdDistribuidor;
+            $ganador->save();
+        }
+
+        $jackpot_respuestas = JackpotRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($jackpot_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $jackpot_intentos = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        foreach($jackpot_intentos as $intento){
+            $intento->id_distribuidor = $request->IdDistribuidor;
+            $intento->save();
+        }
+
+        if ($request->has('CorreoChampions') && $request->CorreoChampions == 1) {
+            // Luego, verifica las condiciones adicionales
+            if($request->ChampionsA == 'si' && $request->ChampionsB == 'si') {
+                $data = [
+                    'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
+                    'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
+                    <p>• Elige una categoría entre oas que están disponibles.</p>
+                    <p>• Vende los productos participantes para subir de nivel.</p>
+                    <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
+                    <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
+                    
+                    <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                Mail::to($usuario->email)->send(new InscripcionChampions($data));
+            }
+        }
+
+        
+        
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
+        
         
     }
 
@@ -393,6 +537,21 @@ class UsuariosController extends Controller
         $suscripcion->delete();
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$id_temporada]);
         
+    }
+
+    public function restaurar_pass(Request $request){
+       
+
+        $usuario = User::find($request->input('id_usuario'));
+        $id_distribuidor = $request->input('id_distribuidor');
+        $id_temporada = $request->input('id_temporada');
+        $distribuidor = Distribuidor::find($request->input('id_distribuidor'));
+        
+
+        $usuario->password = Hash::make($distribuidor->default_pass);
+        $usuario->save();        
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$id_temporada]);
+
     }
 
     public function usuarios_suscritos_api (Request $request)

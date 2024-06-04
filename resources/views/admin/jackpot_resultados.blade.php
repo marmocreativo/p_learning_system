@@ -46,7 +46,7 @@
                     <td>{{$ganador->puntaje}}</td>
                     <td>{{$ganador->fecha_registro}}</td>
                     <td>
-                        <form action="{{route('jackpots.destroy_intento', $ganador->id_ganador)}}" method="POST">
+                        <form action="{{route('jackpots.destroy_intento', $ganador->id_ganador)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>
@@ -75,7 +75,7 @@
                     <td>{{$respuesta->respuesta_usuario}}<br>{{$respuesta->respuesta_resultado}}</td>
                     <td>{{$respuesta->fecha_registro}}</td>
                     <td>
-                        <form action="{{route('jackpots.destroy_respuesta', $respuesta->id_respuesta)}}" method="POST">
+                        <form action="{{route('jackpots.destroy_respuesta', $respuesta->id_respuesta)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

@@ -14,13 +14,25 @@
                 <div class="card">
                     <div class="card-body">
                         <h3>{{$jackpot->titulo}} </h3>
+                        <table class="table table-stripped">
+                            <tbody>
+                                <tr>
+                                    <td><a href="{{route('jackpots.show', $jackpot->id)}}">Ver contenido</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('jackpots.resultados', $jackpot->id)}}">Ver resultados</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('jackpots.resultados_excel', ['id_jackpot' => $jackpot->id])}}" download="reporte-{{$jackpot->titulo}}" className="btn btn-primary">Resultados Excel</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('jackpots.edit', $jackpot->id)}}">Editar</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="card-footer">
-                        <a href="{{route('jackpots.show', $jackpot->id)}}">Ver contenido</a>
-                        <a href="{{route('jackpots.resultados', $jackpot->id)}}">Ver resultados</a>
-                        <a href="{{route('jackpots.edit', $jackpot->id)}}">Editar</a>
-                        <hr>
-                        <form action="{{route('jackpots.destroy', $jackpot->id)}}" method="POST">
+                        <form action="{{route('jackpots.destroy', $jackpot->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

@@ -97,7 +97,7 @@
                     <td>{{$participacion->estado}}</td>
                     <td>{{$participacion->fecha_registro}}</td>
                     <td> 
-                        <form action="{{route('logros.destroy_participacion', $participacion->id_participacion)}}" method="POST">
+                        <form action="{{route('logros.destroy_participacion', $participacion->id_participacion)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-danger">Borrar</button>

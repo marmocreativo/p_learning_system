@@ -49,6 +49,7 @@ Route::get('todos_datos_trivia', [TriviasController::class, 'todos_datos_trivia_
 Route::get('datos_trivia', [TriviasController::class, 'datos_trivia_api'])->name('datos_trivia.api');
 Route::post('registrar_respuestas_trivia', [TriviasController::class, 'registrar_respuestas_trivia_api'])->name('registrar_respuestas_trivia.api');
 Route::post('direccion_trivia', [TriviasController::class, 'direccion_trivia_api'])->name('direccion_trivia.api');
+Route::post('confirmar_direccion_trivia', [TriviasController::class, 'confirmar_direccion_trivia_api'])->name('confirmar_direccion_trivia.api');
 // Jackpot
 Route::get('todos_datos_jackpot', [JackpotsController::class, 'todos_datos_jackpot_api'])->name('todos_datos_jackpot.api');
 Route::get('datos_jackpot', [JackpotsController::class, 'datos_jackpot_api'])->name('datos_jackpot.api');

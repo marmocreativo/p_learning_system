@@ -25,7 +25,7 @@
                     <a href="{{route('publicaciones.edit', $publicacion->id)}}">Editar</a> |
                 </td>
                 <td>
-                    <form action="{{route('publicaciones.destroy', $publicacion->id)}}" method="POST">
+                    <form action="{{route('publicaciones.destroy', $publicacion->id)}}" class="form-confirmar" method="POST">
                         @csrf
                         @method('delete')
                         <button type="submit" class="btn btn-link">Borrar</button>

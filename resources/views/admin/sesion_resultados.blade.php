@@ -63,17 +63,18 @@
                 <tr>
                     <th>Usuario</th>
                     <th>Distribuidor</th>
+                    <th>Puntaje</th>
                     <th>Visualización</th>
                     <th>Control</th>
                 </tr>
                 @foreach($visualizaciones as $vis)
                 <tr>
-                    <td>{{$vis->id_visualizacion}}</td>
-                    <td>({{$vis->id_usuario}}) {{$vis->nombre}} {{$vis->apellidos}}</td>
-                    <td></td>
+                    <td>{{$vis->nombre}} {{$vis->apellidos}}</td>
+                    <td>{{$vis->nombre_distribuidor}}</td>
+                    <td>{{$vis->puntaje}}</td>
                     <td>{{$vis->fecha_ultimo_video}}</td>
                     <td>
-                        <form action="{{route('sesiones.destroy_visualizacion', $vis->id_visualizacion)}}" method="POST">
+                        <form action="{{route('sesiones.destroy_visualizacion', $vis->id_visualizacion)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>
@@ -91,7 +92,7 @@
                     <th>Usuario</th>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
-                    <th>Puntaje</th>
+                        
                     <th>Control</th>
                 </tr>
                 @foreach ($respuestas as $res)
@@ -104,7 +105,7 @@
                     </td>
                     <td>{{$res->puntaje}}</td>
                     <td>
-                        <form action="{{route('sesiones.destroy_respuesta', $res->id_respuesta)}}" method="POST">
+                        <form action="{{route('sesiones.destroy_respuesta', $res->id_respuesta)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

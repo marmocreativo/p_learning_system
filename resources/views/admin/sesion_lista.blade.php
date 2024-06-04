@@ -10,17 +10,35 @@
     <hr>
     <div class="row">
         @foreach ($sesiones as $sesion)
+            @php
+                // Obtener la fecha de hoy
+                $today = \Carbon\Carbon::now()->toDateString();
+                // Comparar la fecha de publicación con la fecha actual
+                $isPastOrToday = $sesion->fecha_publicacion <= $today;
+            @endphp
             <div class="col-3">
-                <div class="card">
+                <div class="card {{ $isPastOrToday ? 'bg-primary text-white' : '' }}">
                     <div class="card-body">
-                        <h3>#{{$sesion->id}}  {{$sesion->titulo}} </h3>
+                        <h3 title="{{$sesion->id}}">{{$sesion->titulo}} </h3>
+                        <table class="table table-stripped">
+                            <tbody>
+                                <tr>
+                                    <td><a href="{{route('sesiones.show', $sesion->id)}}" className="btn btn-primary">Ver contenido</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('sesiones.resultados', $sesion->id)}}" className="btn btn-primary">Ver resultados</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('sesiones.resultados_excel', ['id_sesion' => $sesion->id])}}" download="reporte-{{$sesion->titulo}}" className="btn btn-primary">Resultados Excel</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{route('sesiones.edit', $sesion->id)}}" className="btn btn-primary">Editar</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="card-footer">
-                        <a href="{{route('sesiones.show', $sesion->id)}}" className="btn btn-primary">Ver contenido</a>
-                        <a href="{{route('sesiones.resultados', $sesion->id)}}" className="btn btn-primary">Ver resultados</a>
-                        <a href="{{route('sesiones.edit', $sesion->id)}}" className="btn btn-primary">Editar</a>
-                        <hr>
-                        <form action="{{route('sesiones.destroy', $sesion->id)}}" method="POST">
+                        <form action="{{route('sesiones.destroy', $sesion->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

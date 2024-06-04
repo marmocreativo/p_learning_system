@@ -107,6 +107,14 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="Region">Región</label>
+                    <select class="form-control" name="Region" id="Region">
+                        <option value="Todas" @if($logro->region=='Todas')selected @endif>Todas</option>
+                        <option value="México" @if($logro->region=='México')selected @endif>México</option>
+                        <option value="RoLA" @if($logro->region=='RoLA')selected @endif>RoLA</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="CantidadEvidencias">Cantidad de evidencias (Max)</label>
                     <input type="number" class="form-control" step="1" name="CantidadEvidencias" value="{{$logro->cantidad_evidencias}}">
                 </div>

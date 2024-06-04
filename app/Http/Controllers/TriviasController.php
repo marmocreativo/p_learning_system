@@ -16,6 +16,7 @@ use App\Models\Distribuidor;
 use Illuminate\Support\Facades\DB;
 
 use App\Mail\GanadorTrivia;
+use App\Mail\DireccionTrivia;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -99,7 +100,10 @@ class TriviasController extends Controller
             ->select('trivias_ganadores.id as id_ganador', 'trivias_ganadores.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*', 'distribuidores.nombre as nombre_distribuidor', 'distribuidores.*')
             ->orderBy('trivias_ganadores.fecha_registro', 'desc')
             ->get();
-        return view('admin/trivia_resultados', compact('trivia', 'preguntas', 'respuestas', 'ganadores'));
+
+    $numero_participantes = TriviaRes::where('id_trivia',$id)->distinct('id_usuario')->count();
+    $numero_ganadores = TriviaGanador::where('id_trivia',$id)->distinct('id_usuario')->count();
+        return view('admin/trivia_resultados', compact('trivia', 'preguntas', 'respuestas', 'ganadores', 'numero_participantes', 'numero_ganadores'));
     }
 
     /**
@@ -282,12 +286,12 @@ class TriviasController extends Controller
             }
             
         }
-
         
         $completo = [
             'trivia' => $trivia,
             'participante' => $participante,
             'distribuidor' => $distribuidor,
+            'nivel' => $suscripcion->nivel,
             'preguntas' => $preguntas,
             'respuestas' => $respuestas,
             'premios' => $ganadores,
@@ -406,11 +410,14 @@ class TriviasController extends Controller
     {
         $id_ganador = $request->input('id_premio');
         $ganador = TriviaGanador::find($id_ganador);
+        $trivia = Trivia::find($ganador->id_trivia);
 
         $ganador->direccion_nombre = $request->input('nombre');
         $ganador->direccion_calle = $request->input('calle');
         $ganador->direccion_numero = $request->input('numero');
+        $ganador->direccion_numeroint = $request->input('numeroint');
         $ganador->direccion_colonia = $request->input('colonia');
+        $ganador->direccion_delegacion = $request->input('delegacion');
         $ganador->direccion_ciudad = $request->input('ciudad');
         $ganador->direccion_codigo_postal = $request->input('codigoPostal');
         $ganador->direccion_horario = $request->input('horario');
@@ -418,6 +425,42 @@ class TriviasController extends Controller
         $ganador->direccion_notas = $request->input('notas');
 
         $ganador->save();
+
+        return('Guardado');
+        
+        
+        
+    }
+
+    public function confirmar_direccion_trivia_api(Request $request)
+    {
+        $id_ganador = $request->input('id_premio');
+        $ganador = TriviaGanador::find($id_ganador);
+        $trivia = Trivia::find($ganador->id_trivia);
+        $ganador->direccion_confirmada = 'si';
+
+        $ganador->save();
+
+        $direccion = '';
+        $direccion .= '<p><b>Recibe</b>'.$ganador->direccion_nombre.'</p>';
+        $direccion .= '<p><b>Calle</b>'.$ganador->direccion_calle.'</p>';
+        $direccion .= '<p><b>Número Ext</b>'.$ganador->direccion_numero.'</p>';
+        $direccion .= '<p><b>Número Int</b>'.$ganador->direccion_numeroint.'</p>';
+        $direccion .= '<p><b>Colonia</b>'.$ganador->direccion_colonia.'</p>';
+        $direccion .= '<p><b>Delegación</b>'.$ganador->direccion_delegacion.'</p>';
+        $direccion .= '<p><b>Ciudad</b>'.$ganador->direccion_ciudad.'</p>';
+        $direccion .= '<p><b>Código Postal</b>'.$ganador->direccion_codigo_postal.'</p>';
+        $direccion .= '<p><b>Horario</b>'.$ganador->direccion_horario.'</p>';
+        $direccion .= '<p><b>Referencia</b>'.$ganador->direccion_referencia.'</p>';
+        $direccion .= '<p><b>Notas</b>'.$ganador->direccion_notas.'</p>';
+
+        $data = [
+            'titulo' => 'Dirección del ganador de la trivia '.$trivia->titulo,
+            'contenido' => $direccion,
+            'boton_texto' => '',
+            'boton_enlace' => '#'
+        ];
+        Mail::to('marmocreativo@gmail.com')->send(new DireccionTrivia($data));
 
         return('Guardado');
         

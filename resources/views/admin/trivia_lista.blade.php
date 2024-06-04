@@ -20,7 +20,7 @@
                         <a href="{{route('trivias.resultados', $trivia->id)}}">Ver resultados</a>
                         <a href="{{route('trivias.edit', $trivia->id)}}">Editar</a>
                         <hr>
-                        <form action="{{route('trivias.destroy', $trivia->id)}}" method="POST">
+                        <form action="{{route('trivias.destroy', $trivia->id)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

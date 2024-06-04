@@ -3,12 +3,12 @@
 @section('titulo', 'Jackpots')
 
 @section('contenido_principal')
-    <h1>Formulario de jacpots</h1>
+    <h1>Formulario de jackpots</h1>
     <form action="{{ route('jackpots.update', $jackpot->id) }}" method="POST">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$jackpot->id_temporada}}">
         @csrf
-        @method('PUT');
+        @method('PUT')
         <div class="row">
             <div class="col-8">
                 <div class="form-group">
@@ -38,6 +38,14 @@
                     <select class="form-control" name="Trivia" id="Trivia">
                         <option value="si" @if($jackpot->trivia=='si')selected @endif>Si</option>
                         <option value="no" @if($jackpot->trivia=='no')selected @endif>No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Region">Región</label>
+                    <select class="form-control" name="Region" id="Region">
+                        <option value="Todas" @if($jackpot->region=='Todas')selected @endif>Todas</option>
+                        <option value="México" @if($jackpot->region=='México')selected @endif>México</option>
+                        <option value="RoLA" @if($jackpot->region=='RoLA')selected @endif>RoLA</option>
                     </select>
                 </div>
                 <hr>
