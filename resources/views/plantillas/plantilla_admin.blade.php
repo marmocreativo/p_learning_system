@@ -8,6 +8,7 @@
     <!-- Place the first <script> tag in your HTML's <head> -->
     <script src="https://cdn.tiny.cloud/1/y3nn7mnqo19xsacsvznxqarsmohkoz42yat38khcnolpk6bf/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
     <script>
@@ -117,8 +118,8 @@
                     loader.classList.remove('d-none');
                 }
                 
-                const links = document.querySelectorAll('a');
-                 const forms = document.querySelectorAll('form');
+                const links = document.querySelectorAll('.link-loader');
+                 const forms = document.querySelectorAll('.form-loader');
                 const confirmButtons = document.querySelectorAll('.btn-confirmar');
                 const confirmForms = document.querySelectorAll('.form-confirmar');
 
@@ -177,26 +178,26 @@
 
                  // Selecciona todos los formularios con la clase 'form-confirmar'
                     
-                    // Añade un event listener a cada formulario
-                    confirmForms.forEach(function (form) {
-                        form.addEventListener('submit', function (event) {
-                            // Previene el envío por defecto del formulario
-                            event.preventDefault();
-                            // Muestra la alerta de confirmación
-                            swal({
-                                title: '¿Estás seguro?',
-                                text: "Esta acción no se puede deshacer",
-                                icon: 'warning',
-                                buttons: ["Cancelar", "Confirmar"],
-                            }).then((result) => {
-                                if (result) {
-                                    startFadeOut();
-                                    // Si el usuario confirma, envía el formulario
-                                    form.submit();
-                                }
-                            });
+                // Añade un event listener a cada formulario
+                confirmForms.forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        // Previene el envío por defecto del formulario
+                        event.preventDefault();
+                        // Muestra la alerta de confirmación
+                        swal({
+                            title: '¿Estás seguro?',
+                            text: "Esta acción no se puede deshacer",
+                            icon: 'warning',
+                            buttons: ["Cancelar", "Confirmar"],
+                        }).then((result) => {
+                            if (result) {
+                                startLoader();
+                                // Si el usuario confirma, envía el formulario
+                                form.submit();
+                            }
                         });
                     });
+                });
             });
 
             

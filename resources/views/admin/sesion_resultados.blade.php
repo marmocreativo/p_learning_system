@@ -4,84 +4,79 @@
 
 @section('contenido_principal')
     <h1>Detalles de la sesión: <small>{{$sesion->titulo}}</small></h1>
-    <a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Lista de sesiones</a>
-    <hr>
-    <a href="{{route('sesiones.edit', $sesion->id)}}">Editar sesión</a>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('cuentas.show', $sesion->id_cuenta) }}">Cuenta</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$sesion->id_cuenta])}}">Temporadas</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $sesion->id_temporada)}}">Temporada</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Sesiones</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('sesiones.show', $sesion->id) }}">{{$sesion->titulo}}</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Resultados</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <a class="btn btn-outline-warning" href="{{route('sesiones.edit', $sesion->id)}}">Editar sesión</a>
+        </div>
+    </div>
     <hr>
     <div class="row">
-        <div class="col-3">
-            <h5>{{date('Y-m-d H:i:s');}}</h5>
+        <div class="col-12">
+            
             <h5>Datos generales</h5>
             <table class="table table-bordered">
                 <tr>
-                    <th>Título</th>
-                    <td colspan="2">{{$sesion->titulo}}</td>
-                </tr>
-                <tr>
-                    <th>Estado</th>
-                    <td colspan="2">{{$sesion->estado}}</td>
-                </tr>
-                <tr>
-                    <th>Fecha publicación</th>
-                    <td colspan="2">{{$sesion->fecha_publicacion}}</td>
-                </tr>
-                <tr>
-                    <th>Horas de estreno</th>
-                    <td colspan="2">{{$sesion->horas_estreno}}</td>
-                </tr>
-                <tr>
-                    <th>Cantidad de preguntas para evaluación</th>
-                    <td colspan="2">{{$sesion->cantidad_preguntas_evaluacion}}</td>
-                </tr>
-                <tr>
-                    <th>Ordenar preguntas evaluación</th>
-                    <td colspan="2">{{$sesion->ordenar_preguntas_evaluacion}}</td>
-                </tr>
-                <tr>
-                    <th>Evaluación obligatoria</th>
-                    <td colspan="2">{{$sesion->evaluacion_obligatoria}}</td>
-                </tr>
-                <tr>
-                    <th>Puntaje por:</th>
-                    <th>Estreno</th>
-                    <th>Normal</th>
-                </tr>
-                <tr>
-                    <td>Visualización</td>
-                    <td>{{$sesion->visualizar_puntaje_estreno}}</td>
-                    <td>{{$sesion->visualizar_puntaje_normal}}</td>
-                </tr>
-                <tr>
-                    <td>Preguntas</td>
-                    <td>{{$sesion->preguntas_puntaje_estreno}}</td>
-                    <td>{{$sesion->preguntas_puntaje_normal}}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-9">
-            <table class="table table-bordered table-sm">
-                <tr>
-                    <th>Usuario</th>
-                    <th>Distribuidor</th>
-                    <th>Puntaje</th>
-                    <th>Visualización</th>
-                    <th>Control</th>
-                </tr>
-                @foreach($visualizaciones as $vis)
-                <tr>
-                    <td>{{$vis->nombre}} {{$vis->apellidos}}</td>
-                    <td>{{$vis->nombre_distribuidor}}</td>
-                    <td>{{$vis->puntaje}}</td>
-                    <td>{{$vis->fecha_ultimo_video}}</td>
                     <td>
-                        <form action="{{route('sesiones.destroy_visualizacion', $vis->id_visualizacion)}}" class="form-confirmar" method="POST">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="btn btn-link">Borrar</button>
-                        </form>
+                        Título:<br>
+                        {{$sesion->titulo}}
+                    </td>
+                    <td>
+                        Estado:<br>
+                        {{$sesion->estado}}
+                    </td>
+                    <td>
+                        Fecha publicación:<br>
+                        {{$sesion->fecha_publicacion}}
+                    </td>
+                    <td rowspan="2">
+                        <table class="table">
+                            <tr>
+                                <th>Puntaje por:</th>
+                                <td>Visualización</td>
+                                <td>Preguntas</td>
+                            </tr>
+                            <tr>
+                                <th>Estreno</th>
+                                <td>{{$sesion->visualizar_puntaje_estreno}}</td>
+                                <td>{{$sesion->preguntas_puntaje_estreno}}</td>
+                                
+                            </tr>
+                            <tr>
+                                <th>Normal</th>
+                                <td>{{$sesion->visualizar_puntaje_normal}}</td>
+                                <td>{{$sesion->preguntas_puntaje_normal}}</td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
-                @endforeach
+                <tr>
+                    <td>
+                        Cantidad de preguntas para evaluación:
+                        {{$sesion->cantidad_preguntas_evaluacion}}
+                    </td>
+                    <td>
+                        Ordenar preguntas evaluación:
+                        {{$sesion->ordenar_preguntas_evaluacion}}
+                    </td>
+                    <td>
+                        Evaluación obligatoria:
+                        {{$sesion->evaluacion_obligatoria}}
+                    </td>
+                </tr>
+                
             </table>
         </div>
     </div>
@@ -90,22 +85,44 @@
             <table class="table table-bordered table-sm">
                 <tr>
                     <th>Usuario</th>
-                    <th>Pregunta</th>
-                    <th>Respuesta</th>
-                        
+                    <th>Distribuidor</th>
+                    <th>Puntaje</th>
+                    <th>Visualización</th>
+                    @php $i=1; @endphp
+                    @foreach($preguntas as $pregunta)
+                        <th>Q{{$i}}</th>
+                        <th>Puntaje {{$i}}</th>
+                    @php $i++; @endphp
+                    @endforeach
                     <th>Control</th>
                 </tr>
-                @foreach ($respuestas as $res)
+                @foreach($visualizaciones as $vis)
                 <tr>
-                    <td>{{$res->nombre}} {{$res->apellidos}}</td>
-                    <td>{{$res->pregunta}}</td>
+                    <td>{{$vis->nombre}} {{$vis->apellidos}}</td>
+                    <td>{{$vis->nombre_distribuidor}}</td>
+                    <td>{{$vis->puntaje}}</td>
+                    <td>{{$vis->fecha_ultimo_video}}</td>
+                    @foreach($preguntas as $pregunta)
+                        @php
+                            $respuestasFiltradas = $respuestas->filter(function ($respuesta) use ($vis, $pregunta) {
+                                return $respuesta->id_usuario == $vis->id_usuario && $respuesta->id_pregunta == $pregunta->id;
+                            });
+                        @endphp
                     <td>
-                        {{$res->respuesta_usuario}}<br>
-                        {{$res->respuesta_correcta}}
+                        @foreach ($respuestasFiltradas as $respuesta)
+                            {{$respuesta->respuesta_usuario}}
+                            @if($respuesta->respuesta_correcta=='correcto') <i class="fa-solid fa-circle-check"></i> @else <i class="fa-solid fa-circle-xmark"></i> @endif
+                        @endforeach
                     </td>
-                    <td>{{$res->puntaje}}</td>
+                    
                     <td>
-                        <form action="{{route('sesiones.destroy_respuesta', $res->id_respuesta)}}" class="form-confirmar" method="POST">
+                        @foreach ($respuestasFiltradas as $respuesta)
+                            {{$respuesta->puntaje}}
+                        @endforeach
+                    </td>
+                    @endforeach
+                    <td>
+                        <form action="{{route('sesiones.destroy_visualizacion', $vis->id_visualizacion)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <button type="submit" class="btn btn-link">Borrar</button>

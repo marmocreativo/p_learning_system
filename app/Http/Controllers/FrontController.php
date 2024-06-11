@@ -76,8 +76,8 @@ class FrontController extends Controller
         echo "Se han eliminado los siguientes IDs duplicados: " . implode(', ', $idsToDelete) . "\n";
     }
 
-    //public function migrar()
-    public function scripts_ajustes()
+    public function migrar()
+    
     {
         //
         // Ejecutar la migración
@@ -309,8 +309,8 @@ class FrontController extends Controller
         
     }
 
-    public function reparar_puntajes_visualizaciones()
-    
+    //public function reparar_puntajes_visualizaciones()
+    public function scripts_ajustes()
     {
 
         $visualizaciones = SesionVis::all();

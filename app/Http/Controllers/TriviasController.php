@@ -248,60 +248,66 @@ class TriviasController extends Controller
          $trivia = Trivia::where('id_temporada', $id_temporada)
                        ->where('estado', 'activo')
                        ->first();
-        $preguntas = TriviaPreg::where('id_trivia',$trivia->id)->get();
-        $respuestas = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$id_usuario)->get();
-        $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+        if($trivia){
+            $preguntas = TriviaPreg::where('id_trivia',$trivia->id)->get();
+            $respuestas = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$id_usuario)->get();
+            $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
 
-        $participantes = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->get();
-        $ganadores= TriviaGanador::where('id_trivia', $trivia->id)->get();
-        $ganador= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->first();
-        $mis_premios= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->get();
-        $soy_ganador = false;
-        if($ganador){
-            $soy_ganador = true;
-        }
-        $premios = array();
-        foreach($participantes as $participante){
-            $respuestas_participante = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$participante->id_usuario)->get();
-            // Verificar si hay respuestas para este participante
-            if ($respuestas_participante->isNotEmpty()) {
-                $correctas = true;
-                $fecha = null;
+            $participantes = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->get();
+            $ganadores= TriviaGanador::where('id_trivia', $trivia->id)->get();
+            $ganador= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->first();
+            $mis_premios= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->get();
+            $soy_ganador = false;
+            if($ganador){
+                $soy_ganador = true;
+            }
+            $premios = array();
+            foreach($participantes as $participante){
+                $respuestas_participante = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$participante->id_usuario)->get();
+                // Verificar si hay respuestas para este participante
+                if ($respuestas_participante->isNotEmpty()) {
+                    $correctas = true;
+                    $fecha = null;
 
-                foreach ($respuestas_participante as $respuesta) {
-                    if ($respuesta->correcta == 'incorrecto') {
-                        $correctas = false;
+                    foreach ($respuestas_participante as $respuesta) {
+                        if ($respuesta->correcta == 'incorrecto') {
+                            $correctas = false;
+                        }
+                        $fecha = $respuesta->fecha_registro;
                     }
-                    $fecha = $respuesta->fecha_registro;
-                }
 
-                // Agregar el registro solo si hay respuestas
-                if($correctas){
-                    $premios[] = [
-                        'id' => $id_usuario,
-                        'fecha' => $fecha
-                    ];
+                    // Agregar el registro solo si hay respuestas
+                    if($correctas){
+                        $premios[] = [
+                            'id' => $id_usuario,
+                            'fecha' => $fecha
+                        ];
+                    }
+                    
                 }
                 
             }
             
+            $completo = [
+                'trivia' => $trivia,
+                'participante' => $participante,
+                'distribuidor' => $distribuidor,
+                'nivel' => $suscripcion->nivel,
+                'preguntas' => $preguntas,
+                'respuestas' => $respuestas,
+                'premios' => $ganadores,
+                'ganador' => $soy_ganador,
+                'premio_ganador' => $ganador,
+                'mis_premios' => $mis_premios,
+                'respuestas_historico' => $respuestas_historico
+            ];
+
+            return response()->json($completo);
+
+        }else{
+            return null;
         }
         
-        $completo = [
-            'trivia' => $trivia,
-            'participante' => $participante,
-            'distribuidor' => $distribuidor,
-            'nivel' => $suscripcion->nivel,
-            'preguntas' => $preguntas,
-            'respuestas' => $respuestas,
-            'premios' => $ganadores,
-            'ganador' => $soy_ganador,
-            'premio_ganador' => $ganador,
-            'mis_premios' => $mis_premios,
-            'respuestas_historico' => $respuestas_historico
-        ];
-
-         return response()->json($completo);
      }
 
     public function datos_trivia_api(Request $request)

@@ -161,19 +161,19 @@
                 <h5>Puntajes</h5>
                 <div class="form-group">
                     <label for="VisualizarPuntajeEstreno">Visualización al estreno</label>
-                    <input type="number" class="form-control" name="VisualizarPuntajeEstreno" value="{{$sesion->visualizar_puntaje_normal}}">
+                    <input type="number" class="form-control" name="VisualizarPuntajeEstreno" value="{{$sesion->visualizar_puntaje_estreno}}">
                 </div>
                 <div class="form-group">
                     <label for="VisualizarPuntajeNormal">Visualización normal</label>
-                    <input type="number" class="form-control" name="VisualizarPuntajeNormal" value="{{$sesion->visualizar_puntaje_estreno}}">
+                    <input type="number" class="form-control" name="VisualizarPuntajeNormal" value="{{$sesion->visualizar_puntaje_normal}}">
                 </div>
                 <div class="form-group">
                     <label for="PreguntasPuntajeEstreno">Puntaje por pregunta al estreno</label>
-                    <input type="number" class="form-control" name="PreguntasPuntajeEstreno" value="{{$sesion->preguntas_puntaje_normal}}">
+                    <input type="number" class="form-control" name="PreguntasPuntajeEstreno" value="{{$sesion->preguntas_puntaje_estreno}}">
                 </div>
                 <div class="form-group">
                     <label for="PreguntasPuntajeNormal">Puntaje por pregunta normal</label>
-                    <input type="number" class="form-control" name="PreguntasPuntajeNormal" value="{{$sesion->preguntas_puntaje_estreno}}">
+                    <input type="number" class="form-control" name="PreguntasPuntajeNormal" value="{{$sesion->preguntas_puntaje_normal}}">
                 </div>
                 <hr>
 

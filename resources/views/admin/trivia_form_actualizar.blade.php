@@ -50,13 +50,13 @@
                     <div class="col-6">
                         <div class="form-group">
                             <label for="FechaPublicacion">Fecha de Inicio</label>
-                            <input type="date" class="form-control" name="FechaPublicacion" value="{{ date('Y-m-d', strtotime($trivia->fecha_inicio)) }}">
+                            <input type="date" class="form-control" name="FechaPublicacion" value="{{ date('Y-m-d', strtotime($trivia->fecha_publicacion)) }}">
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group">
                             <label for="HoraPublicacion">Hora de Inicio</label>
-                            <input type="time" class="form-control" name="HoraPublicacion" value="{{ date('H:i:s', strtotime($trivia->fecha_inicio)) }}">
+                            <input type="time" class="form-control" name="HoraPublicacion" value="{{ date('H:i:s', strtotime($trivia->fecha_publicacion)) }}">
                         </div>
                     </div>
                 </div>

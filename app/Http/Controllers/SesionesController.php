@@ -176,6 +176,44 @@ class SesionesController extends Controller
             ->select('evaluaciones_respuestas.id as id_respuesta', 'evaluaciones_respuestas.*', 'evaluaciones_preguntas.id as id_pregunta', 'evaluaciones_preguntas.*', 'usuarios.id as id_usuario', 'usuarios.*')
             ->get();
 
+        $preguntas = EvaluacionPreg::where('id_sesion',$id)->get();
+        $dudas = SesionDudas::where('id_sesion',$id)->get();
+        $anexos = SesionAnexos::where('id_sesion',$id)->get();
+
+        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas', 'preguntas', 'dudas', 'anexos'));
+    }
+
+    public function preguntas_instructor(string $id)
+    {
+        //
+        $sesion = SesionEv::find($id);
+
+        $visualizaciones = DB::table('sesiones_visualizaciones')
+            ->join('usuarios', 'sesiones_visualizaciones.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_visualizaciones.id_sesion', '=', $id)
+            ->select('sesiones_visualizaciones.id as id_visualizacion', 'sesiones_visualizaciones.*', 'usuarios.id as id_usuario', 'usuarios.*')
+            ->orderBy('sesiones_visualizaciones.fecha_ultimo_video', 'desc')
+            ->get();
+
+        foreach($visualizaciones as $visualizacion){
+            
+            $detalles_distribuidor = Distribuidor::find($visualizacion->id_distribuidor);
+            if($detalles_distribuidor){
+                $visualizacion->nombre_distribuidor = $detalles_distribuidor->nombre;
+            }else{
+                $visualizacion->nombre_distribuidor = 'N/A';
+            }
+            
+
+        }
+
+        $respuestas = DB::table('evaluaciones_respuestas')
+            ->join('evaluaciones_preguntas', 'evaluaciones_respuestas.id_pregunta', '=', 'evaluaciones_preguntas.id')
+            ->join('usuarios', 'evaluaciones_respuestas.id_usuario', '=', 'usuarios.id')
+            ->where('evaluaciones_respuestas.id_sesion', '=', $id)
+            ->select('evaluaciones_respuestas.id as id_respuesta', 'evaluaciones_respuestas.*', 'evaluaciones_preguntas.id as id_pregunta', 'evaluaciones_preguntas.*', 'usuarios.id as id_usuario', 'usuarios.*')
+            ->get();
+
         return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas'));
     }
 
@@ -205,10 +243,6 @@ class SesionesController extends Controller
         ]);
 
         // Guardar la imagen en la carpeta publicaciones
-        
-        
-        
-        
         
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
@@ -299,7 +333,7 @@ class SesionesController extends Controller
         //
         $visualizacion = SesionVis::findOrFail($id);
         $id_sesion =  $visualizacion->id_sesion;
-        
+        $respuestas = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $visualizacion->id_usuario)->delete();
         $visualizacion->delete();
         return redirect()->route('sesiones.resultados', $id_sesion);
     }
@@ -419,6 +453,54 @@ class SesionesController extends Controller
         return response()->json($sesion);
     }
 
+    public function full_datos_sesion_api(Request $request)
+    {
+        //
+        $sesion = SesionEv::find($request->input('id'));
+        $dudas = DB::table('sesiones_dudas')
+            ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_dudas.id_sesion', '=', $request->input('id_sesion'))
+            ->select(
+                'sesiones_dudas.created_at as fecha_duda', 
+                'sesiones_dudas.*', 
+                'usuarios.nombre as nombre', 
+                'usuarios.apellidos as apellidos'
+            )
+            ->orderBy('sesiones_dudas.created_at', 'desc')
+            ->get();
+        $anexos = SesionAnexos::where('id_sesion',$request->input('id_sesion'))->get();
+
+        $fecha_actual = now()->format('Y-m-d H:i:s');
+        
+        // consulta
+        $pendientes = SesionEv::where('id_temporada', $sesion->id_temporada)
+                            ->whereDate('fecha_publicacion', '>', $fecha_actual)
+                            ->limit(2) // Limitar a dos resultados
+                            ->get();
+
+        $completo = [
+            'sesion' => $sesion,
+            'dudas' => $dudas,
+            'anexos' => $anexos,
+            'sesiones_pendientes' => $pendientes
+        ];
+
+         return response()->json($completo);
+    }
+
+    public function preguntas_y_respuestas_sesion_api(Request $request)
+    {
+        //
+        $preguntas = EvaluacionPreg::where('id_sesion',$request->input('id_sesion'))->get();
+        $respuestas = EvaluacionRes::where('id_sesion',$request->input('id_sesion'))->where('id_usuario',$request->input('id_usuario'))->get();
+        $completo = [
+            'preguntas' => $preguntas,
+            'respuestas' => $respuestas
+        ];
+
+         return response()->json($completo);
+    }
+
     public function respuestas_sesion_api(Request $request)
     {
         //
@@ -434,13 +516,18 @@ class SesionesController extends Controller
     }
     public function dudas_sesion_api(Request $request)
     {
-        //
         $dudas = DB::table('sesiones_dudas')
             ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
             ->where('sesiones_dudas.id_sesion', '=', $request->input('id_sesion'))
-            ->select('sesiones_dudas.*', 'usuarios.*')
+            ->select(
+                'sesiones_dudas.created_at as fecha_duda', 
+                'sesiones_dudas.*', 
+                'usuarios.nombre as nombre', 
+                'usuarios.apellidos as apellidos'
+            )
             ->orderBy('sesiones_dudas.created_at', 'desc')
             ->get();
+        
         return response()->json($dudas);
     }
     public function anexos_sesion_api(Request $request)
@@ -462,6 +549,16 @@ class SesionesController extends Controller
         return $resultado ? 'true' : 'false';
     }
 
+    public function checar_full_visualizacion_api(Request $request)
+    {
+        //
+        $visualizacion = SesionVis::where('id_sesion', $request->input('id_sesion'))
+        ->where('id_usuario', $request->input('id_usuario'))
+        ->first();
+
+        return response()->json($visualizacion);
+    }
+
     public function registrar_visualizacion_api(Request $request)
     {
         $id_sesion = $request->input('id_sesion');
@@ -473,11 +570,9 @@ class SesionesController extends Controller
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
-
-        if($fecha_actual<$fecha_limite_estreno){
+        $puntaje = $sesion->visualizar_puntaje_normal;
+        if($fecha_actual<=$fecha_limite_estreno){
             $puntaje = $sesion->visualizar_puntaje_estreno;
-        }else{
-            $puntaje = $sesion->visualizar_puntaje_evaluacion;
         }
         $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
 

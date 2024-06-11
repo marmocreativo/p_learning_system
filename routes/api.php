@@ -36,11 +36,14 @@ Route::get('prueba', function () {
 Route::get('lista_sesiones', [SesionesController::class, 'lista_api'])->name('lista_sesiones.api');
 Route::get('lista_sesiones_pendientes', [SesionesController::class, 'lista_pendientes_api'])->name('lista_temporadas.api');
 Route::get('datos_sesion', [SesionesController::class, 'datos_sesion_api'])->name('datos_sesion.api');
+Route::get('full_datos_sesion', [SesionesController::class, 'full_datos_sesion_api'])->name('full_datos_sesion.api');
 Route::get('preguntas_sesion', [SesionesController::class, 'preguntas_sesion_api'])->name('preguntas_sesion.api');
 Route::get('respuestas_sesion', [SesionesController::class, 'respuestas_sesion_api'])->name('respuestas_sesion.api');
+Route::get('preguntas_y_respuestas_sesion', [SesionesController::class, 'preguntas_y_respuestas_sesion_api'])->name('preguntas_y_respuestas_sesion.api');
 Route::get('dudas_sesion', [SesionesController::class, 'dudas_sesion_api'])->name('dudas_sesion.api');
 Route::get('anexos_sesion', [SesionesController::class, 'anexos_sesion_api'])->name('anexos_sesion.api');
 Route::get('checar_visualizacion', [SesionesController::class, 'checar_visualizacion_api'])->name('checar_visualizacion.api');
+Route::get('checar_full_visualizacion', [SesionesController::class, 'checar_full_visualizacion_api'])->name('checar_full_visualizacion.api');
 Route::post('registrar_visualizacion', [SesionesController::class, 'registrar_visualizacion_api'])->name('registrar_visualizacion.api');
 Route::post('registrar_respuestas_evaluacion', [SesionesController::class, 'registrar_respuestas_evaluacion_api'])->name('registrar_respuestas_evaluacion.api');
 Route::post('registrar_duda', [SesionesController::class, 'registrar_duda_api'])->name('registrar_duda.api');
