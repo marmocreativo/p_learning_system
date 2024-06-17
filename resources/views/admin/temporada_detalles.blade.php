@@ -4,8 +4,20 @@
 
 @section('contenido_principal')
     <h1>Detalles de la temporada <small>{{$temporada->nombre}}</small></h1>
-    <hr>
-    <a href="{{ route('temporadas', ['id_cuenta'=> $temporada->id_cuenta]) }}">Lista de temporadas</a>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+                  <li class="breadcrumb-item">Temporada</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <a href="{{ route('temporadas', ['id_cuenta'=> $temporada->id_cuenta]) }}">Lista de temporadas</a>
+        </div>
+    </div>
     <hr>
     <div class="row">
         <div class="col-12 mb-3"><h2>Actividades</h2></div>

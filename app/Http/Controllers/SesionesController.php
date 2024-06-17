@@ -33,8 +33,9 @@ class SesionesController extends Controller
     {
         //
         $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($request->input('id_temporada'));
         $sesiones = SesionEv::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/sesion_lista', compact('sesiones'));
+        return view('admin/sesion_lista', compact('sesiones', 'temporada'));
     }
 
     /**
@@ -183,38 +184,41 @@ class SesionesController extends Controller
         return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas', 'preguntas', 'dudas', 'anexos'));
     }
 
-    public function preguntas_instructor(string $id)
+    public function dudas(string $id)
     {
         //
         $sesion = SesionEv::find($id);
 
-        $visualizaciones = DB::table('sesiones_visualizaciones')
-            ->join('usuarios', 'sesiones_visualizaciones.id_usuario', '=', 'usuarios.id')
-            ->where('sesiones_visualizaciones.id_sesion', '=', $id)
-            ->select('sesiones_visualizaciones.id as id_visualizacion', 'sesiones_visualizaciones.*', 'usuarios.id as id_usuario', 'usuarios.*')
-            ->orderBy('sesiones_visualizaciones.fecha_ultimo_video', 'desc')
+        $dudas = DB::table('sesiones_dudas')
+            ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_dudas.id_sesion', '=', $sesion->id)
+            ->select('sesiones_dudas.id as id_duda', 'sesiones_dudas.*', 'usuarios.*')
+            ->orderBy('sesiones_dudas.created_at', 'desc')
             ->get();
 
-        foreach($visualizaciones as $visualizacion){
-            
-            $detalles_distribuidor = Distribuidor::find($visualizacion->id_distribuidor);
-            if($detalles_distribuidor){
-                $visualizacion->nombre_distribuidor = $detalles_distribuidor->nombre;
-            }else{
-                $visualizacion->nombre_distribuidor = 'N/A';
-            }
-            
+        return view('admin/sesion_dudas', compact('sesion', 'dudas'));
+    }
 
-        }
+    public function dudas_edit(Request $request, string $id)
+    {
+        //
+        $duda = SesionDudas::find($id);
+        $duda->respuesta = $request->input('Respuesta');
+        $duda->save();
+       
 
-        $respuestas = DB::table('evaluaciones_respuestas')
-            ->join('evaluaciones_preguntas', 'evaluaciones_respuestas.id_pregunta', '=', 'evaluaciones_preguntas.id')
-            ->join('usuarios', 'evaluaciones_respuestas.id_usuario', '=', 'usuarios.id')
-            ->where('evaluaciones_respuestas.id_sesion', '=', $id)
-            ->select('evaluaciones_respuestas.id as id_respuesta', 'evaluaciones_respuestas.*', 'evaluaciones_preguntas.id as id_pregunta', 'evaluaciones_preguntas.*', 'usuarios.id as id_usuario', 'usuarios.*')
-            ->get();
+         return redirect()->route('sesiones.dudas', $duda->id_sesion);
+         
+    }
 
-        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas'));
+    public function destroy_dudas(string $id)
+    {
+        //
+        $duda = SesionDudas::find($id);
+        $id_sesion =  $duda->id_sesion;
+        
+        $duda->delete();
+        return redirect()->route('sesiones.dudas', $id_sesion);
     }
 
     /**

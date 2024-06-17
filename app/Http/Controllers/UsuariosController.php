@@ -470,10 +470,22 @@ class UsuariosController extends Controller
             } while (User::where('legacy_id', $newLegacyId)->exists());
             $usuario->legacy_id = $newLegacyId;
 
+            $telefono = '';
+            if(!empty($request->Telefono)){
+                $telefono = $request->Telefono;
+            }
+            
+            $whatsapp = '';
+            if(!empty($request->Whatsapp)){
+                $whatsapp = $request->Whatsapp;
+            }
+            
+            $fecha_nacimiento = null;
+
             $usuario->nombre = $request->Nombre;
             $usuario->apellidos = $request->Apellidos;
-            $usuario->telefono = $request->Telefono;
-            $usuario->whatsapp = $request->Whatsapp;
+            $usuario->telefono = $telefono;
+            $usuario->whatsapp = $whatsapp;
             $usuario->fecha_nacimiento = $request->FechaNacimiento;
             $usuario->password = Hash::make($request->Password);
             $usuario->lista_correo = $request->ListaCorreo;

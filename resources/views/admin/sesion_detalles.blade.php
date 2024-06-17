@@ -4,10 +4,28 @@
 
 @section('contenido_principal')
     <h1>Detalles de la sesión: <small>{{$sesion->titulo}}</small></h1>
-    <p>{{ date('Y-m-d H:i:s')}}</p>
-    <a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Lista de sesiones</a>
-    <hr>
-    <a href="{{route('sesiones.edit', $sesion->id)}}">Editar sesión</a>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$sesion->id_cuenta])}}">Temporadas</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $sesion->id_temporada)}}">Temporada</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Sesiones</a></li>
+                  <li class="breadcrumb-item">{{$sesion->titulo}}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{route('sesiones.resultados', $sesion->id)}}" class="btn btn-info">Resultados</a>
+                <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-primary">Dudas</a>
+                <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
+            </div>
+            
+        </div>
+    </div>
     <hr>
     <div class="row">
         <div class="col-8">
@@ -26,7 +44,7 @@
                 </tr>
                 <tr>
                     <th>Contenido</th>
-                    <td>{{$sesion->contenido}}</td>
+                    <td>{!! $sesion->contenido !!}</td>
                 </tr>
                 <tr>
                     <th>Duración aproximada</th>

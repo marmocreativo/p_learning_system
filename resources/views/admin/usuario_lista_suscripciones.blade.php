@@ -184,7 +184,7 @@
                             @csrf
                             @method('delete')
                             <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
-                            <button type="submit" class="btn btn-link">Desuscribir</button>
+                            <button type="submit" class="btn btn-link d-none">Desuscribir</button>
                         </form>
 
                     </td>

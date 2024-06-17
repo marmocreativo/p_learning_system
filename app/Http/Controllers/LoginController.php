@@ -152,11 +152,11 @@ class LoginController extends Controller
             $cuenta = Cuenta::find($id_cuenta);
             $id_temporada = $cuenta->temporada_actual;
             $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
-            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
-
-            $token = $user->createToken('auth_token')->plainTextToken;
+            
             
             if(!empty($suscripcion)){
+                $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+                $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json([
                     'message' => 'Hola '.$user->nombre,
                     'accessToken' => $token,

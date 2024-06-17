@@ -9,7 +9,6 @@
             <nav aria-label="breadcrumb mb-3">
                 <ol class="breadcrumb">
                   <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('cuentas.show', $sesion->id_cuenta) }}">Cuenta</a></li>
                   <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$sesion->id_cuenta])}}">Temporadas</a></li>
                   <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $sesion->id_temporada)}}">Temporada</a></li>
                   <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Sesiones</a></li>
@@ -19,7 +18,12 @@
             </nav>
         </div>
         <div class="col-3">
-            <a class="btn btn-outline-warning" href="{{route('sesiones.edit', $sesion->id)}}">Editar sesión</a>
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-info">Contenido</a>
+                <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-info">Dudas</a>
+                <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
+            </div>
         </div>
     </div>
     <hr>

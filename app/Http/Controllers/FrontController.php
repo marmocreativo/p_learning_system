@@ -214,8 +214,8 @@ class FrontController extends Controller
         echo $usuarios->links();
     }
 
-    public function reparar_evaluaciones()
-    
+    //public function reparar_evaluaciones()
+    public function scripts_ajustes()
     {
         /*
         // Ejecutar la migración
@@ -309,8 +309,8 @@ class FrontController extends Controller
         
     }
 
-    //public function reparar_puntajes_visualizaciones()
-    public function scripts_ajustes()
+    public function reparar_puntajes_visualizaciones()
+    
     {
 
         $visualizaciones = SesionVis::all();

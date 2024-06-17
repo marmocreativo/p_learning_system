@@ -116,6 +116,9 @@ Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_
 Route::get('admin/sesiones/resultados_excel', [SesionesController::class, 'resultados_excel'])->middleware('auth')->name('sesiones.resultados_excel');
 Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
 Route::get('admin/sesiones/resultados/{post}', [SesionesController::class, 'resultados'])->middleware('auth')->name('sesiones.resultados');
+Route::get('admin/sesiones/dudas/{post}', [SesionesController::class, 'dudas'])->middleware('auth')->name('sesiones.dudas');
+Route::put('admin/sesiones/dudas/edit/{post}', [SesionesController::class, 'dudas_edit'])->middleware('auth')->name('sesiones.dudas_edit');
+Route::delete('admin/sesiones/dudas/destroy/{post}', [SesionesController::class, 'destroy_dudas'])->middleware('auth')->name('sesiones.destroy_dudas');
 
 Route::get('admin/sesiones/edit/{post}', [SesionesController::class, 'edit'])->middleware('auth')->name('sesiones.edit');
 Route::put('admin/sesiones/update_pregunta/{post}', [SesionesController::class, 'update_pregunta'])->middleware('auth')->name('sesiones.update_pregunta');
