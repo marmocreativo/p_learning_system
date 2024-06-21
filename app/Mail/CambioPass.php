@@ -29,7 +29,7 @@ class CambioPass extends Mailable
      */
     public function build()
     {
-        return $this->view('mails.mi_correo')
+        return $this->view('mails.restaurado_pass')
                     ->with('data', $this->data)
                     ->subject('Tu contraseña de PLearning ha sido cambiada');
     }

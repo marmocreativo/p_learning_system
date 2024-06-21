@@ -3,9 +3,9 @@
 @section('titulo', 'Cuenta del sistema')
 
 @section('contenido_principal')
-    <h1>Detalles de la sesión: <small>{{$sesion->titulo}}</small></h1>
+    <h1>Resultados de la sesión: <small>{{$sesion->titulo}}</small></h1>
     <div class="row">
-        <div class="col-9">
+        <div class="col-8">
             <nav aria-label="breadcrumb mb-3">
                 <ol class="breadcrumb">
                   <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
@@ -17,11 +17,12 @@
                 </ol>
             </nav>
         </div>
-        <div class="col-3">
+        <div class="col-4">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-info">Contenido</a>
+                <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-primary">Contenido</a>
                 <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-info">Dudas</a>
                 <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('sesiones.reparar', $sesion->id)}}" class="btn btn-outline-danger">Reparar puntaje</a>
                 <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
             </div>
         </div>

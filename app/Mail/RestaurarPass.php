@@ -29,7 +29,7 @@ class RestaurarPass extends Mailable
      */
     public function build()
     {
-        return $this->view('mails.mi_correo')
+        return $this->view('mails.restaurar_pass')
                     ->with('data', $this->data)
                     ->subject('Restauración de contraseña');
     }

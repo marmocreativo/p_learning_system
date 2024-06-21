@@ -20,14 +20,8 @@
                     <label for="Descripcion">Descripción</label>
                     <textarea class="form-control TextEditor" name="Descripcion" id="Descripcion" rows="5">{{ $trivia->descripcion }}</textarea>
                 </div>
-                <div class="form-group">
-                    <label for="MensajeAntes">Mensaje Antes del inicio</label>
-                    <textarea class="form-control TextEditor" name="MensajeAntes" id="MensajeAntes" rows="5">{{ $trivia->mensaje_antes }}</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="MensajeDespues">Mensaje Después del término</label>
-                    <textarea class="form-control TextEditor" name="MensajeDespues" id="MensajeDespues" rows="5">{{ $trivia->mensaje_despues }}</textarea>
-                </div>
+                <input type="hidden" name="MensajeAntes" value="{{ $trivia->mensaje_antes }}">
+                <input type="hidden" name="MensajeDespues" value="{{ $trivia->mensaje_despues }}">
                 
                 
             </div>

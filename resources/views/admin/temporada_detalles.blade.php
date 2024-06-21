@@ -42,6 +42,7 @@
                         <td>{{$temporada->fecha_final}}</td>
                     </tr>
                 </table>
+                <a href="{{route('temporadas.reporte', ['post'=>$temporada->id, 'region'=>'todas', 'distribuidor'=>'0'])}}" class="btn btn-info">Reporte</a>
             </div>
         </div>
         

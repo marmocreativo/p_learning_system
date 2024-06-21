@@ -4,15 +4,31 @@ namespace App\Http\Controllers;
 use App\Models\Temporada;
 use App\Models\Cuenta;
 use App\Models\SesionEv;
+use App\Models\SesionVis;
+use App\Models\SesionDudas;
+use App\Models\SesionAnexos;
+use App\Models\EvaluacionPreg;
+use App\Models\EvaluacionRes;
 use App\Models\Trivia;
+use App\Models\TriviaPreg;
+use App\Models\TriviaRes;
+use App\Models\TriviaGanador;
 use App\Models\Jackpot;
+use App\Models\JackpotPreg;
+use App\Models\JackpotRes;
+use App\Models\JackpotIntentos;
 use App\Models\Slider;
 use App\Models\Publicacion;
 use App\Models\Notificacion;
 use App\Models\DistribuidoresSuscripciones;
+use App\Models\Distribuidor;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Logro;
 use App\Models\LogroParticipacion;
+use Illuminate\Support\Facades\DB;
+
+use App\Exports\ReporteTemporadaExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use Illuminate\Http\Request;
 
@@ -105,6 +121,89 @@ class TemporadasController extends Controller
                                                         'logros_participantes'
                                                     ));
 
+    }
+
+    public function reporte(Request $request, string $id)
+    {
+        //
+        $temporada = Temporada::find($id);
+        $hoy = date('Y-m-d H:i:s');
+        $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+        $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
+        $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
+        $trivias = Trivia::where('id_temporada', $temporada->id)->get();
+        $trivias_respuestas = TriviaRes::where('id_temporada', $temporada->id)->get();
+        $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
+        $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
+        $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
+        $region = $request->input('region');
+        $distribuidor = $request->input('distribuidor');
+        $distribuidores = Distribuidor::all();
+        if($region!='todas'){
+            $distribuidores = Distribuidor::where('region',$region)->get();
+        }
+        $usuarios_suscritos = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', '=', $id)
+            ->when($region !== 'todas', function ($query) use ($region) {
+                return $query->where('distribuidores.region', $region);
+            })
+            // Añade la condición de distribuidor si no es 0
+            ->when($distribuidor != 0, function ($query) use ($distribuidor) {
+                return $query->where('distribuidores.id', $distribuidor);
+            })
+            ->select(
+                'usuarios.id as id_usuario',
+                'usuarios.nombre as nombre',
+                'usuarios.apellidos as apellidos',
+                'usuarios.email as email',
+                'distribuidores.region as region',
+                'distribuidores.nombre as distribuidor',
+            )
+            ->get();
+            
+        return view('admin/temporada_reporte', compact('temporada',
+                                                        'sesiones',
+                                                        'visualizaciones',
+                                                        'respuestas',
+                                                        'trivias',
+                                                        'trivias_respuestas',
+                                                        'trivias_ganadores',
+                                                        'jackpots',
+                                                        'jackpots_intentos',
+                                                        'usuarios_suscritos',
+                                                        'distribuidores'
+                                                    ));
+
+    }
+
+    /*
+    public function reporte_excel (Request $request, string $id)
+    {
+        return Excel::download(new ReporteTemporadaExport($request, $id), 'reporte_temporada.xlsx');
+        
+        
+    }
+    */
+    public function reporte_excel(Request $request, string $id)
+    {
+        // Crear una instancia del exportador con los parámetros requeridos
+        $export = new ReporteTemporadaExport($request, $id);
+        
+        // Generar un nombre de archivo único usando timestamp
+        $filename = 'reporte_temporada_' . time() . '.xlsx';
+
+        // Generar la respuesta de descarga con los encabezados HTTP
+        $response = Excel::download($export, $filename);
+
+        // Establecer encabezados para desactivar la caché
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        // Retornar la respuesta al navegador
+        return $response;
     }
 
     /**

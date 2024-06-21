@@ -4,9 +4,28 @@
 
 @section('contenido_principal')
     <h1>Detalles de la trivia: <small>{{$trivia->titulo}}</small></h1>
-    <a href="{{ route('trivias', ['id_temporada'=>$trivia->id_temporada]) }}">Lista de trivias</a>
-    <hr>
-    <a href="{{route('trivias.edit', $trivia->id)}}">Editar trivia</a>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$trivia->id_cuenta])}}">Temporadas</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $trivia->id_temporada)}}">Temporada</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('trivias', ['id_temporada'=>$trivia->id_temporada]) }}">Trivias</a></li>
+                  <li class="breadcrumb-item"><a href="{{route('trivias.show', $trivia->id)}}">{{$trivia->titulo}}</a></li>
+                  <li class="breadcrumb-item">Resultados</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{route('trivias.show', $trivia->id)}}" class="btn btn-info">Contenido</a>
+                <a href="{{route('trivias.resultados_excel', ['id_trivia'=>$trivia->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('trivias.edit', $trivia->id)}}" class="btn btn-warning">Editar sesión</a>
+            </div>
+            
+        </div>
+    </div>
     <hr>
     <div class="row">
         <div class="col-8">
@@ -48,62 +67,135 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <h5>Ganadores</h5>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Ganador</th>
-                    <th>Distribuidor</th>
-                    <th>Dirección</th>
-                    <th>Fecha</th>
-                    <th>Controles</th>
-                </tr>
-                @foreach ($ganadores as $ganador)
-                <tr>
-                    <td>{{$ganador->nombre_usuario}} {{$ganador->apellidos}}</td>
-                    <td>{{$ganador->nombre_distribuidor}}</td>
-                    <td>
-                            @if($ganador->direccion_confirmada)
-                            <p><b>{{ $ganador->direccion_nombre }}</b> {{ $ganador->direccion_calle }}, {{ $ganador->direccion_numero }},{{ $ganador->direccion_numeroint }}, {{ $ganador->direccion_colonia }}, {{ $ganador->direccion_ciudad }}
-                                {{ $ganador->direccion_codigo_postal }}, Horario: {{ $ganador->direccion_horario }}, Referencia: {{ $ganador->direccion_referencia }}, Notas: {{ $ganador->direccion_notas }}
-                            </p>
-                            @else
-                            <p>Dirección no confirmada</p>
-                            @endif
-                    </td>
-                    <td>{{$ganador->fecha_registro}}</td>
-                    <td>
-                        <form action="{{route('trivias.destroy_ganador', $ganador->id_ganador)}}" class="form-confirmar" method="POST">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="btn btn-link">Borrar</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </table>
-            <hr>
-            <h5>Respuestas</h5>
+            <h5>Participaciones</h5>
             <table class="table table-bordered">
                 <tr>
                     <th>Usuario</th>
-                    <th>Pregunta</th>
-                    <th>Respuesta</th>
+                    <th>Correo</th>
+                    <th>Distribuidor</th>
+                    <th>Region</th>
+                    @php $i=1; @endphp
+                    @foreach ($preguntas as $pregunta)
+                        <th>Q{{$i}}</th>
+                        @php $i++; @endphp
+                    @endforeach
+                    <th>Puntaje</th>
                     <th>Fecha</th>
+                    <th>Ganador</th>
+                    <th>Dirección</th>
+                    <th>Horario</th>
+                    <th>Referencia</th>
+                    <th>Notas</th>
                     <th>Controles</th>
                 </tr>
-                @foreach ($respuestas as $respuesta)
+                @foreach ($participantes as $participante)
                 <tr>
-                    <td>{{$respuesta->nombre}} {{$respuesta->apellidos}}</td>
-                    <td>{{$respuesta->pregunta}}</td>
-                    <td>{{$respuesta->respuesta_usuario}}<br>{{$respuesta->respuesta_resultado}}</td>
-                    <td>{{$respuesta->fecha_registro}}</td>
+                    @php
+                         $suscripcion = $suscripciones->first(function ($suscripcion) use ($participante, $trivia) {
+                                return $suscripcion->id_usuario == $participante->id_usuario && $suscripcion->id_temporada == $trivia->id_temporada;
+                            });
+                        
+                    @endphp
+                    @if(isset($usuarios[$participante->id_usuario])&&!empty($usuarios[$participante->id_usuario]))
+                        <td title="{{$participante->id_usuario}}">{{$usuarios[$participante->id_usuario]->nombre}} {{$usuarios[$participante->id_usuario]->apellidos}}</td>
+                        <td class='@if($suscripcion) text-success @else text-danger @endif'>{{$usuarios[$participante->id_usuario]->email}}</td>
+                    @else
+                        <td>Usuario eliminado</td>
+                        <td>-</td>
+                    @endif
+
+                    @php
+                         $respuesta = $respuestas->first(function ($respuesta) use ($participante, $pregunta) {
+                                return $respuesta->id_usuario == $participante->id_usuario && $respuesta->id_pregunta == $pregunta->id;
+                            });
+                        if($respuesta){
+                            $distribuidor = $distribuidores->first(function ($distribuidor) use ($respuesta) {
+                            return $distribuidor->id == $respuesta->id_distribuidor;
+                        });
+                        }else{
+                            $distribuidor = null;
+                        }
+                        
+                    @endphp
+
+                    @if(isset($distribuidor)&&!empty($distribuidor))
+                        <td>{{$distribuidor->nombre}}</td>
+                        <td>{{$distribuidor->region}}</td>
+                    @else
+                        <td>Sin distribuidor</td>
+                        <td>-</td>
+                    @endif
+                    @php $puntaje = 0; @endphp
+                    @foreach ($preguntas as $pregunta)
+                        @php
+                            $respuesta = $respuestas->first(function ($respuesta) use ($participante, $pregunta) {
+                                return $respuesta->id_usuario == $participante->id_usuario && $respuesta->id_pregunta == $pregunta->id;
+                            });
+                            if(!empty($respuesta)){
+                                $puntaje += $respuesta->puntaje;
+                            }
+                        @endphp
+                        <td>
+                            @if ($respuesta)
+                                {{ $respuesta->respuesta_usuario }}
+                                @if($respuesta->respuesta_correcta=='correcto') <i class="fa-solid fa-circle-check"></i> @else <i class="fa-solid fa-circle-xmark"></i> @endif
+                            @else
+                                -
+                            @endif
+                        </td>
+                    @endforeach
                     <td>
-                        <form action="{{route('trivias.destroy_respuesta', $respuesta->id_respuesta)}}" class="form-confirmar" method="POST">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="btn btn-link">Borrar</button>
-                        </form>
+                        {{$puntaje}}
                     </td>
+                    @php
+                        $respuesta = $respuestas->first(function ($respuesta) use ($participante) {
+                            return $respuesta->id_usuario == $participante->id_usuario;
+                        });
+                        
+                    @endphp
+                    <td>{{$respuesta->fecha_registro}}</td>
+                    @php
+                        $ganador = $ganadores->first(function ($ganadores) use ($participante) {
+                            return $ganadores->id_usuario == $participante->id_usuario;
+                        });
+                        
+                    @endphp
+                    <td>
+                        @if ($ganador)
+                            Ganador
+                        @else
+                            -
+                        @endif
+                    </td>
+                        @if ($ganador)
+                            <td>
+                                {{$ganador->direccion_nombre}},
+                                {{$ganador->direccion_calle}},
+                                {{$ganador->direccion_numero}},
+                                {{$ganador->direccion_numeroint}},
+                                {{$ganador->direccion_colonia}},
+                                {{$ganador->direccion_ciudad}},
+                                {{$ganador->direccion_delegacion}},
+                                {{$ganador->direccion_codigo_postal}}
+                            </td>
+                            <td>{{$ganador->direccion_horario}} </td>
+                            <td>{{$ganador->direccion_referencia}}</td>
+                            <td>{{$ganador->direccion_notas}}</td>
+                        @else
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        @endif
+                        <td>
+                            <form action="{{route('trivias.destroy_participacion')}}" class="form-confirmar" method="POST">
+                                @csrf
+                                @method('delete')
+                                <input type="hidden" name="IdUsuario" value="{{$participante->id_usuario}}">
+                                <input type="hidden" name="IdTrivia" value="{{$trivia->id}}">
+                                <button type="submit" class="btn btn-link">Borrar</button>
+                            </form>
+                        </td>
                 </tr>
                 @endforeach
             </table>

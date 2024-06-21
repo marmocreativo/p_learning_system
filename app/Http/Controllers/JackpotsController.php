@@ -258,8 +258,10 @@ class JackpotsController extends Controller
          $fecha_actual = Carbon::now();
          $id_temporada = $request->input('id_temporada');
          // consulta
+          $fecha_hoy = Carbon::now();
          $jackpot = Jackpot::where('id_temporada', $id_temporada)
-                       ->where('estado', 'activo')
+                       ->where('fecha_publicacion', '<=', $fecha_hoy)
+                        ->where('fecha_vigencia', '>=', $fecha_hoy)
                        ->first();
         $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();
         $respuestas = JackpotRes::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();

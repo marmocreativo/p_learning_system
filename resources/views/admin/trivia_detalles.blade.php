@@ -4,9 +4,27 @@
 
 @section('contenido_principal')
     <h1>Detalles de la trivia: <small>{{$trivia->titulo}}</small></h1>
-    <a href="{{ route('trivias', ['id_temporada'=>$trivia->id_temporada]) }}">Lista de trivias</a>
-    <hr>
-    <a href="{{route('trivias.edit', $trivia->id)}}">Editar trivia</a>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$trivia->id_cuenta])}}">Temporadas</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $trivia->id_temporada)}}">Temporada</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('trivias', ['id_temporada'=>$trivia->id_temporada]) }}">Trivias</a></li>
+                  <li class="breadcrumb-item">{{$trivia->titulo}}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{route('trivias.resultados', $trivia->id)}}" class="btn btn-info">Resultados</a>
+                <a href="{{route('trivias.resultados_excel', ['id_trivia'=>$trivia->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('trivias.edit', $trivia->id)}}" class="btn btn-warning">Editar sesión</a>
+            </div>
+            
+        </div>
+    </div>
     <hr>
     <div class="row">
         <div class="col-8">
@@ -19,14 +37,6 @@
                 <tr>
                     <th>Descripción</th>
                     <td>{{$trivia->descripcion}}</td>
-                </tr>
-                <tr>
-                    <th>Mensaje Antes</th>
-                    <td>{{$trivia->mensaje_antes}}</td>
-                </tr>
-                <tr>
-                    <th>Mensaje Después</th>
-                    <td>{{$trivia->mensaje_despues}}</td>
                 </tr>
             </table>
         </div>

@@ -19,6 +19,9 @@ use App\Mail\GanadorTrivia;
 use App\Mail\DireccionTrivia;
 use Illuminate\Support\Facades\Mail;
 
+use App\Exports\ReporteTriviaExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class TriviasController extends Controller
 {
@@ -30,8 +33,9 @@ class TriviasController extends Controller
         //
         //
         $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($request->input('id_temporada'));
         $trivias = Trivia::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/trivia_lista', compact('trivias'));
+        return view('admin/trivia_lista', compact('trivias', 'temporada'));
     }
 
     /**
@@ -85,25 +89,44 @@ class TriviasController extends Controller
         //
         $trivia = Trivia::find($id);
         $preguntas = TriviaPreg::where('id_trivia',$id)->get();
+        $users = User::all();
+        $distribuidores = Distribuidor::all();
+        $suscripciones = UsuariosSuscripciones::where('id_temporada', $trivia->id_temporada)->get();
+        $usuarios = array();
+        foreach ($users as $usr) {
+            $userObj = new \stdClass();
+            $userObj->nombre = $usr->nombre;
+            $userObj->apellidos = $usr->apellidos;
+            $userObj->email = $usr->email;
         
-        $respuestas = DB::table('trivias_respuestas')
-            ->join('usuarios', 'trivias_respuestas.id_usuario', '=', 'usuarios.id')
-            ->join('trivias_preguntas', 'trivias_respuestas.id_pregunta', '=', 'trivias_preguntas.id')
-            ->where('trivias_respuestas.id_trivia', '=', $id)
-            ->select('trivias_respuestas.id as id_respuesta','trivias_respuestas.respuesta_correcta as respuesta_resultado' , 'trivias_respuestas.*', 'usuarios.id as id_usuario', 'usuarios.*', 'trivias_preguntas.*')
-            ->orderBy('trivias_respuestas.fecha_registro', 'desc')
-            ->get();
-        $ganadores = DB::table('trivias_ganadores')
-            ->join('usuarios', 'trivias_ganadores.id_usuario', '=', 'usuarios.id')
-            ->join('distribuidores', 'trivias_ganadores.id_distribuidor', '=', 'distribuidores.id')
-            ->where('trivias_ganadores.id_trivia', '=', $id)
-            ->select('trivias_ganadores.id as id_ganador', 'trivias_ganadores.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*', 'distribuidores.nombre as nombre_distribuidor', 'distribuidores.*')
-            ->orderBy('trivias_ganadores.fecha_registro', 'desc')
-            ->get();
+            $usuarios[$usr->id] = $userObj;
+        }
+        $participantes = TriviaRes::select('id_usuario', DB::raw('COUNT(*) as total'))
+        ->where('id_trivia', $id)
+        ->groupBy('id_usuario')
+        ->get();
+        $respuestas = TriviaRes::where('id_trivia',$id)->get();
+        $ganadores = TriviaGanador::where('id_trivia',$id)->get();
+        $numero_participantes = TriviaRes::where('id_trivia',$id)->distinct('id_usuario')->count();
+        $numero_ganadores = TriviaGanador::where('id_trivia',$id)->distinct('id_usuario')->count();
+        return view('admin/trivia_resultados', 
+            compact(
+                'trivia',
+                'distribuidores',
+                'suscripciones',
+                'usuarios',
+                'participantes',
+                'preguntas',
+                'respuestas',
+                'ganadores',
+                'numero_participantes',
+                'numero_ganadores'));
+    }
 
-    $numero_participantes = TriviaRes::where('id_trivia',$id)->distinct('id_usuario')->count();
-    $numero_ganadores = TriviaGanador::where('id_trivia',$id)->distinct('id_usuario')->count();
-        return view('admin/trivia_resultados', compact('trivia', 'preguntas', 'respuestas', 'ganadores', 'numero_participantes', 'numero_ganadores'));
+    public function resultados_excel (Request $request)
+    {
+        return Excel::download(new ReporteTriviaExport($request), 'reporte_trivia.xlsx');
+        
     }
 
     /**
@@ -176,6 +199,24 @@ class TriviasController extends Controller
         return redirect()->route('trivias.resultados', $id_trivia);
     }
 
+    public function destroy_participacion(Request $request)
+    {
+        $id_trivia = $request->IdTrivia;
+        $id_usuario = $request->IdUsuario;
+
+        // Eliminar ganadores directamente
+        TriviaGanador::where('id_usuario', $id_usuario)
+                    ->where('id_trivia', $id_trivia)
+                    ->delete();
+
+        // Eliminar respuestas directamente
+        TriviaRes::where('id_usuario', $id_usuario)
+                ->where('id_trivia', $id_trivia)
+                ->delete();
+
+        return redirect()->route('trivias.resultados', $id_trivia);
+    }
+
     /**
      * Funciones de preguntas
      */
@@ -245,8 +286,11 @@ class TriviasController extends Controller
          $suscripcion = UsuariosSuscripciones::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->first();
          $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
          // consulta
+
+         $fecha_hoy = Carbon::now();
          $trivia = Trivia::where('id_temporada', $id_temporada)
-                       ->where('estado', 'activo')
+                        ->where('fecha_publicacion', '<=', $fecha_hoy)
+                        ->where('fecha_vigencia', '>=', $fecha_hoy)
                        ->first();
         if($trivia){
             $preguntas = TriviaPreg::where('id_trivia',$trivia->id)->get();

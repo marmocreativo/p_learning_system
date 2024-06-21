@@ -14,14 +14,8 @@
                     <label for="Titulo">Titulo</label>
                     <input type="text" class="form-control" name="Titulo">
                 </div>
-                <div class="form-group">
-                    <label for="MensajeAntes">Mensaje Antes del inicio</label>
-                    <textarea class="form-control TextEditor" name="MensajeAntes" id="MensajeAntes" rows="5"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="MensajeDespues">Mensaje Después del término</label>
-                    <textarea class="form-control TextEditor" name="MensajeDespues" id="MensajeDespues" rows="5"></textarea>
-                </div>
+                <input type="hidden" name="MensajeAntes" value="">
+                <input type="hidden" name="MensajeDespues" value="">
                 
                 
             </div>

@@ -133,6 +133,126 @@ class SesionesController extends Controller
     /**
      * Display the specified resource.
      */
+    public function reparar(string $id)
+    {
+        //
+        $sesion = SesionEv::find($id);
+        $visualizaciones = SesionVis::where('id_sesion',$id)->get();
+        
+
+        echo '<table border="1">';
+        
+        foreach($visualizaciones as $visualizacion){
+            
+            echo '<tr>';
+            echo '<td>'.$sesion->titulo.'</td>';
+            echo '<td>'.$sesion->fecha_publicacion.'</td>';
+            echo '<td>'.$sesion->horas_estreno.'</td>';
+            echo '<td>'.$visualizacion->fecha_ultimo_video.'</td>';
+            $fecha_publicacion = new \DateTime($sesion->fecha_publicacion);
+            $horas_estreno = new \DateInterval('PT' . $sesion->horas_estreno . 'H');
+            $fecha_estreno = (clone $fecha_publicacion)->add($horas_estreno);
+            $fecha_ultimo_video = new \DateTime($visualizacion->fecha_ultimo_video);
+
+            // Verificar si visto en estreno
+            if ($fecha_ultimo_video <= $fecha_estreno) {
+                echo '<td style="color:green">En tiempo</td>';
+                echo '<td>'.$sesion->visualizar_puntaje_estreno.'</td>';
+                if($sesion->visualizar_puntaje_estreno == $visualizacion->puntaje){
+                    echo '<td style="color:green">'.$visualizacion->puntaje.'</td>'; 
+                }else{
+                    echo '<td style="color:red">'.$visualizacion->puntaje.' (Actualizar)</td>'; 
+                    $visualizacion->puntaje = $sesion->visualizar_puntaje_estreno;
+                    $visualizacion->save();
+                }
+                 
+            }else{
+                echo '<td style="color:red">Fuera de estreno</td>';  
+                echo '<td>'.$sesion->visualizar_puntaje_normal.'</td>';
+                if($sesion->visualizar_puntaje_normal == $visualizacion->puntaje){
+                    echo '<td style="color:green">'.$visualizacion->puntaje.'</td>'; 
+                }else{
+                    echo '<td style="color:red">'.$visualizacion->puntaje.' (Actualizar)</td>'; 
+                    $visualizacion->puntaje = $sesion->visualizar_puntaje_normal;
+                    $visualizacion->save();
+                }
+            }
+            echo '<td>';
+                echo '<table>';
+                    
+                        $evaluaciones = EvaluacionRes::where('id_sesion',$id)->where('id_usuario',$visualizacion->id_usuario)->get();
+                        foreach($evaluaciones as $evaluacion){
+                            echo '<tr>';
+                            echo '<td>'.$evaluacion->fecha_registro.'</td>';
+                            $fecha_publicacion = new \DateTime($sesion->fecha_publicacion);
+                            $horas_estreno = new \DateInterval('PT' . $sesion->horas_estreno . 'H');
+                            $fecha_estreno = (clone $fecha_publicacion)->add($horas_estreno);
+                            $fecha_respuesta = new \DateTime($evaluacion->fecha_registro);
+                
+                            // Verificar si visto en estreno
+                            if ($fecha_respuesta <= $fecha_estreno) {
+                                echo '<td style="color:green">En tiempo</td>';
+                                echo '<td>'.$evaluacion->respuesta_usuario.'</td>';
+                                if($evaluacion->respuesta_correcta == 'correcto'){
+                                    
+                                    if($evaluacion->puntaje == $sesion->preguntas_puntaje_estreno){
+                                        echo '<td style="color:green">'.$evaluacion->puntaje.'</td>'; 
+                                    }else{
+                                        echo '<td style="color:red">'.$evaluacion->puntaje.' (Corregido)</td>'; 
+                                        $evaluacion->puntaje = $sesion->preguntas_puntaje_estreno;
+                                        $evaluacion->save();
+                                    }
+                                }else{
+                                    if($evaluacion->puntaje==0){
+                                        echo '<td style="color:green">'.$evaluacion->puntaje.'</td>'; 
+                                    }else{
+                                        echo '<td style="color:red">'.$evaluacion->puntaje.' (Error)</td>'; 
+                                        $evaluacion->puntaje = 0;
+                                        $evaluacion->save();
+                                    }
+                                }
+                                
+                            }else{
+                                echo '<td style="color:red">Fuera de estreno</td>';  
+                                echo '<td>'.$evaluacion->respuesta_usuario.'</td>';
+                                if($evaluacion->respuesta_correcta == 'correcto'){
+                                    
+                                    if($sesion->preguntas_puntaje_normal == $evaluacion->puntaje){
+                                        echo '<td style="color:green">'.$evaluacion->puntaje.'</td>'; 
+                                    }else{
+                                        echo '<td style="color:red">'.$evaluacion->puntaje.' (Corregido)</td>'; 
+                                        
+                                        $evaluacion->puntaje = $sesion->preguntas_puntaje_normal;
+                                        $evaluacion->save();
+                                        
+                                    }
+                                }else{
+                                    if($evaluacion->puntaje==0){
+                                        echo '<td style="color:green">'.$evaluacion->puntaje.'</td>'; 
+                                    }else{
+                                        echo '<td style="color:red">'.$evaluacion->puntaje.' (Error)</td>'; 
+                                        
+                                        $evaluacion->puntaje = 0;
+                                        $evaluacion->save();
+                                        
+                                    }
+                                }
+                            }
+                            
+                            
+                            echo '</tr>';
+                        }
+                    
+                echo '</table>';
+            echo '</td>';
+            
+            
+            echo '</tr>';
+        }
+        
+        echo '</table>';
+    }
+
     public function show(string $id)
     {
         //

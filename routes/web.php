@@ -94,6 +94,8 @@ Route::delete('admin/distribuidores_suscritos/desuscribir/{post}', [Distribuidor
 Route::get('admin/temporadas', [TemporadasController::class, 'index'])->middleware('auth')->name('temporadas');
 Route::get('admin/temporadas/create', [TemporadasController::class, 'create'])->middleware('auth')->name('temporadas.create');
 Route::post('admin/temporadas/store', [TemporadasController::class, 'store'])->middleware('auth')->name('temporadas.store');
+Route::get('admin/temporadas/reporte_excel/{post}', [TemporadasController::class, 'reporte_excel'])->middleware('auth')->name('temporadas.reporte_excel');
+Route::get('admin/temporadas/reporte/{post}', [TemporadasController::class, 'reporte'])->middleware('auth')->name('temporadas.reporte');
 Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->middleware('auth')->name('temporadas.show');
 Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
 Route::put('admin/temporadas/update/{post}', [TemporadasController::class, 'update'])->middleware('auth')->name('temporadas.update');
@@ -113,6 +115,7 @@ Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('
 Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->middleware('auth')->name('sesiones.create');
 Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
 Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_pregunta'])->middleware('auth')->name('sesiones.store_pregunta');
+Route::get('admin/sesiones/reparar/{post}', [SesionesController::class, 'reparar'])->middleware('auth')->name('sesiones.reparar');
 Route::get('admin/sesiones/resultados_excel', [SesionesController::class, 'resultados_excel'])->middleware('auth')->name('sesiones.resultados_excel');
 Route::get('admin/sesiones/{post}', [SesionesController::class, 'show'])->middleware('auth')->name('sesiones.show');
 Route::get('admin/sesiones/resultados/{post}', [SesionesController::class, 'resultados'])->middleware('auth')->name('sesiones.resultados');
@@ -133,12 +136,14 @@ Route::get('admin/trivias', [TriviasController::class, 'index'])->middleware('au
 Route::get('admin/trivias/create', [TriviasController::class, 'create'])->middleware('auth')->name('trivias.create');
 Route::post('admin/trivias/store_pregunta', [TriviasController::class, 'store_pregunta'])->middleware('auth')->name('trivias.store_pregunta');
 Route::post('admin/trivias/store', [TriviasController::class, 'store'])->middleware('auth')->name('trivias.store');
-Route::get('admin/trivias/{post}', [TriviasController::class, 'show'])->middleware('auth')->name('trivias.show');
+Route::get('admin/trivias/resultados_excel', [TriviasController::class, 'resultados_excel'])->middleware('auth')->name('trivias.resultados_excel');
 Route::get('admin/trivias/resultados/{post}', [TriviasController::class, 'resultados'])->middleware('auth')->name('trivias.resultados');
+Route::get('admin/trivias/{post}', [TriviasController::class, 'show'])->middleware('auth')->name('trivias.show');
 Route::get('admin/trivias/edit/{post}', [TriviasController::class, 'edit'])->middleware('auth')->name('trivias.edit');
 Route::put('admin/trivias/update_pregunta/{post}', [TriviasController::class, 'update_pregunta'])->middleware('auth')->name('trivias.update_pregunta');
 Route::put('admin/trivias/update/{post}', [TriviasController::class, 'update'])->middleware('auth')->name('trivias.update');
 Route::delete('admin/trivias/destroy_pregunta/{post}', [TriviasController::class, 'destroy_pregunta'])->middleware('auth')->name('trivias.destroy_pregunta');
+Route::delete('admin/trivias/destroy_participacion', [TriviasController::class, 'destroy_participacion'])->middleware('auth')->name('trivias.destroy_participacion');
 Route::delete('admin/trivias/destroy_ganador{post}', [TriviasController::class, 'destroy_ganador'])->middleware('auth')->name('trivias.destroy_ganador');
 Route::delete('admin/trivias/destroy_respuesta{post}', [TriviasController::class, 'destroy_respuesta'])->middleware('auth')->name('trivias.destroy_respuesta');
 Route::delete('admin/trivias/destroy/{post}', [TriviasController::class, 'destroy'])->middleware('auth')->name('trivias.destroy');

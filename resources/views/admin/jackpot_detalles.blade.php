@@ -16,14 +16,6 @@
                     <th>Título</th>
                     <td>{{$jackpot->titulo}}</td>
                 </tr>
-                <tr>
-                    <th>Mensaje Antes</th>
-                    <td>{{$jackpot->mensaje_antes}}</td>
-                </tr>
-                <tr>
-                    <th>Mensaje Después</th>
-                    <td>{{$jackpot->mensaje_despues}}</td>
-                </tr>
             </table>
         </div>
         <div class="col-4">

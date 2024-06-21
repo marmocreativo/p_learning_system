@@ -15,14 +15,8 @@
                     <label for="Titulo">Titulo</label>
                     <input type="text" class="form-control" name="Titulo" value="{{$jackpot->titulo}}">
                 </div>
-                <div class="form-group">
-                    <label for="MensajeAntes">Mensaje Antes del inicio</label>
-                    <textarea class="form-control TextEditor" name="MensajeAntes" id="MensajeAntes" rows="5">{{ $jackpot->mensaje_antes }}</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="MensajeDespues">Mensaje Después del término</label>
-                    <textarea class="form-control TextEditor" name="MensajeDespues" id="MensajeDespues" rows="5">{{ $jackpot->mensaje_despues }}</textarea>
-                </div>
+                <input type="hidden" name="MensajeAntes" value="{{ $jackpot->mensaje_antes }}">
+                <input type="hidden" name="MensajeDespues" value="{{ $jackpot->mensaje_despues }}">
                 
                 
             </div>
