@@ -60,7 +60,7 @@
                         @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='no')
                         <tr>
-                            <td>{{$anexo->documento}}</td>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>
                                 {{$anexo->validado}}<hr>
@@ -110,7 +110,7 @@
                         @foreach ($anexos as $anexo)
                             @if ($anexo->validado=='si'&&$anexo->nivel=='a')
                             <tr>
-                                <td>{{$anexo->documento}}</td>
+                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
@@ -133,7 +133,7 @@
                         @foreach ($anexos as $anexo)
                             @if ($anexo->validado=='si'&&$anexo->nivel=='b')
                             <tr>
-                                <td>{{$anexo->documento}}</td>
+                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
@@ -156,7 +156,7 @@
                         @foreach ($anexos as $anexo)
                             @if ($anexo->validado=='si'&&$anexo->nivel=='c')
                             <tr>
-                                <td>{{$anexo->documento}}</td>
+                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
@@ -179,7 +179,7 @@
                         @foreach ($anexos as $anexo)
                             @if ($anexo->validado=='si'&&$anexo->nivel=='especial')
                             <tr>
-                                <td>{{$anexo->documento}}</td>
+                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>

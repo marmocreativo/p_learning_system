@@ -86,6 +86,7 @@
                 <tr>
                     <th>Usuario</th>
                     <th>Distribuidor</th>
+                    <th>Archivos a revisar</th>
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Controles</th>
@@ -94,6 +95,7 @@
                 <tr>
                     <td> <a href="{{ route('logros.detalles_participacion', ['id'=>$participacion->id_participacion]) }}">{{$participacion->nombre}} {{$participacion->apellidos}}</a> </td>
                     <td>{{$participacion->nombre_distribuidor}}</td>
+                    <td>{{$participacion->anexos_no_validados}}</td>
                     <td>{{$participacion->estado}}</td>
                     <td>{{$participacion->fecha_registro}}</td>
                     <td> 

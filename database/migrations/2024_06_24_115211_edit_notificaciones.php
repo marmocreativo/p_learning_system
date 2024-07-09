@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::table('jackpot', function (Blueprint $table) {
-            $table->string('region')->nullable()->default('Todas');
+        Schema::table('notificaciones', function (Blueprint $table) {
+            
+            $table->timestamp('fecha_vigencia')->nullable();
+            $table->string('imagen')->nullable()->default(null);
         });
     }
 
@@ -23,8 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         //
-        Schema::table('jackpot', function (Blueprint $table) {
-            $table->dropColumn('region');
+        Schema::table('notificaciones', function (Blueprint $table) {
+            $table->dropColumn('fecha_vigencia');
+            $table->dropColumn('imagen');
         });
     }
 };

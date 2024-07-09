@@ -28,17 +28,19 @@
             </form>
         </div>
         <div class="col-6">
-            <form action="{{ route('admin_usuarios.importar') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
                 <div class="form-group">
                     <input type="file" name="file" accept=".xlsx">
                 </div>
                 <div class="form-group">
-                    <select name="accion" id="accion">
+                    <select class="form-control" name="accion" id="accion">
                         <option value="comparar">Comparar</option>
                         <option value="agregar">Agregar</option>
                         <option value="actualizar">Actualizar</option>
+                        <option value="checar_suscripciones">Checar suscripciones</option>
+                        <option value="borrar_suscripciones">Borrar suscripciones</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Import</button>
@@ -146,13 +148,30 @@
                                                     <option value="especialista" @if($suscripcion->nivel_usuario=='especialista') selected @endif> Especialista</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="Funcion">Función</label>
-                                                <select class="form-control" name="Funcion">
-                                                    <option value="usuario" @if($suscripcion->funcion=='usuario') selected @endif> Usuario</option>
-                                                    <option value="lider" @if($suscripcion->funcion=='lider') selected @endif>Lider</option>
-                                                </select>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group">
+                                                        <label for="Funcion">Función</label>
+                                                        <select class="form-control" name="Funcion">
+                                                            <option value="usuario" @if($suscripcion->funcion=='usuario') selected @endif> Usuario</option>
+                                                            <option value="lider" @if($suscripcion->funcion=='lider') selected @endif>Lider</option>
+                                                            <option value="super_lider" @if($suscripcion->funcion=='super_lider') selected @endif>Super Lider</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group">
+                                                        <label for="FuncionRegion">Región de Super Lider</label>
+                                                        <select class="form-control" name="FuncionRegion">
+                                                            <option value="" >Ningúna</option>
+                                                            <option value="Interna" @if($suscripcion->funcion_region=='Interna') selected @endif>Interna</option>
+                                                            <option value="México" @if($suscripcion->funcion_region=='México') selected @endif>México</option>
+                                                            <option value="RoLA" @if($suscripcion->funcion_region=='RoLA') selected @endif>RoLA</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            
                                             <div class="form-group">
                                                 <label for="ChampionsA">Champions A (Vieron las sesiones 2023)</label>
                                                 <select class="form-control" name="ChampionsA">
@@ -180,11 +199,11 @@
                                 </div>
                                 </div>
                             </div>
-                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id)}}" class="form-confirmar" method="POST">
+                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id_suscripcion)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')
                             <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
-                            <button type="submit" class="btn btn-link d-none">Desuscribir</button>
+                            <button type="submit" class="btn btn-link">Desuscribir</button>
                         </form>
 
                     </td>

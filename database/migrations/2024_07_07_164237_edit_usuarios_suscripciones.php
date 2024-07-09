@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::table('jackpot', function (Blueprint $table) {
-            $table->string('region')->nullable()->default('Todas');
+        Schema::table('usuarios_suscripciones', function (Blueprint $table) {
+            $table->string('funcion_region')->nullable()->default(null);
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         //
-        Schema::table('jackpot', function (Blueprint $table) {
-            $table->dropColumn('region');
+        Schema::table('distribuidores', function (Blueprint $table) {
+            $table->dropColumn('funcion_region');
         });
     }
 };

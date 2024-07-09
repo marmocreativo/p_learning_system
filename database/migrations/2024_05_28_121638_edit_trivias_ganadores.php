@@ -23,5 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         //
+        Schema::table('trivias_ganadores', function (Blueprint $table) {
+            $table->dropColumn('direccion_numeroint');
+        });
     }
 };

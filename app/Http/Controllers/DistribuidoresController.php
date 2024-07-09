@@ -39,11 +39,42 @@ class DistribuidoresController extends Controller
         //
         $distribuidor = new Distribuidor();
 
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondoA' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondoB' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+    
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = 'distribuidor_default.jpg';
+        }
+        if ($request->hasFile('ImagenFondoA')) {
+            $imagen = $request->file('ImagenFondoA');
+            $nombreImagenFondoA = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoA);
+        }else{
+            $nombreImagenFondoA = 'fondo_distribuidor_default.jpg';
+        }
+        if ($request->hasFile('ImagenFondoB')) {
+            $imagen = $request->file('ImagenFondoB');
+            $nombreImagenFondoB = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoB);
+        }else{
+            $nombreImagenFondoB = 'fondo_distribuidor_default.jpg';
+        }
+
         $distribuidor->nombre = $request->Nombre;
         $distribuidor->pais = $request->Pais;
         $distribuidor->region = $request->Region;
         $distribuidor->nivel = $request->Nivel;
         $distribuidor->estado = $request->Estado;
+        $distribuidor->imagen = $request->nombreImagen;
+        $distribuidor->imagen_fondo_a = $request->nombreImagenFondoA;
+        $distribuidor->imagen_fondo_b = $request->nombreImagenFondoB;
 
 
         $distribuidor->save();
@@ -80,12 +111,43 @@ class DistribuidoresController extends Controller
         //
         $distribuidor = Distribuidor::find($id);
 
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondoA' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondoB' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $distribuidor->imagen;
+        }
+        if ($request->hasFile('ImagenFondoA')) {
+            $imagen = $request->file('ImagenFondoA');
+            $nombreImagenFondoA = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoA);
+        }else{
+            $nombreImagenFondoA = $distribuidor->imagen_fondo_a;
+        }
+        if ($request->hasFile('ImagenFondoB')) {
+            $imagen = $request->file('ImagenFondoB');
+            $nombreImagenFondoB = 'sesion_'.time().'.'.$imagen->extension();
+            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoB);
+        }else{
+            $nombreImagenFondoB = $distribuidor->imagen_fondo_b;
+        }
+
         $distribuidor->nombre = $request->Nombre;
         $distribuidor->pais = $request->Pais;
         $distribuidor->region = $request->Region;
         $distribuidor->default_pass = $request->DefaultPass;
         $distribuidor->nivel = $request->Nivel;
         $distribuidor->estado = $request->Estado;
+        $distribuidor->imagen = $request->nombreImagen;
+        $distribuidor->imagen_fondo_a = $request->nombreImagenFondoA;
+        $distribuidor->imagen_fondo_b = $request->nombreImagenFondoB;
 
         $distribuidor->save();
 

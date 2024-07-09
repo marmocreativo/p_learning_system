@@ -33,6 +33,9 @@ use App\Http\Controllers\CsvController;
 
 Route::get('/', [CuentasController::class, 'index'])->middleware('auth')->name('home');
 Route::get('scripts_ajustes', [FrontController::class, 'scripts_ajustes'])->name('scripts.ajustes');
+Route::get('relacion_suscripciones', [FrontController::class, 'relacion_suscripciones'])->name('relacion_suscripciones');
+Route::get('eliminar_suscripciones_duplicadas', [FrontController::class, 'eliminar_suscripciones_duplicadas'])->name('eliminar_suscripciones_duplicadas');
+Route::get('migrar', [FrontController::class, 'migrar'])->name('migrar');
 
 Route::get('admin', [CuentasController::class, 'index'])->middleware('auth')->name('admin');
 Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->middleware('auth')->name('admin.base_de_datos');
@@ -94,7 +97,7 @@ Route::delete('admin/distribuidores_suscritos/desuscribir/{post}', [Distribuidor
 Route::get('admin/temporadas', [TemporadasController::class, 'index'])->middleware('auth')->name('temporadas');
 Route::get('admin/temporadas/create', [TemporadasController::class, 'create'])->middleware('auth')->name('temporadas.create');
 Route::post('admin/temporadas/store', [TemporadasController::class, 'store'])->middleware('auth')->name('temporadas.store');
-Route::get('admin/temporadas/reporte_excel/{post}', [TemporadasController::class, 'reporte_excel'])->middleware('auth')->name('temporadas.reporte_excel');
+Route::get('admin/temporadas/reporte_excel/{post}', [TemporadasController::class, 'reporte_excel'])->name('temporadas.reporte_excel');
 Route::get('admin/temporadas/reporte/{post}', [TemporadasController::class, 'reporte'])->middleware('auth')->name('temporadas.reporte');
 Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->middleware('auth')->name('temporadas.show');
 Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
@@ -201,6 +204,11 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 Route::get('admin/usuarios', [UsuariosController::class, 'index'])->middleware('auth')->name('admin_usuarios');
 Route::get('admin/usuarios/create', [UsuariosController::class, 'create'])->middleware('auth')->name('admin_usuarios.create');
 Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middleware('auth')->name('admin_usuarios.store');
+
+Route::get('admin/usuarios_suscritos/puntos_extra', [UsuariosController::class, 'usuarios_suscritos_puntos_extra'])->name('admin_usuarios_puntos_extra');
+Route::post('admin/usuarios_suscritos/puntos_extra/agregar', [UsuariosController::class, 'usuarios_agregar_puntos_extra'])->middleware('auth')->name('admin_usuarios_agregar_puntos_extra');
+Route::delete('admin/usuarios_suscritos/puntos_extra/borrar/{post}', [UsuariosController::class, 'usuarios_borrar_puntos_extra'])->middleware('auth')->name('admin_usuarios_borrar_puntos_extra');
+
 Route::get('admin/usuarios_suscritos/reporte_temporada', [UsuariosController::class, 'usuarios_suscritos_reporte_temporada'])->name('admin_usuarios_suscritos_reporte_temporada');
 Route::get('admin/usuarios_suscritos/reporte_interno', [UsuariosController::class, 'usuarios_suscritos_reporte_interno'])->name('admin_usuarios_suscritos_reporte_interno');
 Route::get('admin/usuarios_suscritos/reporte', [UsuariosController::class, 'usuarios_suscritos_reporte'])->name('admin_usuarios_suscritos_reporte');

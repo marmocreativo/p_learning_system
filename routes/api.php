@@ -80,6 +80,10 @@ Route::get('datos_lider', [UsuariosController::class, 'datos_lider_api'])->name(
 Route::get('datos_basicos_lider', [UsuariosController::class, 'datos_basicos_lider_api'])->name('datos_basicos_lider.api');
 Route::get('panel_lider', [UsuariosController::class, 'panel_lider_api'])->name('panel_lider.api');
 
+Route::get('distribuidores_super_lider', [UsuariosController::class, 'distribuidores_super_lider_api'])->name('distribuidores_super_lider.api');
+Route::get('datos_basicos_super_lider', [UsuariosController::class, 'datos_basicos_super_lider_api'])->name('datos_basicos_super_lider.api');
+Route::get('panel_super_lider', [UsuariosController::class, 'panel_super_lider_api'])->name('panel_super_lider.api');
+
 Route::post('agregar_usuario', [UsuariosController::class, 'agregar_usuario_api'])->name('agregar_usuario.api');
 Route::post('actualizar_usuario', [UsuariosController::class, 'actualizar_usuario_api'])->name('actualizar_usuario.api');
 Route::post('eliminar_usuario', [UsuariosController::class, 'eliminar_usuario_api'])->name('eliminar_usuario.api');

@@ -65,10 +65,6 @@ class SesionesController extends Controller
 
         // Guardar la imagen en la carpeta publicaciones
         
-        
-        
-        
-        
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();

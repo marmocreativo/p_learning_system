@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Notificacion;
 use App\Models\NotificacionUsuario;
 use App\Models\Temporada;
+use App\Models\Publicacion;
 use App\Models\Clase;
 
 class NotificacionesController extends Controller
@@ -29,7 +30,8 @@ class NotificacionesController extends Controller
     {
         //
         $id_temporada = $request->input('id_temporada');
-        return view('admin/notificacion_form');
+        $publicaciones = Publicacion::where(['id_temporada' => $id_temporada, 'clase' => 'pagina'])->get();
+        return view('admin/notificacion_form', compact('publicaciones'));
     }
 
     /**
@@ -66,7 +68,7 @@ class NotificacionesController extends Controller
     {
         //
         $notificacion = Notificacion::find($id);
-        return view('admin/notificaciones_detalles', compact('notificacion'));
+        return view('admin/notificacion_detalles', compact('notificacion'));
 
     }
 

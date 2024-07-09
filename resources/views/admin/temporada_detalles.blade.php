@@ -122,7 +122,7 @@
                         <td>5</td>
                     </tr>
                 </table>
-                <a href="{{ route('sliders', ['id_temporada'=> $temporada->id]) }}">Lista de sliders</a>
+                <a class="btn btn-info" href="{{ route('sliders', ['id_temporada'=> $temporada->id]) }}">Lista de sliders</a>
             </div>
             <div class="card card-body">
                 <h4>Páginas</h4>
@@ -132,7 +132,7 @@
                         <td>{{$paginas_totales}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
             </div>
             <hr>
             <div class="card card-body">
@@ -143,7 +143,7 @@
                         <td>{{$faq_totales}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
             </div>
             <hr>
             <div class="card card-body">
@@ -154,7 +154,7 @@
                         <td>{{$paginas_totales}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('notificaciones', ['id_temporada'=> $temporada->id]) }}">Lista de notificaciones</a>
+                <a class="btn btn-info" href="{{ route('notificaciones', ['id_temporada'=> $temporada->id]) }}">Lista de notificaciones</a>
             </div>
         </div>
         <div class="col-3">
@@ -166,7 +166,7 @@
                         <td>{{$distribuidores_suscritos}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('distribuidores.suscritos', ['id_temporada'=> $temporada->id]) }}">Distribuidores suscritos</a>
+                <a class="btn btn-info" href="{{ route('distribuidores.suscritos', ['id_temporada'=> $temporada->id]) }}">Distribuidores suscritos</a>
             </div>
         </div>
         
@@ -179,7 +179,16 @@
                         <td>{{$usuarios_suscritos}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Usuarios suscritos</a>
+                <div class="row">
+                    <div class="col">
+                        <a class="btn btn-info" href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Suscripciones</a>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-success" href="{{ route('admin_usuarios_puntos_extra', ['id_temporada'=> $temporada->id]) }}">Puntos extra</a>
+                    </div>
+                </div>
+                
+
             </div>
         </div>
         <div class="col-3">
@@ -195,7 +204,7 @@
                         <td>{{$logros_participantes}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('logros', ['id_temporada'=> $temporada->id]) }}">Logros</a>
+                <a class="btn btn-info" href="{{ route('logros', ['id_temporada'=> $temporada->id]) }}">Logros</a>
             </div>
         </div>
 

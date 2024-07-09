@@ -40,33 +40,52 @@ class CsvController extends Controller
                 //Hago el bucle por cada usuario 
                 $rowData = $rows->map(function($row) use ($users, $temporada, $cuenta) {
                     $fila = array();
-                    $user = $users->firstWhere('email', $row['correo']);
+                    $user = $users->firstWhere('email', trim($row['correo']));
                     $fila['correo'] = $row['correo'];
                     if(!$user){
-                        $user = new User;
-
-                        list($nombreUsuario, $dominio) = explode('@', $row['correo']);
-
-                        // Generar 3 números aleatorios
-                        $numerosAleatorios = rand(100, 999);
-
-                        // Concatenar los números aleatorios al nombre de usuario
-                        $nuevoNombreUsuario = $nombreUsuario . $numerosAleatorios;
                         
-                        $user->nombre = $row['nombre'];
-                        $user->apellidos = $row['apellidos'];
-                        $user->email = $row['correo'];
-                        $user->legacy_id = $nuevoNombreUsuario;
-                        $user->telefono = '';
-                        $user->whatsapp = '';
-                        $user->fecha_nacimiento = null;
-                        $user->password = Hash::make($row['password']);
-                        $user->lista_correo = 'si';
-                        $user->imagen = 'default.jpg';
-                        $user->clase = 'usuario';
-                        $user->estado = 'activo';
-                        $user->save();
-                        $fila['usuario_registrado'] = true;
+                        try {
+                            // Crear un nuevo usuario
+                            $user = new User;
+                
+                            // Separar el nombre de usuario y dominio del correo
+                            list($nombreUsuario, $dominio) = explode('@', trim($row['correo']));
+                
+                            // Generar un nombre de usuario único
+                            $numerosAleatorios = rand(100, 999);
+                            $nuevoNombreUsuario = $nombreUsuario . $numerosAleatorios;
+                
+                            // Asignar valores al usuario
+                            $user->nombre = $row['nombre'];
+                            $user->apellidos = $row['apellidos'];
+                            $user->email = trim($row['correo']);
+                            $user->legacy_id = $nuevoNombreUsuario;
+                            $user->telefono = '';
+                            $user->whatsapp = '';
+                            $user->fecha_nacimiento = null;
+                            $user->password = Hash::make($row['password']);
+                            $user->lista_correo = 'si';
+                            $user->imagen = 'default.jpg';
+                            $user->clase = 'usuario';
+                            $user->estado = 'activo';
+                
+                            // Guardar el usuario
+                            $user->save();
+                
+                            // Marcar que el usuario fue registrado exitosamente
+                            $fila['usuario_registrado'] = true;
+                        } catch (\Illuminate\Database\QueryException $e) {
+                            // Manejar la excepción si ocurre un error de duplicación u otro error de base de datos
+                            if ($e->getCode() == 23000) {
+                                // El código 23000 generalmente indica una violación de restricción de integridad, como un duplicado
+                                // Puedes registrar el error o manejarlo de manera específica aquí
+                                
+                            } else {
+                                // Re-lanzar la excepción si es otro tipo de error
+                                throw $e;
+                            }
+                            $fila['usuario_registrado'] = false;
+                        }
                     }else{
                         $fila['usuario_registrado'] = false;
                     }
@@ -90,7 +109,7 @@ class CsvController extends Controller
                     }
 
                     $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $temporada->id)->first();
-                    if (!$suscripcion) {
+                    if (!$suscripcion&&$user->id) {
                         $suscripcion = new UsuariosSuscripciones();
                         $suscripcion->id_usuario = $user->id;
                         $suscripcion->id_cuenta = $temporada->id_cuenta;
@@ -165,112 +184,180 @@ class CsvController extends Controller
                         $fila['disty_actualizado'] = false;
                         $fila['suscripcion_actualizada'] = false;
                     }
-
-                    
-
-                    
-
                     return $fila;
                 });
 
                 return view('admin.usuario_importar_actualizados', [
                     'rows' => $rowData
                 ]);
-                break;
+            break;
                 
+            case 'checar_suscripciones':
+                    $row = array();
+                    $suscripciones = UsuariosSuscripciones::where('id_temporada', $temporada->id)->get();
+                    $total = 0;
+                    $inexistentes = 0;
+                    $suscritos = 0;
+                    foreach($suscripciones as $suscripcion){
+                        $total++;
+                        $usuario = User::where('id', $suscripcion->id_usuario)->first();
+                        
+                        $row[$suscripcion->id]['id'] = $suscripcion->id;
+                        $row[$suscripcion->id]['id_usuario'] = $suscripcion->id_usuario;
+                        $row[$suscripcion->id]['id_temporada'] = $suscripcion->id_temporada;
+                        if($usuario){
+                            $row[$suscripcion->id]['correo'] = $usuario->email;
+
+                            // Verificar si el correo del usuario está en la lista de correos del Excel
+                            if ($emails->contains($usuario->email)) {
+                                $row[$suscripcion->id]['suscrito'] = 'Sí';
+                                $suscritos ++;
+                            } else {
+                                $row[$suscripcion->id]['suscrito'] = 'No';
+                            }
+                        }else{
+                            $row[$suscripcion->id]['correo'] = '-';
+                            $row[$suscripcion->id]['suscrito'] = '-';
+                            $inexistentes++;
+                        }
+                        
+                    }
+
+                    //dd($row);
+                    return view('admin.usuario_importar_verificar_inscripcion', [ 'rows' => $row, 'total' => $total, 'suscritos' => $suscritos, 'inexistentes' => $inexistentes ]);
+            break;
+            case 'borrar_suscripciones':
+                $row = array();
+                $suscripciones = UsuariosSuscripciones::where('id_temporada', $temporada->id)->get();
+                $total = 0;
+                $inexistentes = 0;
+                $suscritos = 0;
+                foreach($suscripciones as $suscripcion){
+                    $total++;
+                    $usuario = User::where('id', $suscripcion->id_usuario)->first();
+                    
+                    $row[$suscripcion->id]['id'] = $suscripcion->id;
+                    $row[$suscripcion->id]['id_usuario'] = $suscripcion->id_usuario;
+                    $row[$suscripcion->id]['id_temporada'] = $suscripcion->id_temporada;
+                    if($usuario){
+                        $row[$suscripcion->id]['correo'] = $usuario->email;
+
+                        // Verificar si el correo del usuario está en la lista de correos del Excel
+                        if ($emails->contains($usuario->email)) {
+                            $row[$suscripcion->id]['suscrito'] = 'Sí';
+                            $suscritos ++;
+                        } else {
+                            $row[$suscripcion->id]['suscrito'] = 'NO SUSCRITO';
+                            UsuariosSuscripciones::where('id', $suscripcion->id)->delete();
+                        }
+                    }else{
+                        UsuariosSuscripciones::where('id', $suscripcion->id)->delete();
+                        $row[$suscripcion->id]['correo'] = 'NO HAY USUARIO';
+                        $row[$suscripcion->id]['suscrito'] = 'NO SUSCRITO';
+                        $inexistentes++;
+                    }
+                    
+                }
+
+                
+
+        
+                //dd($row);
+                return view('admin.usuario_importar_verificar_inscripcion', [ 'rows' => $row, 'total' => $total, 'suscritos' => $suscritos, 'inexistentes' => $inexistentes ]);
+        break;
             default:
-                    $rowData = $rows->map(function($row) use ($users, $temporada, $cuenta) {
-                        $user = $users->firstWhere('email', $row['correo']);
-                        
-                        //dd($distribuidor);
-                        if(!empty($user)){
-                            $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $temporada->id)->first();
-                            $distribuidor = $suscripcion ? Distribuidor::where('id', $suscripcion->id_distribuidor)->first() : null;
+                $rowData = $rows->map(function($row) use ($users, $temporada, $cuenta) {
+                    $user = $users->firstWhere('email', $row['correo']);
+                    
+                    //dd($distribuidor);
+                    if(!empty($user)){
+                        $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $temporada->id)->first();
+                        $distribuidor = $suscripcion ? Distribuidor::where('id', $suscripcion->id_distribuidor)->first() : null;
 
-                            $fila = [
-                                'nombre' => $row['nombre'], 
-                                'nombre_registrado' => $user->nombre, 
-                                'apellidos' => $row['apellidos'],
-                                'apellidos_registrado' => $user->apellidos,
-                                'correo' => $row['correo'],
-                                'correo_registrado' => $user->email,
-                                'nivel_usuario' => $row['nivel_usuario'],
-                                'lider' => $row['lider'],
-                                'disty' => $row['disty'],
-                                'nivel_disty' => $row['nivel_disty'],
-                                'usuario' => $row['usuario'],
-                                'usuario_registrado' => $user->legacy_id, 
-                                'region' => $row['region'],
-                                'registrado' => $user ? true : false,
-                                'nombre_coincide' => $user && $user->nombre == $row['nombre'] ? true : false,
-                                'apellidos_coincide' => $user && $user->apellidos == $row['apellidos'] ? true : false,
-                                'usuario_coincide' => $user && $user->legacy_id == $row['usuario'] ? true : false,
-                            ];
+                        $fila = [
+                            'nombre' => $row['nombre'], 
+                            'nombre_registrado' => $user->nombre, 
+                            'apellidos' => $row['apellidos'],
+                            'apellidos_registrado' => $user->apellidos,
+                            'correo' => $row['correo'],
+                            'correo_registrado' => $user->email,
+                            'nivel_usuario' => $row['nivel_usuario'],
+                            'lider' => $row['lider'],
+                            'disty' => $row['disty'],
+                            'nivel_disty' => $row['nivel_disty'],
+                            'usuario' => $row['usuario'],
+                            'usuario_registrado' => $user->legacy_id, 
+                            'region' => $row['region'],
+                            'registrado' => $user ? true : false,
+                            'nombre_coincide' => $user && $user->nombre == $row['nombre'] ? true : false,
+                            'apellidos_coincide' => $user && $user->apellidos == $row['apellidos'] ? true : false,
+                            'usuario_coincide' => $user && $user->legacy_id == $row['usuario'] ? true : false,
+                        ];
 
-                        }else{
-                            $suscripcion = null;
-                            $distribuidor = null;
+                    }else{
+                        $suscripcion = null;
+                        $distribuidor = null;
 
-                            $fila = [
-                                'nombre' => $row['nombre'], 
-                                'nombre_registrado' => '-', 
-                                'apellidos' => $row['apellidos'],
-                                'apellidos_registrado' => '-',
-                                'correo' => $row['correo'],
-                                'correo_registrado' => '-',
-                                'nivel_usuario' => $row['nivel_usuario'],
-                                'lider' => $row['lider'],
-                                'disty' => $row['disty'],
-                                'nivel_disty' => $row['nivel_disty'],
-                                'usuario' => $row['usuario'],
-                                'usuario_registrado' => '-', 
-                                'region' => $row['region'],
-                                'registrado' => false,
-                                'nombre_coincide' => false,
-                                'apellidos_coincide' => false,
-                                'usuario_coincide' => false,
-                            ];
-                        }
-                        
-            
-                        if(!empty($suscripcion)){
-                            $fila['nivel_usuario_registrado'] = $suscripcion->nivel_usuario;
-                            $fila['nivel_coincide'] = $suscripcion && $suscripcion->nivel_usuario == $row['nivel_usuario'] ? true : false;
-                            $fila['lider_registrado'] = $suscripcion->funcion;
-                            $fila['lider_coincide'] = $suscripcion && $suscripcion->funcion == $row['lider'] ? true : false;
-                        }else{
-                            $fila['nivel_usuario_registrado'] = '';
-                            $fila['nivel_coincide'] = false;
-                            $fila['lider_registrado'] = '';
-                            $fila['lider_coincide'] = false;
-                        }
-            
-                        if(!empty($distribuidor)){
-                            $fila['disty_registrado'] = $distribuidor->nombre;
-                            $fila['disty_coincide'] = $distribuidor && $distribuidor->nombre == $row['disty'] ? true : false;
-                            $fila['nivel_disty_registrado'] = $distribuidor->nivel;
-                            $fila['nivel_disty_coincide'] = $distribuidor && $distribuidor->nivel == $row['nivel_disty'] ? true : false;
-                            $fila['region_registrado'] = $distribuidor->region;
-                            $fila['region_coincide'] = $distribuidor && $distribuidor->region == $row['region'] ? true : false;
-                        }else{
-                            $fila['disty_registrado'] = '';
-                            $fila['disty_coincide'] = false;
-                            $fila['nivel_disty_registrado'] = '';
-                            $fila['nivel_disty_coincide'] = false;
-                            $fila['region_registrado'] = '';
-                            $fila['region_coincide'] = false;
-                        }
-            
-                        
-            
-                        return $fila;
-                    });
-            
-            
-                    return view('admin.usuario_importar_comparacion', [
-                        'rows' => $rowData
-                    ]);
-                break;
+                        $fila = [
+                            'nombre' => $row['nombre'], 
+                            'nombre_registrado' => '-', 
+                            'apellidos' => $row['apellidos'],
+                            'apellidos_registrado' => '-',
+                            'correo' => $row['correo'],
+                            'correo_registrado' => '-',
+                            'nivel_usuario' => $row['nivel_usuario'],
+                            'lider' => $row['lider'],
+                            'disty' => $row['disty'],
+                            'nivel_disty' => $row['nivel_disty'],
+                            'usuario' => $row['usuario'],
+                            'usuario_registrado' => '-', 
+                            'region' => $row['region'],
+                            'registrado' => false,
+                            'nombre_coincide' => false,
+                            'apellidos_coincide' => false,
+                            'usuario_coincide' => false,
+                        ];
+                    }
+                    
+        
+                    if(!empty($suscripcion)){
+                        $fila['nivel_usuario_registrado'] = $suscripcion->nivel_usuario;
+                        $fila['nivel_coincide'] = $suscripcion && $suscripcion->nivel_usuario == $row['nivel_usuario'] ? true : false;
+                        $fila['lider_registrado'] = $suscripcion->funcion;
+                        $fila['lider_coincide'] = $suscripcion && $suscripcion->funcion == $row['lider'] ? true : false;
+                    }else{
+                        $fila['nivel_usuario_registrado'] = '';
+                        $fila['nivel_coincide'] = false;
+                        $fila['lider_registrado'] = '';
+                        $fila['lider_coincide'] = false;
+                    }
+        
+                    if(!empty($distribuidor)){
+                        $fila['disty_registrado'] = $distribuidor->nombre;
+                        $fila['disty_coincide'] = $distribuidor && $distribuidor->nombre == $row['disty'] ? true : false;
+                        $fila['nivel_disty_registrado'] = $distribuidor->nivel;
+                        $fila['nivel_disty_coincide'] = $distribuidor && $distribuidor->nivel == $row['nivel_disty'] ? true : false;
+                        $fila['region_registrado'] = $distribuidor->region;
+                        $fila['region_coincide'] = $distribuidor && $distribuidor->region == $row['region'] ? true : false;
+                    }else{
+                        $fila['disty_registrado'] = '';
+                        $fila['disty_coincide'] = false;
+                        $fila['nivel_disty_registrado'] = '';
+                        $fila['nivel_disty_coincide'] = false;
+                        $fila['region_registrado'] = '';
+                        $fila['region_coincide'] = false;
+                    }
+        
+                    
+        
+                    return $fila;
+                });
+        
+        
+                return view('admin.usuario_importar_comparacion', [
+                    'rows' => $rowData
+                ]);
+            break;
         }
 
         

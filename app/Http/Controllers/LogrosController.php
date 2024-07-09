@@ -106,15 +106,27 @@ class LogrosController extends Controller
      */
     public function show(string $id)
     {
-        //
         $logro = Logro::find($id);
+        
+        // Obtener las participaciones y anexar el conteo de anexos
         $participaciones = DB::table('logros_participantes')
             ->join('usuarios', 'logros_participantes.id_usuario', '=', 'usuarios.id')
             ->join('distribuidores', 'logros_participantes.id_distribuidor', '=', 'distribuidores.id')
+            ->leftJoin('logros_anexos', function($join) {
+                $join->on('logros_anexos.id_participacion', '=', 'logros_participantes.id')
+                     ->where('logros_anexos.validado', '=', 'no');
+            })
             ->where('logros_participantes.id_logro', '=', $logro->id)
-            ->select('logros_participantes.id as id_participacion', 'logros_participantes.*', 'usuarios.*', 'distribuidores.nombre as nombre_distribuidor')
+            ->select(
+                'logros_participantes.id as id_participacion',
+                'logros_participantes.*',
+                'usuarios.*',
+                'distribuidores.nombre as nombre_distribuidor',
+                DB::raw('COUNT(logros_anexos.id) as anexos_no_validados')
+            )
+            ->groupBy('logros_participantes.id', 'usuarios.id', 'distribuidores.id')
             ->get();
-        
+    
         return view('admin/logro_detalles', compact('logro', 'participaciones'));
     }
 

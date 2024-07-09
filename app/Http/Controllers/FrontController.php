@@ -33,7 +33,63 @@ class FrontController extends Controller
         return view('front/home');
     }
 
-    public function reparar_suscripciones(){
+    //public function restaurar_suscripciones()
+    public function scripts_ajustes()
+    {
+
+        $usuarios = User::all();
+        $distribuidores = Distribuidor::all();
+
+        foreach($usuarios as $usuario){
+            $suscripcion_1 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
+            if(!$suscripcion_1){
+                $sus_1 = new UsuariosSuscripciones();
+                $sus_1->id_usuario = $usuario->id;
+                $sus_1->id_cuenta = 1;
+                $sus_1->id_temporada = 1;
+                $sus_1->id_distribuidor = 0;
+                $sus_1->confirmacion_puntos = 'pendiente';
+                $sus_1->funcion = 'usuario';
+                $sus_1->save();
+            }
+            $suscripcion_2 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 6)->first();
+            if(!$suscripcion_2){
+                $sus_2 = new UsuariosSuscripciones();
+                $sus_2->id_usuario = $usuario->id;
+                $sus_2->id_cuenta = 1;
+                $sus_2->id_temporada = 6;
+                $sus_2->id_distribuidor = 0;
+                $sus_2->confirmacion_puntos = 'pendiente';
+                $sus_2->funcion = 'usuario';
+                $sus_2->save();
+            }
+            $suscripcion_3 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 9)->first();
+            if(!$suscripcion_3){
+                $sus_3 = new UsuariosSuscripciones();
+                $sus_3->id_usuario = $usuario->id;
+                $sus_3->id_cuenta = 3;
+                $sus_3->id_temporada = 9;
+                $sus_3->id_distribuidor = 0;
+                $sus_3->confirmacion_puntos = 'pendiente';
+                $sus_3->funcion = 'usuario';
+                $sus_3->save();
+            }
+            $suscripcion_4 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 10)->first();
+            if(!$suscripcion_4){
+                $sus_4 = new UsuariosSuscripciones();
+                $sus_4->id_usuario = $usuario->id;
+                $sus_4->id_cuenta = 3;
+                $sus_4->id_temporada = 10;
+                $sus_4->id_distribuidor = 0;
+                $sus_4->confirmacion_puntos = 'pendiente';
+                $sus_4->funcion = 'usuario';
+                $sus_4->save();
+            }
+            
+        }
+    }
+
+    public function eliminar_suscripciones_duplicadas(){
         $suscripciones = DB::table('usuarios_suscripciones')
             ->select('id', 'id_usuario', 'id_temporada')
             ->orderBy('id')
@@ -110,8 +166,7 @@ class FrontController extends Controller
         echo '<tr>';
         echo '<th>Correo</th>';
         echo '<th>PLE 2024</th>';
-        echo '<th>PLE 2023</th>';
-        echo '<th>PL</th>';
+        echo '<th>PL 2024</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -120,7 +175,6 @@ class FrontController extends Controller
             echo '<td>'.$usuario->email.'</td>';
             $suscripcion_1 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
             $suscripcion_2 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 9)->first();
-            $suscripcion_3 = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 6)->first();
 
             if($suscripcion_1){
                 $distribuidor = Distribuidor::where('id', $suscripcion_1->id_distribuidor)->first();
@@ -135,17 +189,6 @@ class FrontController extends Controller
             }
             if($suscripcion_2){
                 $distribuidor = Distribuidor::where('id', $suscripcion_2->id_distribuidor)->first();
-                if($distribuidor){
-                    echo '<td>'.$distribuidor->nombre.'</td>';
-                }else{
-                    echo '<td style="color: red;">Sin distribuidor</td>';
-                }
-                
-            }else{
-                echo '<td style="color: red;">N/P</td>';
-            }
-            if($suscripcion_3){
-                $distribuidor = Distribuidor::where('id', $suscripcion_3->id_distribuidor)->first();
                 if($distribuidor){
                     echo '<td>'.$distribuidor->nombre.'</td>';
                 }else{
@@ -214,8 +257,8 @@ class FrontController extends Controller
         echo $usuarios->links();
     }
 
-    //public function reparar_evaluaciones()
-    public function scripts_ajustes()
+    public function reparar_evaluaciones()
+    
     {
         /*
         // Ejecutar la migración
