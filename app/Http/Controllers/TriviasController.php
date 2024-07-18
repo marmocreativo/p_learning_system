@@ -472,6 +472,7 @@ class TriviasController extends Controller
         $ganador->direccion_codigo_postal = $request->input('codigoPostal');
         $ganador->direccion_horario = $request->input('horario');
         $ganador->direccion_referencia = $request->input('referencia');
+        $ganador->direccion_telefono = $request->input('telefono');
         $ganador->direccion_notas = $request->input('notas');
 
         $ganador->save();

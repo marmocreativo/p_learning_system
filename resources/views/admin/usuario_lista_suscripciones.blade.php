@@ -61,6 +61,9 @@
             <th>Lider</th>
             <th>Disty</th>
             <th>Region</th>
+            <th>Temp {{$temporada->nombre}}</th>
+            <th>Temp Anterior</th>
+            <th>University</th>
             <th>Pass</th>
             <th>Controles</th>
         </tr>
@@ -77,6 +80,9 @@
                     <td>{{$suscripcion->funcion}}</td>
                     <td>{{$suscripcion->nombre_distribuidor}}</td>
                     <td>{{$suscripcion->region}}</td>
+                    <td>{{$suscripcion->temporada_completa}}</td>
+                    <td>{{$suscripcion->champions_a}}</td>
+                    <td>{{$suscripcion->champions_b}}</td>
                     
                     <td>
                         @if(!$suscripcion->pass_restaurado)
@@ -131,12 +137,12 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="NivelDistribuidor">Nivel Distribuidor</label>
+                                                <label for="NivelDistribuidor">Nivel Distribuidor ({{$suscripcion->nivel_distribuidor}})</label>
                                                 <select name="NivelDistribuidor" class="form-control">
-                                                    <option value="Oyente" <?php if($suscripcion->nivel=='Oyente'){ echo 'selected'; } ?>>Oyente</option>
-                                                    <option value="Básico" <?php if($suscripcion->nivel=='Básico'){ echo 'selected'; } ?>>Básico</option>
-                                                    <option value="Medio" <?php if($suscripcion->nivel=='Medio'){ echo 'selected'; } ?>>Medio</option>
-                                                    <option value="Completo" <?php if($suscripcion->nivel=='Completo'){ echo 'selected'; } ?>>Completo</option>
+                                                    <option value="oyente" <?php if($suscripcion->nivel_distribuidor=='oyente'){ echo 'selected'; } ?>>Oyente</option>
+                                                    <option value="basico" <?php if($suscripcion->nivel_distribuidor=='basico'){ echo 'selected'; } ?>>Básico</option>
+                                                    <option value="medio" <?php if($suscripcion->nivel_distribuidor=='medio'){ echo 'selected'; } ?>>Medio</option>
+                                                    <option value="completo" <?php if($suscripcion->nivel_distribuidor=='completo'){ echo 'selected'; } ?>>Completo</option>
                                                 </select>
                                             </div>
                                             <hr>

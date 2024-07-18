@@ -63,7 +63,15 @@
                         <td>{{$sesiones_pendientes}}</td>
                     </tr>
                 </table>
-                <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista de sesiones</a>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <a class="btn btn-info w-100" href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista sesiones</a>
+                    </div>
+                    <div class="col-6">
+                        <a class="btn btn-success w-100" href="{{ route('sesiones.completadas', ['id_temporada'=> $temporada->id]) }}">Reporte completadas</a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-3">
@@ -180,11 +188,11 @@
                     </tr>
                 </table>
                 <div class="row">
-                    <div class="col">
-                        <a class="btn btn-info" href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Suscripciones</a>
+                    <div class="col-6">
+                        <a class="btn btn-info w-100" href="{{ route('admin_usuarios_suscritos', ['id_temporada'=> $temporada->id]) }}">Suscripciones</a>
                     </div>
-                    <div class="col">
-                        <a class="btn btn-success" href="{{ route('admin_usuarios_puntos_extra', ['id_temporada'=> $temporada->id]) }}">Puntos extra</a>
+                    <div class="col-6">
+                        <a class="btn btn-success w-100" href="{{ route('admin_usuarios_puntos_extra', ['id_temporada'=> $temporada->id]) }}">Puntos extra</a>
                     </div>
                 </div>
                 

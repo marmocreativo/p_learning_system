@@ -89,6 +89,7 @@
                                 <th>J{{$numero_jackpot}}</th>
                                 @php $numero_jackpot ++; @endphp 
                             @endforeach
+                            <th>Puntos Extra</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -169,6 +170,14 @@
                                 @endif
                                 
                             @endforeach
+                            @php
+                                $total_puntos_extra = 0;
+                                $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
+                                    return $entrada->id_usuario == $usuario->id_usuario;
+                                });
+                                $total_puntos_extra = $puntos_usuario->sum('puntos');
+                            @endphp
+                            <td>{{$total_puntos_extra}}</td>
                             <td>{{$puntaje_total}}</td>
                         </tr>
                         @endforeach

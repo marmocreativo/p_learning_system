@@ -708,6 +708,7 @@ class UsuariosController extends Controller
         $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
 
 
         $puntajes = [
@@ -715,6 +716,7 @@ class UsuariosController extends Controller
             'evaluaciones' =>$evaluaciones,
             'trivia' =>$trivia,
             'jackpots' =>$jackpots,
+            'extra' =>$extra,
         ];
         return response()->json($puntajes);
     }
@@ -766,6 +768,8 @@ class UsuariosController extends Controller
         ->select('jackpot.*', 'jackpot_intentos.*' )
         ->get();
 
+        $puntos_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+
 
         $puntajes = [
             'sesiones' =>$sesiones,
@@ -773,6 +777,7 @@ class UsuariosController extends Controller
             'trivias_respuestas' => $trivias_respuestas,
             'trivias_ganadores' => $trivias_ganadores,
             'jackpot_intentos' => $jackpot_intentos,
+            'puntos_extra'=> $puntos_extra
         ];
         return response()->json($puntajes);
     }
@@ -1441,9 +1446,15 @@ class UsuariosController extends Controller
         $usuario = User::find($id_usuario);
         $temporada = Temporada::find($id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $idDistribuidores = UsuariosSuscripciones::where('id_temporada', $id_temporada)
+            ->distinct()
+            ->pluck('id_distribuidor');
        
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
-        $distribuidores = Distribuidor::where('region', $suscripcion->funcion_region)->get();
+        $region = $request->input('region') ?? $suscripcion->funcion_region;
+         $distribuidores = Distribuidor::where('region', $region)
+        ->whereIn('id', $idDistribuidores)
+        ->get();
 
 
         $completo = [
@@ -1452,6 +1463,7 @@ class UsuariosController extends Controller
             'temporada' => $temporada,
             'distribuidor' => $distribuidor,
             'distribuidores' => $distribuidores,
+            'region' => $region,
         ];
         return response()->json($completo);
 

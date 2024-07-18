@@ -16,6 +16,7 @@ use App\Models\EvaluacionRes;
 use App\Models\Publicacion;
 use App\Models\Clase;
 use App\Models\Temporada;
+use App\Models\User;
 use App\Models\UsuariosSuscripciones;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +37,59 @@ class SesionesController extends Controller
         $temporada = Temporada::find($request->input('id_temporada'));
         $sesiones = SesionEv::where('id_temporada', $id_temporada)->paginate();
         return view('admin/sesion_lista', compact('sesiones', 'temporada'));
+    }
+
+    public function completadas(Request $request)
+    {
+        //
+        $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($request->input('id_temporada'));
+        $sesiones_actuales = SesionEv::where('id_temporada', $id_temporada)->get();
+        $sesiones_anteriores = SesionEv::where('id_temporada', $temporada->temporada_anterior)->get();
+        $suscripciones = UsuariosSuscripciones::where('id_temporada', $id_temporada)->get();
+        $usuarios = User::all();
+
+        foreach($suscripciones as $suscripcion){
+            //reviso que haya completado sesiones
+            $completo_sesiones_actuales = true;
+            $completo_sesiones_anteriores = true;
+            $completado_2024 = false;
+            $total_2024 = 0;
+
+            if($suscripcion->temporada_completa == 'no'){
+                foreach($sesiones_actuales as $sesion_actual){
+                    $visto = SesionVis::where('id_sesion', $sesion_actual->id)->where('id_usuario', $suscripcion->id_usuario)->first();
+                    if(empty($visto)){
+                        $completo_sesiones_actuales = false;
+                    }
+                }
+                if($completo_sesiones_actuales){
+                    $suscripcion->temporada_completa = 'si';
+                }
+            }
+
+            if($suscripcion->champions_a == 'no'){
+                foreach($sesiones_anteriores as $sesion_anterior){
+                    $visto = SesionVis::where('id_sesion', $sesion_anterior->id)->where('id_usuario', $suscripcion->id_usuario)->first();
+                    if(empty($visto)){
+                        $completo_sesiones_anteriores = false;
+                    }else{
+                        if (Carbon::parse($visto->fecha_ultimo_video)->year == 2024) {
+                            $completado_2024 = true;
+                            $total_2024++;
+                        }
+                    }
+                }
+                if($completo_sesiones_anteriores){
+                    $suscripcion->champions_a = 'si';
+                }
+            }
+            
+            $suscripcion->save();
+            $suscripcion->completado_2024 =$completado_2024;
+        }
+
+        return view('admin/sesiones_completadas', compact('suscripciones', 'temporada', 'usuarios', 'total_2024'));
     }
 
     /**

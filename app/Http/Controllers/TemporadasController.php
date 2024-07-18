@@ -17,6 +17,7 @@ use App\Models\Jackpot;
 use App\Models\JackpotPreg;
 use App\Models\JackpotRes;
 use App\Models\JackpotIntentos;
+use App\Models\PuntosExtra;
 use App\Models\Slider;
 use App\Models\Publicacion;
 use App\Models\Notificacion;
@@ -136,6 +137,7 @@ class TemporadasController extends Controller
         $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
         $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
         $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
+        $puntos_extra = PuntosExtra::where('id_temporada', $temporada->id)->get();
         $region = $request->input('region');
         $distribuidor = $request->input('distribuidor');
         $distribuidores = Distribuidor::all();
@@ -173,7 +175,8 @@ class TemporadasController extends Controller
                                                         'jackpots',
                                                         'jackpots_intentos',
                                                         'usuarios_suscritos',
-                                                        'distribuidores'
+                                                        'distribuidores',
+                                                        'puntos_extra'
                                                     ));
 
     }

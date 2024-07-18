@@ -54,21 +54,23 @@ class PuntajeExport implements FromCollection, WithHeadings
         
         $listado_usuarios = array();
         foreach($usuarios as $usuario){
+            $total_usuario = 0;
             $visualizaciones = SesionVis::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
             $evaluaciones = EvaluacionRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
             $trivias = TriviaRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
             $jackpots = JackpotIntentos::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-
+            $total_usuario = $visualizaciones+$evaluaciones+$trivias+$jackpots;
             // Armado del array final
             $listado_usuarios[$usuario->id_usuario] = [
                 'nombre' => $usuario->nombre,
                 'apellidos' => $usuario->apellidos,
                 'email' => $usuario->email,
                 'nombre_distribuidor' => $usuario->nombre_distribuidor,
-                'visualizaciones' => $visualizaciones,
-                'evaluaciones' => $evaluaciones,
-                'trivias' => $trivias,
-                'jackpots' => $jackpots
+                'visualizaciones' => (string) $visualizaciones,
+                'evaluaciones' => (string) $evaluaciones,
+                'trivias' => (string) $trivias,
+                'jackpots' => (string) $jackpots,
+                'total' => (string) $total_usuario
 
             ];
 
@@ -88,6 +90,7 @@ class PuntajeExport implements FromCollection, WithHeadings
             'Evaluaciones',
             'Trivias',
             'Jackpots',
+            'Total'
         ];
     }
 

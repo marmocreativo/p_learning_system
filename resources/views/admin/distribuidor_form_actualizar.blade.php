@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Formulario de distribuidores</h1>
-    <form action="{{ route('distribuidores.update',$distribuidor->id) }}" method="POST">
+    <form action="{{ route('distribuidores.update',$distribuidor->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">

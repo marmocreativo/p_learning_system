@@ -31,9 +31,9 @@
             </table>
         </div>
         <div class="col-4">
-            <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$distribuidor->imagen_fondo_b) }}" alt="Imagen fondo PL">
+            <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$distribuidor->imagen) }}" alt="Imagen fondo PL">
             <hr>
-            <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$distribuidor->imagen_fondo_b) }}" alt="Imagen fondo PL">
+            <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$distribuidor->imagen_fondo_a) }}" alt="Imagen fondo PL">
             <hr>
             <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$distribuidor->imagen_fondo_b) }}" alt="Imagen fondo PL">
         </div>

@@ -19,6 +19,7 @@ use App\Models\TriviaGanador;
 use App\Models\JackpotIntentos;
 use App\Models\JackpotRes;
 use App\Models\Jackpot;
+use App\Models\PuntosExtra;
 use App\Models\Cuenta;
 use App\Models\Tokens;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
         $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
         $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
+        $puntos_extra = PuntosExtra::where('id_temporada', $temporada->id)->get();
         $region = $this->request->input('region');
         $distribuidor = $this->request->input('distribuidor');
         $distribuidores = Distribuidor::all();
@@ -157,6 +159,13 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 }
                 $j ++;
             }
+            $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
+                return $entrada->id_usuario == $usuario->id_usuario;
+            });
+            $total_puntos_extra = $puntos_usuario->sum('puntos');
+            $puntaje_total +=$total_puntos_extra;
+
+            $coleccion[$index]['puntos_extra'] = (string) $total_puntos_extra;
             $coleccion[$index]['total'] = (string) $puntaje_total;
             
             $index ++;
@@ -208,6 +217,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $encabezados[] = 'J'.$j;
             $j++;
         }
+        $encabezados[] = 'Puntos Extra';
         $encabezados[] = 'Total';
         
         return $encabezados;

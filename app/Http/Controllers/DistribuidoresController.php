@@ -119,25 +119,27 @@ class DistribuidoresController extends Controller
 
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
-            $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $nombreImagen = 'distribuidor_'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $distribuidor->imagen;
         }
+        
         if ($request->hasFile('ImagenFondoA')) {
             $imagen = $request->file('ImagenFondoA');
-            $nombreImagenFondoA = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoA);
+            $nombreImagenFondoA = 'distribuidor_f_a_'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondoA);
         }else{
             $nombreImagenFondoA = $distribuidor->imagen_fondo_a;
         }
         if ($request->hasFile('ImagenFondoB')) {
             $imagen = $request->file('ImagenFondoB');
-            $nombreImagenFondoB = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoB);
+            $nombreImagenFondoB = 'distribuidor__f_b'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondoB);
         }else{
             $nombreImagenFondoB = $distribuidor->imagen_fondo_b;
         }
+            
 
         $distribuidor->nombre = $request->Nombre;
         $distribuidor->pais = $request->Pais;
@@ -145,9 +147,9 @@ class DistribuidoresController extends Controller
         $distribuidor->default_pass = $request->DefaultPass;
         $distribuidor->nivel = $request->Nivel;
         $distribuidor->estado = $request->Estado;
-        $distribuidor->imagen = $request->nombreImagen;
-        $distribuidor->imagen_fondo_a = $request->nombreImagenFondoA;
-        $distribuidor->imagen_fondo_b = $request->nombreImagenFondoB;
+        $distribuidor->imagen = $nombreImagen;
+        $distribuidor->imagen_fondo_a = $nombreImagenFondoA;
+        $distribuidor->imagen_fondo_b = $nombreImagenFondoB;
 
         $distribuidor->save();
 

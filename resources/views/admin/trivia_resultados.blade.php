@@ -83,6 +83,7 @@
                     <th>Fecha</th>
                     <th>Ganador</th>
                     <th>Dirección</th>
+                    <th>Telefono</th>
                     <th>Horario</th>
                     <th>Referencia</th>
                     <th>Notas</th>
@@ -178,6 +179,7 @@
                                 {{$ganador->direccion_delegacion}},
                                 {{$ganador->direccion_codigo_postal}}
                             </td>
+                            <td>{{$ganador->direccion_telefono}} </td>
                             <td>{{$ganador->direccion_horario}} </td>
                             <td>{{$ganador->direccion_referencia}}</td>
                             <td>{{$ganador->direccion_notas}}</td>
