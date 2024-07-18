@@ -404,12 +404,27 @@ class LogrosController extends Controller
        
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
-        $logros = Logro::where('id_temporada', $id_temporada)
+        switch ($distribuidor->region) {
+            case 'RoLA':
+                $logros = Logro::where('id_temporada', $id_temporada)
                         ->where(function($query) use ($distribuidor) {
-                            $query->where('region', $distribuidor->region)
+                            $query->where('region', 'RoLA')
                                 ->orWhere('region', 'Todas');
                         })
                         ->get();
+                break;
+            
+            default:
+                $logros = Logro::where('id_temporada', $id_temporada)
+                ->where(function($query) use ($distribuidor) {
+                    $query->where('region', 'México')
+                        ->orWhere('region', 'Interna')
+                        ->orWhere('region', 'Todas');
+                })
+                ->get();
+                break;
+        }
+        
         
         $participaciones = DB::table('logros_participantes')
             ->join('logros', 'logros_participantes.id_logro', '=', 'logros.id')
