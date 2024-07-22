@@ -212,6 +212,7 @@ Route::delete('admin/usuarios_suscritos/puntos_extra/borrar/{post}', [UsuariosCo
 
 Route::get('admin/usuarios_suscritos/reporte_temporada', [UsuariosController::class, 'usuarios_suscritos_reporte_temporada'])->name('admin_usuarios_suscritos_reporte_temporada');
 Route::get('admin/usuarios_suscritos/reporte_interno', [UsuariosController::class, 'usuarios_suscritos_reporte_interno'])->name('admin_usuarios_suscritos_reporte_interno');
+Route::get('admin/usuarios_suscritos/reporte_region', [UsuariosController::class, 'usuarios_suscritos_region_reporte'])->name('admin_usuarios_suscritos_region_reporte');
 Route::get('admin/usuarios_suscritos/reporte', [UsuariosController::class, 'usuarios_suscritos_reporte'])->name('admin_usuarios_suscritos_reporte');
 Route::get('admin/usuarios_suscritos/puntaje', [UsuariosController::class, 'usuarios_suscritos_puntaje'])->name('admin_usuarios_suscritos_puntaje');
 Route::get('admin/usuarios_suscritos', [UsuariosController::class, 'usuarios_suscritos'])->middleware('auth')->name('admin_usuarios_suscritos');

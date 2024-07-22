@@ -31,6 +31,7 @@ use App\Mail\RegistroUsuario;
 use Illuminate\Support\Facades\Mail;
 
 use App\Exports\UsersExport;
+use App\Exports\UsersRegionExport;
 use App\Exports\UsersGeneralExport;
 use App\Exports\PuntajeExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -239,6 +240,11 @@ class UsuariosController extends Controller
     public function usuarios_suscritos_reporte (Request $request)
     {
         return Excel::download(new UsersExport($request), 'reporte_usuarios.xlsx');
+        
+    }
+    public function usuarios_suscritos_region_reporte (Request $request)
+    {
+        return Excel::download(new UsersRegionExport($request), 'reporte_usuarios_region.xlsx');
         
     }
 

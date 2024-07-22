@@ -30,7 +30,7 @@ use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
 
-class UsersExport implements FromCollection, WithHeadings
+class UsersRegionExport implements FromCollection, WithHeadings
 {
     protected $request;
 
@@ -42,12 +42,18 @@ class UsersExport implements FromCollection, WithHeadings
     {
         
         $id_temporada = $this->request->input('id_temporada');
-        $id_distribuidor = $this->request->input('id_distribuidor');
+        $region = $this->request->input('region');
+        $distribuidores = Distribuidor::all();
+        if($region!='todas'){
+            $distribuidores = Distribuidor::where('region',$region)->get();
+        }
         $usuarios = DB::table('usuarios')
             ->join('usuarios_suscripciones', 'usuarios.id', '=', 'usuarios_suscripciones.id_usuario')
             ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
-            ->where('usuarios_suscripciones.id_distribuidor', '=', $id_distribuidor)
+            ->when($region !== 'todas', function ($query) use ($region) {
+                return $query->where('distribuidores.region', $region);
+            })
             ->select(
                     'usuarios.id as id_usuario',
                     'usuarios.nombre',
