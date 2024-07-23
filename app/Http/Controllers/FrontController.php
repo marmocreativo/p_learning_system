@@ -33,8 +33,56 @@ class FrontController extends Controller
         return view('front/home');
     }
 
-    //public function restaurar_suscripciones()
     public function scripts_ajustes()
+    {
+        $sesiones = SesionEv::where('id_temporada',6)->get();
+        $usuarios = User::all();
+        echo '<table border="1">';
+        foreach($sesiones as $sesion){
+            echo '<tr>';
+                echo '<th>';
+                    echo $sesion->id;
+                echo '</th>';
+                echo '<th colspan="2">';
+                    echo $sesion->titulo;
+                echo '</th>';
+            echo '</tr>';
+            $visualizaciones = SesionVis::where('id_temporada',6)->where('id_sesion',$sesion->id)->get();
+            foreach($visualizaciones as $visualizacion){
+                $datos_usuario = $usuarios->firstWhere('id', $visualizacion->id_usuario);
+                if($datos_usuario){
+                    echo '<tr>';
+                        echo '<td>';
+                        echo $datos_usuario->nombre.' '.$datos_usuario->apellidos;
+                        echo '</td>';
+                        echo '<td>';
+                        echo $datos_usuario->email;
+                        echo '</td>';
+                        echo '<td>';
+                        echo $visualizacion->fecha_ultimo_video;
+                        echo '</td>';
+                    echo '</tr>';
+                }else{
+                    echo '<tr>';
+                        echo '<td>';
+                        echo '-';
+                        echo '</td>';
+                        echo '<td>';
+                        echo '-';
+                        echo '</td>';
+                        echo '<td>';
+                        echo $visualizacion->fecha_ultimo_video;
+                        echo '</td>';
+                    echo '</tr>';
+                }
+                
+            }
+        }
+        echo '</table>';
+
+    }
+    public function restaurar_suscripciones()
+    
     {
 
         $usuarios = User::all();
