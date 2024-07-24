@@ -15,6 +15,7 @@ use App\Models\SesionVis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 use App\Imports\UsersImport;
 
@@ -486,122 +487,66 @@ class CsvController extends Controller
 
     public function registros_pasados(Request $request)
     {
-        // Validar el formulario para asegurar que se haya enviado un archivo CSV
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt'
+            'file' => 'required|mimes:xlsx'
         ]);
 
-        // Obtener el archivo CSV
-        $archivoCSV = $request->file('csv_file');
+        $import = new UsersImport;
+        Excel::import($import, $request->file('file'));
 
-        // Procesar el archivo CSV
-        $csv = Reader::createFromPath($archivoCSV->getPathname(), 'r');
-        $csv->setHeaderOffset(0); // Especifica que la primera fila contiene encabezados
-        $encabezados = $csv->getHeader(); // Obtiene los encabezados
-        $registros = $csv->getRecords(); // Obtiene los registros
-
-        // Puedes hacer algo con los registros, como guardarlos en la base de datos
-        // Por ejemplo:
-        // foreach ($registros as $registro) {
-        //     TuModelo::create($registro);
-        // }
-        foreach ($registros as $registro) {
-            $distribuidor = Distribuidor::where('nombre', $registro['DISTRIBUIDOR'])->first();
+        $rows = $import->rows;
         
-
-                if (!$distribuidor) {
-                    $distribuidor = new Distribuidor();
-                    
-                    $distribuidor->nombre = $registro['DISTRIBUIDOR'];
-                    $distribuidor->pais = 'México';
-                    //$distribuidor->region = $registro['REGIÓN'];
-                    $distribuidor->region = 'México';
-                    $distribuidor->nivel = 'completo';
-                    $distribuidor->default_pass = '123456';
-                    $distribuidor->estado = 'activo';
-
-                    $distribuidor->save();
-                }
-
-            $usuario = User::where('email', $registro['CORREO'])->first();
+        $emails = $rows->pluck('correo'); // Cambia 'correo' por el nombre real de la columna en tu Excel
+        $temporada = Temporada::where('id', 6)->first();
+        $cuenta = Cuenta::where('id', 1)->first();
+        $users = User::whereIn('email', $emails)->get();
         
-
-            if (!$usuario) {
-                $usuario = new User();
-                
-                $usuario->legacy_id = uniqid('',true);
-                $usuario->nombre = $registro['NOMBRE'];
-                $usuario->apellidos = $registro['APELLIDOS'];
-                $usuario->email = $registro['CORREO'];
-                $usuario->telefono = '';
-                $usuario->whatsapp = '';
-                $usuario->fecha_nacimiento = null;
-                $usuario->password = Hash::make($distribuidor->default_pass);
-                $usuario->lista_correo = 'si';
-                $usuario->imagen = 'default.jpg';
-                $usuario->clase = 'usuario';
-                $usuario->estado = 'activo';
-                $usuario->save();
-            }
-
+        $rowData = $rows->map(function($row) use ($users) {
+            $user = $users->firstWhere('email', $row['correo']);
             
+            //dd($distribuidor);
+            if(!empty($user)){
+                $visualizacion = SesionVis::where('id_usuario', $user->id)->where('id_sesion', $row['id_sesion'])->first();
 
-
-            $suscripcion_dist = DistribuidoresSuscripciones::where('id_distribuidor', $distribuidor->id)->where('id_temporada', 6)->first();
-            if (!$suscripcion_dist) {
-                $suscripcion_dist = new DistribuidoresSuscripciones();
-                $suscripcion_dist->id_distribuidor = $distribuidor->id;
-                $suscripcion_dist->id_cuenta = 1;
-                $suscripcion_dist->id_temporada = 6;
-                $suscripcion_dist->cantidad_usuarios = 0;
-                $suscripcion_dist->nivel = 'completo';
-                $suscripcion_dist->save();
-            }
+                if(!empty($visualizacion)){
+                    $fila = [
+                        'correo' => $row['correo'], 
+                        'correo_registrado' => $user->email, 
+                        'fecha' => $row['fecha'],
+                        'fecha_registrada' => $visualizacion->fecha_ultimo_video,
+                        'id_visualizacion' => $visualizacion->id
+                    ];
+                    //$fecha = Carbon::createFromFormat('Y-m-d H:i:s', $row['fecha']);
+                    //$visualizacion->fecha_ultimo_video = $fecha;
+                    //$visualizacion->save();
+                }else{
+                    $fila = [
+                        'correo' => $row['correo'], 
+                        'correo_registrado' => $user->email, 
+                        'fecha' => $row['fecha'],
+                        'fecha_registrada' => '-',
+                        'id_visualizacion' => '-'
+                    ];
+                }
                 
 
-            $visualizacion = SesionVis::where('id_usuario', $usuario->id)->where('id_sesion', $registro['ID SESION'])->where('id_sesion', $registro['ID SESION'])->first();
-            if (!$visualizacion) {
-                $visualizacion = new SesionVis();
-                $visualizacion->id_sesion = $registro['ID SESION'];
-                $visualizacion->id_temporada = 6;
-                $visualizacion->id_distribuidor = $distribuidor->id;
-                $visualizacion->id_usuario = $usuario->id;
-                $visualizacion->fecha_ultimo_video = $registro['FECHA'];
-                $visualizacion->puntaje = $registro['PUNTAJE'];
-                $visualizacion->save();
-            }
-
-            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 6)->first();
-            if (!$suscripcion) {
-                $suscripcion = new UsuariosSuscripciones();
-                $suscripcion->id_usuario = $usuario->id;
-                $suscripcion->id_cuenta = 1;
-                $suscripcion->id_temporada = 6;
-                $suscripcion->id_distribuidor = $distribuidor->id;
-                $suscripcion->confirmacion_puntos = 'pendiente';
-                $suscripcion->funcion = 'usuario';
-                $suscripcion->champions_a = 'si';
-                $suscripcion->save();
-            }
-
-            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', 1)->first();
-            if (!$suscripcion) {
-                $suscripcion = new UsuariosSuscripciones();
-                $suscripcion->id_usuario = $usuario->id;
-                $suscripcion->id_cuenta = 1;
-                $suscripcion->id_temporada = 6;
-                $suscripcion->id_distribuidor = $distribuidor->id;
-                $suscripcion->confirmacion_puntos = 'pendiente';
-                $suscripcion->funcion = 'usuario';
-                $suscripcion->champions_a = 'si';
-                $suscripcion->save();
             }else{
-                $suscripcion->champions_a = 'si';
-                $suscripcion->save();
+                $fila = [
+                    'correo' => $row['correo'], 
+                    'correo_registrado' => '-', 
+                    'fecha' => $row['fecha'],
+                    'fecha_registrada' => '-',
+                    'id_visualizacion' => '-'
+                ];
             }
 
-        }
-        
+            return $fila;
+        });
+
+
+        return view('admin.importar_sesiones_anteriores', [
+            'rows' => $rowData
+        ]);
     }
 
     public function actualizar_pass(Request $request)

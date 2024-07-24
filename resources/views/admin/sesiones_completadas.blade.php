@@ -28,9 +28,13 @@
                 <td>{{$usuario->email}}</td>
                 <td @class([ 'bg-success' => $suscripcion->temporada_completa == 'si', ])>{{$suscripcion->temporada_completa}}</td>
                 <td @class([ 'bg-success' => $suscripcion->champions_a == 'si', ])>{{$suscripcion->champions_a}}</td>
-                <td >@if ($suscripcion->completado_2024)
+                <td >
+                @if ($suscripcion->completado_2024)
                     {{'Completado este año'}}
-                @endif</td>
+                @else
+                    {{'Completado en 2023'}}
+                @endif
+            </td>
             </tr>
             <?php $i++; ?>
         @endif
