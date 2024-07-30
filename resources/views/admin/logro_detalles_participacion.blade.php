@@ -114,7 +114,14 @@
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
-                                    {{$anexo->validado}}
+                                    {{$anexo->validado}}<hr>
+                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                        @csrf
+                                        @method('put')
+                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                        <input type="hidden" name="Validado" value="no">
+                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                    </form>
                                 </td>
                             </tr>
                             
@@ -137,7 +144,14 @@
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
-                                    {{$anexo->validado}}
+                                    {{$anexo->validado}}<hr>
+                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                        @csrf
+                                        @method('put')
+                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                        <input type="hidden" name="Validado" value="no">
+                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                    </form>
                                 </td>
                             </tr>
                             
@@ -160,7 +174,14 @@
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
-                                    {{$anexo->validado}}
+                                    {{$anexo->validado}}<hr>
+                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                        @csrf
+                                        @method('put')
+                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                        <input type="hidden" name="Validado" value="no">
+                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                    </form>
                                 </td>
                             </tr>
                             
@@ -183,7 +204,14 @@
                                 <td>{{$anexo->fecha_registro}}</td>
                                 <td>{{$anexo->nivel}}</td>
                                 <td>
-                                    {{$anexo->validado}}
+                                    {{$anexo->validado}}<hr>
+                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                        @csrf
+                                        @method('put')
+                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                        <input type="hidden" name="Validado" value="no">
+                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                    </form>
                                 </td>
                             </tr>
                             

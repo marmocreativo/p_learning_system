@@ -78,7 +78,7 @@
                     <td>{{$suscripcion->legacy_id}}</td>
                     <td>{{$suscripcion->nivel_usuario}}</td>
                     <td>{{$suscripcion->funcion}}</td>
-                    <td>{{$suscripcion->nombre_distribuidor}}</td>
+                    <td>{{$suscripcion->nombre_distribuidor}}<hr>{{$suscripcion->nivel}}</td>
                     <td>{{$suscripcion->region}}</td>
                     <td>{{$suscripcion->temporada_completa}}</td>
                     <td>{{$suscripcion->champions_a}}</td>
@@ -103,6 +103,9 @@
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$suscripcion->id}}">
                             Editar
                         </button>
+                        <a href="{{route('admin_usuarios.reporte_sesiones', $suscripcion->id_suscripcion)}}" class="btn btn-info">
+                            Reporte
+                        </a>
                         <!-- Modal -->
                             <div class="modal fade" id="formulario{{$suscripcion->id}}" tabindex="-1" aria-labelledby="formulario{{$suscripcion->id}}Label" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-lg">
@@ -137,12 +140,12 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="NivelDistribuidor">Nivel Distribuidor ({{$suscripcion->nivel_distribuidor}})</label>
+                                                <label for="NivelDistribuidor">Nivel Distribuidor ({{$suscripcion->nivel}})</label>
                                                 <select name="NivelDistribuidor" class="form-control">
-                                                    <option value="oyente" <?php if($suscripcion->nivel_distribuidor=='oyente'){ echo 'selected'; } ?>>Oyente</option>
-                                                    <option value="basico" <?php if($suscripcion->nivel_distribuidor=='basico'){ echo 'selected'; } ?>>Básico</option>
-                                                    <option value="medio" <?php if($suscripcion->nivel_distribuidor=='medio'){ echo 'selected'; } ?>>Medio</option>
-                                                    <option value="completo" <?php if($suscripcion->nivel_distribuidor=='completo'){ echo 'selected'; } ?>>Completo</option>
+                                                    <option value="Oyente" @if($suscripcion->nivel=='Oyente') selected @endif>Oyente</option>
+                                                    <option value="Basico" @if($suscripcion->nivel=='Basico') selected @endif>Básico</option>
+                                                    <option value="Medio" @if($suscripcion->nivel=='Medio') selected @endif>Medio</option>
+                                                    <option value="Completo" @if($suscripcion->nivel=='Completo') selected @endif>Completo</option>
                                                 </select>
                                             </div>
                                             <hr>
@@ -209,7 +212,7 @@
                             @csrf
                             @method('delete')
                             <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
-                            <button type="submit" class="btn btn-link">Desuscribir</button>
+                            <button type="submit" class="btn btn-danger">Desuscribir</button>
                         </form>
 
                     </td>

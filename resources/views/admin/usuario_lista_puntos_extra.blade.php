@@ -3,7 +3,8 @@
 @section('titulo', 'Usuarios inscritos')
 
 @section('contenido_principal')
-    <h1>Usuarios inscritos</h1>
+    <h1>Puntos extra de usuarios</h1>
+    <h5 class="badge bg-info">{{$cuenta->nombre}}-{{$temporada->nombre}}</h5>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
     <a href="{{ route('admin_usuarios_suscritos_reporte_temporada', ['id_temporada'=>$_GET['id_temporada']]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>

@@ -229,9 +229,11 @@ Route::post('/actualizar_pass', [CsvController::class, 'actualizar_pass'])->name
 Route::get('admin/usuarios/cambiar_a_lider', [UsuariosController::class, 'cambiar_a_lider'])->middleware('auth')->name('admin_usuarios.cambiar_a_lider');
 Route::get('admin/usuarios/cambiar_a_usuario', [UsuariosController::class, 'cambiar_a_usuario'])->middleware('auth')->name('admin_usuarios.cambiar_a_usuario');
 
+Route::get('admin/usuarios/reporte_sesiones/{post}', [UsuariosController::class, 'reporte_sesiones'])->middleware('auth')->name('admin_usuarios.reporte_sesiones');
 Route::get('admin/usuarios/{post}', [UsuariosController::class, 'show'])->middleware('auth')->name('admin_usuarios.show');
 Route::get('admin/usuarios/edit/{post}', [UsuariosController::class, 'edit'])->middleware('auth')->name('admin_usuarios.edit');
 Route::put('admin/usuarios/update/{post}', [UsuariosController::class, 'update'])->middleware('auth')->name('admin_usuarios.update');
+
 Route::delete('admin/usuarios/destroy/{post}', [UsuariosController::class, 'destroy'])->middleware('auth')->name('admin_usuarios.destroy');
 
 

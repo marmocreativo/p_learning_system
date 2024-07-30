@@ -288,6 +288,7 @@ class UsuariosController extends Controller
 
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
         $id_cuenta = $temporada->id_cuenta;
         if($request->input('region')){
             $region = $request->input('region');
@@ -336,6 +337,7 @@ class UsuariosController extends Controller
         foreach ($suscriptores as $suscriptor) {
             $puntos_extra = DB::table('puntos_extra')
                 ->where('id_usuario', $suscriptor->id_usuario)
+                ->where('id_temporada', $id_temporada)
                 ->select('id', 'puntos', 'concepto', 'fecha_registro')
                 ->get();
         
@@ -347,7 +349,7 @@ class UsuariosController extends Controller
         $clases = Clase::where('elementos','usuarios')->get();
         $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_puntos_extra', compact('temporada', 'suscriptores', 'clases', 'distribuidores'));
+        return view('admin/usuario_lista_puntos_extra', compact('cuenta', 'temporada', 'suscriptores', 'clases', 'distribuidores'));
     }
 
     public function usuarios_agregar_puntos_extra(Request $request)
@@ -502,6 +504,7 @@ class UsuariosController extends Controller
         $suscripcion->champions_a = $request->ChampionsA;
         $suscripcion->champions_b = $request->ChampionsB;
         $suscripcion->save();
+        
 
         // reasigno el distribuidor en las actividades
         $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
@@ -539,6 +542,14 @@ class UsuariosController extends Controller
             $intento->id_distribuidor = $request->IdDistribuidor;
             $intento->save();
         }
+
+         // Cambio el nivel del distribuidor
+
+         $suscripciones_actualizar = UsuariosSuscripciones::where('id_temporada',$id_temporada)->where('id_distribuidor', $request->IdDistribuidor)->get();
+         foreach($suscripciones_actualizar as $susc){
+             $susc->nivel = $request->NivelDistribuidor;
+             $susc->save();
+         }
 
         if ($request->has('CorreoChampions') && $request->CorreoChampions == 1) {
             // Luego, verifica las condiciones adicionales
@@ -692,6 +703,31 @@ class UsuariosController extends Controller
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$id_temporada]);
 
     }
+
+    
+    /**
+     * Display the specified resource.
+     */
+    public function reporte_sesiones(string $id)
+    {
+        //
+        
+        $suscripcion = UsuariosSuscripciones::find($id);
+        $usuario = User::find($suscripcion->id_usuario);
+        $temporada = Temporada::find($suscripcion->id_temporada);
+        $sesiones_actuales = SesionEv::where('id_temporada', $temporada->id)->get();
+        $sesiones_anteriores = SesionEv::where('id_temporada', $temporada->temporada_anterior)->get();
+        $visualizaciones_actuales = SesionVis::where('id_temporada', $temporada->id)->where('id_usuario', $usuario->id)->get();
+        $visualizaciones_anteriores = SesionVis::where('id_temporada', $temporada->temporada_anterior)->where('id_usuario', $usuario->id)->get();
+        return view('admin/usuario_reporte_sesiones', compact('suscripcion','usuario','temporada', 'sesiones_actuales', 'sesiones_anteriores',
+        'visualizaciones_actuales', 'visualizaciones_anteriores'));
+        
+
+    }
+
+    /**
+     * API Usuarios
+     */
 
     public function usuarios_suscritos_api (Request $request)
     {
@@ -1167,7 +1203,7 @@ class UsuariosController extends Controller
             $puntos_evaluaciones = (int) EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_trivias = (int) TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_jackpot = (int) JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
-            $puntos_extras = 0;
+            $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
             $puntos_totales = $puntos_sesiones+$puntos_evaluaciones+$puntos_trivias+$puntos_jackpot+$puntos_extras;
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
             
@@ -1604,7 +1640,7 @@ class UsuariosController extends Controller
             $puntos_evaluaciones = (int) EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_trivias = (int) TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_jackpot = (int) JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
-            $puntos_extras = 0;
+            $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_totales = $puntos_sesiones+$puntos_evaluaciones+$puntos_trivias+$puntos_jackpot+$puntos_extras;
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
             
