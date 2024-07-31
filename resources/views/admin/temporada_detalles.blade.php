@@ -133,6 +133,25 @@
                 <a class="btn btn-info" href="{{ route('sliders', ['id_temporada'=> $temporada->id]) }}">Lista de sliders</a>
             </div>
             <div class="card card-body">
+                <h4>Canje</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <th><b>Productos</b></th>
+                        <th><b>Pedidos</b></th>
+                    </tr>
+                    <tr>
+                        <td><b>{{$productos}}</b></td>
+                        <td><b>{{$transacciones}}</b></td>
+                    </tr>
+                    <tr>
+                        <td><a class="btn btn-info" href="{{ route('canjeo.productos', ['id_temporada'=> $temporada->id]) }}">Ver productos</a></td>
+                        <td><a class="btn btn-info" href="{{ route('canjeo.cortes', ['id_temporada'=> $temporada->id]) }}">Ver pedidos</a></td>
+                    </tr>
+                </table>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
+            </div>
+            <hr>
+            <div class="card card-body">
                 <h4>Páginas</h4>
                 <table class="table table-bordered table-sm">
                     <tr>

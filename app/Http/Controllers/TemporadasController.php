@@ -26,6 +26,11 @@ use App\Models\Distribuidor;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Logro;
 use App\Models\LogroParticipacion;
+use App\Models\CanjeoCortes;
+use App\Models\CanjeoCortesUsuarios;
+use App\Models\CanjeoProductos;
+use App\Models\CanjeoTransacciones;
+use App\Models\CanjeoTransaccionesProductos;
 use Illuminate\Support\Facades\DB;
 
 use App\Exports\ReporteTemporadaExport;
@@ -103,6 +108,11 @@ class TemporadasController extends Controller
         $usuarios_suscritos = UsuariosSuscripciones::where('id_temporada', $temporada->id)->count();
         $logros_totales = Logro::where('id_temporada', $temporada->id)->count();
         $logros_participantes = LogroParticipacion::where('id_temporada', $temporada->id)->count();
+        $productos = CanjeoProductos::where('id_temporada', $temporada->id)->count();
+        $cortes = CanjeoCortesUsuarios::where('id_temporada', $temporada->id)->count();
+        $transacciones = CanjeoTransacciones::where('id_temporada', $temporada->id)->count();
+
+
         return view('admin/temporada_detalles', compact('temporada',
                                                         'sesiones_totales',
                                                         'sesiones_publicadas',
@@ -119,7 +129,10 @@ class TemporadasController extends Controller
                                                         'distribuidores_suscritos',
                                                         'usuarios_suscritos',
                                                         'logros_totales',
-                                                        'logros_participantes'
+                                                        'logros_participantes',
+                                                        'productos',
+                                                        'cortes',
+                                                        'transacciones',
                                                     ));
 
     }
