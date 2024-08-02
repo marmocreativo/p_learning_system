@@ -122,21 +122,21 @@ class SesionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'default.jpg';
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagenFondo = 'default_fondo.jpg';
         }
         if ($request->hasFile('ImagenInstructor')) {
             $imagen_instructor = $request->file('ImagenInstructor');
             $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
-            $imagen_instructor->move(public_path('img/publicaciones'), $nombreImagenInstructor);
+            $imagen_instructor->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagenInstructor = 'default_instructor.jpg';
         }

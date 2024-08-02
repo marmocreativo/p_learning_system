@@ -1640,7 +1640,7 @@ class UsuariosController extends Controller
             $puntos_evaluaciones = (int) EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_trivias = (int) TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
             $puntos_jackpot = (int) JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
-            $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
+            $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
             $puntos_totales = $puntos_sesiones+$puntos_evaluaciones+$puntos_trivias+$puntos_jackpot+$puntos_extras;
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
             

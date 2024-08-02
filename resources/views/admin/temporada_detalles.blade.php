@@ -148,7 +148,6 @@
                         <td><a class="btn btn-info" href="{{ route('canjeo.cortes', ['id_temporada'=> $temporada->id]) }}">Ver pedidos</a></td>
                     </tr>
                 </table>
-                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
             </div>
             <hr>
             <div class="card card-body">

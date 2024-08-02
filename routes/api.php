@@ -11,6 +11,7 @@ use App\Http\Controllers\SesionesController;
 use App\Http\Controllers\TriviasController;
 use App\Http\Controllers\JackpotsController;
 use App\Http\Controllers\LogrosController;
+use App\Http\Controllers\CanjeoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +95,9 @@ Route::post('participar_logro', [LogrosController::class, 'participar_logro_api'
 Route::post('validar_logro', [LogrosController::class, 'validar_logro_api'])->name('validar_logro.api');
 Route::post('subir_evidencia', [LogrosController::class, 'subir_evidencia_api'])->name('subir_evidencia.api');
 Route::post('borrar_evidencia', [LogrosController::class, 'borrar_evidencia_api'])->name('borrar_evidencia.api');
+
+Route::get('canje_inicio', [CanjeoController::class, 'canje_inicio_api'])->name('canje_inicio.api');
+Route::get('detalles_producto', [CanjeoController::class, 'detalles_producto_api'])->name('detalles_producto.api');
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');

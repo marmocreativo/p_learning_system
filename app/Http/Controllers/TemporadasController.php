@@ -292,4 +292,61 @@ class TemporadasController extends Controller
         $temporadas = Temporada::where('id_cuenta', $request->id_cuenta)->get();
         return response()->json($temporadas);
     }
+
+    public function top_10_region_api(Request $request)
+    {
+        //
+        $temporada = Temporada::find($id);
+        $hoy = date('Y-m-d H:i:s');
+        $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+        $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
+        $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
+        $trivias = Trivia::where('id_temporada', $temporada->id)->get();
+        $trivias_respuestas = TriviaRes::where('id_temporada', $temporada->id)->get();
+        $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
+        $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
+        $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
+        $puntos_extra = PuntosExtra::where('id_temporada', $temporada->id)->get();
+        $region = $request->input('region');
+        $distribuidor = $request->input('distribuidor');
+        $distribuidores = Distribuidor::all();
+        if($region!='todas'){
+            $distribuidores = Distribuidor::where('region',$region)->get();
+        }
+        $usuarios_suscritos = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', '=', $id)
+            ->when($region !== 'todas', function ($query) use ($region) {
+                return $query->where('distribuidores.region', $region);
+            })
+            // Añade la condición de distribuidor si no es 0
+            ->when($distribuidor != 0, function ($query) use ($distribuidor) {
+                return $query->where('distribuidores.id', $distribuidor);
+            })
+            ->select(
+                'usuarios.id as id_usuario',
+                'usuarios.nombre as nombre',
+                'usuarios.apellidos as apellidos',
+                'usuarios.email as email',
+                'distribuidores.region as region',
+                'distribuidores.nombre as distribuidor',
+            )
+            ->get();
+            
+        return view('admin/temporada_reporte', compact('temporada',
+                                                        'sesiones',
+                                                        'visualizaciones',
+                                                        'respuestas',
+                                                        'trivias',
+                                                        'trivias_respuestas',
+                                                        'trivias_ganadores',
+                                                        'jackpots',
+                                                        'jackpots_intentos',
+                                                        'usuarios_suscritos',
+                                                        'distribuidores',
+                                                        'puntos_extra'
+                                                    ));
+
+    }
 }
