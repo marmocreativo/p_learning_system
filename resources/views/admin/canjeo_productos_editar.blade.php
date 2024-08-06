@@ -38,14 +38,19 @@
                     <textarea name="Descripcion" class="form-control" rows="5">{{$producto->descripcion}}</textarea>
                 </div>
                 <div class="form-group">
+                    <label for="Contenido">Descripción Larga</label>
+                    <textarea name="Contenido" class="form-control TextEditor" rows="5">{{$producto->descripcion}}</textarea>
+                </div>
+                <div class="form-group">
                     <label for="Creditos">Creditos</label>
                     <input type="number" step="1" min="0" class="form-control" name="Creditos" value="{{$producto->creditos}}">
                 </div>
                 <h5>Variaciones</h5>
                 @php
                     $variaciones = json_decode($producto->variaciones);
+                    $variaciones_cantidad = json_decode($producto->variaciones_cantidad);
                 @endphp
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-2">
                         <div class="form-group">
                             <input type="text" class="form-control" name="Variaciones[0]" value="{{$variaciones[0]}}">
@@ -77,6 +82,40 @@
                         </div>
                     </div>
                 </div>
+                <h5 class="mb-3">Cantidades</h5>
+                <div class="row">
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[0]">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="{{$variaciones_cantidad[1]}}" class="form-control" name="VariacionesCantidad[1]">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="{{$variaciones_cantidad[2]}}" class="form-control" name="VariacionesCantidad[2]">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="{{$variaciones_cantidad[3]}}" class="form-control" name="VariacionesCantidad[3]">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="{{$variaciones_cantidad[4]}}" class="form-control" name="VariacionesCantidad[4]">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="number" value="{{$variaciones_cantidad[5]}}" class="form-control" name="VariacionesCantidad[5]">
+                        </div>
+                    </div>
+                </div>
+                <h5 class="mt-3">Total: 5</h5>
                 
             </div>
             <div class="col-4">

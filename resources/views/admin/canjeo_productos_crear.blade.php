@@ -32,8 +32,12 @@
                     <input type="text" class="form-control" name="Nombre">
                 </div>
                 <div class="form-group">
-                    <label for="Descripcion">Descripción</label>
+                    <label for="Descripcion">Descripción corta</label>
                     <textarea name="Descripcion" class="form-control" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="Contenido">Descripción Larga</label>
+                    <textarea name="Contenido" class="form-control TextEditor" rows="5"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="Creditos">Creditos</label>

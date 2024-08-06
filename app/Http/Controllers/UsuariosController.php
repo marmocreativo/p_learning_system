@@ -20,6 +20,7 @@ use App\Models\JackpotRes;
 use App\Models\Jackpot;
 use App\Models\Cuenta;
 use App\Models\Tokens;
+use App\Models\AccionesUsuarios;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -1338,6 +1339,14 @@ class UsuariosController extends Controller
         $jackpot_intentos = JackpotIntentos::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $suscripcion->delete();
 
+        $accion = new AccionesUsuarios();
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'suscripcion_borrada';
+        $accion->descripcion = 'Fue eliminado de la temporada por un lider';
+        $accion->save();
+
         return 'Eliminado';
         
        
@@ -1377,6 +1386,14 @@ class UsuariosController extends Controller
             
             $usuario->fecha_nacimiento = date('Y-m-d', strtotime($request->fecha_nacimiento));
             $usuario->save();
+
+                    $accion = new AccionesUsuarios();
+                    $accion->id_usuario = $usuario->id;
+                    $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
+                    $accion->correo = $usuario->email;
+                    $accion->accion = 'actualizacion_datos';
+                    $accion->descripcion = 'Actualizó su perfil';
+                    $accion->save();
             
             if ($subido) {
                 return 'Guardado con foto';
@@ -1457,6 +1474,13 @@ class UsuariosController extends Controller
                     $usuario->password = Hash::make($new_pass);
                     $usuario->save();
                     Mail::to($usuario->email)->send(new CambioPass($data));
+                    $accion = new AccionesUsuarios();
+                    $accion->id_usuario = $usuario->id;
+                    $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
+                    $accion->correo = $usuario->email;
+                    $accion->accion = 'actualizacion_pass';
+                    $accion->descripcion = 'Actualizó su contraseña';
+                    $accion->save();
                     return 'ok';
                 }else{
                     return 'new_pass';

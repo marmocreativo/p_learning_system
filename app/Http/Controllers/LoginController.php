@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Cuenta;
 use App\Models\Distribuidor;
+use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -41,7 +42,7 @@ class LoginController extends Controller
         $remember = false;
 
         if(Auth::attempt($credentials, $remember)){
-
+            
             return redirect()->intended('admin');
 
         }else{
@@ -112,6 +113,15 @@ class LoginController extends Controller
             $user = User::where($loginType, $request->Email)->firstOrFail();
 
             $token = $user->createToken('auth_token')->plainTextToken;
+
+            $accion = new AccionesUsuarios();
+            $accion->id_usuario = $user->id;
+            $accion->nombre = $user->nombre.''.$user->apellidos;
+            $accion->correo = $user->email;
+            $accion->accion = 'login';
+            $accion->descripcion = 'Se inicio sesión via API';
+            $accion->save();
+            
     
             return response()->json([
                 'message' => 'Hola '.$user->nombre,
@@ -157,6 +167,15 @@ class LoginController extends Controller
             if(!empty($suscripcion)){
                 $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
                 $token = $user->createToken('auth_token')->plainTextToken;
+
+                $accion = new AccionesUsuarios();
+                $accion->id_usuario = $user->id;
+                $accion->nombre = $user->nombre.''.$user->apellidos;
+                $accion->correo = $user->email;
+                $accion->accion = 'login';
+                $accion->descripcion = 'Se inicio sesión via API';
+                $accion->save();
+                
                 return response()->json([
                     'message' => 'Hola '.$user->nombre,
                     'accessToken' => $token,

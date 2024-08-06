@@ -10,12 +10,11 @@
     <hr>
     <div class="row">
         @foreach ($logros as $logro)
-            <div class="col-3">
+            <div class="col-3 mb-3">
                 <div class="card">
                     <div class="card-body">
                         <h3>{{$logro->nombre}} </h3>
-                        <p>{{$logro->nivel_usuario}} </p>
-                        <p>{{$logro->region}} </p>
+                        <p><span class="badge bg-primary">{{$logro->nivel_usuario}}</span> | <span class="badge @if($logro->region=='México'){{'bg-success'}} @else {{'bg-info'}} @endif">{{$logro->region}} </span> </p>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('logros.show', $logro->id)}}">Ver contenido</a>

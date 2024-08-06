@@ -212,6 +212,7 @@ class LogrosController extends Controller
         $anexo = LogroAnexo::find($id);
         $anexo->nivel = $request->Nivel;
         $anexo->validado = $request->Validado;
+        $anexo->comentario = $request->Comentario;
         $anexo->save();
  
          return redirect()->route('logros.detalles_participacion', ['id'=>$anexo->id_participacion]);
@@ -284,7 +285,7 @@ class LogrosController extends Controller
     {
         //
         $participacion = LogroParticipacion::find($id);
-
+        
         switch ($request->ConfirmacionNivel) {
             case 'a':
                 $participacion->confirmacion_nivel_a = 'si';
@@ -469,15 +470,25 @@ class LogrosController extends Controller
             ->where('logros_anexos.id_usuario', '=', $id_usuario)
             ->select('logros_anexos.*', 'logros.*')
             ->get();
+
+            $participaciones_pendientes = DB::table('logros_anexos')
+            ->join('logros', 'logros_anexos.id_logro', '=', 'logros.id')
+            ->where('logros_anexos.id_participacion', '=', $participacion->id)
+            ->where('logros_anexos.id_usuario', '=', $id_usuario)
+            ->where('logros_anexos.validado', '=', 'no')
+            ->select('logros_anexos.*', 'logros.*')
+            ->get();
         }else{
             $participaciones = null;
+            $participaciones_pendientes = null;
         }
         
 
         $completo = [
             'logro' => $logro,
             'participacion' => $participacion,
-            'participaciones' => $participaciones
+            'participaciones' => $participaciones,
+            'participaciones_pendientes' => $participaciones_pendientes
         ];
 
         return response()->json($completo);

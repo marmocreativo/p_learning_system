@@ -106,6 +106,7 @@ class CanjeoController extends Controller
         //
         //
         $variaciones = json_encode($request->input('Variaciones'));
+        $variaciones_cantidad = json_encode($request->input('VariacionesCantidad'));
         $producto = CanjeoProductos::find($id);
         
         $request->validate([
@@ -124,6 +125,7 @@ class CanjeoController extends Controller
         $producto->nombre = $request->input('Nombre');
         $producto->descripcion = $request->input('Descripcion');
         $producto->variaciones = $variaciones;
+        $producto->variaciones_cantidad = $variaciones_cantidad;
         $producto->imagen = $nombreImagen ;
         $producto->creditos = $request->input('Creditos');
         $producto->limite_total = $request->input('LimiteTotal');
@@ -283,9 +285,34 @@ class CanjeoController extends Controller
                     ->first();
 
         if(!$corte){
+            $corte_anterior = CanjeoCortes::where('id_temporada', $id_temporada)
+                    ->where('fecha_inicio', '<=', $fecha_actual)
+                    ->where('fecha_final', '>=', $fecha_actual)
+                    ->first();
             $datos_corte = null;
             $datos_corte_usuario = null;
-            $puntaje_total = 0;
+            $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
+                            ->where('id_temporada',$id_temporada)
+                            ->where('fecha_ultimo_video', '>=', $corte_anterior->fecha_inicio)
+                            ->where('fecha_ultimo_video', '<=', $corte_anterior->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)
+                            ->where('id_temporada',$id_temporada)
+                            ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $trivia = TriviaRes::where('id_usuario',$id_usuario)
+                    ->where('id_temporada',$id_temporada)
+                    ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
+                    ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
+                    ->pluck('puntaje')->sum();
+                $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)
+                            ->where('id_temporada',$id_temporada)
+                            ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $extra = 0;
+                $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             $creditos_total = 0;
             $creditos_consumidos = 0;
         }else{
