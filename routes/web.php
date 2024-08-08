@@ -212,6 +212,7 @@ Route::get('admin/canjeo/productos', [CanjeoController::class, 'productos'])->mi
 Route::get('admin/canjeo/productos/crear', [CanjeoController::class, 'productos_crear'])->middleware('auth')->name('canjeo.productos_crear');
 Route::post('admin/canjeo/productos/guardar', [CanjeoController::class, 'productos_guardar'])->middleware('auth')->name('canjeo.productos_guardar');
 Route::post('admin/canjeo/productos/galeria/guardar', [CanjeoController::class, 'productos_galeria_guardar'])->middleware('auth')->name('canjeo.productos_galeria_guardar');
+Route::delete('admin/canjeo/productos/galeria/borrar/{post}', [CanjeoController::class, 'productos_galeria_borrar'])->middleware('auth')->name('canjeo.productos_galeria_borrar');
 Route::get('admin/canjeo/productos/editar/{post}', [CanjeoController::class, 'productos_editar'])->middleware('auth')->name('canjeo.productos_editar');
 Route::put('admin/canjeo/productos/actualizar/{post}', [CanjeoController::class, 'productos_actualizar'])->middleware('auth')->name('canjeo.productos_actualizar');
 Route::delete('admin/canjeo/productos/borrar{post}', [CanjeoController::class, 'productos_borrar'])->middleware('auth')->name('canjeo.productos_borrar');

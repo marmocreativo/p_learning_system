@@ -83,7 +83,9 @@ class CanjeoController extends Controller
         $producto->id_temporada = $request->input('IdTemporada');
         $producto->nombre = $request->input('Nombre');
         $producto->descripcion = $request->input('Descripcion');
+        $producto->contenido = $request->input('Contenido');
         $producto->variaciones = $variaciones;
+         $producto->variaciones_cantidad = $variaciones_cantidad;
         $producto->imagen = $nombreImagen ;
         $producto->creditos = $request->input('Creditos');
         $producto->limite_total = $request->input('LimiteTotal');
@@ -124,6 +126,7 @@ class CanjeoController extends Controller
         $producto->id_temporada = $request->input('IdTemporada');
         $producto->nombre = $request->input('Nombre');
         $producto->descripcion = $request->input('Descripcion');
+        $producto->contenido = $request->input('Contenido');
         $producto->variaciones = $variaciones;
         $producto->variaciones_cantidad = $variaciones_cantidad;
         $producto->imagen = $nombreImagen ;
@@ -167,6 +170,18 @@ class CanjeoController extends Controller
 
         return redirect()->route('canjeo.productos_editar', $request->input('IdProducto'));
     }
+
+    public function productos_galeria_borrar(string $id)
+    {
+        //
+        $galeria = CanjeoProductosGaleria::find($id);
+        $producto = CanjeoProductos::find($galeria->id_producto);
+        $id_temporada =  $producto->id_temporada;
+        
+        $galeria->delete();
+        return redirect()->route('canjeo.productos', ['id_temporada' => $id_temporada]);
+    }
+    
 
     // Cortes
     public function cortes(Request $request)

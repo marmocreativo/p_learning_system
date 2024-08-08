@@ -39,7 +39,7 @@
                 </div>
                 <div class="form-group">
                     <label for="Contenido">Descripción Larga</label>
-                    <textarea name="Contenido" class="form-control TextEditor" rows="5">{{$producto->descripcion}}</textarea>
+                    <textarea name="Contenido" class="form-control TextEditor" rows="5">{{$producto->contenido}}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="Creditos">Creditos</label>
@@ -86,7 +86,7 @@
                 <div class="row">
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[0]">
+                            <input type="number" value="{{$variaciones_cantidad[0]}}"  class="form-control" name="VariacionesCantidad[0]">
                         </div>
                     </div>
                     <div class="col-2">

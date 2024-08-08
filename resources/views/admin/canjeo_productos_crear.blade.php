@@ -79,32 +79,32 @@
                 <div class="row">
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[0]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[0]">
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[1]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[1]">
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[2]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[2]">
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[3]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[3]">
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[4]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[4]">
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <input type="number" value="1" class="form-control" name="VariacionesCantidad[5]">
+                            <input type="number" class="form-control" name="VariacionesCantidad[5]">
                         </div>
                     </div>
                 </div>
