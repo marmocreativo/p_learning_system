@@ -9,7 +9,7 @@
     <script src="https://cdn.tiny.cloud/1/y3nn7mnqo19xsacsvznxqarsmohkoz42yat38khcnolpk6bf/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -207,6 +207,44 @@
                     loader.classList.add('d-none');
                 }
             });
+            </script>
+            
+            <script>
+                // Script de reordenamiento
+                document.addEventListener('DOMContentLoaded', (event) => {
+                    var sortable = new Sortable(document.getElementById('sortable-gallery'), {
+                        animation: 150,
+                        onEnd: function(evt) {
+                            // Obtener el nuevo orden de los elementos
+                            let order = [];
+                            document.querySelectorAll('#sortable-gallery .col-2').forEach((item, index) => {
+                                order.push({
+                                    id: item.getAttribute('data-id'),
+                                    position: index + 1
+                                });
+                            });
+
+                            // Enviar el nuevo orden al backend
+                            fetch('{{ route("canjeo.productos_galeria_reordenar") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ order: order })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    console.log('Orden actualizado exitosamente');
+                                } else {
+                                    console.error('Error al actualizar el orden');
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                    });
+                });
             </script>
             
     </body>

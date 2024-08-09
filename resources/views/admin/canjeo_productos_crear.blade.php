@@ -16,9 +16,6 @@
             </nav>
         </div>
         <div class="col-3">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ route('canjeo.productos_crear', ['id_temporada'=>$temporada->id]) }}" class="btn btn-success">Crear Producto</a>
-            </div>
             
         </div>
     </div>
@@ -43,7 +40,7 @@
                     <label for="Creditos">Creditos</label>
                     <input type="number" step="1" min="0" class="form-control" name="Creditos">
                 </div>
-                <h5>Variaciones</h5>
+                <h5 class="mt-3">Variaciones</h5>
                 <div class="row">
                     <div class="col-2">
                         <div class="form-group">
@@ -76,6 +73,7 @@
                         </div>
                     </div>
                 </div>
+                <h5 class="mt-3">Cantidades</h5>
                 <div class="row">
                     <div class="col-2">
                         <div class="form-group">

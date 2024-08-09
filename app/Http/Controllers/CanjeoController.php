@@ -65,6 +65,7 @@ class CanjeoController extends Controller
     {
         //
         $variaciones = json_encode($request->input('Variaciones'));
+        $variaciones_cantidad = json_encode($request->input('VariacionesCantidad'));
         
         $request->validate([
             'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
@@ -100,7 +101,7 @@ class CanjeoController extends Controller
         $producto = CanjeoProductos::find($id);
         $id_temporada = $producto->id_temporada;
         $temporada = Temporada::find($id_temporada);
-        $galeria = CanjeoProductosGaleria::where('id_producto', $id)->get();
+        $galeria = CanjeoProductosGaleria::where('id_producto', $id)->orderBy('orden')->get();
         return view('admin/canjeo_productos_editar', compact('producto', 'temporada', 'galeria'));
     }
     public function productos_actualizar(Request $request, string $id)
@@ -146,6 +147,7 @@ class CanjeoController extends Controller
         $producto->delete();
         return redirect()->route('canjeo.productos', ['id_temporada' => $id_temporada]);
     }
+    
 
     // Galeria
     public function productos_galeria_guardar(Request $request)
@@ -171,6 +173,21 @@ class CanjeoController extends Controller
         return redirect()->route('canjeo.productos_editar', $request->input('IdProducto'));
     }
 
+    public function productos_galeria_reordenar(Request $request)
+    {
+        $order = $request->input('order');
+
+        foreach ($order as $item) {
+            $galeriaItem = CanjeoProductosGaleria::find($item['id']);
+            if ($galeriaItem) {
+                $galeriaItem->orden = $item['position'];
+                $galeriaItem->save();
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function productos_galeria_borrar(string $id)
     {
         //
@@ -179,8 +196,10 @@ class CanjeoController extends Controller
         $id_temporada =  $producto->id_temporada;
         
         $galeria->delete();
-        return redirect()->route('canjeo.productos', ['id_temporada' => $id_temporada]);
+        return redirect()->route('canjeo.productos_editar', $producto->id);
     }
+
+
     
 
     // Cortes
@@ -405,7 +424,7 @@ class CanjeoController extends Controller
     {
         //
         $producto = CanjeoProductos::find($request->input('id'));
-        $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->get();
+        $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden')->get();
         $completo = [
             'producto' => $producto,
             'galeria' => $galeria,

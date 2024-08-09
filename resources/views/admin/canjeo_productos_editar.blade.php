@@ -16,10 +16,6 @@
             </nav>
         </div>
         <div class="col-3">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ route('canjeo.productos_crear', ['id_temporada'=>$temporada->id]) }}" class="btn btn-success">Crear Producto</a>
-            </div>
-            
         </div>
     </div>
     
@@ -160,14 +156,23 @@
                 </form>
             </div>
             <div class="col-9">
-                <div class="row">
+                <div class="row" id="sortable-gallery">
                     @foreach ($galeria as $item)
-                    <div class="col-2">
-                        <img class="img-fluid" src="{{ asset('img/publicaciones/'.$item->imagen) }}" alt="Ejemplo">
+                    <div class="col-2" data-id="{{ $item->id }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <img class="img-fluid" src="{{ asset('img/publicaciones/'.$item->imagen) }}" alt="Ejemplo">
+                            </div>
+                            <div class="card-footer">
+                                <form action="{{route('canjeo.productos_galeria_borrar', $item->id)}}" method="POST">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" class="btn btn-link w-100">Borrar</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                        
                     @endforeach
-                    
                 </div>
             </div>
         </div>
