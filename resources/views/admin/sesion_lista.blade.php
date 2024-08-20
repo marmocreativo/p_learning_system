@@ -52,9 +52,19 @@
                                     <td>{{$sesion->visualizar_puntaje_normal}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Preguntas</td>
+                                    <td>Evaluacion</td>
                                     <td>{{$sesion->preguntas_puntaje_estreno}}</td>
                                     <td>{{$sesion->preguntas_puntaje_normal}}</td>
+                                </tr>
+                                <tr>
+                                    <th>Acción</th>
+                                    <th>Sin responder</th>
+                                    <th>Totales</th>
+                                </tr>
+                                <tr>
+                                    <td>Pregunas especialista</td>
+                                    <td>{{$sesion->preguntas_sin_resolver}}</td>
+                                    <td>{{$sesion->preguntas}}</td>
                                 </tr>
                             </tbody>
                         </table>

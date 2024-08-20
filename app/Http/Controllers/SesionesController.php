@@ -15,6 +15,7 @@ use App\Models\EvaluacionPreg;
 use App\Models\EvaluacionRes;
 use App\Models\Publicacion;
 use App\Models\Clase;
+use App\Models\Cuenta;
 use App\Models\Temporada;
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
@@ -36,6 +37,13 @@ class SesionesController extends Controller
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($request->input('id_temporada'));
         $sesiones = SesionEv::where('id_temporada', $id_temporada)->paginate();
+        foreach($sesiones as $sesion){
+            $preguntas = SesionDudas::where('id_sesion', $sesion->id)->count();
+            $preguntas_sin_resolver = SesionDudas::where('id_sesion', $sesion->id)->where('respuesta','')->count();
+            $sesion->setAttribute('preguntas', $preguntas);
+            $sesion->setAttribute('preguntas_sin_resolver', $preguntas_sin_resolver);
+        }
+
         return view('admin/sesion_lista', compact('sesiones', 'temporada'));
     }
 
@@ -631,9 +639,18 @@ class SesionesController extends Controller
     {
         //
         $sesion = SesionEv::find($request->input('id'));
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $temporada_sesion = Temporada::find($sesion->id_temporada);
+        $temporada_actual = Temporada::find($cuenta->temporada_actual);
+
+        if($temporada_sesion->id==$temporada_actual->id){
+            $mostrarPuntajes = true;
+        }else{
+            $mostrarPuntajes = false;
+        }
         $dudas = DB::table('sesiones_dudas')
             ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
-            ->where('sesiones_dudas.id_sesion', '=', $request->input('id_sesion'))
+            ->where('sesiones_dudas.id_sesion', '=', $sesion->id)
             ->select(
                 'sesiones_dudas.created_at as fecha_duda', 
                 'sesiones_dudas.*', 
@@ -642,12 +659,12 @@ class SesionesController extends Controller
             )
             ->orderBy('sesiones_dudas.created_at', 'desc')
             ->get();
-        $anexos = SesionAnexos::where('id_sesion',$request->input('id_sesion'))->get();
+        $anexos = SesionAnexos::where('id_sesion',$sesion->id)->get();
 
         $fecha_actual = now()->format('Y-m-d H:i:s');
         
         // consulta
-        $pendientes = SesionEv::where('id_temporada', $sesion->id_temporada)
+        $pendientes = SesionEv::where('id_temporada', $temporada_actual->id)
                             ->whereDate('fecha_publicacion', '>', $fecha_actual)
                             ->limit(2) // Limitar a dos resultados
                             ->get();
@@ -656,7 +673,8 @@ class SesionesController extends Controller
             'sesion' => $sesion,
             'dudas' => $dudas,
             'anexos' => $anexos,
-            'sesiones_pendientes' => $pendientes
+            'sesiones_pendientes' => $pendientes,
+            'mostrar_puntajes' => $mostrarPuntajes,
         ];
 
          return response()->json($completo);

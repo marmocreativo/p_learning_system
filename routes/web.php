@@ -104,6 +104,8 @@ Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->mi
 Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
 Route::put('admin/temporadas/update/{post}', [TemporadasController::class, 'update'])->middleware('auth')->name('temporadas.update');
 Route::delete('admin/temporadas/destroy/{post}', [TemporadasController::class, 'destroy'])->middleware('auth')->name('temporadas.destroy');
+Route::get('admin/top_10_region', [TemporadasController::class, 'top_10_region'])->name('top_10_region');
+Route::post('admin/actualizar_premio_top_10', [TemporadasController::class, 'actualizar_premio_top_10'])->name('actualizar_premio_top_10');
 
 // Rutas CRUD para las'publicaciones'
 Route::get('admin/publicaciones', [PublicacionesController::class, 'index'])->middleware('auth')->name('publicaciones');

@@ -213,6 +213,11 @@
                         <a class="btn btn-success w-100" href="{{ route('admin_usuarios_puntos_extra', ['id_temporada'=> $temporada->id]) }}">Puntos extra</a>
                     </div>
                 </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <a class="btn btn-success w-100" href="{{ route('top_10_region', ['id'=> $temporada->id_cuenta, 'region'=>'México']) }}">Top 10</a>
+                    </div>
+                </div>
                 
 
             </div>

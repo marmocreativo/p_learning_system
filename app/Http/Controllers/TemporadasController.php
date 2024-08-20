@@ -222,6 +222,156 @@ class TemporadasController extends Controller
         return $response;
     }
 
+    public function top_10_region(Request $request)
+    {
+        //
+        $cuenta = Cuenta::find($request->id);
+        $temporada = Temporada::find($cuenta->temporada_actual);
+        $hoy = date('Y-m-d H:i:s');
+        $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+        $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
+        $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
+        $trivias = Trivia::where('id_temporada', $temporada->id)->get();
+        $trivias_respuestas = TriviaRes::where('id_temporada', $temporada->id)->get();
+        $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
+        $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
+        $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
+        $puntos_extra = PuntosExtra::where('id_temporada', $temporada->id)->get();
+        $region = $request->input('region');
+        $distribuidor = $request->input('distribuidor');
+        $distribuidores = Distribuidor::all();
+        if($region!='todas'){
+            $distribuidores = Distribuidor::where('region',$region)->get();
+        }
+        $usuarios_suscritos = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
+            ->when($region !== 'todas', function ($query) use ($region) {
+                return $query->where('distribuidores.region', $region);
+            })
+            // Añade la condición de distribuidor si no es 0
+            ->when($distribuidor != 0, function ($query) use ($distribuidor) {
+                return $query->where('distribuidores.id', $distribuidor);
+            })
+            ->select(
+                'usuarios.id as id_usuario',
+                'usuarios.nombre as nombre',
+                'usuarios.apellidos as apellidos',
+                'usuarios.email as email',
+                'usuarios.imagen as imagen',
+                'distribuidores.region as region',
+                'distribuidores.nombre as distribuidor',
+                'usuarios_suscripciones.id as id_suscripcion',
+                'usuarios_suscripciones.confirmacion_puntos as confirmacion_puntos',
+                'usuarios_suscripciones.premio as premio'
+            )
+            ->get();
+        $array_usuarios = array();
+        $puntajes_completos = array();
+        $puntajes_top = array();
+        $ganadores_distribuidor = array();
+        $ganadores_region = [
+            'México'=>0,
+            'RoLA'=>0,
+            'Interna'=>0,
+        ];
+        $i=1;
+
+        foreach($distribuidores as $distribuidor){
+            $ganadores_distribuidor[$distribuidor->nombre] = 0;
+        }
+        foreach($usuarios_suscritos as $usuario){
+            // visualizaciones
+            // Cuento las visualizaciones
+            //$puntos_visualizaciones = SesionVis::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->pluck('puntaje')->sum();
+            $visualizaciones = SesionVis::where('id_usuario', $usuario->id_usuario)->where('id_temporada', $temporada->id)->get();
+            $suma_visualizaciones = $visualizaciones->sum('puntaje');
+            $cantidad_visualizaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
+            $cantidad_visualizaciones = $cantidad_visualizaciones*1;
+            // Evaluaciones
+            $evaluaciones = EvaluacionRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_evaluaciones = $visualizaciones->sum('puntaje');
+            $cantidad_evaluaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
+            $cantidad_evaluaciones = $cantidad_evaluaciones*2;
+            // trivias
+            $trivias = TriviaRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_trivias = $trivias->sum('puntaje');
+            $cantidad_trivias = $trivias->pluck('id_sesion')->unique()->count();
+            $cantidad_trivias = $cantidad_trivias*3;
+            // Jackpot
+            $jackpots = JackpotIntentos::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_jackpots = $jackpots->sum('puntaje');
+            $cantidad_jackpots = $jackpots->pluck('id_sesion')->unique()->count();
+            $cantidad_jackpots = $cantidad_jackpots*0;
+            // Puntos extra
+            $puntos_extra = PuntosExtra::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_extras = $puntos_extra->sum('puntos');
+            $cantidad_extras = $puntos_extra->pluck('id_sesion')->unique()->count();
+            $cantidad_extras = $cantidad_extras*-1;
+
+            $puntaje_total = $suma_visualizaciones+$suma_evaluaciones+$suma_trivias+$suma_jackpots+$suma_extras;
+            $puntaje_oculto = $cantidad_visualizaciones+$cantidad_evaluaciones+$cantidad_trivias+$cantidad_jackpots+$cantidad_extras;
+
+            if (!in_array($puntaje_total, $puntajes_completos)) {
+                $puntajes_completos[] = $puntaje_total;
+            }
+
+            $array_usuarios[] = [
+                'id'=>  $usuario->id_usuario,
+                'nombre'=>  $usuario->nombre.' '.$usuario->apellidos,
+                'email'=>  $usuario->email,
+                'imagen'=>  $usuario->imagen,
+                'suscripcion'=>  $usuario->id_suscripcion,
+                'distribuidor'=>  $usuario->distribuidor,
+                'region'=>  $usuario->region,
+                'puntaje'=> $puntaje_total,
+                'puntaje_oculto'=> $puntaje_oculto,
+                'premio'=> $usuario->premio
+            ];
+            $i++;
+
+            // Checho premios
+            if($usuario->premio=='experiencia'){
+                $ganadores_region[$usuario->region] ++;
+            }
+            if($usuario->premio=='bono'){
+                $ganadores_distribuidor[$usuario->distribuidor] ++;
+            }
+        }
+        // obtengo los puntajes_top 
+        rsort($puntajes_completos);
+        $puntajes_top = array_slice($puntajes_completos, 0, 10);
+
+        // Filtro los usuarios
+        $usuarios_filtrados = array_filter($array_usuarios, function($usuario) use ($puntajes_top) {
+            return in_array($usuario['puntaje'], $puntajes_top);
+        });
+
+        usort($usuarios_filtrados, function($a, $b) {
+            if ($a['puntaje'] === $b['puntaje']) {
+                // Si los puntajes son iguales, comparar por puntaje oculto
+                return $b['puntaje_oculto'] <=> $a['puntaje_oculto'];
+            }
+            // Si los puntajes son diferentes, comparar por puntaje
+            return $b['puntaje'] <=> $a['puntaje'];
+        });
+        return view('admin/top_10_region', compact('temporada', 'puntajes_top', 'usuarios_filtrados','ganadores_region','ganadores_distribuidor'));
+    }
+
+    public function actualizar_premio_top_10(Request $request){
+        $suscripcion = UsuariosSuscripciones::find($request->input('id_suscripcion'));
+        if(!empty($request->input('premio'))){
+            $suscripcion->premio = $request->input('premio');
+            $suscripcion->save();
+        }
+        
+        $id_cuenta = $request->input('cuenta');
+        $region = $request->input('region');
+
+        return redirect()->route('top_10_region', ['id'=>$id_cuenta, 'region'=>$region]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -296,7 +446,8 @@ class TemporadasController extends Controller
     public function top_10_region_api(Request $request)
     {
         //
-        $temporada = Temporada::find($id);
+        $cuenta = Cuenta::find($request->id);
+        $temporada = Temporada::find($cuenta->temporada_actual);
         $hoy = date('Y-m-d H:i:s');
         $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
         $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
@@ -316,7 +467,7 @@ class TemporadasController extends Controller
         $usuarios_suscritos = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
-            ->where('usuarios_suscripciones.id_temporada', '=', $id)
+            ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
             ->when($region !== 'todas', function ($query) use ($region) {
                 return $query->where('distribuidores.region', $region);
             })
@@ -329,24 +480,89 @@ class TemporadasController extends Controller
                 'usuarios.nombre as nombre',
                 'usuarios.apellidos as apellidos',
                 'usuarios.email as email',
+                'usuarios.imagen as imagen',
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
+                'usuarios_suscripciones.id as id_suscripcion',
+                'usuarios_suscripciones.premio as premio'
             )
             ->get();
-            
-        return view('admin/temporada_reporte', compact('temporada',
-                                                        'sesiones',
-                                                        'visualizaciones',
-                                                        'respuestas',
-                                                        'trivias',
-                                                        'trivias_respuestas',
-                                                        'trivias_ganadores',
-                                                        'jackpots',
-                                                        'jackpots_intentos',
-                                                        'usuarios_suscritos',
-                                                        'distribuidores',
-                                                        'puntos_extra'
-                                                    ));
+        $array_usuarios = array();
+        $puntajes_completos = array();
+        $puntajes_top = array();
+        $i=1;
+        foreach($usuarios_suscritos as $usuario){
+            // visualizaciones
+            // Cuento las visualizaciones
+            //$puntos_visualizaciones = SesionVis::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->pluck('puntaje')->sum();
+            $visualizaciones = SesionVis::where('id_usuario', $usuario->id_usuario)->where('id_temporada', $temporada->id)->get();
+            $suma_visualizaciones = $visualizaciones->sum('puntaje');
+            $cantidad_visualizaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
+            $cantidad_visualizaciones = $cantidad_visualizaciones*1;
+            // Evaluaciones
+            $evaluaciones = EvaluacionRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_evaluaciones = $visualizaciones->sum('puntaje');
+            $cantidad_evaluaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
+            $cantidad_evaluaciones = $cantidad_evaluaciones*2;
+            // trivias
+            $trivias = TriviaRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_trivias = $trivias->sum('puntaje');
+            $cantidad_trivias = $trivias->pluck('id_sesion')->unique()->count();
+            $cantidad_trivias = $cantidad_trivias*3;
+            // Jackpot
+            $jackpots = JackpotIntentos::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_jackpots = $jackpots->sum('puntaje');
+            $cantidad_jackpots = $jackpots->pluck('id_sesion')->unique()->count();
+            $cantidad_jackpots = $cantidad_jackpots*0;
+            // Puntos extra
+            $puntos_extra = PuntosExtra::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
+            $suma_extras = $puntos_extra->sum('puntos');
+            $cantidad_extras = $puntos_extra->pluck('id_sesion')->unique()->count();
+            $cantidad_extras = $cantidad_extras*-1;
 
+            $puntaje_total = $suma_visualizaciones+$suma_evaluaciones+$suma_trivias+$suma_jackpots+$suma_extras;
+            $puntaje_oculto = $cantidad_visualizaciones+$cantidad_evaluaciones+$cantidad_trivias+$cantidad_jackpots+$cantidad_extras;
+
+            if (!in_array($puntaje_total, $puntajes_completos)) {
+                $puntajes_completos[] = $puntaje_total;
+            }
+
+            $array_usuarios[] = [
+                'id'=>  $usuario->id_usuario,
+                'nombre'=>  $usuario->nombre.' '.$usuario->apellidos,
+                'email'=>  $usuario->email,
+                'imagen'=>  $usuario->imagen,
+                'suscripcion'=>  $usuario->id_suscripcion,
+                'distribuidor'=>  $usuario->distribuidor,
+                'region'=>  $usuario->region,
+                'puntaje'=> $puntaje_total,
+                'puntaje_oculto'=> $puntaje_oculto,
+                'premio'=>  $usuario->premio,
+            ];
+            $i++;
+        }
+        // obtengo los puntajes_top 
+        rsort($puntajes_completos);
+        $puntajes_top = array_slice($puntajes_completos, 0, 10);
+
+        // Filtro los usuarios
+        $usuarios_filtrados = array_filter($array_usuarios, function($usuario) use ($puntajes_top) {
+            return in_array($usuario['puntaje'], $puntajes_top);
+        });
+
+        usort($usuarios_filtrados, function($a, $b) {
+            if ($a['puntaje'] === $b['puntaje']) {
+                // Si los puntajes son iguales, comparar por puntaje oculto
+                return $b['puntaje_oculto'] <=> $a['puntaje_oculto'];
+            }
+            // Si los puntajes son diferentes, comparar por puntaje
+            return $b['puntaje'] <=> $a['puntaje'];
+        });
+
+        $completo = [
+            'puntajes_top' => $puntajes_top,
+            'usuarios' => $usuarios_filtrados
+        ];
+        return response()->json($completo);
     }
 }
