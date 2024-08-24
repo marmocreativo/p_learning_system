@@ -69,7 +69,14 @@
                         <a class="btn btn-info w-100" href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Lista sesiones</a>
                     </div>
                     <div class="col-6">
-                        <a class="btn btn-success w-100" href="{{ route('sesiones.completadas', ['id_temporada'=> $temporada->id]) }}">Reporte completadas</a>
+                        <a href="{{ route('sesiones.reporte_completadas', ['post' => $temporada->id, 'region' => 'todas', 'distribuidor' => '0', 'sesiones' => 'todas']) }}" 
+                            class="btn btn-primary w-100 enlace_pesado_1">Reporte</a>                         
+                        
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <a class="btn btn-outline-warning w-100" href="{{ route('sesiones.completadas', ['id_temporada'=> $temporada->id]) }}">Verificar completadas</a>
                     </div>
                 </div>
             </div>

@@ -212,40 +212,70 @@
             <script>
                 // Script de reordenamiento
                 document.addEventListener('DOMContentLoaded', (event) => {
-                    var sortable = new Sortable(document.getElementById('sortable-gallery'), {
-                        animation: 150,
-                        onEnd: function(evt) {
-                            // Obtener el nuevo orden de los elementos
-                            let order = [];
-                            document.querySelectorAll('#sortable-gallery .col-2').forEach((item, index) => {
-                                order.push({
-                                    id: item.getAttribute('data-id'),
-                                    position: index + 1
+                    const sortableGallery = document.getElementById('sortable-gallery');
+                    
+                    if (sortableGallery) { // Verifica si el elemento existe
+                        var sortable = new Sortable(sortableGallery, {
+                            animation: 150,
+                            onEnd: function(evt) {
+                                // Obtener el nuevo orden de los elementos
+                                let order = [];
+                                document.querySelectorAll('#sortable-gallery .col-2').forEach((item, index) => {
+                                    order.push({
+                                        id: item.getAttribute('data-id'),
+                                        position: index + 1
+                                    });
                                 });
-                            });
-
-                            // Enviar el nuevo orden al backend
-                            fetch('{{ route("canjeo.productos_galeria_reordenar") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({ order: order })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    console.log('Orden actualizado exitosamente');
-                                } else {
-                                    console.error('Error al actualizar el orden');
-                                }
-                            })
-                            .catch(error => console.error('Error:', error));
-                        }
-                    });
+            
+                                // Enviar el nuevo orden al backend
+                                fetch('{{ route("canjeo.productos_galeria_reordenar") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({ order: order })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        console.log('Orden actualizado exitosamente');
+                                    } else {
+                                        console.error('Error al actualizar el orden');
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                            }
+                        });
+                    }
                 });
             </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionar todos los elementos con la clase enlace_pesado
+        const enlacesPesados = document.querySelectorAll('.enlace_pesado');
+        
+        // Agregar evento de clic a cada enlace
+        enlacesPesados.forEach(function(enlace) {
+            enlace.addEventListener('click', function(event) {
+                event.preventDefault(); // Evitar la redirección inmediata
+                swal({
+                    title: 'Atención',
+                    text: "El siguiente enlace puede tardar un poco en cargar, por favor sé paciente.",
+                    icon: 'info',
+                    buttons: ["Cancelar", "Aceptar"],
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir al enlace
+                        window.location.href = this.href;
+                    }
+                });
+            });
+        });
+    });
+    </script>
+    
             
     </body>
 </html>

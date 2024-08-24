@@ -22,6 +22,7 @@ use App\Models\UsuariosSuscripciones;
 use Illuminate\Support\Facades\DB;
 
 use App\Exports\ReporteSesionExport;
+use App\Exports\ReporteCompletadasSesionExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -98,6 +99,80 @@ class SesionesController extends Controller
         }
 
         return view('admin/sesiones_completadas', compact('suscripciones', 'temporada', 'usuarios', 'total_2024'));
+    }
+
+    public function reporte_completadas (Request $request, string $id)
+    {
+        $id_temporada = $id;
+        $temporada = Temporada::find($id);
+        $hoy = date('Y-m-d H:i:s');
+
+        $sesiones_actuales = SesionEv::where('id_temporada', $id_temporada)->get();
+        $sesiones_anteriores = SesionEv::where('id_temporada', $temporada->temporada_anterior)->get();
+
+        $visualizaciones_actuales = SesionVis::where('id_temporada', $id_temporada)->get();
+        $visualizaciones_anteriores = SesionVis::where('id_temporada', $temporada->temporada_anterior)->get();
+        
+        $region = $request->input('region');
+        $distribuidor = $request->input('distribuidor');
+        $distribuidores = Distribuidor::all();
+        if($region!='todas'){
+            $distribuidores = Distribuidor::where('region',$region)->get();
+        }
+
+        $usuarios_suscritos = DB::table('usuarios_suscripciones')
+            ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+            ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->where('usuarios_suscripciones.id_temporada', '=', $id)
+            ->when($region !== 'todas', function ($query) use ($region) {
+                return $query->where('distribuidores.region', $region);
+            })
+            // Añade la condición de distribuidor si no es 0
+            ->when($distribuidor != 0, function ($query) use ($distribuidor) {
+                return $query->where('distribuidores.id', $distribuidor);
+            })
+            ->select(
+                'usuarios.id as id_usuario',
+                'usuarios.nombre as nombre',
+                'usuarios.apellidos as apellidos',
+                'usuarios.email as email',
+                'distribuidores.region as region',
+                'distribuidores.nombre as distribuidor',
+            )
+            ->get();
+            foreach ($usuarios_suscritos as $usuario) {
+                // Contar las visualizaciones en la temporada actual
+                $v_act_count = SesionVis::where('id_temporada', $id_temporada)
+                                        ->where('id_usuario', $usuario->id_usuario)
+                                        ->count();
+            
+                // Contar las visualizaciones en la temporada anterior
+                $v_ant_count = SesionVis::where('id_temporada', $temporada->temporada_anterior)
+                                        ->where('id_usuario', $usuario->id_usuario)
+                                        ->count();
+            
+                // Asignar los valores booleanos basados en si el conteo es mayor que 0
+                $usuario->vis_actual = $v_act_count > 0;
+                $usuario->vis_anterior = $v_ant_count > 0;
+            
+                // Opcional: puedes guardar los conteos específicos como atributos adicionales
+                $usuario->vis_actual_count = $v_act_count;
+                $usuario->vis_anterior_count = $v_ant_count;
+            }
+            
+        return view('admin/sesiones_reporte', compact('temporada',
+                                                        'sesiones_actuales',
+                                                        'sesiones_anteriores',
+                                                        'visualizaciones_actuales',
+                                                        'visualizaciones_anteriores',
+                                                        'usuarios_suscritos',
+                                                        'distribuidores'
+                                                    ));
+    }
+
+    public function reporte_completadas_excel (Request $request)
+    {
+        return Excel::download(new ReporteCompletadasSesionExport($request), 'reporte_sesion_completadas.xlsx');
     }
 
     /**

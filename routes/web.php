@@ -119,6 +119,8 @@ Route::delete('admin/publicaciones/destroy/{post}', [PublicacionesController::cl
 // Rutas CRUD para las'sesiones'
 Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('auth')->name('sesiones');
 Route::get('admin/sesiones/completadas', [SesionesController::class, 'completadas'])->middleware('auth')->name('sesiones.completadas');
+Route::get('admin/sesiones/reporte_completadas/{post}', [SesionesController::class, 'reporte_completadas'])->middleware('auth')->name('sesiones.reporte_completadas');
+Route::get('admin/sesiones/reporte_completadas_excel', [SesionesController::class, 'reporte_completadas_excel'])->middleware('auth')->name('sesiones.reporte_completadas_excel');
 Route::get('admin/sesiones/create', [SesionesController::class, 'create'])->middleware('auth')->name('sesiones.create');
 Route::post('admin/sesiones/store', [SesionesController::class, 'store'])->middleware('auth')->name('sesiones.store');
 Route::post('admin/sesiones/store_pregunta', [SesionesController::class, 'store_pregunta'])->middleware('auth')->name('sesiones.store_pregunta');
