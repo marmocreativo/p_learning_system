@@ -99,6 +99,11 @@ Route::post('borrar_evidencia', [LogrosController::class, 'borrar_evidencia_api'
 
 Route::get('canje_inicio', [CanjeoController::class, 'canje_inicio_api'])->name('canje_inicio.api');
 Route::get('detalles_producto', [CanjeoController::class, 'detalles_producto_api'])->name('detalles_producto.api');
+Route::post('canje_checkout', [CanjeoController::class, 'canje_checkout_api'])->name('canje_checkout.api');
+Route::get('detalles_transaccion', [CanjeoController::class, 'detalles_transaccion_api'])->name('detalles_transaccion.api');
+Route::post('canje_checkout_actualizar', [CanjeoController::class, 'canje_checkout_actualizar_api'])->name('canje_checkout_actualizar.api');
+Route::post('canje_checkout_confirmar', [CanjeoController::class, 'canje_checkout_confirmar_api'])->name('canje_checkout_confirmar.api');
+Route::get('lista_transacciones', [CanjeoController::class, 'lista_transacciones_api'])->name('lista_transacciones.api');
 
 
 Route::post('login', [LoginController::class, 'login_api'])->name('login.api');

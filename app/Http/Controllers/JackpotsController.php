@@ -263,12 +263,21 @@ class JackpotsController extends Controller
                        ->where('fecha_publicacion', '<=', $fecha_hoy)
                         ->where('fecha_vigencia', '>=', $fecha_hoy)
                        ->first();
-        $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();
-        $respuestas = JackpotRes::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
-        $intentos = JackpotIntentos::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+        if($jackpot){
+            $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();
+            $respuestas = JackpotRes::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+            $intentos = JackpotIntentos::where('id_jackpot',$jackpot->id)->where('id_usuario',$request->input('id_usuario'))->get();
+            
+        }else{
+            $preguntas = null;
+            $respuestas = null;
+            $intentos = null;
+        }
+
         $usuario = User::find($request->input('id_usuario'));
-        $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id_usuario'))->where('id_temporada', $id_temporada )->first();
-        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id_usuario'))->where('id_temporada', $id_temporada )->first();
+            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+        
         
         $completo = [
             'jackpot' => $jackpot,

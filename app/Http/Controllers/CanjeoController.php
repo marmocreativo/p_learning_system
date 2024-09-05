@@ -310,13 +310,22 @@ class CanjeoController extends Controller
         $id_temporada =  $cuenta->temporada_actual;
         $id_usuario =  $request->input('id_usuario');
         $usuario = User::find($id_usuario);
+        $prueba =  $request->input('prueba');
 
         // consulta
         $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
-        $corte = CanjeoCortes::where('id_temporada', $id_temporada)
+
+        if($prueba=='si'){
+            $corte = CanjeoCortes::where('id_temporada', $id_temporada)
+                    ->where('prueba', 'si')
+                    ->first();
+        }else{
+            $corte = CanjeoCortes::where('id_temporada', $id_temporada)
                     ->where('fecha_publicacion_inicio', '<=', $fecha_actual)
                     ->where('fecha_publicacion_final', '>', $fecha_actual)
                     ->first();
+        }
+        
 
         if(!$corte){
             $corte_anterior = CanjeoCortes::where('id_temporada', $id_temporada)
@@ -425,9 +434,182 @@ class CanjeoController extends Controller
         //
         $producto = CanjeoProductos::find($request->input('id'));
         $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden')->get();
+        $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->get();
         $completo = [
             'producto' => $producto,
             'galeria' => $galeria,
+            'canjeados' => $canjeados,
+            ];
+    
+            return response()->json($completo);
+    }
+
+    public function canje_checkout_api(Request $request)
+        {
+            DB::beginTransaction(); // Iniciar la transacción
+
+            try {
+                $id_cuenta = $request->input('idCuenta');
+                $cuenta = Cuenta::find($id_cuenta);
+                $idUsuario = $request->input('idUsuario');
+                $idCorte = $request->input('idCorte');
+                $nombreCompleto = $request->input('nombreCompleto');
+                $calle = $request->input('calle');
+                $numeroExt = $request->input('numeroExt');
+                $numeroInt = $request->input('numeroInt');
+                $colonia = $request->input('colonia');
+                $municipio = $request->input('municipio');
+                $ciudad = $request->input('ciudad');
+                $codigoPostal = $request->input('codigoPostal');
+                $horario = $request->input('horario');
+                $telefono = $request->input('telefono');
+                $referencia = $request->input('referencia');
+                $notas = $request->input('notas');
+                $carrito = $request->input('carrito');
+                $creditos_finales = 0;
+
+                foreach ($carrito as $producto) {
+                    $creditos_finales += $producto['creditos_totales'];
+                }
+
+                // Guardo la transacción
+                $transaccion = new CanjeoTransacciones();
+                $transaccion->id_temporada = $cuenta->temporada_actual;
+                $transaccion->id_corte = $idCorte;
+                $transaccion->id_usuario = $idUsuario;
+                $transaccion->creditos = $creditos_finales;
+                $transaccion->direccion_nombre = $nombreCompleto;
+                $transaccion->direccion_calle = $calle;
+                $transaccion->direccion_numero = $numeroExt;
+                $transaccion->direccion_numeroint = $numeroInt;
+                $transaccion->direccion_colonia = $colonia;
+                $transaccion->direccion_municipio = $municipio;
+                $transaccion->direccion_ciudad = $ciudad;
+                $transaccion->direccion_codigo_postal = $codigoPostal;
+                $transaccion->direccion_horario = $horario;
+                $transaccion->direccion_telefono = $telefono;
+                $transaccion->direccion_referencia = $referencia;
+                $transaccion->direccion_notas = $notas;
+                $transaccion->confirmado = 'no';
+                $transaccion->enviado = 'no';
+                $transaccion->fecha_registro = date('Y-m-d');
+                $transaccion->save();
+
+                foreach ($carrito as $producto) {
+                    $producto_transaccion = new CanjeoTransaccionesProductos();
+                    $producto_transaccion->id_transacciones = $transaccion->id;
+                    $producto_transaccion->id_temporada = $transaccion->id_temporada;
+                    $producto_transaccion->id_producto = $producto['id'];
+                    $producto_transaccion->nombre = $producto['nombre'];
+                    $producto_transaccion->variacion = $producto['variacion'];
+                    $producto_transaccion->cantidad = $producto['cantidad'];
+                    $producto_transaccion->creditos_unitario = $producto['creditos_unidad'];
+                    $producto_transaccion->creditos_totales = $producto['creditos_totales'];
+                    $producto_transaccion->save();
+                }
+
+                DB::commit(); // Confirmar la transacción
+                return response()->json(['success' => true, 'id_transaccion' => $transaccion->id]);
+            } catch (\Exception $e) {
+                DB::rollBack(); // Revertir la transacción en caso de error
+                return response()->json(['success' => false, 'error' => $e->getMessage()]);
+            }
+        }
+
+    public function detalles_transaccion_api(Request $request)
+    {
+        //
+        $transaccion = CanjeoTransacciones::find($request->input('id_transaccion'));
+        $usuario = User::find($request->input('id_usuario'));
+        $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+        $completo = [
+            'usuario' => $usuario,
+            'transaccion' => $transaccion,
+            'productos' => $productos,
+            ];
+    
+            return response()->json($completo);
+    }
+
+    public function canje_checkout_actualizar_api(Request $request)
+    {
+        DB::beginTransaction(); // Iniciar la transacción
+
+        try {
+            $id_transaccion = $request->input('idTransaccion');
+            $nombreCompleto = $request->input('nombreCompleto');
+            $calle = $request->input('calle');
+            $numeroExt = $request->input('numeroExt');
+            $numeroInt = $request->input('numeroInt');
+            $colonia = $request->input('colonia');
+            $municipio = $request->input('municipio');
+            $ciudad = $request->input('ciudad');
+            $codigoPostal = $request->input('codigoPostal');
+            $horario = $request->input('horario');
+            $telefono = $request->input('telefono');
+            $referencia = $request->input('referencia');
+            $notas = $request->input('notas');
+
+            // Guardo la transacción
+            $transaccion = CanjeoTransacciones::find($id_transaccion);
+            
+            $transaccion->direccion_nombre = $nombreCompleto;
+            $transaccion->direccion_calle = $calle;
+            $transaccion->direccion_numero = $numeroExt;
+            $transaccion->direccion_numeroint = $numeroInt;
+            $transaccion->direccion_colonia = $colonia;
+            $transaccion->direccion_municipio = $municipio;
+            $transaccion->direccion_ciudad = $ciudad;
+            $transaccion->direccion_codigo_postal = $codigoPostal;
+            $transaccion->direccion_horario = $horario;
+            $transaccion->direccion_telefono = $telefono;
+            $transaccion->direccion_referencia = $referencia;
+            $transaccion->direccion_notas = $notas;
+            $transaccion->save();
+
+            DB::commit(); // Confirmar la transacción
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción en caso de error
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function canje_checkout_confirmar_api(Request $request)
+    {
+        DB::beginTransaction(); // Iniciar la transacción
+
+        try {
+            $id_transaccion = $request->input('idTransaccion');
+
+            // Guardo la transacción
+            $transaccion = CanjeoTransacciones::find($id_transaccion);
+            
+            $transaccion->confirmado = 'si';
+            $transaccion->fecha_confirmado = date('Y-m-d');
+            $transaccion->save();
+
+            DB::commit(); // Confirmar la transacción
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción en caso de error
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function lista_transacciones_api(Request $request)
+    {
+        //
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $temporada = Temporada::find($id_temporada);
+        $id_usuario = $request->input('id_usuario');
+        $usuario = User::find($id_usuario);
+        $transacciones = CanjeoTransacciones::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        $completo = [
+            'usuario' => $usuario,
+            'transacciones' => $transacciones,
             ];
     
             return response()->json($completo);

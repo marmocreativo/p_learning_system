@@ -70,7 +70,7 @@
                     </div>
                     <div class="col-6">
                         <a href="{{ route('sesiones.reporte_completadas', ['post' => $temporada->id, 'region' => 'todas', 'distribuidor' => '0', 'sesiones' => 'todas']) }}" 
-                            class="btn btn-primary w-100 enlace_pesado_1">Reporte</a>                         
+                            class="btn btn-primary w-100 enlace_pesado">Reporte</a>                         
                         
                     </div>
                 </div>

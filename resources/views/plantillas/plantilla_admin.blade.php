@@ -122,6 +122,7 @@
                  const forms = document.querySelectorAll('.form-loader');
                 const confirmButtons = document.querySelectorAll('.btn-confirmar');
                 const confirmForms = document.querySelectorAll('.form-confirmar');
+                const enlacesPesados = document.querySelectorAll('.enlace_pesado');
 
                 links.forEach(link => {
                     link.addEventListener('click', (event) => {
@@ -198,7 +199,31 @@
                         });
                     });
                 });
+
+                // Seleccionar todos los elementos con la clase enlace_pesado
+               
+                
+                // Agregar evento de clic a cada enlace
+                enlacesPesados.forEach(function(enlace) {
+                    enlace.addEventListener('click', function(event) {
+                        event.preventDefault(); // Evitar la redirección inmediata
+                        swal({
+                            title: 'Atención',
+                            text: "El siguiente enlace puede tardar un poco en cargar, por favor sé paciente.",
+                            icon: 'info',
+                            buttons: ["Cancelar", "Aceptar"],
+                        }).then((result) => {
+                            if (result) {
+                                // Redirigir al enlace
+                                startLoader();
+                                window.location.href = this.href;
+                            }
+                        });
+                    });
+                });
             });
+
+            
 
             
             window.addEventListener('pageshow', (event) => {
@@ -251,31 +276,6 @@
                 });
             </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Seleccionar todos los elementos con la clase enlace_pesado
-        const enlacesPesados = document.querySelectorAll('.enlace_pesado');
-        
-        // Agregar evento de clic a cada enlace
-        enlacesPesados.forEach(function(enlace) {
-            enlace.addEventListener('click', function(event) {
-                event.preventDefault(); // Evitar la redirección inmediata
-                swal({
-                    title: 'Atención',
-                    text: "El siguiente enlace puede tardar un poco en cargar, por favor sé paciente.",
-                    icon: 'info',
-                    buttons: ["Cancelar", "Aceptar"],
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Redirigir al enlace
-                        window.location.href = this.href;
-                    }
-                });
-            });
-        });
-    });
-    </script>
-    
             
     </body>
 </html>

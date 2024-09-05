@@ -196,6 +196,77 @@ class LoginController extends Controller
         
     }
 
+    public function login_gate_api(Request $request){
+        $pl_electrico = Cuenta::find(1);
+        $pl_ni = Cuenta::find(3);
+
+        $loginType = filter_var($request->Email, FILTER_VALIDATE_EMAIL) ? 'email' : 'legacy_id';
+
+        // validation
+        $credentials = [
+            $loginType=> $request->Email,
+            "password"=> $request->Password,
+            //"estado"=> 'activo'
+        ];
+
+
+
+        //$remember = ($request->has('remember') ? true : false);
+        
+        $remember = false;
+
+        if(Auth::attempt($credentials, $remember)){
+
+            $user = User::where($loginType, $request->Email)->firstOrFail();
+            $id_usuario = $user->id;
+            $suscripcion_electrico = UsuariosSuscripciones::where('id_temporada', $pl_electrico->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $suscripcion_ni = UsuariosSuscripciones::where('id_temporada', $pl_ni->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            switch ($request->id_cuenta) {
+                case '1':
+                    # code...
+                    break;
+
+                case '3':
+                    # code...
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
+            
+            if(!empty($suscripcion_electrico)){
+                $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+                $token = $user->createToken('auth_token')->plainTextToken;
+
+                $accion = new AccionesUsuarios();
+                $accion->id_usuario = $user->id;
+                $accion->nombre = $user->nombre.''.$user->apellidos;
+                $accion->correo = $user->email;
+                $accion->accion = 'login';
+                $accion->descripcion = 'Se inicio sesión via API';
+                $accion->save();
+                
+                return response()->json([
+                    'message' => 'Hola '.$user->nombre,
+                    'accessToken' => $token,
+                    'token_type' => 'Bearer',
+                    'user'=>$user,
+                    'distribuidor'=>$distribuidor->nombre,
+                    'region'=>$distribuidor->region,
+                ]);
+            }else{
+                return response()->json(['message' => 'No estás participando en este programa.'], 401);
+            }
+            
+
+        }else{
+            
+            return response()->json(['message' => 'Las credenciales no coinciden'], 401);
+        }
+        
+    }
+
     public function check_login_api(Request $request){
 
         $user = User::find($request->input('id'));
