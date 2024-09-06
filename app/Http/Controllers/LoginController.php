@@ -221,22 +221,58 @@ class LoginController extends Controller
             $id_usuario = $user->id;
             $suscripcion_electrico = UsuariosSuscripciones::where('id_temporada', $pl_electrico->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $suscripcion_ni = UsuariosSuscripciones::where('id_temporada', $pl_ni->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $redireccion = 'ninguna';
             switch ($request->id_cuenta) {
                 case '1':
-                    # code...
+                    if($suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_doble';
+                    }
+                    if($suscripcion_electrico&&!$suscripcion_ni){
+                        $redireccion = 'usuario';
+                    }
+                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_ni';
+                    }
                     break;
 
                 case '3':
-                    # code...
+                    if($suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_doble';
+                    }
+                    if($suscripcion_electrico&&!$suscripcion_ni){
+                        $redireccion = 'gate_electrico';
+                    }
+                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'usuario';
+                    }
                     break;
                 
                 default:
-                    # code...
+                    $redireccion = 'ninguna';
                     break;
             }
             
-            if(!empty($suscripcion_electrico)){
-                $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+                if($suscripcion_electrico){
+                    $distribuidor_electrico = Distribuidor::where('id', $suscripcion_electrico->id_distribuidor)->first();
+                    $nombre_dist_el = $distribuidor_electrico->nombre;
+                    $region_dist_el = $distribuidor_electrico->region;
+                }else{
+                    $distribuidor_electrico = null;
+                    $nombre_dist_el = '';
+                    $region_dist_el = '';
+                }
+
+                if($suscripcion_ni){
+                    $distribuidor_ni = Distribuidor::where('id', $suscripcion_ni->id_distribuidor)->first();
+                    $nombre_dist_ni = $distribuidor_ni->nombre;
+                    $region_dist_ni = $distribuidor_ni->region;
+                }else{
+                    $distribuidor_ni = null;
+                    $nombre_dist_ni = '';
+                    $region_dist_ni = '';
+                }
+
+                
                 $token = $user->createToken('auth_token')->plainTextToken;
 
                 $accion = new AccionesUsuarios();
@@ -249,15 +285,15 @@ class LoginController extends Controller
                 
                 return response()->json([
                     'message' => 'Hola '.$user->nombre,
+                    'redireccion' => $redireccion,
                     'accessToken' => $token,
                     'token_type' => 'Bearer',
                     'user'=>$user,
-                    'distribuidor'=>$distribuidor->nombre,
-                    'region'=>$distribuidor->region,
+                    'distribuidor_electrico'=>$nombre_dist_el,
+                    'distribuidor_ni'=>$nombre_dist_ni,
+                    'region_electrico'=>$region_dist_el,
+                    'region_ni'=>$region_dist_ni,
                 ]);
-            }else{
-                return response()->json(['message' => 'No estás participando en este programa.'], 401);
-            }
             
 
         }else{

@@ -6,7 +6,7 @@
     <h1>Suscribir usuario</h1>
     <form action="{{ route('admin_usuarios.suscribir') }}" method="POST">
         <input type="hidden" name="IdTemporada" value='{{$_GET['id_temporada']}}'>
-        <input type="hidden" name="IdCuenta" value='{{$temporada->id}}'>
+        <input type="hidden" name="IdCuenta" value='{{$temporada->id_cuenta}}'>
         @csrf
         <div class="form-group">
             <label for="Nombre">Nombre</label>

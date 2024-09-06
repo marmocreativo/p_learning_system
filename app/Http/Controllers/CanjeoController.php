@@ -522,6 +522,10 @@ class CanjeoController extends Controller
         $transaccion = CanjeoTransacciones::find($request->input('id_transaccion'));
         $usuario = User::find($request->input('id_usuario'));
         $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+        foreach($productos as $producto){
+            $detalles_producto = CanjeoProductos::find($producto->id_producto);
+            $producto->imagen = $detalles_producto->imagen;
+        }
         $completo = [
             'usuario' => $usuario,
             'transaccion' => $transaccion,
@@ -607,6 +611,15 @@ class CanjeoController extends Controller
         $id_usuario = $request->input('id_usuario');
         $usuario = User::find($id_usuario);
         $transacciones = CanjeoTransacciones::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($transacciones as $transaccion){
+            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+            foreach($productos as $producto){
+                $detalles_producto = CanjeoProductos::find($producto->id_producto);
+                $producto->imagen = $detalles_producto->imagen;
+            }
+
+            $transaccion->productos = $productos;
+        }
         $completo = [
             'usuario' => $usuario,
             'transacciones' => $transacciones,

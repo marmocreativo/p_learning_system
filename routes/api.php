@@ -110,6 +110,7 @@ Route::post('login', [LoginController::class, 'login_api'])->name('login.api');
 Route::post('olvide_pass', [LoginController::class, 'olvide_pass_api'])->name('olvide_pass.api');
 Route::post('restaurar_pass', [LoginController::class, 'restaurar_pass_api'])->name('restaurar_pass.api');
 Route::post('login_suscripcion', [LoginController::class, 'login_suscripcion_api'])->name('login_suscripcion.api');
+Route::post('login_gate', [LoginController::class, 'login_gate_api'])->name('login_gate.api');
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
 Route::get('full_check', [LoginController::class, 'full_check_api'])->name('full_check.api');
