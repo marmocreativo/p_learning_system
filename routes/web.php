@@ -208,9 +208,12 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 
 // Rutas CRUD para las'canjeo'
 Route::get('admin/canjeo/cortes', [CanjeoController::class, 'cortes'])->middleware('auth')->name('canjeo.cortes');
+Route::get('admin/canjeo/exportar_corte', [CanjeoController::class, 'exportar_corte'])->middleware('auth')->name('canjeo.exportar_corte');
 Route::post('admin/canjeo/cortes/guardar', [CanjeoController::class, 'cortes_guardar'])->middleware('auth')->name('canjeo.cortes_guardar');
 Route::put('admin/canjeo/cortes/actualizar/{post}', [CanjeoController::class, 'cortes_actualizar'])->middleware('auth')->name('canjeo.cortes_actualizar');
+Route::put('admin/canjeo/cortes_usuario/actualizar/{post}', [CanjeoController::class, 'cortes_usuario_actualizar'])->middleware('auth')->name('canjeo.cortes_usuario_actualizar');
 Route::delete('admin/canjeo/cortes/borrar{post}', [CanjeoController::class, 'cortes_borrar'])->middleware('auth')->name('canjeo.cortes_borrar');
+Route::delete('admin/canjeo/cortes_usuario/borrar{post}', [CanjeoController::class, 'cortes_usuario_borrar'])->middleware('auth')->name('canjeo.cortes_usuario_borrar');
 
 Route::get('admin/canjeo/productos', [CanjeoController::class, 'productos'])->middleware('auth')->name('canjeo.productos');
 Route::get('admin/canjeo/productos/crear', [CanjeoController::class, 'productos_crear'])->middleware('auth')->name('canjeo.productos_crear');

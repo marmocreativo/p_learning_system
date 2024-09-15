@@ -37,6 +37,7 @@ use App\Models\CanjeoTransaccionesProductos;
 use Illuminate\Support\Facades\DB;
 
 use App\Exports\ReporteTemporadaExport;
+use App\Exports\CorteUsuariosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 use Illuminate\Http\Request;
@@ -210,8 +211,9 @@ class CanjeoController extends Controller
         $temporada = Temporada::find($id_temporada);
         $cortes = CanjeoCortes::where('id_temporada', $id_temporada)->get();
         $cortes_usuarios = CanjeoCortesUsuarios::where('id_temporada', $id_temporada)->get();
+        $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->get();
         $usuarios = User::all();
-        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'usuarios'));
+        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'transacciones', 'usuarios'));
     }
 
     public function cortes_guardar(Request $request)
@@ -232,6 +234,32 @@ class CanjeoController extends Controller
     public function cortes_actualizar(Request $request, string $id)
     {
         //
+    }
+
+    public function cortes_usuario_actualizar(Request $request, string $id)
+    {
+        //
+        $corte_usuario = CanjeoCortesUsuarios::find($id);
+        $corte_usuario->puntaje = $request->input('Puntaje');
+        $corte_usuario->creditos = $request->input('Puntaje');
+        $corte_usuario->save();
+        return redirect()->route('canjeo.cortes', ['id_temporada' => $request->input('IdTemporada')]);
+    }
+
+    public function cortes_usuario_borrar(Request $request, string $id)
+    {
+        //
+        $corte_usuario = CanjeoCortesUsuarios::find($id);
+        $transacciones = CanjeoTransacciones::where('id_corte', $corte_usuario->id_corte)->where('id_usuario', $corte_usuario->id_usuario)->get();
+        foreach($transacciones as $transaccion){
+            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+            foreach($productos as $producto){
+                $producto->delete();
+            }
+            $transaccion->delete();
+        }
+        $corte_usuario->delete();
+        return redirect()->route('canjeo.cortes', ['id_temporada' => $request->input('IdTemporada')]);
     }
     public function cortes_borrar(string $id)
     {
@@ -296,6 +324,16 @@ class CanjeoController extends Controller
     public function actualizar_transaccion(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Funciones de EXCEL
+     */
+
+     public function exportar_corte (Request $request)
+    {
+        return Excel::download(new CorteUsuariosExport($request), 'reporte_ventana_canje.xlsx');
+        
     }
 
     /**
@@ -445,76 +483,76 @@ class CanjeoController extends Controller
     }
 
     public function canje_checkout_api(Request $request)
-        {
-            DB::beginTransaction(); // Iniciar la transacción
+    {
+        DB::beginTransaction(); // Iniciar la transacción
 
-            try {
-                $id_cuenta = $request->input('idCuenta');
-                $cuenta = Cuenta::find($id_cuenta);
-                $idUsuario = $request->input('idUsuario');
-                $idCorte = $request->input('idCorte');
-                $nombreCompleto = $request->input('nombreCompleto');
-                $calle = $request->input('calle');
-                $numeroExt = $request->input('numeroExt');
-                $numeroInt = $request->input('numeroInt');
-                $colonia = $request->input('colonia');
-                $municipio = $request->input('municipio');
-                $ciudad = $request->input('ciudad');
-                $codigoPostal = $request->input('codigoPostal');
-                $horario = $request->input('horario');
-                $telefono = $request->input('telefono');
-                $referencia = $request->input('referencia');
-                $notas = $request->input('notas');
-                $carrito = $request->input('carrito');
-                $creditos_finales = 0;
+        try {
+            $id_cuenta = $request->input('idCuenta');
+            $cuenta = Cuenta::find($id_cuenta);
+            $idUsuario = $request->input('idUsuario');
+            $idCorte = $request->input('idCorte');
+            $nombreCompleto = $request->input('nombreCompleto');
+            $calle = $request->input('calle');
+            $numeroExt = $request->input('numeroExt');
+            $numeroInt = $request->input('numeroInt');
+            $colonia = $request->input('colonia');
+            $municipio = $request->input('municipio');
+            $ciudad = $request->input('ciudad');
+            $codigoPostal = $request->input('codigoPostal');
+            $horario = $request->input('horario');
+            $telefono = $request->input('telefono');
+            $referencia = $request->input('referencia');
+            $notas = $request->input('notas');
+            $carrito = $request->input('carrito');
+            $creditos_finales = 0;
 
-                foreach ($carrito as $producto) {
-                    $creditos_finales += $producto['creditos_totales'];
-                }
-
-                // Guardo la transacción
-                $transaccion = new CanjeoTransacciones();
-                $transaccion->id_temporada = $cuenta->temporada_actual;
-                $transaccion->id_corte = $idCorte;
-                $transaccion->id_usuario = $idUsuario;
-                $transaccion->creditos = $creditos_finales;
-                $transaccion->direccion_nombre = $nombreCompleto;
-                $transaccion->direccion_calle = $calle;
-                $transaccion->direccion_numero = $numeroExt;
-                $transaccion->direccion_numeroint = $numeroInt;
-                $transaccion->direccion_colonia = $colonia;
-                $transaccion->direccion_municipio = $municipio;
-                $transaccion->direccion_ciudad = $ciudad;
-                $transaccion->direccion_codigo_postal = $codigoPostal;
-                $transaccion->direccion_horario = $horario;
-                $transaccion->direccion_telefono = $telefono;
-                $transaccion->direccion_referencia = $referencia;
-                $transaccion->direccion_notas = $notas;
-                $transaccion->confirmado = 'no';
-                $transaccion->enviado = 'no';
-                $transaccion->fecha_registro = date('Y-m-d');
-                $transaccion->save();
-
-                foreach ($carrito as $producto) {
-                    $producto_transaccion = new CanjeoTransaccionesProductos();
-                    $producto_transaccion->id_transacciones = $transaccion->id;
-                    $producto_transaccion->id_temporada = $transaccion->id_temporada;
-                    $producto_transaccion->id_producto = $producto['id'];
-                    $producto_transaccion->nombre = $producto['nombre'];
-                    $producto_transaccion->variacion = $producto['variacion'];
-                    $producto_transaccion->cantidad = $producto['cantidad'];
-                    $producto_transaccion->creditos_unitario = $producto['creditos_unidad'];
-                    $producto_transaccion->creditos_totales = $producto['creditos_totales'];
-                    $producto_transaccion->save();
-                }
-
-                DB::commit(); // Confirmar la transacción
-                return response()->json(['success' => true, 'id_transaccion' => $transaccion->id]);
-            } catch (\Exception $e) {
-                DB::rollBack(); // Revertir la transacción en caso de error
-                return response()->json(['success' => false, 'error' => $e->getMessage()]);
+            foreach ($carrito as $producto) {
+                $creditos_finales += $producto['creditos_totales'];
             }
+
+            // Guardo la transacción
+            $transaccion = new CanjeoTransacciones();
+            $transaccion->id_temporada = $cuenta->temporada_actual;
+            $transaccion->id_corte = $idCorte;
+            $transaccion->id_usuario = $idUsuario;
+            $transaccion->creditos = $creditos_finales;
+            $transaccion->direccion_nombre = $nombreCompleto;
+            $transaccion->direccion_calle = $calle;
+            $transaccion->direccion_numero = $numeroExt;
+            $transaccion->direccion_numeroint = $numeroInt;
+            $transaccion->direccion_colonia = $colonia;
+            $transaccion->direccion_municipio = $municipio;
+            $transaccion->direccion_ciudad = $ciudad;
+            $transaccion->direccion_codigo_postal = $codigoPostal;
+            $transaccion->direccion_horario = $horario;
+            $transaccion->direccion_telefono = $telefono;
+            $transaccion->direccion_referencia = $referencia;
+            $transaccion->direccion_notas = $notas;
+            $transaccion->confirmado = 'no';
+            $transaccion->enviado = 'no';
+            $transaccion->fecha_registro = date('Y-m-d');
+            $transaccion->save();
+
+            foreach ($carrito as $producto) {
+                $producto_transaccion = new CanjeoTransaccionesProductos();
+                $producto_transaccion->id_transacciones = $transaccion->id;
+                $producto_transaccion->id_temporada = $transaccion->id_temporada;
+                $producto_transaccion->id_producto = $producto['id'];
+                $producto_transaccion->nombre = $producto['nombre'];
+                $producto_transaccion->variacion = $producto['variacion'];
+                $producto_transaccion->cantidad = $producto['cantidad'];
+                $producto_transaccion->creditos_unitario = $producto['creditos_unidad'];
+                $producto_transaccion->creditos_totales = $producto['creditos_totales'];
+                $producto_transaccion->save();
+            }
+
+            DB::commit(); // Confirmar la transacción
+            return response()->json(['success' => true, 'id_transaccion' => $transaccion->id]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción en caso de error
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
+    }
 
     public function detalles_transaccion_api(Request $request)
     {

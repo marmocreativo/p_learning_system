@@ -6,8 +6,22 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
-use App\Models\Cuenta;
+use App\Models\Temporada;
+use App\Models\Clase;
 use App\Models\Distribuidor;
+use App\Models\DistribuidorSuscripciones;
+use App\Models\SesionVis;
+use App\Models\SesionEv;
+use App\Models\EvaluacionRes;
+use App\Models\PuntosExtra;
+use App\Models\TriviaGanador;
+use App\Models\TriviaRes;
+use App\Models\Trivia;
+use App\Models\JackpotIntentos;
+use App\Models\JackpotRes;
+use App\Models\Jackpot;
+use App\Models\Cuenta;
+use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -373,6 +387,40 @@ class LoginController extends Controller
             'usuario'=> $user,
             'sucripcion' => $suscripcion,
             'distribuidor' => $distribuidor
+        ];
+        return response()->json($completo);
+
+    }
+
+    public function full_check_puntaje_api(Request $request){
+        
+        $id_usuario = $request->input('id');
+        $user = User::find($request->input('id'));
+        $id_temporada = $request->input('id_temporada');
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id'))->where('id_temporada', $request->input('id_temporada'))->first();
+        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+
+        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
+
+
+        $puntajes = [
+            'visualizaciones' =>$visualizaciones,
+            'evaluaciones' =>$evaluaciones,
+            'trivia' =>$trivia,
+            'jackpots' =>$jackpots,
+            'extra' =>$extra,
+        ];
+
+
+        $completo = [
+            'usuario'=> $user,
+            'sucripcion' => $suscripcion,
+            'distribuidor' => $distribuidor,
+            'puntajes' =>$puntajes
         ];
         return response()->json($completo);
 

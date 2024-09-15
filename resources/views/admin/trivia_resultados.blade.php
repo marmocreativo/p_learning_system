@@ -109,9 +109,9 @@
                          $respuesta = $respuestas->first(function ($respuesta) use ($participante, $pregunta) {
                                 return $respuesta->id_usuario == $participante->id_usuario && $respuesta->id_pregunta == $pregunta->id;
                             });
-                        if($respuesta){
-                            $distribuidor = $distribuidores->first(function ($distribuidor) use ($respuesta) {
-                            return $distribuidor->id == $respuesta->id_distribuidor;
+                        if($suscripcion){
+                            $distribuidor = $distribuidores->first(function ($distribuidor) use ($suscripcion) {
+                            return $distribuidor->id == $suscripcion->id_distribuidor;
                         });
                         }else{
                             $distribuidor = null;

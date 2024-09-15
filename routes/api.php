@@ -114,6 +114,7 @@ Route::post('login_gate', [LoginController::class, 'login_gate_api'])->name('log
 
 Route::get('check', [LoginController::class, 'check_login_api'])->name('checklogin.api');
 Route::get('full_check', [LoginController::class, 'full_check_api'])->name('full_check.api');
+Route::get('full_check_puntaje', [LoginController::class, 'full_check_puntaje_api'])->name('full_check_puntaje.api');
 Route::post('actualizar_usuario_perfil', [UsuariosController::class, 'actualizar_usuario_perfil_api'])->name('actualizar_usuario_perfil.api');
 Route::post('actualizar_imagen_perfil', [UsuariosController::class, 'actualizar_imagen_perfil_api'])->name('actualizar_imagen_perfil.api');
 Route::post('actualizar_pass_perfil', [UsuariosController::class, 'actualizar_pass_perfil_api'])->name('actualizar_pass_perfil.api');
