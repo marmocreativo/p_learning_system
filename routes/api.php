@@ -46,6 +46,7 @@ Route::get('anexos_sesion', [SesionesController::class, 'anexos_sesion_api'])->n
 Route::get('checar_visualizacion', [SesionesController::class, 'checar_visualizacion_api'])->name('checar_visualizacion.api');
 Route::get('checar_full_visualizacion', [SesionesController::class, 'checar_full_visualizacion_api'])->name('checar_full_visualizacion.api');
 Route::post('registrar_visualizacion', [SesionesController::class, 'registrar_visualizacion_api'])->name('registrar_visualizacion.api');
+Route::post('registrar_avance', [SesionesController::class, 'registrar_avance_api'])->name('registrar_avance.api');
 Route::post('registrar_respuestas_evaluacion', [SesionesController::class, 'registrar_respuestas_evaluacion_api'])->name('registrar_respuestas_evaluacion.api');
 Route::post('registrar_duda', [SesionesController::class, 'registrar_duda_api'])->name('registrar_duda.api');
 // trivia

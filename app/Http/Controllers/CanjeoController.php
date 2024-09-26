@@ -36,6 +36,11 @@ use App\Models\CanjeoTransacciones;
 use App\Models\CanjeoTransaccionesProductos;
 use Illuminate\Support\Facades\DB;
 
+
+use App\Mail\ConfirmacionCanje;
+use App\Mail\ConfirmacionCanjeUsuario;
+use Illuminate\Support\Facades\Mail;
+
 use App\Exports\ReporteTemporadaExport;
 use App\Exports\CorteUsuariosExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -392,7 +397,11 @@ class CanjeoController extends Controller
                             ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                             ->pluck('puntaje')->sum();
-                $extra = 0;
+                $extra = PuntosExtra::where('id_usuario',$id_usuario)
+                    ->where('id_temporada',$id_temporada)
+                    ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
+                    ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
+                    ->pluck('puntos')->sum();
                 $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             $creditos_total = 0;
             $creditos_consumidos = 0;
@@ -618,26 +627,55 @@ class CanjeoController extends Controller
     }
 
     public function canje_checkout_confirmar_api(Request $request)
-    {
-        DB::beginTransaction(); // Iniciar la transacción
+{
+    DB::beginTransaction(); // Iniciar la transacción
 
-        try {
-            $id_transaccion = $request->input('idTransaccion');
+    try {
+        $id_transaccion = $request->input('idTransaccion');
 
-            // Guardo la transacción
-            $transaccion = CanjeoTransacciones::find($id_transaccion);
-            
-            $transaccion->confirmado = 'si';
-            $transaccion->fecha_confirmado = date('Y-m-d');
-            $transaccion->save();
+        // Guardo la transacción
+        $transaccion = CanjeoTransacciones::find($id_transaccion);
+        $transaccion_productos = CanjeoTransaccionesProductos::where('id_transacciones', $id_transaccion)->get();
+        $usuario = User::find($transaccion->id_usuario);
+        
+        $transaccion->confirmado = 'si';
+        $transaccion->fecha_confirmado = date('Y-m-d');
+        $transaccion->save();
+        $url_admin = 'https://plsystem.quarkservers2.com/admin/canjeo/transacciones_usuario?id_temporada='.$transaccion->id_temporada.'&id_corte='.$transaccion->id_corte.'&id_usuario='.$transaccion->id_usuario;
 
-            DB::commit(); // Confirmar la transacción
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            DB::rollBack(); // Revertir la transacción en caso de error
-            return response()->json(['success' => false, 'error' => $e->getMessage()]);
-        }
-    }
+        // Envio el mail
+
+        // Generar la tabla HTML con las variables correctamente
+        
+
+                        // Datos a pasar a la vista de email
+                        $data_admin = [
+                            'titulo' => 'Un nuevo canje ha llegado',
+                            'productos' => $transaccion_productos,
+                            'boton_texto' => 'Detalle de los productos',
+                            'boton_enlace' => $url_admin
+                        ];
+
+                        $data = [
+                            'titulo' => '¡El premio que seleccionaste ya está en camino!',
+                            'productos' => $transaccion_productos,
+
+                        ];
+
+                        // Enviar el correo
+
+                        Mail::to('pl-electrico@panduitlatam.com')->send(new ConfirmacionCanje($data_admin));
+                        //Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanje($data_admin));
+                        Mail::to($usuario->email)->send(new ConfirmacionCanjeUsuario($data));
+
+                        DB::commit(); // Confirmar la transacción
+                        return response()->json(['success' => true]);
+
+                    } catch (\Exception $e) {
+                        DB::rollBack(); // Revertir la transacción en caso de error
+                        return response()->json(['success' => false, 'error' => $e->getMessage()]);
+                    }
+                }
 
     public function lista_transacciones_api(Request $request)
     {

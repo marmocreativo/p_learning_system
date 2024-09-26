@@ -420,7 +420,7 @@ class LoginController extends Controller
             'usuario'=> $user,
             'sucripcion' => $suscripcion,
             'distribuidor' => $distribuidor,
-            'puntajes' =>$puntajes
+            'puntaje' =>$puntajes
         ];
         return response()->json($completo);
 

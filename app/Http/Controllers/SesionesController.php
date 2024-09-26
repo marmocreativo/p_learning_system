@@ -860,7 +860,92 @@ class SesionesController extends Controller
             $visualizacion->save();
             return('Almacenado');
         }else{
-            return('No almacenado '.$id_sesion.' - '.$id_usuario);
+            if(!$visualizacion->fecha_ultimo_video){
+                $visualizacion->puntaje = $puntaje;
+                $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
+
+                $visualizacion->save();
+                return('Actualizado');
+            }else{
+                return('No almacenado '.$id_sesion.' - '.$id_usuario);
+            }
+            
+        }
+
+        
+    }
+
+    public function registrar_avance_api(Request $request)
+    {
+        $id_sesion = $request->input('id_sesion');
+        $id_usuario = $request->input('id_usuario');
+        $index_video = $request->input('index_video');
+        $sesion = SesionEv::find($id_sesion);
+        $temporada = Temporada::find($sesion->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
+
+        $fecha_actual = date('Y-m-d H:i:s');
+
+        $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
+
+        // Verificar si la visualización existe
+        if(!$visualizacion){
+            // Si no existe, crear una nueva visualización
+            $visualizacion = new SesionVis();
+            $visualizacion->id_usuario = $id_usuario;
+            $visualizacion->id_temporada = $temporada->id;
+            if($suscripcion){
+                $visualizacion->id_distribuidor = $suscripcion->id_distribuidor;
+            }
+            
+            $visualizacion->id_sesion = $id_sesion;
+            switch ($index_video) {
+                case 0:
+                    $visualizacion->fecha_video_1 = $fecha_actual;
+                    break;
+                case 1:
+                    $visualizacion->fecha_video_2 = $fecha_actual;
+                    break;
+                case 2:
+                    $visualizacion->fecha_video_3 = $fecha_actual;
+                    break;
+                case 3:
+                    $visualizacion->fecha_video_4 = $fecha_actual;
+                    break;
+                case 4:
+                    $visualizacion->fecha_video_5 = $fecha_actual;
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+
+            $visualizacion->save();
+            return('Avance Almacenado');
+        }else{
+            switch ($index_video) {
+                case 0:
+                    $visualizacion->fecha_video_1 = $fecha_actual;
+                    break;
+                case 1:
+                    $visualizacion->fecha_video_2 = $fecha_actual;
+                    break;
+                case 2:
+                    $visualizacion->fecha_video_3 = $fecha_actual;
+                    break;
+                case 3:
+                    $visualizacion->fecha_video_4 = $fecha_actual;
+                    break;
+                case 4:
+                    $visualizacion->fecha_video_5 = $fecha_actual;
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+
+            $visualizacion->save();
+            return('Avance Almacenado');
         }
 
         
