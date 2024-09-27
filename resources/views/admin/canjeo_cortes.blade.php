@@ -53,7 +53,13 @@
                                             <tr>
                                                 <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
                                                 <td>{{$usuario->email}}</td>
-                                                <td>{{$corte_usuario->creditos}}</td>
+                                                @php
+                                                $etiqueta = 'text-success';
+                                                    if($corte_usuario->creditos!=$corte_usuario->puntos_al_corte){
+                                                        $etiqueta = 'text-danger';
+                                                    }
+                                                @endphp
+                                                <td><span class={{$etiqueta}}>{{$corte_usuario->creditos}}</span></td>
                                                 <td>
                                                     @php
                                                         $numero_transacciones = 0;

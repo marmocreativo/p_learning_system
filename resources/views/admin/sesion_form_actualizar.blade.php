@@ -28,72 +28,132 @@
                 
                 <!-- Videos -->
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="IdVideo1">ID Video 1</label>
                             <input type="text" class="form-control" name="IdVideo1" value="{{$sesion->video_1}}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo1">Título Video 1</label>
                             <input type="text" class="form-control" name="TituloVideo1" value="{{$sesion->titulo_video_1}}">
                         </div>
                     </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo1Estreno">Puntaje Estreno Video 1</label>
+                            <input type="text" class="form-control" name="PuntajeVideo1Estreno" value="{{$sesion->puntaje_video_1_estreno}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo1Normal">Puntaje Normal Video 1</label>
+                            <input type="text" class="form-control" name="PuntajeVideo1Normal" value="{{$sesion->puntaje_video_1_normal}}">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="IdVideo2">ID Video 2</label>
                             <input type="text" class="form-control" name="IdVideo2" value="{{$sesion->video_2}}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo2">Título Video 2</label>
                             <input type="text" class="form-control" name="TituloVideo2" value="{{$sesion->titulo_video_2}}">
                         </div>
                     </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo2Estreno">Puntaje Estreno Video 2</label>
+                            <input type="text" class="form-control" name="PuntajeVideo2Estreno" value="{{$sesion->puntaje_video_2_estreno}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo2Normal">Puntaje Normal Video 2</label>
+                            <input type="text" class="form-control" name="PuntajeVideo2Normal" value="{{$sesion->puntaje_video_2_normal}}">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="IdVideo3">ID Video 3</label>
                             <input type="text" class="form-control" name="IdVideo3" value="{{$sesion->video_3}}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo3">Título Video 3</label>
                             <input type="text" class="form-control" name="TituloVideo3" value="{{$sesion->titulo_video_3}}">
                         </div>
                     </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo3Estreno">Puntaje Estreno Video 3</label>
+                            <input type="text" class="form-control" name="PuntajeVideo3Estreno" value="{{$sesion->puntaje_video_3_estreno}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo3Normal">Puntaje Normal Video 3</label>
+                            <input type="text" class="form-control" name="PuntajeVideo3Normal" value="{{$sesion->puntaje_video_3_normal}}">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="IdVideo4">ID Video 4</label>
                             <input type="text" class="form-control" name="IdVideo4" value="{{$sesion->video_4}}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo4">Título Video 4</label>
                             <input type="text" class="form-control" name="TituloVideo4" value="{{$sesion->titulo_video_4}}">
                         </div>
                     </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo4Estreno">Puntaje Estreno Video 4</label>
+                            <input type="text" class="form-control" name="PuntajeVideo4Estreno" value="{{$sesion->puntaje_video_4_estreno}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo4Normal">Puntaje Normal Video 4</label>
+                            <input type="text" class="form-control" name="PuntajeVideo4Normal" value="{{$sesion->puntaje_video_4_normal}}">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="IdVideo5">ID Video 5</label>
                             <input type="text" class="form-control" name="IdVideo5" value="{{$sesion->video_5}}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo5">Título Video 5</label>
                             <input type="text" class="form-control" name="TituloVideo5" value="{{$sesion->titulo_video_5}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo5Estreno">Puntaje Estreno Video 5</label>
+                            <input type="text" class="form-control" name="PuntajeVideo5Estreno" value="{{$sesion->puntaje_video_5_estreno}}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="PuntajeVideo5Normal">Puntaje Normal Video 5</label>
+                            <input type="text" class="form-control" name="PuntajeVideo5Normal" value="{{$sesion->puntaje_video_5_normal}}">
                         </div>
                     </div>
                 </div>

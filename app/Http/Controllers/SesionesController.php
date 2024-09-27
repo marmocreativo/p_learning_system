@@ -244,6 +244,16 @@ class SesionesController extends Controller
         $sesion->titulo_video_3 = $request->TituloVideo3;
         $sesion->titulo_video_4 = $request->TituloVideo4;
         $sesion->titulo_video_5 = $request->TituloVideo5;
+        $sesion->puntaje_video_1_estreno = $request->PuntajeVideo1Estreno;
+        $sesion->puntaje_video_2_estreno = $request->PuntajeVideo2Estreno;
+        $sesion->puntaje_video_3_estreno = $request->PuntajeVideo3Estreno;
+        $sesion->puntaje_video_4_estreno = $request->PuntajeVideo4Estreno;
+        $sesion->puntaje_video_5_estreno = $request->PuntajeVideo5Estreno;
+        $sesion->puntaje_video_1_normal = $request->PuntajeVideo1Normal;
+        $sesion->puntaje_video_2_normal = $request->PuntajeVideo2Normal;
+        $sesion->puntaje_video_3_normal = $request->PuntajeVideo3Normal;
+        $sesion->puntaje_video_4_normal = $request->PuntajeVideo4Normal;
+        $sesion->puntaje_video_5_normal = $request->PuntajeVideo5Normal;
         $sesion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $sesion->cantidad_preguntas_evaluacion = $request->CantidadPreguntasEvaluacion;
         $sesion->ordenar_preguntas_evaluacion = $request->OrdenarPreguntasEvaluacion;
@@ -547,6 +557,16 @@ class SesionesController extends Controller
          $sesion->titulo_video_3 = $request->TituloVideo3;
          $sesion->titulo_video_4 = $request->TituloVideo4;
          $sesion->titulo_video_5 = $request->TituloVideo5;
+         $sesion->puntaje_video_1_estreno = $request->PuntajeVideo1Estreno;
+        $sesion->puntaje_video_2_estreno = $request->PuntajeVideo2Estreno;
+        $sesion->puntaje_video_3_estreno = $request->PuntajeVideo3Estreno;
+        $sesion->puntaje_video_4_estreno = $request->PuntajeVideo4Estreno;
+        $sesion->puntaje_video_5_estreno = $request->PuntajeVideo5Estreno;
+        $sesion->puntaje_video_1_normal = $request->PuntajeVideo1Normal;
+        $sesion->puntaje_video_2_normal = $request->PuntajeVideo2Normal;
+        $sesion->puntaje_video_3_normal = $request->PuntajeVideo3Normal;
+        $sesion->puntaje_video_4_normal = $request->PuntajeVideo4Normal;
+        $sesion->puntaje_video_5_normal = $request->PuntajeVideo5Normal;
          $sesion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
          $sesion->cantidad_preguntas_evaluacion = $request->CantidadPreguntasEvaluacion;
          $sesion->ordenar_preguntas_evaluacion = $request->OrdenarPreguntasEvaluacion;
@@ -837,10 +857,31 @@ class SesionesController extends Controller
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
-        $puntaje = $sesion->visualizar_puntaje_normal;
-        if($fecha_actual<=$fecha_limite_estreno){
-            $puntaje = $sesion->visualizar_puntaje_estreno;
-        }
+
+        $video_unico = !empty($sesion->video_1) &&
+               empty($sesion->video_2) &&
+               empty($sesion->video_3) &&
+               empty($sesion->video_4) &&
+               empty($sesion->video_5);
+
+        if($video_unico){
+            $puntaje = $sesion->visualizar_puntaje_normal;
+            if($fecha_actual<=$fecha_limite_estreno){
+                $puntaje = $sesion->visualizar_puntaje_estreno;
+            }
+        }else{
+            /*
+            $puntaje = $sesion->puntaje_video_1_normal;
+            if($fecha_actual<=$fecha_limite_estreno){
+                $puntaje = $sesion->puntaje_video_1_estreno;
+            }
+            */
+            $puntaje = $sesion->visualizar_puntaje_normal;
+            if($fecha_actual<=$fecha_limite_estreno){
+                $puntaje = $sesion->visualizar_puntaje_estreno;
+            }
+        }       
+        
         $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
 
         // Verificar si la visualización existe

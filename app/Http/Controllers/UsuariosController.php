@@ -18,6 +18,12 @@ use App\Models\Trivia;
 use App\Models\JackpotIntentos;
 use App\Models\JackpotRes;
 use App\Models\Jackpot;
+use App\Models\CanjeoCortes;
+use App\Models\CanjeoCortesUsuarios;
+use App\Models\CanjeoProductos;
+use App\Models\CanjeoProductosGaleria;
+use App\Models\CanjeoTransacciones;
+use App\Models\CanjeoTransaccionesProductos;
 use App\Models\Cuenta;
 use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
@@ -752,6 +758,7 @@ class UsuariosController extends Controller
         $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
+        $creditos_redimidos = CanjeoTransacciones::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('creditos')->sum();
 
 
         $puntajes = [
@@ -760,6 +767,7 @@ class UsuariosController extends Controller
             'trivia' =>$trivia,
             'jackpots' =>$jackpots,
             'extra' =>$extra,
+            'creditos_redimidos' => $creditos_redimidos,
         ];
         return response()->json($puntajes);
     }

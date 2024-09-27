@@ -218,6 +218,48 @@ class CanjeoController extends Controller
         $cortes_usuarios = CanjeoCortesUsuarios::where('id_temporada', $id_temporada)->get();
         $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->get();
         $usuarios = User::all();
+
+        foreach($cortes_usuarios as $cort_usuario){
+            $corte = $cortes->firstWhere('id', $cort_usuario->id_corte);
+            $visualizaciones = SesionVis::where('id_usuario',$cort_usuario->id_usuario)
+                            ->where('id_temporada',$cort_usuario->id_temporada)
+                            ->where('fecha_ultimo_video', '>=', $corte->fecha_inicio)
+                            ->where('fecha_ultimo_video', '<=', $corte->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $evaluaciones = EvaluacionRes::where('id_usuario',$cort_usuario->id_usuario)
+                            ->where('id_temporada',$cort_usuario->id_temporada)
+                            ->where('fecha_registro', '>=', $corte->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $trivia = TriviaRes::where('id_usuario',$cort_usuario->id_usuario)
+                    ->where('id_temporada',$cort_usuario->id_temporada)
+                    ->where('fecha_registro', '>=', $corte->fecha_inicio)
+                    ->where('fecha_registro', '<=', $corte->fecha_final)
+                    ->pluck('puntaje')->sum();
+                $jackpots = JackpotIntentos::where('id_usuario',$cort_usuario->id_usuario)
+                            ->where('id_temporada',$cort_usuario->id_temporada)
+                            ->where('fecha_registro', '>=', $corte->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte->fecha_final)
+                            ->pluck('puntaje')->sum();
+                $extra = PuntosExtra::where('id_usuario',$cort_usuario->id_usuario)
+                            ->where('id_temporada',$cort_usuario->id_temporada)
+                            ->where('fecha_registro', '>=', $corte->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte->fecha_final)
+                            ->pluck('puntos')->sum();
+                $puntaje_corte = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
+            
+            // Descomentar si se requiere verificar el corte de puntos
+            /*
+            if($cort_usuario->puntaje != $puntaje_corte){
+                $cort_usuario->puntaje = $puntaje_corte;
+                $cort_usuario->creditos = $puntaje_corte;
+                $cort_usuario->save();
+            }
+                */
+            $cort_usuario->puntos_al_corte = $puntaje_corte;
+        }
+
+        
         return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'transacciones', 'usuarios'));
     }
 
@@ -436,7 +478,11 @@ class CanjeoController extends Controller
                             ->where('fecha_registro', '>=', $corte->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte->fecha_final)
                             ->pluck('puntaje')->sum();
-                $extra = 0;
+                $extra = PuntosExtra::where('id_usuario',$id_usuario)
+                            ->where('id_temporada',$id_temporada)
+                            ->where('fecha_registro', '>=', $corte->fecha_inicio)
+                            ->where('fecha_registro', '<=', $corte->fecha_final)
+                            ->pluck('puntos')->sum();
                 $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
                 $corte_usuario->puntaje = $puntaje_total;
                 $corte_usuario->creditos = $puntaje_total;
