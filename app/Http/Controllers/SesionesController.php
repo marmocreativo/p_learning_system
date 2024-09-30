@@ -850,6 +850,7 @@ class SesionesController extends Controller
     {
         $id_sesion = $request->input('id_sesion');
         $id_usuario = $request->input('id_usuario');
+        $index_video = $request->input('index_video') ?? 0;
         $sesion = SesionEv::find($id_sesion);
         $temporada = Temporada::find($sesion->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
@@ -864,23 +865,41 @@ class SesionesController extends Controller
                empty($sesion->video_4) &&
                empty($sesion->video_5);
 
-        if($video_unico){
-            $puntaje = $sesion->visualizar_puntaje_normal;
-            if($fecha_actual<=$fecha_limite_estreno){
-                $puntaje = $sesion->visualizar_puntaje_estreno;
+        if ($video_unico) {
+            // Asigna puntaje normal o estreno si la fecha actual está dentro del límite de estreno.
+            $puntaje = $fecha_actual <= $fecha_limite_estreno 
+                ? $sesion->visualizar_puntaje_estreno 
+                : $sesion->visualizar_puntaje_normal;
+        } else {
+            // Array de puntajes normales y de estreno.
+            $puntajes_normales = [
+                $sesion->puntaje_video_1_normal ?? $sesion->visualizar_puntaje_normal,
+                $sesion->puntaje_video_2_normal ?? $sesion->visualizar_puntaje_normal,
+                $sesion->puntaje_video_3_normal ?? $sesion->visualizar_puntaje_normal,
+                $sesion->puntaje_video_4_normal ?? $sesion->visualizar_puntaje_normal,
+                $sesion->puntaje_video_5_normal ?? $sesion->visualizar_puntaje_normal,
+            ];
+        
+            $puntajes_estrenos = [
+                $sesion->puntaje_video_1_estreno ?? $sesion->visualizar_puntaje_estreno,
+                $sesion->puntaje_video_2_estreno ?? $sesion->visualizar_puntaje_estreno,
+                $sesion->puntaje_video_3_estreno ?? $sesion->visualizar_puntaje_estreno,
+                $sesion->puntaje_video_4_estreno ?? $sesion->visualizar_puntaje_estreno,
+                $sesion->puntaje_video_5_estreno ?? $sesion->visualizar_puntaje_estreno,
+            ];
+        
+            // Asigna el puntaje basado en el índice del video, con el valor por defecto si el índice no está en el rango.
+            if ($index_video >= 0 && $index_video < count($puntajes_normales)) {
+                $puntaje = $fecha_actual <= $fecha_limite_estreno 
+                    ? $puntajes_estrenos[$index_video] 
+                    : $puntajes_normales[$index_video];
+            } else {
+                // Valor por defecto si el índice no coincide con los puntajes disponibles.
+                $puntaje = $fecha_actual <= $fecha_limite_estreno 
+                    ? $sesion->visualizar_puntaje_estreno 
+                    : $sesion->visualizar_puntaje_normal;
             }
-        }else{
-            /*
-            $puntaje = $sesion->puntaje_video_1_normal;
-            if($fecha_actual<=$fecha_limite_estreno){
-                $puntaje = $sesion->puntaje_video_1_estreno;
-            }
-            */
-            $puntaje = $sesion->visualizar_puntaje_normal;
-            if($fecha_actual<=$fecha_limite_estreno){
-                $puntaje = $sesion->visualizar_puntaje_estreno;
-            }
-        }       
+        }
         
         $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
 
@@ -894,19 +913,114 @@ class SesionesController extends Controller
                 $visualizacion->id_distribuidor = $suscripcion->id_distribuidor;
             }
             
+            
             $visualizacion->id_sesion = $id_sesion;
             $visualizacion->puntaje = $puntaje;
             $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
-
+            switch ($index_video) {
+                case 0:
+                    $visualizacion->fecha_video_1 = date('Y-m-d H:i:s');
+                    $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                        ? $sesion->puntaje_video_1_estreno
+                        : $sesion->puntaje_video_1_normal;
+                    break;
+                case 1:
+                    $visualizacion->fecha_video_2 = date('Y-m-d H:i:s');
+                    $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                        ? $sesion->puntaje_video_2_estreno
+                        : $sesion->puntaje_video_2_normal;
+                    break;
+                case 2:
+                    $visualizacion->fecha_video_3 = date('Y-m-d H:i:s');
+                    $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                        ? $sesion->puntaje_video_3_estreno
+                        : $sesion->puntaje_video_3_normal;
+                    break;
+                case 3:
+                    $visualizacion->fecha_video_4 = date('Y-m-d H:i:s');
+                    $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                        ? $sesion->puntaje_video_4_estreno
+                        : $sesion->puntaje_video_4_normal;
+                    break;
+                case 4:
+                    $visualizacion->fecha_video_5 = date('Y-m-d H:i:s');
+                    $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                        ? $sesion->puntaje_video_5_estreno
+                        : $sesion->puntaje_video_5_normal;
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+            $visualizacion->puntaje = $puntaje;
             $visualizacion->save();
             return('Almacenado');
         }else{
-            if(!$visualizacion->fecha_ultimo_video){
-                $visualizacion->puntaje = $puntaje;
+            if(empty($visualizacion->fecha_ultimo_video)){
                 $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
+                switch ($index_video) {
+                    case 0:
+                        if (empty($visualizacion->fecha_video_1)) {
+                            $visualizacion->fecha_video_1 = date('Y-m-d H:i:s');
+                            $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                ? $sesion->puntaje_video_1_estreno
+                                : $sesion->puntaje_video_1_normal;
+                            $visualizacion->puntaje += $puntaje;
+                        }
+                        break;
+                    case 1:
+                        if (empty($visualizacion->fecha_video_2)) {
+                            $visualizacion->fecha_video_2 = date('Y-m-d H:i:s');
+                            $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                ? $sesion->puntaje_video_2_estreno
+                                : $sesion->puntaje_video_2_normal;
+                            $visualizacion->puntaje += $puntaje;
+                        }
+                        break;
+                    case 2:
+                        if (empty($visualizacion->fecha_video_3)) {
+                            $visualizacion->fecha_video_3 = date('Y-m-d H:i:s');
+                            $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                ? $sesion->puntaje_video_3_estreno
+                                : $sesion->puntaje_video_3_normal;
+                            $visualizacion->puntaje += $puntaje;
+                        }
+                        break;
+                    case 3:
+                        if (empty($visualizacion->fecha_video_4)) {
+                            $visualizacion->fecha_video_4 = date('Y-m-d H:i:s');
+                            $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                ? $sesion->puntaje_video_4_estreno
+                                : $sesion->puntaje_video_4_normal;
+                            $visualizacion->puntaje += $puntaje;
+                        }
+                        break;
+                    case 4:
+                        if (empty($visualizacion->fecha_video_5)) {
+                            $visualizacion->fecha_video_5 = date('Y-m-d H:i:s');
+                            $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                ? $sesion->puntaje_video_5_estreno
+                                : $sesion->puntaje_video_5_normal;
+                            $visualizacion->puntaje += $puntaje;
+                        }
+                        break;
+                    default:
+                        // Otras acciones si es necesario.
+                        return('Default sin puntaje');
+                        break;
+                }
 
-                $visualizacion->save();
-                return('Actualizado');
+                if ($visualizacion->save()) {
+                    // El guardado fue exitoso, retorna lo que desees.
+                    return('Almacenado');
+                } else {
+                    // El guardado falló, puedes retornar un error o manejarlo como prefieras.
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error al guardar la visualización.'
+                    ], 500); // Código de error 500 (Internal Server Error)
+                }
+                
             }else{
                 return('No almacenado '.$id_sesion.' - '.$id_usuario);
             }
@@ -925,6 +1039,8 @@ class SesionesController extends Controller
         $temporada = Temporada::find($sesion->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 
+        $fecha_publicacion = $sesion->fecha_publicacion;
+        $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
 
         $visualizacion = SesionVis::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
@@ -942,19 +1058,50 @@ class SesionesController extends Controller
             $visualizacion->id_sesion = $id_sesion;
             switch ($index_video) {
                 case 0:
-                    $visualizacion->fecha_video_1 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_1)) {
+                        $visualizacion->fecha_video_1 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_1_estreno
+                                    : $sesion->puntaje_video_1_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
+                    
                     break;
                 case 1:
-                    $visualizacion->fecha_video_2 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_2)) {
+                        $visualizacion->fecha_video_2 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_2_estreno
+                                    : $sesion->puntaje_video_2_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 2:
-                    $visualizacion->fecha_video_3 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_3)) {
+                        $visualizacion->fecha_video_3 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_3_estreno
+                                    : $sesion->puntaje_video_3_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 3:
-                    $visualizacion->fecha_video_4 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_4)) {
+                        $visualizacion->fecha_video_4 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_4_estreno
+                                    : $sesion->puntaje_video_4_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 4:
-                    $visualizacion->fecha_video_5 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_5)) {
+                        $visualizacion->fecha_video_5 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_5_estreno
+                                    : $sesion->puntaje_video_5_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 default:
                     # code...
@@ -966,19 +1113,50 @@ class SesionesController extends Controller
         }else{
             switch ($index_video) {
                 case 0:
-                    $visualizacion->fecha_video_1 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_1)) {
+                        $visualizacion->fecha_video_1 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_1_estreno
+                                    : $sesion->puntaje_video_1_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
+                    
                     break;
                 case 1:
-                    $visualizacion->fecha_video_2 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_2)) {
+                        $visualizacion->fecha_video_2 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_2_estreno
+                                    : $sesion->puntaje_video_2_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 2:
-                    $visualizacion->fecha_video_3 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_3)) {
+                        $visualizacion->fecha_video_3 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_3_estreno
+                                    : $sesion->puntaje_video_3_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 3:
-                    $visualizacion->fecha_video_4 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_4)) {
+                        $visualizacion->fecha_video_4 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_4_estreno
+                                    : $sesion->puntaje_video_4_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 case 4:
-                    $visualizacion->fecha_video_5 = $fecha_actual;
+                    if (empty($visualizacion->fecha_video_5)) {
+                        $visualizacion->fecha_video_5 = $fecha_actual;
+                        $puntaje =  $fecha_actual <= $fecha_limite_estreno
+                                    ? $sesion->puntaje_video_5_estreno
+                                    : $sesion->puntaje_video_5_normal;
+                        $visualizacion->puntaje += $puntaje;
+                    }
                     break;
                 default:
                     # code...
