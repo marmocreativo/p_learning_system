@@ -952,9 +952,18 @@ class SesionesController extends Controller
                     # code...
                     break;
             }
+            if(empty($puntaje)){
+                $puntaje = $fecha_actual <= $fecha_limite_estreno 
+                    ? $sesion->visualizar_puntaje_estreno 
+                    : $sesion->visualizar_puntaje_normal;
+            }
             $visualizacion->puntaje = $puntaje;
             $visualizacion->save();
-            return('Almacenado');
+            return response()->json([
+                'success' => true,
+                'message' => 'Almacenado',
+                'puntaje' => $visualizacion->puntaje
+            ]); // Código de error 500 (Internal Server Error)
         }else{
             if(empty($visualizacion->fecha_ultimo_video)){
                 $visualizacion->fecha_ultimo_video = date('Y-m-d H:i:s');
@@ -1012,7 +1021,11 @@ class SesionesController extends Controller
 
                 if ($visualizacion->save()) {
                     // El guardado fue exitoso, retorna lo que desees.
-                    return('Almacenado');
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Almacenado',
+                        'puntaje' => $visualizacion->puntaje
+                    ]); // Código de error 500 (Internal Server Error)
                 } else {
                     // El guardado falló, puedes retornar un error o manejarlo como prefieras.
                     return response()->json([
@@ -1109,7 +1122,11 @@ class SesionesController extends Controller
             }
 
             $visualizacion->save();
-            return('Avance Almacenado');
+            return response()->json([
+                'success' => true,
+                'message' => 'Avance Almacenado',
+                'puntaje' => $visualizacion->puntaje
+            ]); // Código de error 500 (Internal Server Error)
         }else{
             switch ($index_video) {
                 case 0:
@@ -1164,7 +1181,11 @@ class SesionesController extends Controller
             }
 
             $visualizacion->save();
-            return('Avance Almacenado');
+            return response()->json([
+                'success' => true,
+                'message' => 'Avance Almacenado',
+                'puntaje' => $visualizacion->puntaje
+            ]); // Código de error 500 (Internal Server Error)
         }
 
         

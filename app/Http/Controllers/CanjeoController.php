@@ -414,8 +414,7 @@ class CanjeoController extends Controller
 
         if(!$corte){
             $corte_anterior = CanjeoCortes::where('id_temporada', $id_temporada)
-                    ->where('fecha_inicio', '<=', $fecha_actual)
-                    ->where('fecha_final', '>=', $fecha_actual)
+                    ->where('fecha_final', '<=', $fecha_actual)
                     ->first();
             $datos_corte = null;
             $datos_corte_usuario = null;
