@@ -228,7 +228,7 @@ class TemporadasController extends Controller
     {
         $cuenta = Cuenta::find($request->id);
         $temporada = Temporada::find($cuenta->temporada_actual);
-        $unaSemanaAtras = Carbon::now()->subWeek();
+        $unaSemanaAtras = Carbon::now()->subDay();
         $region = $request->input('region');
         $distribuidor = $request->input('distribuidor');
 
@@ -471,6 +471,7 @@ class TemporadasController extends Controller
             ->where('region', $region)
             ->where('created_at', '>=', $unaSemanaAtras)
             ->first();
+        $fecha_corte = '';
         if(!$corte){
             $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
             $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
@@ -582,9 +583,11 @@ class TemporadasController extends Controller
                 return $b['puntaje'] <=> $a['puntaje'];
             });
 
+            $fecha_corte = date('d/m/Y');
             $completo = [
                 'puntajes_top' => $puntajes_top,
-                'usuarios' => $usuarios_filtrados
+                'usuarios' => $usuarios_filtrados,
+                'fecha_corte' => $fecha_corte
             ];
             return response()->json($completo);
         }else{
@@ -596,7 +599,8 @@ class TemporadasController extends Controller
             $ganadores_distribuidor = $lista['ganadores_distribuidor'];
             $completo = [
                 'puntajes_top' => $puntajes_top,
-                'usuarios' => $usuarios_filtrados
+                'usuarios' => $usuarios_filtrados,
+                'fecha_corte' => $corte->created_at
             ];
             return response()->json($completo);
         }
