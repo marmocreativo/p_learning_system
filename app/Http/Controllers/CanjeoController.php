@@ -216,11 +216,12 @@ class CanjeoController extends Controller
         $temporada = Temporada::find($id_temporada);
         $cortes = CanjeoCortes::where('id_temporada', $id_temporada)->get();
         $cortes_usuarios = CanjeoCortesUsuarios::where('id_temporada', $id_temporada)->get();
-        $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->get();
+        //$transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->get();
         $usuarios = User::all();
 
         foreach($cortes_usuarios as $cort_usuario){
             $corte = $cortes->firstWhere('id', $cort_usuario->id_corte);
+            $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->where('id_corte', $corte->id)->where('id_usuario', $cort_usuario->id_usuario)->get();
             $visualizaciones = SesionVis::where('id_usuario',$cort_usuario->id_usuario)
                             ->where('id_temporada',$cort_usuario->id_temporada)
                             ->where('fecha_ultimo_video', '>=', $corte->fecha_inicio)
@@ -257,6 +258,16 @@ class CanjeoController extends Controller
             }
                 */
             $cort_usuario->puntos_al_corte = $puntaje_corte;
+            if($transacciones){
+                $cort_usuario->transacciones = $transacciones;
+                foreach($transacciones as $transaccion){
+                    $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+                    $transaccion->productos = $productos;
+                }
+            }else{
+                $cort_usuario->transacciones = null;
+            }
+           
         }
 
         

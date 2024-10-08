@@ -17,7 +17,37 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-9">
+        <div class="col-12 mb-3">
+            <div class="card card-body bg-light">
+                <form action="{{ route('canjeo.cortes_guardar') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
+                    @csrf
+                    <h4>Crear nueva ventana</h4>
+                    <div class="d-flex justify-">
+                        <div class="flex-fill form-group mb-3 mx-3">
+                            <label for="Titulo">Título</label>
+                            <input type="text" class="form-control" name="Titulo">
+                        </div>
+                        <div class="flex-fill form-group mb-3 mx-3">
+                            <label>¿Contar puntos entre que fechas?</label>
+                            <input type="date" class="form-control w-100 mb-3" name="FechaInicio">
+                            <input type="date" class="form-control w-100 mb-3" name="FechaFinal">
+                        </div>
+                        <div class="flex-fill form-group mb-3 mx-3">
+                            <label>¿Permitir canje entre que fechas?</label>
+                            <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionInicio">
+                            <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionFinal">
+                        </div>
+                        <div class="flex-fill mx-3">
+                            <button type="submit" class="btn btn-primary w-100">Crear ventana</button>
+                        </div>
+                        
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+        <div class="col-12">
             @foreach ($cortes as $corte)
                 <div class="card mb-3">
                     <div class="card-header">
@@ -37,10 +67,8 @@
                                 <thead>
                                     <tr>
                                         <th>Usuario</th>
-                                        <th>Email</th>
-                                        <th>Créditos</th>
                                         <th>Pedidos</th>
-                                        <th>Fecha</th>
+                                        
                                         <th>Controles</th>
                                     </tr>
                                 </thead>
@@ -51,27 +79,65 @@
                                                 $usuario = $usuarios->firstWhere('id', $corte_usuario->id_usuario);
                                             @endphp
                                             <tr>
-                                                <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
-                                                <td>{{$usuario->email}}</td>
                                                 @php
                                                 $etiqueta = 'text-success';
                                                     if($corte_usuario->creditos!=$corte_usuario->puntos_al_corte){
                                                         $etiqueta = 'text-danger';
                                                     }
                                                 @endphp
-                                                <td><span class={{$etiqueta}}>{{$corte_usuario->creditos}}</span></td>
                                                 <td>
-                                                    @php
-                                                        $numero_transacciones = 0;
-                                                        foreach($transacciones as $transaccion){
-                                                            if($transaccion->id_corte == $corte->id && $transaccion->id_usuario == $corte_usuario->id_usuario){
-                                                                $numero_transacciones++;
-                                                            }
-                                                        }
-                                                        echo $numero_transacciones;
-                                                    @endphp
+                                                    <b>Nombre:</b>{{$usuario->nombre}} {{$usuario->apellidos}}<br>
+                                                    <b>Correo:</b>{{$usuario->email}}<br>
+                                                    <b>Creditos:</b><span class={{$etiqueta}}>{{$corte_usuario->creditos}}</span><br>
+                                                    <b>Fecha:</b>{{$usuario->fecha_corte}}<br>
                                                 </td>
-                                                <td>{{$corte_usuario->fecha_corte}}</td>
+                                                <td>
+                                                   <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Prod.</th>
+                                                                <th>Cred.</th>
+                                                                <th>Dir.</th>
+                                                                <th>Est.</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($corte_usuario->transacciones as $transaccion)
+                                                            <tr>
+                                                                <td>
+                                                                    @foreach ($transaccion->productos as $producto)
+                                                                        <p>{{$producto->nombre}}</p>
+                                                                    @endforeach
+                                                                </td>
+                                                                <td>{{$transaccion->creditos}}</td>
+                                                                @php
+                                                                    $direccion = $transaccion->direccion_calle.', '
+                                                                                    .$transaccion->direccion_numero.', '
+                                                                                    .$transaccion->direccion_numeroint.', '
+                                                                                    .$transaccion->direccion_colonia.', '
+                                                                                    .$transaccion->direccion_municipio.', '
+                                                                                    .$transaccion->direccion_ciudad.', '
+                                                                                    .$transaccion->direccion_codigo_postal;
+                                                                @endphp
+                                                                <td>
+                                                                    <p>{{$transaccion->direccion_nombre}}</p>
+                                                                    <p>{{$direccion}}</p>
+                                                                    <p>Tel: {{$transaccion->direccion_telefono}}</p>
+                                                                    <p>Horario: {{$transaccion->direccion_horario}}</p>
+                                                                    <p>Referencias: <div style="word-break: break-all; overflow-wrap: break-word;  white-space: normal;">{{$transaccion->direccion_referencia}}</div> </p>
+                                                                    <p>Notas: <div style="word-break: break-all; overflow-wrap: break-word;  white-space: normal;">{{$transaccion->direccion_notas}}</div> </p>
+                                                                </td>
+                                                                <td>
+                                                                    <p>Confirmado: {{$transaccion->confirmado}}</p>
+                                                                    <p>Enviado: {{$transaccion->enviado}}</p>
+                                                                </td>
+                                                            </tr>
+                                                            @endforeach
+                                                            
+                                                        </tbody>
+                                                   </table>
+                                                </td>
+                                                
                                                 <td>
                                                     <div class="row">
                                                         
@@ -80,11 +146,11 @@
                                                                 'id_temporada'=>$corte->id_temporada,
                                                                 'id_corte'=>$corte->id,
                                                                 'id_usuario'=>$corte_usuario->id_usuario,
-                                                                ])}}" class="btn btn-sm btn-secondary w-100">Ver pedidos</a>
+                                                                ])}}" class="btn btn-sm btn-secondary w-100"> <i class="fa fa-list"></i> </a>
                                                         </div>
                                                         <div class="col">
                                                             <button type="button" class="btn btn-sm btn-warning w-100" data-bs-toggle="modal" data-bs-target="#editarCorte{{$corte_usuario->id}}">
-                                                                Editar créditos
+                                                                <i class="fa fa-pencil"></i>
                                                             </button>
                                                         </div>
                                                         <div class="col">
@@ -92,7 +158,7 @@
                                                                 @csrf
                                                                 @method('delete')
                                                                 <input type="hidden" name="IdTemporada" value="{{$corte_usuario->id_temporada}}">
-                                                                <button type="submit" class="btn btn-sm btn-danger w-100">Borrar corte del usuario</button>
+                                                                <button type="submit" class="btn btn-sm btn-danger w-100"><i class="fa fa-trash"></i></button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -139,30 +205,7 @@
                 </div>
             @endforeach
         </div>
-        <div class="col-3">
-            <div class="card card-body bg-light">
-                <form action="{{ route('canjeo.cortes_guardar') }}" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
-                    @csrf
-                    <h4>Crear nueva ventana</h4>
-                    <div class="form-group mb-3">
-                        <label for="Titulo">Título</label>
-                        <input type="text" class="form-control" name="Titulo">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label>¿Contar puntos entre que fechas?</label>
-                        <input type="date" class="form-control w-100 mb-3" name="FechaInicio">
-                        <input type="date" class="form-control w-100 mb-3" name="FechaFinal">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label>¿Permitir canje entre que fechas?</label>
-                        <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionInicio">
-                        <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionFinal">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Crear ventana</button>
-                </form>
-            </div>
-        </div>
+        
     </div>
     
 @endsection
