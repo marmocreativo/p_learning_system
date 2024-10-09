@@ -182,7 +182,8 @@ class SesionesController extends Controller
     {
         //
         $temporada = Temporada::find($request->input('id_temporada'));
-        return view('admin/sesion_form');
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        return view('admin/sesion_form', compact('temporada', 'cuenta'));
     }
 
     /**

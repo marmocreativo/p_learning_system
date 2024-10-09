@@ -5,8 +5,8 @@
 @section('contenido_principal')
     <h1>Formulario de sesiones</h1>
     <form action="{{ route('sesiones.store') }}" method="POST">
-        <input type="hidden" name="IdCuenta" value="1">
-        <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
+        <input type="hidden" name="IdCuenta" value="{{$cuenta->id}}">
+        <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
         @csrf
         <div class="row">
             <div class="col-8">
