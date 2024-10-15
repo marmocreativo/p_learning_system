@@ -51,20 +51,33 @@ class CorteUsuariosExport implements FromCollection, WithHeadings
         
         $cortes_usuarios = CanjeoCortesUsuarios::where('id_corte', $this->request->input('id_corte'))->get();
         $transacciones = CanjeoTransacciones::where('id_corte', $this->request->input('id_corte'))->get();
-        foreach($cortes_usuarios as $corte){
-            $numero_transacciones = 0;
-            $usuario = User::find($corte->id_usuario);
-            foreach($transacciones as $transaccion){
-                if($transaccion->id_corte == $corte->id_corte && $transaccion->id_usuario == $corte->id_usuario){
-                    $numero_transacciones++;
-                }
+        foreach($transacciones as $transaccion){
+            $usuario = User::find($transaccion->id_usuario);
+            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+            $productos_pedido = '';
+            foreach($productos as $producto){
+                $productos_pedido = $producto->nombre.' ('.$producto->variacion.') X '.$producto->cantidad.'<br>';
             }
+            $direccion = $transaccion->direccion_calle
+                        .' No.'.$transaccion->direccion_numero
+                        .' No. Int.'.$transaccion->direccion_numeroint
+                        .' Col.'.$transaccion->direccion_colonia
+                        .' Munic.'.$transaccion->direccion_municipio
+                        .' Ciud.'.$transaccion->direccion_ciudad
+                        .' CP.'.$transaccion->direccion_codigo_postal;
+                        
             $coleccion[] = [
+                $transaccion->id,
                 $usuario->nombre.' '.$usuario->apellidos,
                 $usuario->email,
-                (string) $corte->creditos,
-                (string) $numero_transacciones,
-                $corte->fecha_corte
+                $productos_pedido,
+                $transaccion->direccion_nombre,
+                $transaccion->direccion_telefono,
+                $direccion,
+                $transaccion->direccion_referencias,
+                $transaccion->direccion_horario,
+                $transaccion->direccion_notas,
+                $transaccion->fecha_registro
             ];
         }
 
@@ -74,10 +87,16 @@ class CorteUsuariosExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Folio',
             'Nombre',
             'Email',
-            'Creditos',
-            'Pedidos',
+            'Pedido',
+            'Recibe',
+            'Telefono',
+            'Dirección',
+            'Referencias',
+            'Horarios',
+            'Notas',
             'Fecha'
         ];
     }
