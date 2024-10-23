@@ -45,52 +45,96 @@ class CorteUsuariosExport implements FromCollection, WithHeadings
         $this->request = $request;
     }
     public function collection()
-    {
-        
-        $coleccion = null;
-        
-        $cortes_usuarios = CanjeoCortesUsuarios::where('id_corte', $this->request->input('id_corte'))->get();
-        $transacciones = CanjeoTransacciones::where('id_corte', $this->request->input('id_corte'))->get();
-        foreach($transacciones as $transaccion){
-            $usuario = User::find($transaccion->id_usuario);
-            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
-            $productos_pedido = '';
-            foreach($productos as $producto){
-                $productos_pedido = $producto->nombre.' ('.$producto->variacion.') X '.$producto->cantidad.'<br>';
-            }
-            $direccion = $transaccion->direccion_calle
-                        .' No.'.$transaccion->direccion_numero
-                        .' No. Int.'.$transaccion->direccion_numeroint
-                        .' Col.'.$transaccion->direccion_colonia
-                        .' Munic.'.$transaccion->direccion_municipio
-                        .' Ciud.'.$transaccion->direccion_ciudad
-                        .' CP.'.$transaccion->direccion_codigo_postal;
-                        
-            $coleccion[] = [
-                $transaccion->id,
-                $usuario->nombre.' '.$usuario->apellidos,
-                $usuario->email,
-                $productos_pedido,
-                $transaccion->direccion_nombre,
-                $transaccion->direccion_telefono,
-                $direccion,
-                $transaccion->direccion_referencias,
-                $transaccion->direccion_horario,
-                $transaccion->direccion_notas,
-                $transaccion->fecha_registro
-            ];
+{
+    $coleccion = [];
+
+    $cortes_usuarios = CanjeoCortesUsuarios::where('id_corte', $this->request->input('id_corte'))->get();
+    $transacciones = CanjeoTransacciones::where('id_corte', $this->request->input('id_corte'))->get();
+    
+    foreach($transacciones as $transaccion){
+        $usuario = User::find($transaccion->id_usuario);
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $transaccion->id_temporada)
+                                            ->where('id_usuario', $transaccion->id_usuario)->first();
+        if($suscripcion){
+            $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+            $distribuidor_nombre = $distribuidor->nombre;
+            $region = $distribuidor->region;
+        }else{
+            $distribuidor_nombre = 'N/A';
+            $region = 'N/A';
         }
 
-        return collect($coleccion);
-            
+        $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
+
+        // Inicializa los arrays para productos, variaciones y cantidades
+        $producto = ['','',''];
+        $variacion = ['','',''];
+        $cantidad = ['','',''];
+        
+        // Cambia el nombre de la variable dentro del foreach para evitar el conflicto
+        $index = 0;
+        foreach($productos as $prod){  // Cambié $producto por $prod aquí
+            if ($index < 3) {  // Para asegurarte de que no exceda el tamaño del array predefinido
+                $producto[$index] = $prod->nombre;
+                $variacion[$index] = $prod->variacion;
+                $cantidad[$index] = $prod->cantidad;
+                $index++;
+            }
+        }
+
+        $direccion = $transaccion->direccion_calle
+                    .' No.'.$transaccion->direccion_numero
+                    .' No. Int.'.$transaccion->direccion_numeroint
+                    .' Col.'.$transaccion->direccion_colonia
+                    .' Munic.'.$transaccion->direccion_municipio
+                    .' Ciud.'.$transaccion->direccion_ciudad
+                    .' CP.'.$transaccion->direccion_codigo_postal;
+                    
+        $coleccion[] = [
+            $transaccion->id,
+            $usuario->nombre.' '.$usuario->apellidos,
+            $usuario->email,
+            $distribuidor_nombre,
+            $region,
+            $producto[0], // Primer producto
+            $variacion[0],
+            $cantidad[0],
+            $producto[1], // Segundo producto (si existe)
+            $variacion[1],
+            $cantidad[1],
+            $producto[2], // Tercer producto (si existe)
+            $variacion[2],
+            $cantidad[2],
+            $transaccion->direccion_nombre,
+            $transaccion->direccion_telefono,
+            $direccion,
+            $transaccion->direccion_referencias,
+            $transaccion->direccion_horario,
+            $transaccion->direccion_notas,
+            $transaccion->fecha_registro
+        ];
     }
+
+    return collect($coleccion);
+}
+
     public function headings(): array
     {
         return [
             'Folio',
             'Nombre',
             'Email',
-            'Pedido',
+            'Distribuidor',
+            'Region',
+            'Producto 1',
+            'Variacion 1',
+            'Cantidad 1',
+            'Producto 2',
+            'Variacion 2',
+            'Cantidad 2',
+            'Producto 3',
+            'Variacion 3',
+            'Cantidad 3',
             'Recibe',
             'Telefono',
             'Dirección',

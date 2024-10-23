@@ -199,8 +199,7 @@
 <div class="mktoText">
   <p>
 
-    Tomaremos la direccón que nos diste y lo haremos llegar lo más propto posible. Recuerda que nuestros envíos toman de 9 a 11 días hábiles, debido a los procesos de empaquetado y mensajería. Si embargo, por la temporada podrian tarar un poco más.
-
+    Tomaremos la dirección que nos diste y lo haremos llegar lo más pronto posible. Recuerda que nuestros envíos toman de 9 a 11 días hábiles, debido a los procesos de empaquetado y mensajería. Sin embargo, por la temporada podrían tardar un poco más.
     </p>
   
 </div> </td> 
@@ -221,16 +220,19 @@
         <thead>
           <tr>
             <th><strong>Producto</strong></th>
-            <th><strong>Créditos canejados</strong></th>
+            <th><strong>Créditos canjeados</strong></th>
           </tr>
         </thead>
         <tbody>
+          @foreach ($data['productos'] as $producto)
           <tr style="background-color: #d1d2d4;">
-            <td style="padding: 0px 10px; font-family: sans-serif; font-size: 14px; color: #000;">
-              Prouctos</td>
-            <td style="padding: 0px 10px; font-family: sans-serif; font-size: 14px; color: #333333;">credito</td>
-          </tr>
-        </tbody>
+              <td style="padding: 0px 10px; font-family: sans-serif; font-size: 14px; color: #000;">
+                {{$producto->nombre}} ({{$producto->variacion}})</td>
+              <td style="padding: 0px 10px; font-family: sans-serif; font-size: 14px; color: #333333;">{{$producto->creditos_totales}}</td>
+            </tr>
+          @endforeach
+        
+      </tbody>
       </table>
   
      
@@ -249,7 +251,7 @@
   <td style="padding: 0px 40px; text-align: center; font-family: sans-serif; font-size: 14px; line-height: 22px; color: #333333;"> 
   <div class="mktoText">
       <p>
-        Si recibiste este correo por error o necesitas comunicarte con nostros, contáctanos.
+        Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.
       </p>
   
       <p><strong>Atte. Equipo PLearning</strong></p>

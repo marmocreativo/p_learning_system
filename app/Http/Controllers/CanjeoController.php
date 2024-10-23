@@ -406,107 +406,150 @@ class CanjeoController extends Controller
         $id_temporada =  $cuenta->temporada_actual;
         $id_usuario =  $request->input('id_usuario');
         $usuario = User::find($id_usuario);
-        $prueba =  $request->input('prueba');
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        $distribuidor_nombre = $distribuidor->nombre;
+        //$prueba =  $request->input('prueba');
+        $prueba = 'no';
 
-        // consulta
+        // consulta productos
         $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
 
+        // Si está activa la prueba
         if($prueba=='si'){
-            $corte = CanjeoCortes::where('id_temporada', $id_temporada)
-                    ->where('prueba', 'si')
+            // Solo obtengo el corte si es un usuario de Rocky o Panduit
+            if($distribuidor_nombre == 'Rocky' || $distribuidor_nombre == 'Panduit'|| $distribuidor_nombre == 'Rocky Creativo'){
+                $corte = CanjeoCortes::where('id_temporada', $id_temporada)
+                    ->where('fecha_publicacion_inicio', '<=', $fecha_actual)
+                    ->where('fecha_publicacion_final', '>', $fecha_actual)
                     ->first();
+            }
+            
         }else{
+            // Busco el corte sin importar el distribuidor
             $corte = CanjeoCortes::where('id_temporada', $id_temporada)
                     ->where('fecha_publicacion_inicio', '<=', $fecha_actual)
                     ->where('fecha_publicacion_final', '>', $fecha_actual)
                     ->first();
         }
         
-
+        // Si no hay corte
         if(!$corte){
+            // Reviso el corte anterior
             $corte_anterior = CanjeoCortes::where('id_temporada', $id_temporada)
                     ->where('fecha_final', '<=', $fecha_actual)
                     ->first();
             $datos_corte = null;
             $datos_corte_usuario = null;
-            $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
+
+            // Obtengo los puntos de visualización
+                $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_ultimo_video', '>=', $corte_anterior->fecha_inicio)
                             ->where('fecha_ultimo_video', '<=', $corte_anterior->fecha_final)
                             ->pluck('puntaje')->sum();
+            // Obtengo los puntos de evaluación
                 $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                             ->pluck('puntaje')->sum();
+            // Obtengo los puntos de trivia
                 $trivia = TriviaRes::where('id_usuario',$id_usuario)
                     ->where('id_temporada',$id_temporada)
                     ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
                     ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                     ->pluck('puntaje')->sum();
+            // Obtengo los puntos de jackpot
                 $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                             ->pluck('puntaje')->sum();
+            // Obtengo los puntos extra
                 $extra = PuntosExtra::where('id_usuario',$id_usuario)
                     ->where('id_temporada',$id_temporada)
                     ->where('fecha_registro', '>=', $corte_anterior->fecha_inicio)
                     ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                     ->pluck('puntos')->sum();
+            // Hago la suma total
                 $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             $creditos_total = 0;
             $creditos_consumidos = 0;
         }else{
+            // Si hay corte hago lo siguiente
+            // Vacio los datos en la variable datos_corte
             $datos_corte=$corte;
+            // Busco el corte del usuario
             $corte_usuario = CanjeoCortesUsuarios::where('id_corte', $corte->id)
             ->where('id_usuario', $id_usuario)
             ->first();
+
+            // Si no hay corte del usuario lo genero
             if(!$corte_usuario){
+
+                // Creo el nuevo corte del usuario
                 $corte_usuario = new CanjeoCortesUsuarios();
                 $corte_usuario->id_corte = $corte->id;
                 $corte_usuario->id_temporada = $id_temporada;
                 $corte_usuario->id_usuario = $id_usuario;
-                // Calculo el puntaje
+                // Calculo el puntaje de visualizaciones
                 $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_ultimo_video', '>=', $corte->fecha_inicio)
                             ->where('fecha_ultimo_video', '<=', $corte->fecha_final)
                             ->pluck('puntaje')->sum();
+                // Calculo el puntaje de Evaluaciones
                 $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_registro', '>=', $corte->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte->fecha_final)
                             ->pluck('puntaje')->sum();
+                // Calculo el puntaje de Trivias
                 $trivia = TriviaRes::where('id_usuario',$id_usuario)
                     ->where('id_temporada',$id_temporada)
                     ->where('fecha_registro', '>=', $corte->fecha_inicio)
                     ->where('fecha_registro', '<=', $corte->fecha_final)
                     ->pluck('puntaje')->sum();
+                // Calculo el puntaje de Jackpots
                 $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_registro', '>=', $corte->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte->fecha_final)
                             ->pluck('puntaje')->sum();
+                // Calculo el puntaje de Extras
                 $extra = PuntosExtra::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_registro', '>=', $corte->fecha_inicio)
                             ->where('fecha_registro', '<=', $corte->fecha_final)
                             ->pluck('puntos')->sum();
+                // Hago la suma
                 $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
+                // Vacio los datos en el puntaje total y creditos
                 $corte_usuario->puntaje = $puntaje_total;
                 $corte_usuario->creditos = $puntaje_total;
                 $corte_usuario->fecha_corte = date('Y-m-d');
+                // Guardo el corte del usuario
                 $corte_usuario->save();
+                // Vacio los puntos en las variables para enviar
                 $creditos_total = $puntaje_total;
-                $creditos_consumidos = 0;
+                $canjeo_transacciones = CanjeoTransacciones::where('id_usuario',$id_usuario)
+                                                            ->where('id_temporada',$id_temporada)
+                                                            ->pluck('creditos')->sum();
+                if(!$canjeo_transacciones){
+                    $creditos_consumidos = 0;
+                }else{
+                    $creditos_consumidos = $canjeo_transacciones;
+                }
+                // Vacio los datos del corte del usuario en la variablede datos
                 $datos_corte_usuario = $corte_usuario;
             }else{
+                // Vacio los datos del corte del usuario en la variable de datos
                 $datos_corte_usuario = $corte_usuario;
                 $puntaje_total = $corte_usuario->puntaje;
                 $creditos_total = $corte_usuario->creditos;
                 $canjeo_transacciones = CanjeoTransacciones::where('id_usuario',$id_usuario)
-                                                            ->where('id_corte',$corte->id)
+                                                            ->where('id_temporada',$id_temporada)
                                                             ->pluck('creditos')->sum();
                 if(!$canjeo_transacciones){
                     $creditos_consumidos = 0;
