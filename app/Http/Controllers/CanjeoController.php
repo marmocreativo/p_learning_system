@@ -250,13 +250,13 @@ class CanjeoController extends Controller
                 $puntaje_corte = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             
             // Descomentar si se requiere verificar el corte de puntos
-            /*
+            
             if($cort_usuario->puntaje != $puntaje_corte){
                 $cort_usuario->puntaje = $puntaje_corte;
                 $cort_usuario->creditos = $puntaje_corte;
                 $cort_usuario->save();
             }
-                */
+                
             $cort_usuario->puntos_al_corte = $puntaje_corte;
             if($transacciones){
                 $cort_usuario->transacciones = $transacciones;

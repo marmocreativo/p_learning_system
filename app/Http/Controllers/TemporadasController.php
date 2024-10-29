@@ -374,6 +374,12 @@ class TemporadasController extends Controller
         }
     }
 
+    public function top_10_borrar_corte(Request $request)
+    {
+        DB::table('top_10_cortes')->truncate();
+        return redirect()->route('top_10_region', ['id'=>$request->id, 'region'=>$request->region]);
+    }
+
 
     public function actualizar_premio_top_10(Request $request){
         $suscripcion = UsuariosSuscripciones::find($request->input('id_suscripcion'));

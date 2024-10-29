@@ -275,8 +275,19 @@ class JackpotsController extends Controller
         }
 
         $usuario = User::find($request->input('id_usuario'));
-            $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id_usuario'))->where('id_temporada', $id_temporada )->first();
-            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $request->input('id_usuario'))->where('id_temporada', $id_temporada )->first();
+        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+
+        /*
+        if(($request->input('id_temporada')=='9'&&$request->input('id_usuario')!='1197')||$request->input('id_usuario')=='1'){
+            $jackpot = null;
+            $preguntas = null;
+            $respuestas = null;
+            $intentos = null;
+            $suscripcion = null;
+            $distribuidor = null;
+        }
+            */
         
         
         $completo = [

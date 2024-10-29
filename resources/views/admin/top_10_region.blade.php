@@ -5,7 +5,7 @@
 @section('contenido_principal')
     <h1>Top 10 Región: <small>{{$_GET['region']}}</small></h1>
     <div class="row mb-3">
-        <div class="col-12">
+        <div class="col-9">
             <form action="{{ route('top_10_region') }}" method="GET" class="d-flex">
                 <input type="hidden" name="id" value="{{$temporada->id_cuenta}}">
                 @csrf
@@ -23,6 +23,9 @@
                 
 
             </form>
+        </div>
+        <div class="col-3">
+            <a href="{{route('top_10_borrar_corte', ['id' => request()->get('id'), 'region' => request()->get('region')])}}" class="btn btn-danger ms-auto">Borrar corte</a>
         </div>
     </div>
     <div class="row">
