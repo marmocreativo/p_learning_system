@@ -210,6 +210,7 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 // Rutas CRUD para las'canjeo'
 Route::get('admin/canjeo/cortes', [CanjeoController::class, 'cortes'])->middleware('auth')->name('canjeo.cortes');
 Route::get('admin/canjeo/exportar_corte', [CanjeoController::class, 'exportar_corte'])->middleware('auth')->name('canjeo.exportar_corte');
+Route::get('admin/canjeo/checar_mail_canje', [CanjeoController::class, 'checar_mail_canje'])->middleware('auth')->name('canjeo.checar_mail_canje');
 Route::post('admin/canjeo/cortes/guardar', [CanjeoController::class, 'cortes_guardar'])->middleware('auth')->name('canjeo.cortes_guardar');
 Route::put('admin/canjeo/cortes/actualizar/{post}', [CanjeoController::class, 'cortes_actualizar'])->middleware('auth')->name('canjeo.cortes_actualizar');
 Route::put('admin/canjeo/cortes_usuario/actualizar/{post}', [CanjeoController::class, 'cortes_usuario_actualizar'])->middleware('auth')->name('canjeo.cortes_usuario_actualizar');

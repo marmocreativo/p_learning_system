@@ -333,10 +333,12 @@ class LoginController extends Controller
             $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
             if($id_cuenta==1){
                 $data = [
+                    'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PLe.jpg',
                     'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
                 ];
             }else{
                 $data = [
+                    'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PL.jpg',
                     'boton_enlace' => 'https://p-learning.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
                 ];
             }

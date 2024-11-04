@@ -111,7 +111,6 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="mt-3">Total: 5</h5>
                 
             </div>
             <div class="col-4">
@@ -132,12 +131,12 @@
                     <input type="number" step="1" min="0" class="form-control" name="LimiteUsuario" value="{{$producto->limite_usuario}}">
                     <p>Dejar en 0 para ilimitado</p>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                <button type="submit" class="btn btn-primary w-100">Guardar producto</button>
             </div>
             </form>
             
         </div>
-        <div class="row mt-4">
+        <div class="row border-top mt-4 pt-4">
             <div class="col-3">
                 <form class="col-4" action="{{ route('canjeo.productos_galeria_guardar') }}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="IdProducto" value="{{$producto->id}}">
@@ -151,7 +150,7 @@
                             <input type="file" class="form-control" name="Imagen" >
                         </div>
                         <hr>
-                        <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                        <button type="submit" class="btn btn-success w-100">Agregar a galería</button>
                     </div>
                 </form>
             </div>

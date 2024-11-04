@@ -166,7 +166,7 @@
 <tbody> 
 <tr> 
 <td align="center"> 
-<div class="mktoImg" mktolockimgsize="true" mktolockimgstyle="true"> <a target="new"><img class="img-full mob-align-default img-full mob-align-default" src="https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PLe.jpg" style="display:block; width:100% !important; max-width:600px;" width="600" border="0"></a> 
+<div class="mktoImg" mktolockimgsize="true" mktolockimgstyle="true"> <a target="new"><img class="img-full mob-align-default img-full mob-align-default" src="{{ $data['banner'] }}" style="display:block; width:100% !important; max-width:600px;" width="600" border="0"></a> 
 </div> </td> 
 </tr> 
 </tbody> 

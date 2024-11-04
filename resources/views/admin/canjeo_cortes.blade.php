@@ -106,7 +106,7 @@
                                                             <tr>
                                                                 <td>
                                                                     @foreach ($transaccion->productos as $producto)
-                                                                        <p>{{$producto->nombre}}</p>
+                                                                        <p>{{$producto->nombre}} (Cant: {{$producto->cantidad}})</p>
                                                                     @endforeach
                                                                 </td>
                                                                 <td>{{$transaccion->creditos}}</td>

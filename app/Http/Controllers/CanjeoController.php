@@ -250,12 +250,13 @@ class CanjeoController extends Controller
                 $puntaje_corte = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             
             // Descomentar si se requiere verificar el corte de puntos
-            
+            /*
             if($cort_usuario->puntaje != $puntaje_corte){
                 $cort_usuario->puntaje = $puntaje_corte;
                 $cort_usuario->creditos = $puntaje_corte;
                 $cort_usuario->save();
             }
+                */
                 
             $cort_usuario->puntos_al_corte = $puntaje_corte;
             if($transacciones){
@@ -723,6 +724,32 @@ class CanjeoController extends Controller
             DB::rollBack(); // Revertir la transacción en caso de error
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
+    }
+
+    public function checar_mail_canje(Request $request)
+    {
+
+        $transaccion_productos = CanjeoTransaccionesProductos::where('id_transacciones', '89')->get();
+        $url_admin = '#';
+        // Datos a pasar a la vista de email
+        $data_admin = [
+            'titulo' => 'PRUEBA IGNORAR - Un nuevo canje ha llegado',
+            'productos' => $transaccion_productos,
+            'boton_texto' => 'Detalle de los productos',
+            'boton_enlace' => $url_admin
+        ];
+
+        $data = [
+            'titulo' => 'PRUEBA IGNORAR -  ¡El premio que seleccionaste ya está en camino!',
+            'productos' => $transaccion_productos,
+
+        ];
+
+        // Enviar el correo
+
+        Mail::to('pl-electrico@panduitlatam.com')->send(new ConfirmacionCanje($data_admin));
+        //Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanje($data_admin));
+        Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanjeUsuario($data));
     }
 
     public function canje_checkout_confirmar_api(Request $request)
