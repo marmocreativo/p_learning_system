@@ -29,7 +29,7 @@ class InscripcionChampions extends Mailable
      */
     public function build()
     {
-        return $this->view('mails.mi_correo')
+        return $this->view('mails.acceso_champions')
                     ->with('data', $this->data)
                     ->subject('Bienvenido Champion');
     }

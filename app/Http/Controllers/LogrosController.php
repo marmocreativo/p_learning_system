@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Mail\ConfirmacionNivelChampions;
 use App\Mail\FinalizacionChampions;
+use App\Mail\DesafioChampions;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -285,25 +286,29 @@ class LogrosController extends Controller
     {
         //
         $participacion = LogroParticipacion::find($id);
-        
+        $logro = Logro::find($participacion->id_logro);
+        $nivel_email = '';
         switch ($request->ConfirmacionNivel) {
             case 'a':
                 $participacion->confirmacion_nivel_a = 'si';
                 $participacion->confirmacion_nivel_b = 'no';
                 $participacion->confirmacion_nivel_c = 'no';
                 $participacion->confirmacion_nivel_especial = 'no';
+                $nivel_email = 'A';
                 break;
             case 'b':
                 $participacion->confirmacion_nivel_a = 'si';
                 $participacion->confirmacion_nivel_b = 'si';
                 $participacion->confirmacion_nivel_c = 'no';
                 $participacion->confirmacion_nivel_especial = 'no';
+                $nivel_email = 'B';
                 break;
             case 'c':
                 $participacion->confirmacion_nivel_a = 'si';
                 $participacion->confirmacion_nivel_b = 'si';
                 $participacion->confirmacion_nivel_c = 'si';
                 $participacion->confirmacion_nivel_especial = 'no';
+                $nivel_email = 'C';
                 break;
 
             case 'especial':
@@ -311,6 +316,7 @@ class LogrosController extends Controller
                 $participacion->confirmacion_nivel_b = 'si';
                 $participacion->confirmacion_nivel_c = 'si';
                 $participacion->confirmacion_nivel_especial = 'si';
+                $nivel_email = 'Especial';
                 break;
             
             default:
@@ -329,63 +335,13 @@ class LogrosController extends Controller
             ];
             Mail::to($request->UsuarioEmail)->send(new FinalizacionChampions($data));
         }else{
-            if($participacion->confirmacion_nivel_especial=='si'){
-                $data = [
-                    'titulo' => '¡Has subido de nivel',
-                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
-                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel Especial. ¡Continúa participando hasta desbloquear todos los bonos!
-                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
-                    
-                    
-                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-    
-            }elseif($participacion->confirmacion_nivel_c=='si'){
-                $data = [
-                    'titulo' => '¡Has subido de nivel',
-                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
-                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel C. ¡Continúa participando hasta desbloquear todos los bonos!
-                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
-                    
-                    
-                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-    
-            }elseif($participacion->confirmacion_nivel_b=='si'){
-                $data = [
-                    'titulo' => '¡Has subido de nivel',
-                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
-                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel B. ¡Continúa participando hasta desbloquear todos los bonos!
-                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
-                    
-                    
-                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-    
-            }elseif($participacion->confirmacion_nivel_a=='si'){
-                $data = [
-                    'titulo' => '¡Has subido de nivel',
-                    'contenido' => '<p>"¡Felicidades! Un árbitro del Desafío PLearning ha validado tus órdenes de compra y 
-                    facturas, y ha declarado que cumpliste con los requisitos para completar el nivel A. ¡Continúa participando hasta desbloquear todos los bonos!
-                    Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos."</p>
-                    
-                    
-                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-                
-            }
+            $data = [
+                'desafio' => $logro->nombre,
+                'nivel' => $nivel_email,
+                'estado' => $logro->estado,
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+            ];
+            Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
         }
 
  
@@ -500,6 +456,7 @@ class LogrosController extends Controller
         $cuenta = Cuenta::find($id_cuenta);
         $id_temporada = $cuenta->temporada_actual;
         $id_usuario = $request->input('id_usuario');
+        $usuario = User::find($id_usuario);
         $id_logro = $request->input('id_logro');
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
         $id_distribuidor = $suscripcion->id_distribuidor;
@@ -514,6 +471,8 @@ class LogrosController extends Controller
         $participacion->fecha_registro = date('Y-m-d H:i:s');
 
         $participacion->save();
+
+        Mail::to($usuario->email)->send(new DesafioChampions($data));
 
         return 'guardado';
     }

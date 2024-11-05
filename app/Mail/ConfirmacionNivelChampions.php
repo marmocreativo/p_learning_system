@@ -29,7 +29,7 @@ class ConfirmacionNivelChampions extends Mailable
      */
     public function build()
     {
-        return $this->view('mails.mi_correo')
+        return $this->view('mails.nivel_champions_completado')
                     ->with('data', $this->data)
                     ->subject('¡Subiste de Nivel en tu Desafío Champions!');
     }

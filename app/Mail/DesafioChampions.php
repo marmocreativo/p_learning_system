@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class FinalizacionChampions extends Mailable
+class DesafioChampions extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -29,8 +29,8 @@ class FinalizacionChampions extends Mailable
      */
     public function build()
     {
-        return $this->view('mails.finalizacion_champions')
+        return $this->view('mails.desafio_champions')
                     ->with('data', $this->data)
-                    ->subject('¡Increíble! ¡Has completado todos los desafíos!');
+                    ->subject('Bienvenido Champion');
     }
 }
