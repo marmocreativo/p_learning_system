@@ -771,6 +771,7 @@ class SesionesController extends Controller
             'anexos' => $anexos,
             'sesiones_pendientes' => $pendientes,
             'mostrar_puntajes' => $mostrarPuntajes,
+            'temporada' => $temporada_sesion,
         ];
 
          return response()->json($completo);
@@ -856,9 +857,12 @@ class SesionesController extends Controller
         $temporada = Temporada::find($sesion->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 
+        $fecha_final_temporada = $temporada->fecha_final;
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
+
+        
 
         $video_unico = !empty($sesion->video_1) &&
                empty($sesion->video_2) &&
@@ -959,6 +963,10 @@ class SesionesController extends Controller
                     : $sesion->visualizar_puntaje_normal;
             }
             $visualizacion->puntaje = $puntaje;
+            // Valido que la fecha de la temporada se cumpla
+            if($fecha_final_temporada < $fecha_actual){
+                $visualizacion->puntaje = 0;
+            }
             $visualizacion->save();
             return response()->json([
                 'success' => true,
@@ -1019,6 +1027,10 @@ class SesionesController extends Controller
                         return('Default sin puntaje');
                         break;
                 }
+                // Valido que la fecha de la temporada se cumpla
+                if($fecha_final_temporada < $fecha_actual){
+                    $visualizacion->puntaje = 0;
+                }
 
                 if ($visualizacion->save()) {
                     // El guardado fue exitoso, retorna lo que desees.
@@ -1053,6 +1065,7 @@ class SesionesController extends Controller
         $temporada = Temporada::find($sesion->id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
 
+        $fecha_final_temporada = $temporada->fecha_final;
         $fecha_publicacion = $sesion->fecha_publicacion;
         $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
         $fecha_actual = date('Y-m-d H:i:s');
@@ -1122,6 +1135,11 @@ class SesionesController extends Controller
                     break;
             }
 
+            // Valido que la fecha de la temporada se cumpla
+            if($fecha_final_temporada < $fecha_actual){
+                $visualizacion->puntaje = 0;
+            }
+
             $visualizacion->save();
             return response()->json([
                 'success' => true,
@@ -1181,6 +1199,12 @@ class SesionesController extends Controller
                     break;
             }
 
+            // Valido que la fecha de la temporada se cumpla
+            if($fecha_final_temporada < $fecha_actual){
+                $visualizacion->puntaje = 0;
+            }
+
+            
             $visualizacion->save();
             return response()->json([
                 'success' => true,

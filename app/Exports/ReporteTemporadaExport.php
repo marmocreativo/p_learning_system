@@ -22,6 +22,7 @@ use App\Models\Jackpot;
 use App\Models\PuntosExtra;
 use App\Models\Cuenta;
 use App\Models\Tokens;
+use App\Models\AccionesUsuarios;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -167,6 +168,19 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
 
             $coleccion[$index]['puntos_extra'] = (string) $total_puntos_extra;
             $coleccion[$index]['total'] = (string) $puntaje_total;
+            if($puntaje_total>0){
+                $coleccion[$index]['activo'] = (string) 'Si';
+            }else{
+                $acciones_login = AccionesUsuarios::where('id_usuario', $usuario->id_usuario)->where('accion', 'login')->first();
+                $tokens = Tokens::where('tokenable_id', $usuario->id_usuario)->first();
+
+                if($acciones_login || $tokens){
+                    $coleccion[$index]['activo'] = (string) 'Si';
+                }else{
+                    $coleccion[$index]['activo'] = (string) 'No';
+                }
+            }
+            
             
             $index ++;
         }
@@ -219,6 +233,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         }
         $encabezados[] = 'Puntos Extra';
         $encabezados[] = 'Total';
+        $encabezados[] = 'Activo';
         
         return $encabezados;
         
