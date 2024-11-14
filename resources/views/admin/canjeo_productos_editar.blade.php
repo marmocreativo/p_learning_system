@@ -111,7 +111,7 @@
                         </div>
                     </div>
                 </div>
-                
+                <h5 class="mb-3">Canjeados ({{$canjeados}})</h5>
             </div>
             <div class="col-4">
                 <img class="img-fluid" src="{{ asset('img/publicaciones/'.$producto->imagen) }}" alt="Ejemplo">
@@ -120,17 +120,8 @@
                     <label for="Imagen">Cambiar Imagen</label>
                     <input type="file" class="form-control" name="Imagen" >
                 </div>
-                <hr>
-                <div class="form-group">
-                    <label for="LimiteTotal">Límite de productos en la temporada</label>
-                    <input type="number" step="1" min="0" class="form-control" name="LimiteTotal" value="{{$producto->limite_total}}">
-                    <p>Dejar en 0 para ilimitado</p>
-                </div>
-                <div class="form-group">
-                    <label for="LimiteUsuario">Límite de canje por usuario</label>
-                    <input type="number" step="1" min="0" class="form-control" name="LimiteUsuario" value="{{$producto->limite_usuario}}">
-                    <p>Dejar en 0 para ilimitado</p>
-                </div>
+                <input type="hidden" step="1" min="0" class="form-control" name="LimiteTotal" value="{{$producto->limite_total}}">
+                <input type="hidden" step="1" min="0" class="form-control" name="LimiteUsuario" value="{{$producto->limite_usuario}}">
                 <button type="submit" class="btn btn-primary w-100">Guardar producto</button>
             </div>
             </form>

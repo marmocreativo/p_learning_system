@@ -105,10 +105,11 @@ class CanjeoController extends Controller
     {
         //
         $producto = CanjeoProductos::find($id);
+        $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->count();
         $id_temporada = $producto->id_temporada;
         $temporada = Temporada::find($id_temporada);
         $galeria = CanjeoProductosGaleria::where('id_producto', $id)->orderBy('orden')->get();
-        return view('admin/canjeo_productos_editar', compact('producto', 'temporada', 'galeria'));
+        return view('admin/canjeo_productos_editar', compact('producto', 'temporada', 'galeria', 'canjeados'));
     }
     public function productos_actualizar(Request $request, string $id)
     {

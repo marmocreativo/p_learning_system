@@ -23,6 +23,7 @@ use App\Models\PuntosExtra;
 use App\Models\Cuenta;
 use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
+use App\Models\CanjeoTransacciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -166,8 +167,19 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $total_puntos_extra = $puntos_usuario->sum('puntos');
             $puntaje_total +=$total_puntos_extra;
 
+            $canjeo_transacciones = CanjeoTransacciones::where('id_usuario',$usuario->id_usuario)
+                                                            ->where('id_temporada',$temporada->id)
+                                                            ->pluck('creditos')->sum();
+                                                            
+            if(!$canjeo_transacciones){
+                $creditos_consumidos = 0;
+            }else{
+                $creditos_consumidos = $canjeo_transacciones;
+            }
+
             $coleccion[$index]['puntos_extra'] = (string) $total_puntos_extra;
             $coleccion[$index]['total'] = (string) $puntaje_total;
+            $coleccion[$index]['creditos'] = (string) $creditos_consumidos;
             if($puntaje_total>0){
                 $coleccion[$index]['activo'] = (string) 'Si';
             }else{
@@ -233,6 +245,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         }
         $encabezados[] = 'Puntos Extra';
         $encabezados[] = 'Total';
+        $encabezados[] = 'Creditos Consumidos';
         $encabezados[] = 'Activo';
         
         return $encabezados;
