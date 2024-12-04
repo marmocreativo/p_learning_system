@@ -100,6 +100,7 @@ Route::get('admin/temporadas/create', [TemporadasController::class, 'create'])->
 Route::post('admin/temporadas/store', [TemporadasController::class, 'store'])->middleware('auth')->name('temporadas.store');
 Route::get('admin/temporadas/reporte_excel/{post}', [TemporadasController::class, 'reporte_excel'])->name('temporadas.reporte_excel');
 Route::get('admin/temporadas/reporte/{post}', [TemporadasController::class, 'reporte'])->middleware('auth')->name('temporadas.reporte');
+Route::get('admin/temporadas/estadísticas/{id}', [TemporadasController::class, 'estadisticas'])->middleware('auth')->name('temporadas.estadisticas');
 Route::get('admin/temporadas/{post}', [TemporadasController::class, 'show'])->middleware('auth')->name('temporadas.show');
 Route::get('admin/temporadas/edit/{post}', [TemporadasController::class, 'edit'])->middleware('auth')->name('temporadas.edit');
 Route::put('admin/temporadas/update/{post}', [TemporadasController::class, 'update'])->middleware('auth')->name('temporadas.update');

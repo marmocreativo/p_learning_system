@@ -139,6 +139,64 @@ class TemporadasController extends Controller
 
     }
 
+    public function estadisticas(string $id)
+{
+    // Obtener temporada
+    $temporada = Temporada::find($id);
+    $fecha_inicio = Carbon::parse($temporada->fecha_inicio);
+    $fecha_final = Carbon::parse($temporada->fecha_final);
+    $id_temporada = $temporada->id;
+
+    // Validación básica
+    if (!$fecha_inicio || !$fecha_final || !$id_temporada) {
+        return response()->json(['error' => 'Parámetros inválidos'], 400);
+    }
+
+    // Inicializar arrays para los datos de la gráfica
+    $resultados = [];
+    $fechas = [];
+    $visualizaciones = [];
+    $evaluaciones = [];
+    $trivias = [];
+    $jackpots = [];
+
+    // Bucle para cada día entre las fechas
+    for ($fecha = $fecha_inicio; $fecha->lte($fecha_final); $fecha->addDay()) {
+        // Contar los registros que coincidan con la fecha y el id_temporada
+        $vis = SesionVis::whereDate('fecha_ultimo_video', $fecha)
+            ->where('id_temporada', $id_temporada)
+            ->count();
+        $respuestas = EvaluacionRes::whereDate('fecha_registro', $fecha)
+            ->where('id_temporada', $id_temporada)
+            ->count();
+        $respuestas_trivia = TriviaRes::whereDate('fecha_registro', $fecha)
+            ->where('id_temporada', $id_temporada)
+            ->count();
+        $jackpot = JackpotIntentos::whereDate('fecha_registro', $fecha)
+            ->where('id_temporada', $id_temporada)
+            ->count();
+
+        // Agregar resultados al array
+        $resultados[] = [
+            'fecha' => $fecha->toDateString(),
+            'visualizaciones' => $vis,
+            'respuestas_evaluaciones' => $respuestas,
+            'respuestas_trivias' => $respuestas_trivia,
+            'intentos_jackpot' => $jackpot,
+        ];
+
+        // Llenar los arrays para las gráficas
+        $fechas[] = $fecha->toDateString();
+        $visualizaciones[] = $vis;
+        $evaluaciones[] = $respuestas;
+        $trivias[] = $respuestas_trivia;
+        $jackpots[] = $jackpot;
+    }
+
+    // Pasar los datos a la vista
+    return view('admin/temporada_estadisticas', compact('temporada', 'resultados', 'fechas', 'visualizaciones', 'evaluaciones', 'trivias', 'jackpots'));
+}
+
     public function reporte(Request $request, string $id)
     {
         //
