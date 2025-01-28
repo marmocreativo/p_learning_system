@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\CuentasController;
 use App\Http\Controllers\TemporadasController;
 use App\Http\Controllers\PublicacionesController;
 use App\Http\Controllers\SlidersController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\TriviasController;
 use App\Http\Controllers\JackpotsController;
 use App\Http\Controllers\LogrosController;
 use App\Http\Controllers\CanjeoController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +33,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('prueba', function () {
     return "Esta es la API de prueba";
 });
+/**
+ * RUTAS API 2025
+ * Estas rutas y consultas buscan ser más optimizadas además añadiré consultas a fechas de actualización para solo obtener datos importantes
+ */
+Route::get('update_2025', [CuentasController::class, 'update_2025'])->name('update_2025.api');
+Route::get('context_2025', [CuentasController::class, 'context_2025'])->name('context_2025.api');
+Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name('check_token.api');
+
+
 
 // Rutas de datos de actividades
 // Sesiones

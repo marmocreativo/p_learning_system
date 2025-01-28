@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Laravel\Sanctum\PersonalAccessToken;
 
 use App\Mail\CambioPass;
 use App\Mail\InscripcionChampions;
@@ -656,6 +657,14 @@ class UsuariosController extends Controller
         
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
         
+    }
+
+    public function borrar_tokens(Request $request)
+    {
+        // Elimina todos los tokens de un usuario por su 'tokenable_id'
+        PersonalAccessToken::where('tokenable_id', $request->id)->delete();
+        
+        return redirect()->back();
     }
 
     public function cambiar_a_lider(Request $request)

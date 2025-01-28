@@ -208,6 +208,9 @@
                                 </div>
                                 </div>
                             </div>
+                            <a href="{{ route('admin_usuarios.borrar_tokens', ['id' => $suscripcion->id_usuario]) }}" class="btn btn-outline-danger">
+                                Cerrar sesión
+                            </a>
                         <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id_suscripcion)}}" class="form-confirmar" method="POST">
                             @csrf
                             @method('delete')

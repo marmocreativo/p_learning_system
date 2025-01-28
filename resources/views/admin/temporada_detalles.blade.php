@@ -43,8 +43,7 @@
                     </tr>
                 </table>
                 <a href="{{route('temporadas.reporte', ['post'=>$temporada->id, 'region'=>'todas', 'distribuidor'=>'0'])}}" class="btn btn-info">Reporte</a>
-                <hr/>
-                <a href="{{route('temporadas.estadisticas', ['id'=>$temporada->id])}}" class="btn btn-success">Estadísticas</a>
+                <hr>
             </div>
         </div>
         

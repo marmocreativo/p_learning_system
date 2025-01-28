@@ -25,6 +25,7 @@ use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 use App\Mail\RestaurarPass;
 use App\Mail\CambioPass;
@@ -434,6 +435,40 @@ class LoginController extends Controller
         return [
             'message'=> 'Has cerrado sesión correctamente'
         ];
+    }
+
+    /**
+     * API 2025
+     */
+
+     public function check_token_api(Request $request)
+{
+        // Obtén el token desde los parámetros de la consulta
+        $token = $request->query('token');
+
+        if (!$token) {
+            return response()->json(['valid' => false, 'message' => 'Token no proporcionado'], 400);
+        }
+
+        // Busca el usuario por el token (ajusta esto según tu lógica de tokens)
+        $personalAccessToken = PersonalAccessToken::findToken($token);
+
+        if ($personalAccessToken) {
+            // El token es válido, puedes obtener el usuario asociado
+            $user = $personalAccessToken->tokenable; // tokenable contiene al usuario asociado
+    
+            return response()->json([
+                'valid' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ], 200);
+        }
+
+        // El token no es válido
+        return response()->json(['valid' => false, 'message' => 'Token inválido'], 401);
     }
 
     
