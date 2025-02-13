@@ -471,5 +471,114 @@ class LoginController extends Controller
         return response()->json(['valid' => false, 'message' => 'Token inválido'], 401);
     }
 
+    public function login_gate_2025_api(Request $request){
+        $pl_electrico = Cuenta::find(1);
+        $pl_ni = Cuenta::find(3);
+
+        $loginType = filter_var($request->Email, FILTER_VALIDATE_EMAIL) ? 'email' : 'legacy_id';
+
+        // validation
+        $credentials = [
+            $loginType=> $request->Email,
+            "password"=> $request->Password,
+            //"estado"=> 'activo'
+        ];
+
+
+
+        //$remember = ($request->has('remember') ? true : false);
+        
+        $remember = false;
+
+        if(Auth::attempt($credentials, $remember)){
+
+            $user = User::where($loginType, $request->Email)->firstOrFail();
+            $id_usuario = $user->id;
+            $suscripcion_electrico = UsuariosSuscripciones::where('id_temporada', $pl_electrico->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $suscripcion_ni = UsuariosSuscripciones::where('id_temporada', $pl_ni->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $redireccion = 'ninguna';
+            switch ($request->id_cuenta) {
+                case '1':
+                    if($suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_doble';
+                    }
+                    if($suscripcion_electrico&&!$suscripcion_ni){
+                        $redireccion = 'usuario';
+                    }
+                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_ni';
+                    }
+                    break;
+
+                case '3':
+                    if($suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'gate_doble';
+                    }
+                    if($suscripcion_electrico&&!$suscripcion_ni){
+                        $redireccion = 'gate_electrico';
+                    }
+                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                        $redireccion = 'usuario';
+                    }
+                    break;
+                
+                default:
+                    $redireccion = 'ninguna';
+                    break;
+            }
+            
+                if($suscripcion_electrico){
+                    $distribuidor_electrico = $suscripcion_electrico->distribuidor;
+                    $nombre_dist_el = $suscripcion_electrico->distribuidor->nombre;
+                    $region_dist_el = $suscripcion_electrico->distribuidor->region;
+                }else{
+                    $distribuidor_electrico = null;
+                    $nombre_dist_el = '';
+                    $region_dist_el = '';
+                }
+
+                if($suscripcion_ni){
+                    $distribuidor_ni = $suscripcion_ni->distribuidor;
+                    $nombre_dist_ni = $suscripcion_ni->distribuidor->nombre;
+                    $region_dist_ni = $suscripcion_ni->distribuidor->region;
+                }else{
+                    $distribuidor_ni = null;
+                    $nombre_dist_ni = '';
+                    $region_dist_ni = '';
+                }
+
+                
+                $token = $user->createToken('auth_token')->plainTextToken;
+
+                $accion = new AccionesUsuarios();
+                $accion->id_usuario = $user->id;
+                $accion->nombre = $user->nombre.''.$user->apellidos;
+                $accion->correo = $user->email;
+                $accion->accion = 'login';
+                $accion->descripcion = 'Se inicio sesión via API';
+                $accion->save();
+                
+                return response()->json([
+                    'message' => 'Hola '.$user->nombre,
+                    'redireccion' => $redireccion,
+                    'accessToken' => $token,
+                    'token_type' => 'Bearer',
+                    'user'=>$user,
+                    'suscripcion_electrico'=>$suscripcion_electrico,
+                    'suscripcion_ni'=>$suscripcion_electrico,
+                    'distribuidor_electrico'=>$nombre_dist_el,
+                    'distribuidor_ni'=>$nombre_dist_ni,
+                    'region_electrico'=>$region_dist_el,
+                    'region_ni'=>$region_dist_ni,
+                ]);
+            
+
+        }else{
+            
+            return response()->json(['message' => 'Las credenciales no coinciden'], 401);
+        }
+        
+    }
+
     
 }

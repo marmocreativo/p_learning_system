@@ -20,6 +20,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogrosController;
 use App\Http\Controllers\CsvController;
 use App\Http\Controllers\CanjeoController;
+use App\Http\Controllers\PopupsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -207,6 +208,14 @@ Route::get('admin/notificaciones/{post}', [NotificacionesController::class, 'sho
 Route::get('admin/notificaciones/edit/{post}', [NotificacionesController::class, 'edit'])->middleware('auth')->name('notificaciones.edit');
 Route::put('admin/notificaciones/update/{post}', [NotificacionesController::class, 'update'])->middleware('auth')->name('notificaciones.update');
 Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::class, 'destroy'])->middleware('auth')->name('notificaciones.destroy');
+
+// Rutas CRUD para los popups y cintillos
+Route::get('admin/popups', [PopupsController::class, 'index'])->middleware('auth')->name('popups');
+Route::post('admin/popups/crear_popup', [PopupsController::class, 'crear_popup'])->middleware('auth')->name('popup.create');
+Route::post('admin/cintillo/crear_cintillo', [PopupsController::class, 'crear_cintillo'])->middleware('auth')->name('cintillo.create');
+Route::delete('admin/popups/destroy/{post}', [PopupsController::class, 'borrar_popup'])->middleware('auth')->name('popup.destroy');
+Route::delete('admin/cintillo/destroy/{post}', [PopupsController::class, 'borrar_cintillo'])->middleware('auth')->name('cintillo.destroy');
+
 
 
 // Rutas CRUD para las'canjeo'

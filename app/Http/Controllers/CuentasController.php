@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Cuenta;
 use App\Models\Temporada;
+use App\Models\Publicacion;
 
 use Illuminate\Http\Request;
 
@@ -161,10 +162,14 @@ class CuentasController extends Controller
     {
         $cuenta = Cuenta::where('id', $request->input('idCuenta'))->first();
         $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
+        $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
+        $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
         
         $respuesta = [
             'cuenta' => $cuenta ? $cuenta : null,
             'temporada' => $temporada ? $temporada : null,
+            'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
+            'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
         ];
 
          return response()->json($respuesta);

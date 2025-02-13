@@ -181,14 +181,8 @@
             </div>
             <hr>
             <div class="card card-body">
-                <h4>Notificaciones</h4>
-                <table class="table table-bordered table-sm">
-                    <tr>
-                        <td><b>Total</b></td>
-                        <td>{{$paginas_totales}}</td>
-                    </tr>
-                </table>
-                <a class="btn btn-info" href="{{ route('notificaciones', ['id_temporada'=> $temporada->id]) }}">Lista de notificaciones</a>
+                <h4>PopUps y Cintillos</h4>
+                <a class="btn btn-info" href="{{ route('popups', ['id_temporada'=> $temporada->id]) }}">Lista de popups</a>
             </div>
         </div>
         <div class="col-3">

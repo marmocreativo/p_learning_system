@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Popup extends Model
+class Cintillo extends Model
 {
     use HasFactory;
-    protected $table = "popups";
+    protected $table = "cintillos";
 }

@@ -40,6 +40,7 @@ Route::get('prueba', function () {
 Route::get('update_2025', [CuentasController::class, 'update_2025'])->name('update_2025.api');
 Route::get('context_2025', [CuentasController::class, 'context_2025'])->name('context_2025.api');
 Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name('check_token.api');
+Route::post('login_gate_2025', [LoginController::class, 'login_gate_2025_api'])->name('login_gate_2025.api');
 
 
 
