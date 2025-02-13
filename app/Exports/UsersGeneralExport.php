@@ -56,18 +56,13 @@ class UsersGeneralExport implements FromCollection, WithHeadings
 
             
             $suscriptores = $query->select( 
-                                            'usuarios.nombre as nombre_usuario',
-                                            'usuarios.apellidos as apellidos_usuario',
-                                            'usuarios.email as email',
-                                            'usuarios.legacy_id as legacy_id',
-                                            'usuarios_suscripciones.nivel_usuario as nivel_usuario',
-                                            'usuarios_suscripciones.id_temporada as temporada',
-                                            'usuarios_suscripciones.id_cuenta as id_cuenta',
-                                            'usuarios_suscripciones.nivel_usuario as nivel_usuario',
-                                            'usuarios_suscripciones.funcion as lider',
-                                            'distribuidores.nombre as nombre_distribuidor',
-                                            'distribuidores.nivel as nivel_distribuidor',
-                                            'distribuidores.region as region')
+                'usuarios.nombre as nombre_usuario',
+                'usuarios.apellidos as apellidos_usuario',
+                'usuarios.email as email',
+                'usuarios.legacy_id as legacy_id',
+                'distribuidores.nombre as nombre_distribuidor',
+                'usuarios_suscripciones.nivel_usuario as nivel_usuario',
+                'usuarios_suscripciones.funcion as lider')                  
             ->get();
 
             foreach($suscriptores as $suscriptor){
@@ -82,16 +77,11 @@ class UsersGeneralExport implements FromCollection, WithHeadings
         return [
             'nombre',
             'apellidos',
-            'correo',
+            'email',
             'usuario',
-            'nivel_usuario',
-            'temporada',
-            'id_cuenta',
-            'lider',
-            'disty',
-            'nivel_disty',
-            'region',
-            'cuenta',
+            'distribuidor',
+            'categoria',
+            'rol'
         ];
     }
 

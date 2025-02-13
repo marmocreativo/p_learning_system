@@ -93,7 +93,8 @@ Route::get('admin/distribuidores_suscritos', [DistribuidoresController::class, '
 Route::get('admin/distribuidores_suscritos/suscripcion', [DistribuidoresController::class, 'suscripcion'])->middleware('auth')->name('distribuidores_suscritos.suscripcion');
 Route::post('admin/distribuidores_suscritos/suscribir', [DistribuidoresController::class, 'suscribir'])->middleware('auth')->name('distribuidores_suscritos.suscribir');
 Route::delete('admin/distribuidores_suscritos/desuscribir/{post}', [DistribuidoresController::class, 'desuscribir'])->middleware('auth')->name('distribuidores_suscritos.desuscribir');
-
+Route::post('admin/distribuidores/crear_sucursal', [DistribuidoresController::class, 'crear_sucursal'])->middleware('auth')->name('distribuidores.crear_sucursal');
+Route::delete('admin/distribuidores/borrar_sucursal/{post}', [DistribuidoresController::class, 'borrar_sucursal'])->middleware('auth')->name('distribuidores.borrar_sucursal');
 // Rutas CRUD para las'temporadas'
 Route::get('admin/temporadas', [TemporadasController::class, 'index'])->middleware('auth')->name('temporadas');
 Route::get('admin/temporadas/create', [TemporadasController::class, 'create'])->middleware('auth')->name('temporadas.create');

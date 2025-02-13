@@ -60,6 +60,7 @@
             <th>V/E</th>
             <th>Lider</th>
             <th>Disty</th>
+            <th>Sucursal</th>
             <th>Region</th>
             <th>Temp {{$temporada->nombre}}</th>
             <th>Temp Anterior</th>
@@ -79,6 +80,7 @@
                     <td>{{$suscripcion->nivel_usuario}}</td>
                     <td>{{$suscripcion->funcion}}</td>
                     <td>{{$suscripcion->nombre_distribuidor}}<hr>{{$suscripcion->nivel}}</td>
+                    <td>{{$suscripcion->id_sucursal}}</td>
                     <td>{{$suscripcion->region}}</td>
                     <td>{{$suscripcion->temporada_completa}}</td>
                     <td>{{$suscripcion->champions_a}}</td>
@@ -146,6 +148,11 @@
                                                     <option value="Basico" @if($suscripcion->nivel=='Basico') selected @endif>Básico</option>
                                                     <option value="Medio" @if($suscripcion->nivel=='Medio') selected @endif>Medio</option>
                                                     <option value="Completo" @if($suscripcion->nivel=='Completo') selected @endif>Completo</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="IdSucursal">Sucursal</label>
+                                                <select class="form-control" name="IdSucursal">
                                                 </select>
                                             </div>
                                             <hr>

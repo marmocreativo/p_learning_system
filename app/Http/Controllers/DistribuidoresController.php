@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Distribuidor;
+use App\Models\Sucursal;
 use App\Models\DistribuidoresSuscripciones;
 use App\Models\Temporada;
 use App\Models\Clase;
@@ -89,7 +90,8 @@ class DistribuidoresController extends Controller
     {
         //
         $distribuidor = Distribuidor::find($id);
-        return view('admin/distribuidor_detalles', compact('distribuidor'));
+        $sucursales = Sucursal::where('id_distribuidor', $id)->get();
+        return view('admin/distribuidor_detalles', compact('distribuidor', 'sucursales'));
 
     }
 
@@ -240,6 +242,32 @@ class DistribuidoresController extends Controller
         $suscripcion = UsuariosSuscripciones::find($id);
         $suscripcion->delete();
         return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
+        
+    }
+
+    /**
+     * Sucursales
+     */
+
+     public function crear_sucursal(Request $request)
+    {
+            // Verificar si el usuario ya existe
+        $sucursal = new Sucursal();
+        $sucursal->id_distribuidor = $request->IdDistribuidor;
+        $sucursal->nombre = $request->Nombre;
+        $sucursal->save();
+        
+        
+        return redirect()->route('distribuidores.show', $request->IdDistribuidor);
+        
+    }
+
+    public function borrar_sucursal(Request $request, string $id)
+    {
+        //
+        $sucursal = Sucursal::find($id);
+        $sucursal->delete();
+        return redirect()->route('distribuidores.show', $request->IdDistribuidor);
         
     }
 }

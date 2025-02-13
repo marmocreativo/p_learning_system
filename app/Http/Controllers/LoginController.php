@@ -442,7 +442,7 @@ class LoginController extends Controller
      */
 
      public function check_token_api(Request $request)
-{
+    {
         // Obtén el token desde los parámetros de la consulta
         $token = $request->query('token');
 

@@ -863,6 +863,7 @@ class UsuariosController extends Controller
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
             ->where('usuarios_suscripciones.id_distribuidor', '=', $suscripcion->id_distribuidor)
+            ->where('usuarios_suscripciones.id_sucursal', '=', $suscripcion->id_sucursal)
             ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*')
             ->get();
         $participaciones = array();
@@ -1041,6 +1042,7 @@ class UsuariosController extends Controller
             $suscripcion->id_cuenta = $request->id_cuenta;
             $suscripcion->id_temporada = $request->id_temporada;
             $suscripcion->id_distribuidor = $request->id_distribuidor;
+            $suscripcion->id_sucursal = $request->id_sucursal;
             $suscripcion->confirmacion_puntos = 'pendiente';
             $suscripcion->funcion = 'usuario';
             $suscripcion->save();
@@ -1067,12 +1069,35 @@ class UsuariosController extends Controller
         $mensaje .= '</tbody>';
         $mensaje .= '<table>';
 
-        $data = [
-            'titulo' => '¡Bienvenido a PL-Electrico!',
-        'contenido' => $mensaje,
-        'boton_texto' => 'Entrar',
-        'boton_enlace' => 'https://pl-electrico.panduitlatam.com/'
-        ];
+        switch ($request->id_cuenta) {
+            case '1':
+                $data = [
+                    'titulo' => '¡Bienvenido a PL-Electrico!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://pls-test.panduitlatam.com/'
+                ];
+                break;
+
+            case '3':
+                $data = [
+                    'titulo' => '¡Bienvenido a P-Learning!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://pl-test.panduitlatam.com/'
+                ];
+                break;
+            
+            default:
+                $data = [
+                    'titulo' => '¡Bienvenido a PL-Electrico!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://ple-test.panduitlatam.com/'
+                ];
+                break;
+        }
+        
         Mail::to($usuario->email)->send(new RegistroUsuario($data));
         
         return 'Guardado';
@@ -1380,7 +1405,7 @@ class UsuariosController extends Controller
             if ($request->hasFile('photo')) {
                 $archivo = $request->file('photo');
                 $nombreArchivo = 'usuario'.time().'.'.$archivo->extension();
-                if($archivo->move(base_path('../public_html/plsystem/img/usuarios'), $nombreArchivo)){
+                if($archivo->move(base_path('../public_html/system.panduitlatam.com/img/usuarios'), $nombreArchivo)){
                     $subido = true;
                 }
             }
@@ -1435,7 +1460,7 @@ class UsuariosController extends Controller
             if ($request->hasFile('photo')) {
                 $archivo = $request->file('photo');
                 $nombreArchivo = 'photo'.time().'.'.$archivo->extension();
-                if($archivo->move(base_path('../public_html/plsystem/img/usuarios'), $nombreArchivo)){
+                if($archivo->move(base_path('../public_html/system.panduitlatam.com/img/usuarios'), $nombreArchivo)){
                     $subido = true;
                 }
             }
