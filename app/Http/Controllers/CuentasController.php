@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Cuenta;
 use App\Models\Temporada;
 use App\Models\Publicacion;
+use App\Models\Cintillo;
+use App\Models\Popup;
 
 use Illuminate\Http\Request;
 
@@ -164,12 +166,24 @@ class CuentasController extends Controller
         $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
         $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
         $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
+        $cintillo = Cintillo::where('id_temporada', $cuenta->temporada_actual)
+                    ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
+                    ->where('fecha_final', '>=', now()) // Fecha final aún vigente
+                    ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
+                    ->first();
+        $popup = Popup::where('id_temporada', $cuenta->temporada_actual)
+                ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
+                ->where('fecha_final', '>=', now()) // Fecha final aún vigente
+                ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
+                ->first();
         
         $respuesta = [
             'cuenta' => $cuenta ? $cuenta : null,
             'temporada' => $temporada ? $temporada : null,
             'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
             'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
+            'cintillo' => $cintillo ? $cintillo : null,
+            'popup' => $popup ? $popup : null,
         ];
 
          return response()->json($respuesta);

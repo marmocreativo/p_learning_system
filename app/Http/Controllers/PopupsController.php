@@ -34,7 +34,7 @@ class PopupsController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'popup_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = null;
         }
@@ -49,15 +49,50 @@ class PopupsController extends Controller
         
         try {
             $popup->save();
-            dd($popup);
-            return redirect()->route('popups_lista', ['id_temporada' => $request->id_temporada])
+            //dd($popup);
+            return redirect()->route('popups', ['id_temporada' => $request->IdTemporada])
                              ->with('success', 'Popup creado correctamente.');
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
         
+    }
 
-        //return redirect()->route('popups_lista', ['id_temporada'=>$request->IdTemporada]);
+    public function crear_cintillo(Request $request)
+    {
+        //
+        $cintillo = new Cintillo();
+
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+    
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'cintillo_'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = null;
+        }
+
+        $cintillo->id_cuenta = $request->IdCuenta;
+        $cintillo->id_temporada = $request->IdTemporada;
+        $cintillo->texto = $request->Texto;
+        $cintillo->texto_boton = $request->TextoBoton;
+        $cintillo->enlace_boton = $request->EnlaceBoton;
+        $cintillo->imagen = $nombreImagen;
+        $cintillo->fecha_inicio = $request->FechaInicio;
+        $cintillo->fecha_final = $request->FechaFinal;
+        //dd($cintillo);
+        try {
+            $cintillo->save();
+            dd($cintillo);
+            return redirect()->route('popups', ['id_temporada' => $request->IdTemporada])
+                             ->with('success', 'Popup creado correctamente.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+        
     }
 
 }
