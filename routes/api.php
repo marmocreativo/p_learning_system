@@ -42,6 +42,11 @@ Route::get('context_2025', [CuentasController::class, 'context_2025'])->name('co
 Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name('check_token.api');
 Route::post('login_gate_2025', [LoginController::class, 'login_gate_2025_api'])->name('login_gate_2025.api');
 
+// Aceptar términos y condiciones
+Route::post('aceptar_terminos_2025', [UsuariosController::class, 'aceptar_terminos_2025'])->name('aceptar_terminos_2025.api');
+// Trivias
+Route::get('datos_trivia_2025', [TriviasController::class, 'datos_trivia_2025_api'])->name('datos_trivia_2025.api');
+
 
 
 // Rutas de datos de actividades

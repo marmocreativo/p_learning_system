@@ -843,6 +843,28 @@ class UsuariosController extends Controller
     }
 
     /**
+     * API Usuarios 2025
+     */
+
+     public function aceptar_terminos_2025(Request $request)
+    {
+        $id_suscripcion = $request->input('id_suscripcion');
+        $suscripcion = UsuariosSuscripciones::find($id_suscripcion);
+
+        if (!$suscripcion) {
+            return response()->json(['success' => false, 'message' => 'Suscripción no encontrada'], 404);
+        }
+
+        $suscripcion->fecha_terminos = now();
+        
+        if ($suscripcion->save()) {
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false]);
+    }
+
+    /**
      * API Lideres
      */
     public function datos_lider_api (Request $request)

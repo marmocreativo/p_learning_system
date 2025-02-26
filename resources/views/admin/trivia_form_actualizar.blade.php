@@ -40,6 +40,19 @@
                     <input type="number" class="form-control" name="Puntaje" value="{{ $trivia->puntaje }}">
                 </div>
                 <hr>
+                <h5>Configuracion preguntas</h5>
+                <div class="form-group">
+                    <label for="CantidadPreguntas">Número de preguntas a mostrar</label>
+                    <input type="number" class="form-control" min="0" step="1" name="CantidadPreguntas" value="{{ $trivia->cantidad_preguntas }}">
+                </div>
+                <div class="form-group">
+                    <label for="Orden">Orden para mostrar las preguntas</label>
+                    <select name="Orden" id="Orden" class="form-control">
+                        <option value="ordenado" @if($trivia->orden == 'ordenado') selected @endif>Ordenado</option>
+                        <option value="random" @if($trivia->orden == 'random') selected @endif>Random</option>
+                    </select>
+                </div>
+                <hr>
                 <div class="row mb-3">
                     <div class="col-6">
                         <div class="form-group">

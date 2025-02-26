@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Temporada;
 use App\Models\Publicacion;
 use App\Models\Clase;
 
@@ -16,8 +17,9 @@ class PublicacionesController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $clase = $request->input('clase');
+        $temporada = Temporada::find($id_temporada);
         $publicaciones = Publicacion::where(['id_temporada' => $id_temporada, 'clase' => $clase])->paginate();
-        return view('admin/publicacion_lista', compact('publicaciones'));
+        return view('admin/publicacion_lista', compact('publicaciones', 'temporada'));
     }
 
     /**
@@ -35,7 +37,14 @@ class PublicacionesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Si la función es "terminos" o "aviso", actualizar publicaciones existentes
+        if (in_array($request->Funcion, ['terminos', 'aviso'])) {
+            Publicacion::where('id_temporada', $request->IdTemporada)
+                ->where('funcion', $request->Funcion)
+                ->update(['funcion' => 'normal']);
+        }
+
+        // Crear nueva publicación
         $publicacion = new Publicacion();
 
         $publicacion->id_cuenta = $request->IdCuenta;
@@ -51,6 +60,7 @@ class PublicacionesController extends Controller
         $publicacion->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->clase = $request->Clase;
         $publicacion->destacar = $request->Destacar;
+        $publicacion->funcion = $request->Funcion; // Corregido, antes estaba sobrescrito con Destacar
         $publicacion->estado = $request->Estado;
         $publicacion->orden = 0;
 
@@ -59,6 +69,7 @@ class PublicacionesController extends Controller
         return redirect()->route('publicaciones.show', $publicacion->id);
     }
 
+
     /**
      * Display the specified resource.
      */
@@ -66,7 +77,8 @@ class PublicacionesController extends Controller
     {
         //
         $publicacion = Publicacion::find($id);
-        return view('admin/publicacion_detalles', compact('publicacion'));
+        $temporada = Temporada::find($publicacion->id_temporada);
+        return view('admin/publicacion_detalles', compact('publicacion', 'temporada'));
 
     }
 
@@ -78,7 +90,8 @@ class PublicacionesController extends Controller
         //
         $publicacion = Publicacion::find($id);
         $clases = Clase::where('elementos','publicaciones')->get();
-        return view('admin/publicacion_form_actualizar', compact('publicacion', 'clases'));
+        $temporada = Temporada::find($publicacion->id_temporada);
+        return view('admin/publicacion_form_actualizar', compact('publicacion', 'clases', 'temporada'));
     }
 
     /**
@@ -86,9 +99,18 @@ class PublicacionesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
-        $publicacion = Publicacion::find($id);
+        // Buscar la publicación existente
+        $publicacion = Publicacion::findOrFail($id);
 
+        // Si la función es "terminos" o "aviso", actualizar las publicaciones existentes
+        if (in_array($request->Funcion, ['terminos', 'aviso'])) {
+            Publicacion::where('id_temporada', $publicacion->id_temporada)
+                ->where('funcion', $request->Funcion)
+                ->where('id', '!=', $id) // Excluir la publicación actual
+                ->update(['funcion' => 'normal']);
+        }
+
+        // Actualizar la publicación
         $publicacion->titulo = $request->Titulo;
         $publicacion->url = $request->Url;
         $publicacion->descripcion = $request->Descripcion;
@@ -100,6 +122,7 @@ class PublicacionesController extends Controller
         $publicacion->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->clase = $request->Clase;
         $publicacion->destacar = $request->Destacar;
+        $publicacion->funcion = $request->Funcion; // Se asegura de que la función se actualice
         $publicacion->estado = $request->Estado;
         $publicacion->orden = 0;
 
@@ -107,6 +130,7 @@ class PublicacionesController extends Controller
 
         return redirect()->route('publicaciones.show', $publicacion->id);
     }
+
 
     /**
      * Remove the specified resource from storage.

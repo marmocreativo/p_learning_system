@@ -20,7 +20,7 @@
             <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{{route('trivias.resultados', $trivia->id)}}" class="btn btn-info">Resultados</a>
                 <a href="{{route('trivias.resultados_excel', ['id_trivia'=>$trivia->id])}}" class="btn btn-success">Resultados Excel</a>
-                <a href="{{route('trivias.edit', $trivia->id)}}" class="btn btn-warning">Editar sesión</a>
+                <a href="{{route('trivias.edit', $trivia->id)}}" class="btn btn-warning">Editar trivia</a>
             </div>
             
         </div>

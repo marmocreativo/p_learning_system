@@ -12,6 +12,7 @@
         <tr>
             <th>ID</th>
             <th>TITULO</th>
+            <th>FUNCION</th>
             <th>CONTROLES</th>
             <th>BORRAR</th>
         </tr>
@@ -20,6 +21,8 @@
             <tr>
                 <td>{{$publicacion->id}}</td>
                 <td>{{$publicacion->titulo}}</td>
+                <td>{{$publicacion->funcion}}</td>
+                
                 <td>
                     <a href="{{route('publicaciones.show', $publicacion->id)}}">Ver detalles</a> |
                     <a href="{{route('publicaciones.edit', $publicacion->id)}}">Editar</a> |
