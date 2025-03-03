@@ -86,7 +86,7 @@ class PopupsController extends Controller
         //dd($cintillo);
         try {
             $cintillo->save();
-            dd($cintillo);
+            //dd($cintillo);
             return redirect()->route('popups', ['id_temporada' => $request->IdTemporada])
                              ->with('success', 'Popup creado correctamente.');
         } catch (\Exception $e) {

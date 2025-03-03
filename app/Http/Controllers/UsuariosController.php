@@ -27,6 +27,7 @@ use App\Models\CanjeoTransaccionesProductos;
 use App\Models\Cuenta;
 use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
+use App\Models\NotificacionUsuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -862,6 +863,73 @@ class UsuariosController extends Controller
         }
 
         return response()->json(['success' => false]);
+    }
+
+    public function puntaje_usuario_2025(Request $request)
+    {
+        $id_temporada = $request->input('id_usuario');
+        $id_usuario = $request->input('id_usuario');
+        // datos
+        $usuario = User::find($id_usuario);
+        // notificaciones y línea del tiempo
+        $notificaciones = NotificacionUsuario::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        $acciones = AccionesUsuarios::where('id_usuario', $id_usuario)
+            ->latest() // Ordena por la columna de timestamps (created_at por defecto)
+            ->take(10) // Toma las últimas 10 acciones
+            ->get();
+
+        // Puntajes
+        $sesiones = DB::table('sesiones')
+            ->join('sesiones_visualizaciones', 'sesiones.id', '=', 'sesiones_visualizaciones.id_sesion')
+            ->where('sesiones.id_temporada', '=', $id_temporada)
+            ->where('sesiones_visualizaciones.id_usuario', '=', $id_usuario)
+            ->select('sesiones.id as id_sesion', 'sesiones.*', 'sesiones_visualizaciones.*')
+            ->get();
+
+        $evaluaciones = DB::table('evaluaciones_preguntas')
+        ->join('evaluaciones_respuestas', 'evaluaciones_preguntas.id', '=', 'evaluaciones_respuestas.id_pregunta')
+        ->where('evaluaciones_respuestas.id_temporada', '=', $id_temporada)
+        ->where('evaluaciones_respuestas.id_usuario', '=', $id_usuario)
+        ->select('evaluaciones_preguntas.*', 'evaluaciones_respuestas.*')
+        ->get();
+
+        $trivias_ganadores = DB::table('trivias')
+        ->join('trivias_ganadores', 'trivias.id', '=', 'trivias_ganadores.id_trivia')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where('trivias_ganadores.id_usuario', '=', $id_usuario)
+        ->select('trivias.*', 'trivias_ganadores.*')
+        ->get();
+
+        $trivias_respuestas = DB::table('trivias')
+        ->join('trivias_preguntas', 'trivias.id', '=', 'trivias_preguntas.id_trivia')
+        ->join('trivias_respuestas', 'trivias_preguntas.id', '=', 'trivias_respuestas.id_pregunta')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where('trivias_respuestas.id_usuario', '=', $id_usuario)
+        ->select('trivias.*', 'trivias_preguntas.*' , 'trivias_respuestas.*')
+        ->get();
+
+        $jackpot_intentos = DB::table('jackpot')
+        ->join('jackpot_intentos', 'jackpot.id', '=', 'jackpot_intentos.id_jackpot')
+        ->where('jackpot.id_temporada', '=', $id_temporada)
+        ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
+        ->select('jackpot.*', 'jackpot_intentos.*' )
+        ->get();
+
+        $puntos_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+
+
+        $datos_usuario = [
+            'usuario' =>$usuario,
+            'notificaciones' =>$notificaciones,
+            'acciones' =>$acciones,
+            'sesiones' =>$sesiones,
+            'evaluaciones' => $evaluaciones,
+            'trivias_respuestas' => $trivias_respuestas,
+            'trivias_ganadores' => $trivias_ganadores,
+            'jackpot_intentos' => $jackpot_intentos,
+            'puntos_extra'=> $puntos_extra
+        ];
+        return response()->json($datos_usuario);
     }
 
     /**
