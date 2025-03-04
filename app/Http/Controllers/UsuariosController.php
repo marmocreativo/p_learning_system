@@ -867,7 +867,7 @@ class UsuariosController extends Controller
 
     public function puntaje_usuario_2025(Request $request)
     {
-        $id_temporada = $request->input('id_usuario');
+        $id_temporada = $request->input('id_temporada');
         $id_usuario = $request->input('id_usuario');
         // datos
         $usuario = User::find($id_usuario);
@@ -879,6 +879,9 @@ class UsuariosController extends Controller
             ->get();
 
         // Puntajes
+        $suma_visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $suma_evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        
         $sesiones = DB::table('sesiones')
             ->join('sesiones_visualizaciones', 'sesiones.id', '=', 'sesiones_visualizaciones.id_sesion')
             ->where('sesiones.id_temporada', '=', $id_temporada)
@@ -892,6 +895,8 @@ class UsuariosController extends Controller
         ->where('evaluaciones_respuestas.id_usuario', '=', $id_usuario)
         ->select('evaluaciones_preguntas.*', 'evaluaciones_respuestas.*')
         ->get();
+
+        $suma_trivias = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
 
         $trivias_ganadores = DB::table('trivias')
         ->join('trivias_ganadores', 'trivias.id', '=', 'trivias_ganadores.id_trivia')
@@ -908,6 +913,8 @@ class UsuariosController extends Controller
         ->select('trivias.*', 'trivias_preguntas.*' , 'trivias_respuestas.*')
         ->get();
 
+        $suma_jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+
         $jackpot_intentos = DB::table('jackpot')
         ->join('jackpot_intentos', 'jackpot.id', '=', 'jackpot_intentos.id_jackpot')
         ->where('jackpot.id_temporada', '=', $id_temporada)
@@ -915,7 +922,12 @@ class UsuariosController extends Controller
         ->select('jackpot.*', 'jackpot_intentos.*' )
         ->get();
 
+        $suma_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
+
         $puntos_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+
+        $creditos_redimidos = CanjeoTransacciones::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('creditos')->sum();
+        
 
 
         $datos_usuario = [
@@ -927,7 +939,13 @@ class UsuariosController extends Controller
             'trivias_respuestas' => $trivias_respuestas,
             'trivias_ganadores' => $trivias_ganadores,
             'jackpot_intentos' => $jackpot_intentos,
-            'puntos_extra'=> $puntos_extra
+            'puntos_extra'=> $puntos_extra,
+            'suma_visualizaciones'=>$suma_visualizaciones,
+            'suma_evaluaciones'=>$suma_evaluaciones,
+            'suma_trivias'=>$suma_trivias,
+            'suma_jackpots'=>$suma_jackpots,
+            'suma_extra'=>$suma_extra,
+            'creditos_redimidos'=>$creditos_redimidos
         ];
         return response()->json($datos_usuario);
     }

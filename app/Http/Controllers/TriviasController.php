@@ -13,6 +13,7 @@ use App\Models\TriviaRes;
 use App\Models\TriviaGanador;
 use App\Models\User;
 use App\Models\Distribuidor;
+use App\Models\NotificacionUsuario;
 use Illuminate\Support\Facades\DB;
 
 use App\Mail\GanadorTrivia;
@@ -446,6 +447,17 @@ class TriviasController extends Controller
         $nuevo_ganador->id_usuario = $id_usuario;
         $nuevo_ganador->fecha_registro = now();
         $nuevo_ganador->save();
+
+        // Creo la notificación
+        $notificacion = new NotificacionUsuario();
+        $notificacion->id_cuenta = $trivia->id_cuenta;
+        $notificacion->id_temporada = $trivia->id_temporada;
+        $notificacion->id_usuario = $id_usuario;
+        $notificacion->tipo = 'notificacion';
+        $notificacion->texto = '<p>¡Fuiste el mejor participante de tu compañía en la <b>Trivia Mensual iLovePanduit!</b>...</p>';
+        $notificacion->enlace = '#';
+        $notificacion->save();
+
 
         // **Enviar correo al ganador**
         $data = [
