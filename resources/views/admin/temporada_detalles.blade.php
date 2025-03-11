@@ -242,15 +242,6 @@
         </div>
 
     </div>
-    <div class="p-4">
-        <form action="{{ route('registros_pasados.csv') }}" class="d-flex" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="form-group">
-                <input type="file" name="file" accept=".xlsx">
-            </div>
-            <button type="submit" class="btn btn-primary">Sesiones pasadas</button>
-        </form>
-    </div>
     
 
 

@@ -180,6 +180,7 @@
                         <tr>
                             <th>Contenido</th>
                             <th>Fechas</th>
+                            <th>Control</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -196,6 +197,13 @@
                                 <td>
                                     Publicar desde: <b>{{$cintillo->fecha_inicio}}</b><br>
                                     hasta: <b>{{$cintillo->fecha_final}}</b>
+                                </td>
+                                <td>
+                                    <form action="{{route('cintillo.destroy', $cintillo->id)}}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-danger btn-sm">Borrar</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach

@@ -58,6 +58,11 @@ class PopupsController extends Controller
         
     }
 
+    public function actualizar_popup(Request $request)
+    {
+
+    }
+
     public function crear_cintillo(Request $request)
     {
         //
@@ -93,6 +98,29 @@ class PopupsController extends Controller
             dd($e->getMessage());
         }
         
+    }
+
+     /**
+     * Remove the specified resource from storage.
+     */
+    public function borrar_popup(string $id)
+    {
+        //
+        $popup = Popup::find($id);
+        $id_temporada = $popup->id_temporada;
+        $popup->delete();
+        return redirect()->route('popups', ['id_temporada' => $id_temporada])
+                             ->with('success', 'Popup eliminado correctamente.');
+    }
+
+    public function borrar_cintillo(string $id)
+    {
+        //
+        $cintillo = Cintillo::find($id);
+        $id_temporada = $cintillo->id_temporada;
+        $cintillo->delete();
+        return redirect()->route('popups', ['id_temporada' => $id_temporada])
+                             ->with('success', 'Cintillo eliminado correctamente.');
     }
 
 }

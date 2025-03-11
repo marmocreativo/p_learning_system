@@ -28,6 +28,7 @@ use App\Models\Cuenta;
 use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
 use App\Models\NotificacionUsuario;
+use App\Models\Direccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -872,6 +873,7 @@ class UsuariosController extends Controller
         // datos
         $usuario = User::find($id_usuario);
         // notificaciones y línea del tiempo
+        $direcciones = Direccion::where('id_usuario', $id_usuario)->get();
         $notificaciones = NotificacionUsuario::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
         $acciones = AccionesUsuarios::where('id_usuario', $id_usuario)
             ->latest() // Ordena por la columna de timestamps (created_at por defecto)
@@ -932,6 +934,7 @@ class UsuariosController extends Controller
 
         $datos_usuario = [
             'usuario' =>$usuario,
+            'direcciones' =>$direcciones,
             'notificaciones' =>$notificaciones,
             'acciones' =>$acciones,
             'sesiones' =>$sesiones,
