@@ -158,27 +158,9 @@
                 </table>
             </div>
             <hr>
-            <div class="card card-body">
-                <h4>Páginas</h4>
-                <table class="table table-bordered table-sm">
-                    <tr>
-                        <td><b>Total</b></td>
-                        <td>{{$paginas_totales}}</td>
-                    </tr>
-                </table>
-                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
-            </div>
+            
             <hr>
-            <div class="card card-body">
-                <h4>Preguntas frecuentes</h4>
-                <table class="table table-bordered table-sm">
-                    <tr>
-                        <td><b>Total</b></td>
-                        <td>{{$faq_totales}}</td>
-                    </tr>
-                </table>
-                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
-            </div>
+            
             <hr>
             <div class="card card-body">
                 <h4>PopUps y Cintillos</h4>
@@ -241,6 +223,44 @@
             </div>
         </div>
 
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Páginas</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>{{$paginas_totales}}</td>
+                    </tr>
+                </table>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'pagina']) }}">Lista de páginas</a>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Preguntas frecuentes</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>{{$faq_totales}}</td>
+                    </tr>
+                </table>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'faq']) }}">Lista de preguntas</a>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>Noticias</h4>
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td>{{$noticias_totales}}</td>
+                    </tr>
+                </table>
+                <a class="btn btn-info" href="{{ route('publicaciones', ['id_temporada'=> $temporada->id, 'clase'=> 'noticia']) }}">Lista de noticias</a>
+            </div>
+        </div>
     </div>
     
 

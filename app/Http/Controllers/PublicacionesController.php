@@ -139,8 +139,10 @@ class PublicacionesController extends Controller
     {
         //
         $publicacion = Publicacion::find($id);
+        $id_temporada =$publicacion->id_temporada; 
+        $clase =$publicacion->clase; 
         $publicacion->delete();
-        return redirect()->route('publicaciones');
+        return redirect()->route('publicaciones',['id_temporada'=>$id_temporada, 'clase'=>$clase]);
     }
 
     /**

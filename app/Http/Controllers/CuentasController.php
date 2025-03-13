@@ -176,12 +176,19 @@ class CuentasController extends Controller
                 ->where('fecha_final', '>=', now()) // Fecha final aún vigente
                 ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
                 ->first();
+
+            $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
+                ->where('clase', 'noticia')
+                ->orderBy('fecha_publicacion', 'desc')
+                ->limit(16)
+                ->get();
         
         $respuesta = [
             'cuenta' => $cuenta ? $cuenta : null,
             'temporada' => $temporada ? $temporada : null,
             'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
             'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
+            'noticias' => $noticias ? $noticias : null,
             'cintillo' => $cintillo ? $cintillo : null,
             'popup' => $popup ? $popup : null,
         ];

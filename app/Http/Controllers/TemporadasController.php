@@ -105,6 +105,7 @@ class TemporadasController extends Controller
         $jackpot_activo = Jackpot::where('id_temporada', $temporada->id)->where('estado', 'activo')->first();
         $paginas_totales = Publicacion::where('id_temporada', $temporada->id)->where('clase', 'pagina')->count();
         $faq_totales = Publicacion::where('id_temporada', $temporada->id)->where('clase', 'faq')->count();
+        $noticias_totales = Publicacion::where('id_temporada', $temporada->id)->where('clase', 'noticia')->count();
         $notificaciones_totales = Notificacion::where('id_temporada', $temporada->id)->count();
         $distribuidores_suscritos = DistribuidoresSuscripciones::where('id_temporada', $temporada->id)->count();
         $usuarios_suscritos = UsuariosSuscripciones::where('id_temporada', $temporada->id)->count();
@@ -127,6 +128,7 @@ class TemporadasController extends Controller
                                                         'jackpot_activo',
                                                         'paginas_totales',
                                                         'faq_totales',
+                                                        'noticias_totales',
                                                         'notificaciones_totales',
                                                         'distribuidores_suscritos',
                                                         'usuarios_suscritos',
