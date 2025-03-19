@@ -5,6 +5,7 @@
 @section('contenido_principal')
     <h1>Actualizar publicación</h1>
     <form action="{{ route('publicaciones.update', $publicacion->id) }}" method="POST">
+        <input type="hidden" name="Clase" value="{{$publicacion->clase}}">
         @csrf
         @method('PUT')
         <div class="row">
@@ -18,15 +19,15 @@
                     <input type="text" class="form-control" name="Url" value="{{$publicacion->url}}">
                 </div>
                 <div class="form-group">
-                    <label for="Descripcion">Descripción corta</label>
+                    <label for="Descripcion">Frente</label>
                     <textarea name="Descripcion" class="form-control"rows="10">{{$publicacion->descripcion}}</textarea>
                 </div>
                 <div class="form-group">
-                    <label for="Contenido">Contenido</label>
-                    <textarea name="Contenido" class="form-control TextEditor" rows="20">{{$publicacion->contenido}}</textarea>
+                    <label for="Contenido">Vuelta</label>
+                    <textarea name="Contenido" class="form-control" rows="20">{{$publicacion->contenido}}</textarea>
                 </div>
                 <div class="form-group">
-                    <label for="Keywords">Keywords</label>
+                    <label for="Keywords">Link</label>
                     <textarea name="Keywords" class="form-control"rows="10">{{$publicacion->keywords}}</textarea>
                 </div>
             </div>
@@ -39,19 +40,12 @@
                         @endforeach
                     </select>
                 </div>
+                <input type="hidden" name="Funcion" value="normal">
                 <div class="form-group">
-                    <label for="Funcion">Función</label>
-                    <select name="Funcion" id="Funcion" class="form-control">
-                        <option value="normal" <?php if($publicacion->funcion=='normal'){ echo 'selected'; } ?>>Normal</option>
-                        <option value="terminos" <?php if($publicacion->funcion=='terminos'){ echo 'selected'; } ?>>Terminos y condiciones</option>
-                        <option value="aviso" <?php if($publicacion->funcion=='aviso'){ echo 'selected'; } ?>>Aviso de privacidad</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="Destacar">Destacar</label>
+                    <label for="Destacar">Noticia externa</label>
                     <select name="Destacar" id="Destacar" class="form-control">
-                        <option value="si" <?php if($publicacion->destacar=='si'){ echo 'selected'; } ?>>Si</option>
-                        <option value="no" <?php if($publicacion->destacar=='no'){ echo 'selected'; } ?>>No</option>
+                        <option value="no" <?php if($publicacion->destacar=='no'){ echo 'selected'; } ?>>no</option>
+                        <option value="si" <?php if($publicacion->destacar=='si'){ echo 'selected'; } ?>>si</option>
                     </select>
                 </div>
                 <div class="form-group">

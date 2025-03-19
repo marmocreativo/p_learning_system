@@ -20,32 +20,25 @@
                     <input type="text" class="form-control" name="Url">
                 </div>
                 <div class="form-group">
-                    <label for="Descripcion">Descripción corta</label>
+                    <label for="Descripcion">Frente</label>
                     <textarea name="Descripcion" class="form-control"rows="10"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="Contenido">Contenido</label>
-                    <textarea name="Contenido" class="form-control TextEditor" rows="20"></textarea>
+                    <label for="Contenido">Vuelta</label>
+                    <textarea name="Contenido" class="form-control " rows="20"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="Keywords">Keywords</label>
-                    <textarea name="Keywords" class="form-control"rows="10"></textarea>
+                    <label for="Keywords">Link</label>
+                    <textarea name="Keywords" class="form-control"rows="10">#</textarea>
                 </div>
             </div>
             <div class="col-4">
+                <input type="hidden" name="Funcion" value="normal">
                 <div class="form-group">
-                    <label for="Funcion">Función</label>
-                    <select name="Funcion" id="Funcion" class="form-control">
-                        <option value="normal">Normal</option>
-                        <option value="terminos">Terminos y condiciones</option>
-                        <option value="aviso">Aviso de privacidad</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="Destacar">Destacar</label>
+                    <label for="Destacar">Noticia externa</label>
                     <select name="Destacar" id="Destacar" class="form-control">
-                        <option value="si">Si</option>
-                        <option value="no">No</option>
+                        <option value="no">no</option>
+                        <option value="si">si</option>
                     </select>
                 </div>
                 <div class="form-group">
