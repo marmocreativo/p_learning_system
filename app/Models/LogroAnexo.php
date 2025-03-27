@@ -30,4 +30,9 @@ class LogroAnexo extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+
+    public function productos()
+    {
+        return $this->hasMany(LogroAnexoProducto::class, 'id_anexo');
+    }
 }

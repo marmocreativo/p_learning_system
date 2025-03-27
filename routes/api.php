@@ -13,6 +13,7 @@ use App\Http\Controllers\TriviasController;
 use App\Http\Controllers\JackpotsController;
 use App\Http\Controllers\LogrosController;
 use App\Http\Controllers\CanjeoController;
+use App\Http\Controllers\SkuController;
 
 
 /*
@@ -37,6 +38,8 @@ Route::get('prueba', function () {
  * RUTAS API 2025
  * Estas rutas y consultas buscan ser más optimizadas además añadiré consultas a fechas de actualización para solo obtener datos importantes
  */
+// SKUs
+Route::get('skus', [SkuController::class, 'getSkus']);
 Route::get('update_2025', [CuentasController::class, 'update_2025'])->name('update_2025.api');
 Route::get('context_2025', [CuentasController::class, 'context_2025'])->name('context_2025.api');
 Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name('check_token.api');

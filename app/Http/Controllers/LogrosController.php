@@ -11,6 +11,7 @@ use App\Models\UsuariosSuscripciones;
 use App\Models\Logro;
 use App\Models\LogroParticipacion;
 use App\Models\LogroAnexo;
+use App\Models\LogroAnexoProducto;
 use App\Models\User;
 use App\Models\Distribuidor;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ use App\Mail\ConfirmacionNivelChampions;
 use App\Mail\FinalizacionChampions;
 use App\Mail\DesafioChampions;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 
 class LogrosController extends Controller
@@ -404,20 +406,15 @@ class LogrosController extends Controller
         $participacion = LogroParticipacion::where('id_logro', $logro->id)->where('id_usuario', $id_usuario)->first();
         //$participaciones = LogroParticipacion::where('id_logro', $id_usuario)->get();
         if($participacion){
-            $participaciones = DB::table('logros_anexos')
-            ->join('logros', 'logros_anexos.id_logro', '=', 'logros.id')
-            ->where('logros_anexos.id_participacion', '=', $participacion->id)
-            ->where('logros_anexos.id_usuario', '=', $id_usuario)
-            ->select('logros_anexos.*', 'logros.*')
-            ->get();
 
-            $participaciones_pendientes = DB::table('logros_anexos')
-            ->join('logros', 'logros_anexos.id_logro', '=', 'logros.id')
-            ->where('logros_anexos.id_participacion', '=', $participacion->id)
-            ->where('logros_anexos.id_usuario', '=', $id_usuario)
-            ->where('logros_anexos.validado', '=', 'no')
-            ->select('logros_anexos.*', 'logros.*')
-            ->get();
+            $participaciones = LogroAnexo::where('id_participacion', $participacion->id)
+                ->with('productos') // Carga los productos asociados a cada evidencia
+                ->get();
+            $participaciones_pendientes = LogroAnexo::where('id_participacion', $participacion->id)
+                ->where('validado', 'no')
+                ->with('productos')
+                ->get();
+
         }else{
             $participaciones = null;
             $participaciones_pendientes = null;
@@ -482,6 +479,7 @@ class LogrosController extends Controller
     
     public function subir_evidencia_api (Request $request)
     {
+        //Log::info('Datos recibidos:', $request->all());
 
         $request->validate([
             'file' => 'nullable|mimes:jpeg,png,jpg,gif,pdf|max:2048' // Ajusta las reglas de validación según tus necesidades}
@@ -500,6 +498,10 @@ class LogrosController extends Controller
             $logro = Logro::find($id_logro);
             $id_temporada = $logro->id_temporada;
             $nivel = $request->input('nivel');
+            $folio = $request->input('folio');
+            $moneda = $request->input('moneda');
+            $emision = $request->input('emision');
+            $productos = json_decode($request->input('productos'), true);
             
             $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
             $id_distribuidor = $suscripcion->id_distribuidor;
@@ -512,9 +514,29 @@ class LogrosController extends Controller
             $evidencia->id_usuario = $id_usuario;
             $evidencia->documento = $nombreArchivo;
             $evidencia->nivel = $nivel;
+            $evidencia->folio = $folio;
+            $evidencia->moneda = $moneda;
+            $evidencia->emision = $emision;
             $evidencia->fecha_registro = date('Y-m-d H:i:s');
 
             $evidencia->save();
+
+             // Guardar cada producto asociado a la evidencia
+         // Guardar cada producto asociado a la evidencia
+         if (!empty($productos) && is_array($productos)) {
+            foreach ($productos as $producto) {
+                $nuevoProducto = new LogroAnexoProducto();
+                $nuevoProducto->id_logro = $id_logro;
+                $nuevoProducto->id_participacion = $id_participacion;
+                $nuevoProducto->id_temporada = $id_temporada;
+                $nuevoProducto->id_usuario = $id_usuario;
+                $nuevoProducto->id_anexo = $evidencia->id;
+                $nuevoProducto->sku = $producto['sku'];  // Antes: $producto->sku (incorrecto)
+                $nuevoProducto->cantidad = $producto['cantidad'];
+                $nuevoProducto->importe_total = $producto['importe'];
+                $nuevoProducto->save();
+            }
+        }
 
             return ('Archivo Guardado');
         }else{

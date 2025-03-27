@@ -18,10 +18,12 @@ use App\Models\Trivia;
 use App\Models\JackpotIntentos;
 use App\Models\Jackpot;
 use App\Models\Cuenta;
+use App\Models\Sku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class FrontController extends Controller
@@ -35,50 +37,19 @@ class FrontController extends Controller
 
     public function scripts_ajustes()
     {
-        $sesiones = SesionEv::where('id_temporada',6)->get();
-        $usuarios = User::all();
-        echo '<table border="1">';
-        foreach($sesiones as $sesion){
-            echo '<tr>';
-                echo '<th>';
-                    echo $sesion->id;
-                echo '</th>';
-                echo '<th colspan="2">';
-                    echo $sesion->titulo;
-                echo '</th>';
-            echo '</tr>';
-            $visualizaciones = SesionVis::where('id_temporada',6)->where('id_sesion',$sesion->id)->get();
-            foreach($visualizaciones as $visualizacion){
-                $datos_usuario = $usuarios->firstWhere('id', $visualizacion->id_usuario);
-                if($datos_usuario){
-                    echo '<tr>';
-                        echo '<td>';
-                        echo $datos_usuario->nombre.' '.$datos_usuario->apellidos;
-                        echo '</td>';
-                        echo '<td>';
-                        echo $datos_usuario->email;
-                        echo '</td>';
-                        echo '<td>';
-                        echo $visualizacion->fecha_ultimo_video;
-                        echo '</td>';
-                    echo '</tr>';
-                }else{
-                    echo '<tr>';
-                        echo '<td>';
-                        echo '-';
-                        echo '</td>';
-                        echo '<td>';
-                        echo '-';
-                        echo '</td>';
-                        echo '<td>';
-                        echo $visualizacion->fecha_ultimo_video;
-                        echo '</td>';
-                    echo '</tr>';
-                }
-                
-            }
+       // Obtener todos los registros
+        $skus = Sku::all();
+
+        foreach ($skus as $sku) {
+            // Limpiar el SKU dejando solo letras y números
+            $sku_clean = preg_replace('/[^A-Za-z0-9]/', '', $sku->sku);
+
+            // Actualizar el campo sku_clean
+            $sku->sku_clean = $sku_clean;
+            $sku->save();
         }
-        echo '</table>';
+
+        return response()->json(['message' => 'SKUs limpiados correctamente']);
 
     }
     public function restaurar_suscripciones()
