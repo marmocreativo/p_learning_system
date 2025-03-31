@@ -91,22 +91,31 @@
                     <th>Fecha</th>
                     <th>Controles</th>
                 </tr>
-                @foreach ($participaciones as $participacion)
-                <tr>
-                    <td> <a href="{{ route('logros.detalles_participacion', ['id'=>$participacion->id_participacion]) }}">{{$participacion->nombre}} {{$participacion->apellidos}}</a> </td>
-                    <td>{{$participacion->nombre_distribuidor}}</td>
-                    <td>{{$participacion->anexos_no_validados}}</td>
-                    <td>{{$participacion->estado}}</td>
-                    <td>{{$participacion->fecha_registro}}</td>
-                    <td> 
-                        <form action="{{route('logros.destroy_participacion', $participacion->id_participacion)}}" class="form-confirmar" method="POST">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="btn btn-danger">Borrar</button>
-                        </form>
-                    </td>
-                </tr>
-                 @endforeach
+                @if ($participaciones->isEmpty())
+                    <p>No hay participaciones disponibles.</p>
+                @else
+                    @foreach ($participaciones as $participacion)
+                        <tr>
+                            <td>
+                                <a href="{{ route('logros.detalles_participacion', ['id' => $participacion->id_participacion]) }}">
+                                    {{$participacion->nombre}} {{$participacion->apellidos}}
+                                </a>
+                            </td>
+                            <td>{{$participacion->nombre_distribuidor}}</td>
+                            <td>{{$participacion->anexos_no_validados}}</td>
+                            <td>{{$participacion->estado}}</td>
+                            <td>{{$participacion->fecha_registro}}</td>
+                            <td>
+                                <form action="" class="form-confirmar" method="POST">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" class="btn btn-danger">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
+
             </table>
         </div>
     </div>

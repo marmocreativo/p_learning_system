@@ -9,6 +9,7 @@ use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Logro;
+use App\Models\Sku;
 use App\Models\LogroParticipacion;
 use App\Models\LogroAnexo;
 use App\Models\LogroAnexoProducto;
@@ -66,14 +67,14 @@ class LogrosController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'logro_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'default.jpg';
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(public_path('img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = 'default_fondo.jpg';
         }
@@ -155,14 +156,14 @@ class LogrosController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'logro'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $logro->imagen;
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = $logro->imagen_fondo;
         }
@@ -189,6 +190,8 @@ class LogrosController extends Controller
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  
          $logro->save();
+
+         Sku::where('id_logro', $logro->id)->update(['desafio' => $logro->nombre]);
  
          return redirect()->route('logros.show', $logro->id);
     }
@@ -372,6 +375,7 @@ class LogrosController extends Controller
         $participaciones = DB::table('logros_participantes')
             ->join('logros', 'logros_participantes.id_logro', '=', 'logros.id')
             ->where('logros_participantes.id_usuario', '=', $id_usuario)
+            ->where('logros_participantes.id_temporada', $id_temporada)
             ->select('logros_participantes.*', 'logros.*')
             ->get();
         $premios_acumulados = 0;
@@ -426,6 +430,45 @@ class LogrosController extends Controller
             'participacion' => $participacion,
             'participaciones' => $participaciones,
             'participaciones_pendientes' => $participaciones_pendientes
+        ];
+
+        return response()->json($completo);
+    }
+
+    public function detalles_logro_2025_api (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $id_usuario = $request->input('id_usuario');
+        $logro = Logro::find($request->input('id'));
+        $participacion = LogroParticipacion::where('id_logro', $logro->id)->where('id_usuario', $id_usuario)->first();
+        //$participaciones = LogroParticipacion::where('id_logro', $id_usuario)->get();
+        if($participacion){
+
+            $participaciones = LogroAnexo::where('id_participacion', $participacion->id)
+                ->with('productos') // Carga los productos asociados a cada evidencia
+                ->get();
+            $participaciones_pendientes = LogroAnexo::where('id_participacion', $participacion->id)
+                ->where('validado', 'no')
+                ->with('productos')
+                ->get();
+                $fechaMasAlta = $participaciones->max('fecha_registro');
+
+        }else{
+            $participaciones = null;
+            $participaciones_pendientes = null;
+            $fechaMasAlta  = null;
+        }
+        
+
+        $completo = [
+            'logro' => $logro,
+            'participacion' => $participacion,
+            'participaciones_logro' => $participaciones,
+            'participaciones_logro_pendientes' => $participaciones_pendientes,
+            'fecha_ultimo_comprobante' => $fechaMasAlta,
+            
         ];
 
         return response()->json($completo);
@@ -488,7 +531,7 @@ class LogrosController extends Controller
         if ($request->hasFile('file')) {
             $archivo = $request->file('file');
             $nombreArchivo = 'evidencia'.time().'.'.$archivo->extension();
-            $archivo->move(base_path('../public_html/plsystem/img/evidencias'), $nombreArchivo);
+            $archivo->move(base_path('../public_html/system.panduitlatam.com/img/evidencias'), $nombreArchivo);
 
             $id_cuenta = $request->input('id_cuenta');
             $id_usuario = $request->input('id_usuario');

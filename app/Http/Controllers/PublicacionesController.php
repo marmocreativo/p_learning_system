@@ -38,10 +38,30 @@ class PublicacionesController extends Controller
     public function store(Request $request)
     {
         // Si la función es "terminos" o "aviso", actualizar publicaciones existentes
-        if (in_array($request->Funcion, ['terminos', 'aviso'])) {
+        if (in_array($request->Funcion, ['terminos', 'aviso', 'aviso_champions'])) {
             Publicacion::where('id_temporada', $request->IdTemporada)
                 ->where('funcion', $request->Funcion)
                 ->update(['funcion' => 'normal']);
+        }
+
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            ]);
+
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'publicacion'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = 'default.jpg';
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'publicacion_fondo'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = 'default_fondo.jpg';
         }
 
         // Crear nueva publicación
@@ -54,8 +74,8 @@ class PublicacionesController extends Controller
         $publicacion->descripcion = $request->Descripcion;
         $publicacion->contenido = $request->Contenido;
         $publicacion->keywords = $request->Keywords;
-        $publicacion->imagen = 'default.jpg';
-        $publicacion->imagen_fondo = 'fondo_default.jpg';
+        $publicacion->imagen = $nombreImagen;
+        $publicacion->imagen_fondo = $nombreImagenFondo;
         $publicacion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->clase = $request->Clase;
@@ -103,11 +123,31 @@ class PublicacionesController extends Controller
         $publicacion = Publicacion::findOrFail($id);
 
         // Si la función es "terminos" o "aviso", actualizar las publicaciones existentes
-        if (in_array($request->Funcion, ['terminos', 'aviso'])) {
+        if (in_array($request->Funcion, ['terminos', 'aviso','aviso_champions'])) {
             Publicacion::where('id_temporada', $publicacion->id_temporada)
                 ->where('funcion', $request->Funcion)
                 ->where('id', '!=', $id) // Excluir la publicación actual
                 ->update(['funcion' => 'normal']);
+        }
+
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            ]);
+
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'publicacion'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $publicacion->imagen;
+        }
+        if ($request->hasFile('ImagenFondo')) {
+            $imagen_fondo = $request->file('ImagenFondo');
+            $nombreImagenFondo = 'publicacion_fondo'.time().'.'.$imagen_fondo->extension();
+            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+        }else{
+            $nombreImagenFondo = $publicacion->imagen_fondo;
         }
 
         // Actualizar la publicación
@@ -116,8 +156,8 @@ class PublicacionesController extends Controller
         $publicacion->descripcion = $request->Descripcion;
         $publicacion->contenido = $request->Contenido;
         $publicacion->keywords = $request->Keywords;
-        $publicacion->imagen = 'default.jpg';
-        $publicacion->imagen_fondo = 'fondo_default.jpg';
+        $publicacion->imagen = $nombreImagen;
+        $publicacion->imagen_fondo = $nombreImagenFondo;
         $publicacion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->fecha_vigencia = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $publicacion->clase = $request->Clase;

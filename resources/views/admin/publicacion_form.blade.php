@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Formulario de publicaciones</h1>
-    <form action="{{ route('publicaciones.store') }}" method="POST">
+    <form action="{{ route('publicaciones.store') }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
         <input type="hidden" name="Clase" value="{{$_GET['clase']}}">
@@ -33,6 +33,16 @@
                 </div>
             </div>
             <div class="col-4">
+                <div class="form-group">
+                    <label for="Imagen">Imagen</label>
+                    <input type="file" class="form-control" name="Imagen" >
+                </div>
+
+                <div class="form-group">
+                    <label for="ImagenFondo">Imagen tabla de datos</label>
+                    <input type="file" class="form-control" name="ImagenFondo" >
+                </div>
+                <hr>
                 <input type="hidden" name="Funcion" value="normal">
                 <div class="form-group">
                     <label for="Destacar">Noticia externa</label>

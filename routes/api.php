@@ -40,11 +40,14 @@ Route::get('prueba', function () {
  */
 // SKUs
 Route::get('skus', [SkuController::class, 'getSkus']);
+Route::get('skus_busqueda', [SkuController::class, 'getSkusBusqueda']);
+Route::get('skus_busqueda_filtrada', [SkuController::class, 'getSkusBusquedaFiltrada']);
 Route::get('update_2025', [CuentasController::class, 'update_2025'])->name('update_2025.api');
 Route::get('context_2025', [CuentasController::class, 'context_2025'])->name('context_2025.api');
 Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name('check_token.api');
 Route::post('login_gate_2025', [LoginController::class, 'login_gate_2025_api'])->name('login_gate_2025.api');
 Route::get('puntaje_usuario_2025', [UsuariosController::class, 'puntaje_usuario_2025'])->name('puntaje_usuario_2025.api');
+Route::get('detalles_logro_2025', [LogrosController::class, 'detalles_logro_2025_api'])->name('detalles_logro_2025.api');
 
 // Aceptar términos y condiciones
 Route::post('aceptar_terminos_2025', [UsuariosController::class, 'aceptar_terminos_2025'])->name('aceptar_terminos_2025.api');
@@ -113,7 +116,7 @@ Route::post('actualizar_usuario', [UsuariosController::class, 'actualizar_usuari
 Route::post('eliminar_usuario', [UsuariosController::class, 'eliminar_usuario_api'])->name('eliminar_usuario.api');
 
 Route::get('lista_logros', [LogrosController::class, 'lista_logros_api'])->name('lista_logros.api');
-Route::get('detalles_logro', [LogrosController::class, 'detalles_logro_api'])->name('lista_logros.api');
+Route::get('detalles_logro', [LogrosController::class, 'detalles_logro_api'])->name('detalles_logro.api');
 Route::post('participar_logro', [LogrosController::class, 'participar_logro_api'])->name('participar_logro.api');
 Route::post('validar_logro', [LogrosController::class, 'validar_logro_api'])->name('validar_logro.api');
 Route::post('subir_evidencia', [LogrosController::class, 'subir_evidencia_api'])->name('subir_evidencia.api');

@@ -4,7 +4,7 @@
 
 @section('contenido_principal')
     <h1>Actualizar publicación</h1>
-    <form action="{{ route('publicaciones.update', $publicacion->id) }}" method="POST">
+    <form action="{{ route('publicaciones.update', $publicacion->id) }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="Clase" value="{{$publicacion->clase}}">
         @csrf
         @method('PUT')
@@ -32,14 +32,18 @@
                 </div>
             </div>
             <div class="col-4">
+                <input type="hidden" name="Clase" value='{{$publicacion->clase}}'>
+
                 <div class="form-group">
-                    <label for="Clase">Clase de publicacion</label>
-                    <select class="form-control" name="Clase">
-                        @foreach ($clases as $clase)
-                            <option value="{{ $clase->nombre_sistema }}" <?php if($clase->nombre_sistema==$publicacion->clase){ echo 'selected'; } ?>> {{ $clase->nombre_singular}}</option>
-                        @endforeach
-                    </select>
+                    <label for="Imagen">Imagen</label>
+                    <input type="file" class="form-control" name="Imagen" >
                 </div>
+
+                <div class="form-group">
+                    <label for="ImagenFondo">Imagen tabla de datos</label>
+                    <input type="file" class="form-control" name="ImagenFondo" >
+                </div>
+                <hr>
                 <input type="hidden" name="Funcion" value="normal">
                 <div class="form-group">
                     <label for="Destacar">Noticia externa</label>

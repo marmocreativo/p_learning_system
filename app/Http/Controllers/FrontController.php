@@ -19,6 +19,7 @@ use App\Models\JackpotIntentos;
 use App\Models\Jackpot;
 use App\Models\Cuenta;
 use App\Models\Sku;
+use App\Models\Logro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -36,22 +37,23 @@ class FrontController extends Controller
     }
 
     public function scripts_ajustes()
-    {
-       // Obtener todos los registros
-        $skus = Sku::all();
+{
+    // Obtener todos los registros de logros
+    $logros = Logro::all();
+
+    foreach ($logros as $logro) {
+        // Actualizar los SKUs que coinciden con el nombre del desafío
+        $skus = Sku::where('desafio', $logro->nombre)->get();
 
         foreach ($skus as $sku) {
-            // Limpiar el SKU dejando solo letras y números
-            $sku_clean = preg_replace('/[^A-Za-z0-9]/', '', $sku->sku);
-
-            // Actualizar el campo sku_clean
-            $sku->sku_clean = $sku_clean;
+            // Asignar el id_logro a cada SKU encontrado
+            $sku->id_logro = $logro->id;
             $sku->save();
         }
-
-        return response()->json(['message' => 'SKUs limpiados correctamente']);
-
     }
+
+    return response()->json(['message' => 'SKUs asignados']);
+}
     public function restaurar_suscripciones()
     
     {
