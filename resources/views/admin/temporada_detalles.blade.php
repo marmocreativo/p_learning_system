@@ -162,10 +162,7 @@
             <hr>
             
             <hr>
-            <div class="card card-body">
-                <h4>PopUps y Cintillos</h4>
-                <a class="btn btn-info" href="{{ route('popups', ['id_temporada'=> $temporada->id]) }}">Lista de popups</a>
-            </div>
+            
         </div>
         <div class="col-3">
             <div class="card card-body">
@@ -225,6 +222,12 @@
 
     </div>
     <div class="row">
+        <div class="col-3">
+            <div class="card card-body">
+                <h4>PopUps y Cintillos</h4>
+                <a class="btn btn-info" href="{{ route('popups', ['id_temporada'=> $temporada->id]) }}">Lista de popups</a>
+            </div>
+        </div>
         <div class="col-3">
             <div class="card card-body">
                 <h4>Páginas</h4>

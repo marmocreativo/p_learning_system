@@ -9,59 +9,129 @@
         <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
         <input type="hidden" name="Clase" value="{{$_GET['clase']}}">
         @csrf
-        <div class="row">
-            <div class="col-8">
-                <div class="form-group">
-                    <label for="Titulo">Titulo de la publicación</label>
-                    <input type="text" class="form-control" name="Titulo">
+        @switch($publicacion->clase)
+            @case('pagina')
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-group">
+                            <label for="Titulo">Titulo de la publicación</label>
+                            <input type="text" class="form-control" name="Titulo" value="">
+                        </div>
+                        <input type="hidden" name="Url" value="">
+                        <div class="form-group">
+                            <label for="Descripcion">Descripción corta</label>
+                            <textarea name="Descripcion" class="form-control"rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="Contenido">Contenido completo </label>
+                            <textarea name="Contenido" class="form-control TextEditor" rows="20"></textarea>
+                        </div>
+                        <input type="hidden" name="Keywords" value="">
+                    </div>
+                    <div class="col-4">
+        
+                        <div class="form-group">
+                            <label for="Imagen">Imagen Principal</label>
+                            <input type="file" class="form-control" name="Imagen" >
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="ImagenFondo">Imagen de fondo</label>
+                            <input type="file" class="form-control" name="ImagenFondo" >
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="Funcion">Función</label>
+                            <select name="Funcion" id="Funcion" class="form-control">
+                                <option value="normal" >Publicación Normal</option>
+                                <option value="terminos" >Términos y condiciones</option>
+                                <option value="terminos_champions" >Términos y condiciones de champions</option>
+                                <option value="aviso" >Aviso de privacidad</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="Destacar" value = 'no'>
+                        <div class="form-group">
+                            <label for="Estado">Estado</label>
+                            <select name="Estado" id="Estado" class="form-control">
+                                <option value="activo" >Activo</option>
+                                <option value="inactivo" >Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="Url">URL de la publicación</label>
-                    <input type="text" class="form-control" name="Url">
+                @break
+            @case('faq')
+            <div class="row">
+                <div class="col-8">
+                    <div class="form-group">
+                        <label for="Titulo">Pregunta</label>
+                        <input type="text" class="form-control" name="Titulo" value="">
+                    </div>
+                    <input type="hidden" name="Url" value="">
+                    <div class="form-group">
+                        <label for="Descripcion">Respuesta</label>
+                        <textarea name="Descripcion" class="form-control"rows="3"></textarea>
+                    </div>
+                    <input type="hidden" name="Contenido" value="">
+                    <input type="hidden" name="Keywords" value="">
                 </div>
-                <div class="form-group">
-                    <label for="Descripcion">Frente</label>
-                    <textarea name="Descripcion" class="form-control"rows="10"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="Contenido">Vuelta</label>
-                    <textarea name="Contenido" class="form-control " rows="20"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="Keywords">Link</label>
-                    <textarea name="Keywords" class="form-control"rows="10">#</textarea>
+                <div class="col-4">
+                    <input type="hidden" name="Funcion" value="normal">
+                    <input type="hidden" name="Destacar" value = 'no'>
+                    <div class="form-group">
+                        <label for="Estado">Estado</label>
+                        <select name="Estado" id="Estado" class="form-control">
+                            <option value="activo" ?>>Activo</option>
+                            <option value="inactivo" ?>>Inactivo</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="col-4">
-                <div class="form-group">
-                    <label for="Imagen">Imagen</label>
-                    <input type="file" class="form-control" name="Imagen" >
+                @break
+            @case('noticia')
+            <div class="row">
+                <div class="col-8">
+                    <div class="form-group">
+                        <label for="Titulo">Titulo (opcional)</label>
+                        <input type="text" class="form-control" name="Titulo" value="">
+                    </div>
+                    <input type="hidden" name="Url" value="">
+                    <div class="form-group">
+                        <label for="Descripcion">Descripción corta</label>
+                        <textarea name="Descripcion" class="form-control"rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="Keywords">Link externo</label>
+                        <input type="text" class="form-control" name="Keywords" value="">
+                    </div>
+                    <input type="hidden" name="Contenido" value="">
                 </div>
-
-                <div class="form-group">
-                    <label for="ImagenFondo">Imagen tabla de datos</label>
-                    <input type="file" class="form-control" name="ImagenFondo" >
+                <div class="col-4">
+    
+                    <div class="form-group">
+                        <label for="Imagen">Imagen Frente</label>
+                        <input type="file" class="form-control" name="Imagen" >
+                    </div>
+                    <div class="form-group">
+                        <label for="ImagenFondo">Imagen Vuelta</label>
+                        <input type="file" class="form-control" name="ImagenFondo" >
+                    </div>
+                    <hr>
+                    <input type="hidden" name="Funcion" value="normal">
+                    <input type="hidden" name="Destacar" value = 'no'>
+                    <div class="form-group">
+                        <label for="Estado">Estado</label>
+                        <select name="Estado" id="Estado" class="form-control">
+                            <option value="activo" >Activo</option>
+                            <option value="inactivo" >Inactivo</option>
+                        </select>
+                    </div>
                 </div>
-                <hr>
-                <input type="hidden" name="Funcion" value="normal">
-                <div class="form-group">
-                    <label for="Destacar">Noticia externa</label>
-                    <select name="Destacar" id="Destacar" class="form-control">
-                        <option value="no">no</option>
-                        <option value="si">si</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="Estado">Estado</label>
-                    <select name="Estado" id="Estado" class="form-control">
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                </div>
-                <hr>
-                <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </div>
+                @break
+            @default
+            <p>La clase de la publicación no está definida</p>
+        @endswitch
         
         
     </form>
