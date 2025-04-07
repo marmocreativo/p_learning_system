@@ -472,8 +472,9 @@ class LoginController extends Controller
     }
 
     public function login_gate_2025_api(Request $request){
-        $pl_electrico = Cuenta::find(1);
+        $pl_el = Cuenta::find(1);
         $pl_ni = Cuenta::find(3);
+        $pl_et = Cuenta::find(4);
 
         $loginType = filter_var($request->Email, FILTER_VALIDATE_EMAIL) ? 'email' : 'legacy_id';
 
@@ -494,32 +495,51 @@ class LoginController extends Controller
 
             $user = User::where($loginType, $request->Email)->firstOrFail();
             $id_usuario = $user->id;
-            $suscripcion_electrico = UsuariosSuscripciones::where('id_temporada', $pl_electrico->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $suscripcion_el = UsuariosSuscripciones::where('id_temporada', $pl_el->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $suscripcion_ni = UsuariosSuscripciones::where('id_temporada', $pl_ni->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $suscripcion_et = UsuariosSuscripciones::where('id_temporada', $pl_et->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $redireccion = 'ninguna';
+
+
             switch ($request->id_cuenta) {
                 case '1':
-                    if($suscripcion_electrico&&$suscripcion_ni){
+                    if($suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'gate_doble';
                     }
-                    if($suscripcion_electrico&&!$suscripcion_ni){
+                    if($suscripcion_el&&!$suscripcion_ni){
                         $redireccion = 'usuario';
                     }
-                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                    if(!$suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'gate_ni';
                     }
                     break;
 
                 case '3':
-                    if($suscripcion_electrico&&$suscripcion_ni){
+                    if($suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'gate_doble';
                     }
-                    if($suscripcion_electrico&&!$suscripcion_ni){
+                    if($suscripcion_el&&!$suscripcion_ni){
                         $redireccion = 'gate_electrico';
                     }
-                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                    if(!$suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'usuario';
                     }
+                    break;
+                case '4':
+                    if($suscripcion_et){
+                        $redireccion = 'usuario';
+                    }else{
+                        if($suscripcion_el&&$suscripcion_ni){
+                            $redireccion = 'gate_doble';
+                        }
+                        if($suscripcion_el&&!$suscripcion_ni){
+                            $redireccion = 'gate_electrico';
+                        }
+                        if(!$suscripcion_el&&$suscripcion_ni){
+                            $redireccion = 'gate_ni';
+                        }
+                    }
+                    
                     break;
                 
                 default:
@@ -527,10 +547,10 @@ class LoginController extends Controller
                     break;
             }
             
-                if($suscripcion_electrico){
-                    $distribuidor_electrico = $suscripcion_electrico->distribuidor;
-                    $nombre_dist_el = $suscripcion_electrico->distribuidor->nombre;
-                    $region_dist_el = $suscripcion_electrico->distribuidor->region;
+                if($suscripcion_el){
+                    $distribuidor_electrico = $suscripcion_el->distribuidor;
+                    $nombre_dist_el = $suscripcion_el->distribuidor->nombre;
+                    $region_dist_el = $suscripcion_el->distribuidor->region;
                 }else{
                     $distribuidor_electrico = null;
                     $nombre_dist_el = '';
@@ -547,9 +567,20 @@ class LoginController extends Controller
                     $region_dist_ni = '';
                 }
 
+                if($suscripcion_et){
+                    $distribuidor_et = $suscripcion_et->distribuidor;
+                    $nombre_dist_et = $suscripcion_et->distribuidor->nombre;
+                    $region_dist_et = $suscripcion_et->distribuidor->region;
+                }else{
+                    $distribuidor_et = null;
+                    $nombre_dist_et = '';
+                    $region_dist_et = '';
+                }
+
                 
                 $token = $user->createToken('auth_token')->plainTextToken;
 
+                /* Este fragmento guarda una acción agregar en cualquier acción que se desee guardar */
                 $accion = new AccionesUsuarios();
                 $accion->id_usuario = $user->id;
                 $accion->nombre = $user->nombre.''.$user->apellidos;
@@ -557,6 +588,101 @@ class LoginController extends Controller
                 $accion->accion = 'login';
                 $accion->descripcion = 'Se inicio sesión via API';
                 $accion->save();
+                /* Este fragmento guarda una acción agregar en cualquier acción que se desee guardar */
+
+                // Premio de primer acceso
+                //
+                $primer_acceso = false;
+                switch ($request->id_cuenta) {
+                    case '1':
+                        $cuenta = $pl_el;
+                        if($cuenta->bono_login=='si'){
+                            //Buscar si ya se registraron los puntos
+                            $puntos = $cuenta->bono_login_cantidad;
+                            $concepto = 'Bono pimer ingreso';
+                            $id_temporada = $cuenta->temporada_actual;
+                            
+                            $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
+                                                            ->where('id_temporada', $id_temporada )
+                                                            ->where('id_usuario', $user->id )
+                                                            ->where('concepto', $concepto )
+                                                            ->first();
+                            
+                            if(!$registro_puntos){
+                                $nuevo_registro = new PuntosExtra();
+                                $nuevo_registro->id_cuenta = $cuenta->id;
+                                $nuevo_registro->id_temporada = $id_temporada;
+                                $nuevo_registro->id_usuario = $user->id;
+                                $nuevo_registro->concepto = $concepto;
+                                $nuevo_registro->puntos = $puntos;
+
+                                $nuevo_registro->save();
+                                $primer_acceso = true;
+                            }
+
+                        }
+                        break;
+                    case '3':
+                        $cuenta = $pl_ni;
+                        if($cuenta->bono_login=='si'){
+                            //Buscar si ya se registraron los puntos
+                            $puntos = $cuenta->bono_login_cantidad;
+                            $concepto = 'Bono pimer ingreso';
+                            $id_temporada = $cuenta->temporada_actual;
+                            
+                            $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
+                                                            ->where('id_temporada', $id_temporada )
+                                                            ->where('id_usuario', $user->id )
+                                                            ->where('concepto', $concepto )
+                                                            ->first();
+                            
+                            if(!$registro_puntos){
+                                $nuevo_registro = new PuntosExtra();
+                                $nuevo_registro->id_cuenta = $cuenta->id;
+                                $nuevo_registro->id_temporada = $id_temporada;
+                                $nuevo_registro->id_usuario = $user->id;
+                                $nuevo_registro->concepto = $concepto;
+                                $nuevo_registro->puntos = $puntos;
+
+                                $nuevo_registro->save();
+                                $primer_acceso = true;
+                            }
+
+                        }
+                        break;
+                    case '4':
+                        $cuenta = $pl_et;
+                        if($cuenta->bono_login=='si'){
+                            //Buscar si ya se registraron los puntos
+                            $puntos = $cuenta->bono_login_cantidad;
+                            $concepto = 'Bono pimer ingreso';
+                            $id_temporada = $cuenta->temporada_actual;
+                            
+                            $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
+                                                            ->where('id_temporada', $id_temporada )
+                                                            ->where('id_usuario', $user->id )
+                                                            ->where('concepto', $concepto )
+                                                            ->first();
+                            
+                            if(!$registro_puntos){
+                                $nuevo_registro = new PuntosExtra();
+                                $nuevo_registro->id_cuenta = $cuenta->id;
+                                $nuevo_registro->id_temporada = $id_temporada;
+                                $nuevo_registro->id_usuario = $user->id;
+                                $nuevo_registro->concepto = $concepto;
+                                $nuevo_registro->puntos = $puntos;
+
+                                $nuevo_registro->save();
+                                $primer_acceso = true;
+                            }
+
+                        }
+                        break;
+                    
+                    default:
+                        $primer_acceso = false;
+                        break;
+                }
                 
                 return response()->json([
                     'message' => 'Hola '.$user->nombre,
@@ -564,12 +690,20 @@ class LoginController extends Controller
                     'accessToken' => $token,
                     'token_type' => 'Bearer',
                     'user'=>$user,
-                    'suscripcion_electrico'=>$suscripcion_electrico,
-                    'suscripcion_ni'=>$suscripcion_electrico,
+
+                    'suscripcion_electrico'=>$suscripcion_el,
                     'distribuidor_electrico'=>$nombre_dist_el,
-                    'distribuidor_ni'=>$nombre_dist_ni,
                     'region_electrico'=>$region_dist_el,
+
+                    'suscripcion_ni'=>$suscripcion_ni,
+                    'distribuidor_ni'=>$nombre_dist_ni,
                     'region_ni'=>$region_dist_ni,
+
+                    'suscripcion_et'=>$suscripcion_et,
+                    'distribuidor_et'=>$nombre_dist_et,
+                    'region_et'=>$region_dist_et,
+
+                    'primer_acceso' => $primer_acceso,
                 ]);
             
 

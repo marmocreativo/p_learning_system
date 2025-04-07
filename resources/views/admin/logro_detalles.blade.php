@@ -91,10 +91,10 @@
                     <th>Fecha</th>
                     <th>Controles</th>
                 </tr>
-                @if ($participaciones->isEmpty())
+                @if ($logro->participaciones->isEmpty())
                     <p>No hay participaciones disponibles.</p>
                 @else
-                    @foreach ($participaciones as $participacion)
+                    @foreach ($logro->participaciones as $participacion)
                         <tr>
                             <td>
                                 <a href="{{ route('logros.detalles_participacion', ['id' => $participacion->id_participacion]) }}">
@@ -106,7 +106,7 @@
                             <td>{{$participacion->estado}}</td>
                             <td>{{$participacion->fecha_registro}}</td>
                             <td>
-                                <form action="" class="form-confirmar" method="POST">
+                                <form action="{{route('logros.destroy_participacion',$participacion->id)}}" class="form-confirmar" method="POST">
                                     @csrf
                                     @method('delete')
                                     <button type="submit" class="btn btn-danger">Borrar</button>

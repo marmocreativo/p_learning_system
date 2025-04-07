@@ -11,6 +11,31 @@
         <div class="col-3">
             <h5>Configuración de la cuenta</h5>
             <hr>
+            <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$cuenta->logotipo) }}" alt="Logotipo">
+            <div class="form-group">
+                <label for="Logotipo">Logotipo</label>
+                <input type="file" class="form-control" name="Logotipo" >
+            </div>
+            <div class="form-group">
+                <label for="ColorRealse">Color de realse</label>
+                <input type="text" class="form-control" name="ColorRealse" value="{{$cuenta->color_realse}}">
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="FondoMenu">Fondo del menú</label>
+                        <input type="text" class="form-control" name="FondoMenu" value="{{$cuenta->fondo_menu}}">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="TextoMenu">Texto del menú</label>
+                        <input type="text" class="form-control" name="TextoMenu" value="{{$cuenta->texto_menu}}">
+                    </div>
+                </div>
+            </div>
+            <hr>
             <div class="form-group">
                 <label for="Nombre">Nombre de la cuenta</label>
                 <input type="text" class="form-control" name="Nombre" value="{{$cuenta->nombre}}">
@@ -53,6 +78,24 @@
                     <option value="no" <?php if($cuenta->canjeo_puntos=='no'){ echo 'selected'; } ?>>No</option>
                 </select>
             </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="BonoLogin">Activar bono de login?</label>
+                        <select name="BonoLogin" id="BonoLogin" class="form-control">
+                            <option value="si" <?php if($cuenta->bono_login=='si'){ echo 'selected'; } ?>>Si</option>
+                            <option value="no" <?php if($cuenta->bono_login=='no'){ echo 'selected'; } ?>>No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="BonoLogin">Puntos por primer login</label>
+                        <input type="number" class="form-control" name="BonoLoginCantidad" value="{{$cuenta->bono_login_cantidad}}">
+                    </div>
+                </div>
+            </div>
+            
             <input type="hidden" name="Estado" value="{{$cuenta->estado}}">
         </div>
         <div class="col-9">

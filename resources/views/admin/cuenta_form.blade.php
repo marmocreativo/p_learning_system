@@ -7,6 +7,30 @@
     <form action="{{ route('cuentas.store') }}" method="POST">
         @csrf
         <div class="form-group">
+            <label for="Logotipo">Logotipo</label>
+            <input type="file" class="form-control" name="Logotipo" >
+        </div>
+        <div class="form-group">
+            <label for="ColorRealse">Color de realse</label>
+            <input type="text" class="form-control" name="ColorRealse" value="#F0B323">
+        </div>
+        <hr>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="FondoMenu">Fondo del menú</label>
+                        <input type="text" class="form-control" name="FondoMenu">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="TextoMenu">Texto del menú</label>
+                        <input type="text" class="form-control" name="TextoMenu">
+                    </div>
+                </div>
+            </div>
+            <hr>
+        <div class="form-group">
             <label for="Nombre">Nombre de la cuenta</label>
             <input type="text" class="form-control" name="Nombre">
         </div>
@@ -37,6 +61,23 @@
                 <option value="si">Si</option>
                 <option value="no">No</option>
             </select>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="BonoLogin">Activar bono de login?</label>
+                    <select name="BonoLogin" id="BonoLogin" class="form-control">
+                        <option value="si">Si</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="BonoLogin">Puntos por primer login</label>
+                    <input type="number" class="form-control" name="BonoLoginCantidad" value="0">
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label for="Estado"></label>

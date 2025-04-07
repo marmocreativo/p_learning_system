@@ -15,9 +15,12 @@
                         <h3>{{$cuenta->nombre}} </h3>
                         <table class="table table-stripped">
                             <tbody>
+                                @if ($cuenta->temporada_actual)
                                 <tr>
                                     <td><a href="{{route('temporadas.show', $cuenta->temporada_actual)}}">Ver temporada activa</a></td>
                                 </tr>
+                                @endif
+                                
                                 <tr>
                                     <td><a href="{{route('temporadas', ['id_cuenta'=> $cuenta->id])}}">Ver todas las temporadas</a></td>
                                 </tr>

@@ -9,7 +9,7 @@
         <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">
         <input type="hidden" name="Clase" value="{{$_GET['clase']}}">
         @csrf
-        @switch($publicacion->clase)
+        @switch($_GET['clase'])
             @case('pagina')
                 <div class="row">
                     <div class="col-8">
@@ -133,6 +133,6 @@
             <p>La clase de la publicación no está definida</p>
         @endswitch
         
-        
+        <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 @endsection

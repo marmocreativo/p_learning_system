@@ -4,6 +4,16 @@
 
 @section('contenido_principal')
     <h1>Detalles de la cuenta: <small>{{$cuenta->nombre}}</small></h1>
+    <div class="p-4" style="background-color: {{$cuenta->fondo_menu}}">
+        <div class="row">
+            <div class="col-3">
+                <img class="img-fluid mb-3" src="{{ asset('img/publicaciones/'.$cuenta->logotipo) }}" style="max-height:50px" alt="Imagen">
+            </div>
+            <div class="col-9 pt-3 d-flex justify-content-end">
+                <button class="btn btn-primary" style="background-color:{{$cuenta->color_realse}}"> Botón </button>
+            </div>
+        </div>
+    </div>
     <table class="table table-stripped">
         <tr>
             <td>Nombre</td>

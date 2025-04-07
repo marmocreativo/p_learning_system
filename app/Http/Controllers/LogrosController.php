@@ -111,11 +111,9 @@ class LogrosController extends Controller
     public function show(string $id)
     {
         $logro = Logro::find($id);
-        
-        // Obtener las participaciones y anexar el conteo de anexos
-        $participaciones = LogroParticipacion::where('id_logro', $logro->id)->get();
+
     
-        return view('admin/logro_detalles', compact('logro', 'participaciones'));
+        return view('admin/logro_detalles', compact('logro'));
     }
 
     public function participacion(Request $request)
@@ -233,10 +231,11 @@ class LogrosController extends Controller
         // Buscar y eliminar registros relacionados en otras tablas
         
         LogroAnexo::where('id_participacion', $participacion->$id)->delete();
+        LogroAnexoProducto::where('id_participacion', $participacion->$id)->delete();
 
 
         $participacion->delete();
-        return redirect()->route('logros', ['id_temporada'=>$id_temporada]);
+        return redirect()->route('logros.show', $participacion->id_logro);
         
     }
 

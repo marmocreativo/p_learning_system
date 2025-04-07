@@ -38,11 +38,46 @@ class CuentasController extends Controller
         //
         $cuenta = new Cuenta();
 
+        $request->validate([
+            'Fondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'ImagenVideo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'Logotipo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+
+        if ($request->hasFile('Logotipo')) {
+            $logotipo = $request->file('Logotipo');
+            $nombreLogotipo = 'fondo'.time().'.'.$fondo->extension();
+            $logotipo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreLogotipo);
+        }else{
+            $nombreLogotipo = 'default.png';
+        }
+
+        if ($request->hasFile('Fondo')) {
+            $fondo = $request->file('Fondo');
+            $nombreFondo = 'fondo'.time().'.'.$fondo->extension();
+            $fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreFondo);
+        }else{
+            $nombreFondo = 'default.jpg';
+        }
+
+        if ($request->hasFile('ImagenVideo')) {
+            $imagenVideo = $request->file('ImagenVideo');
+            $nombreImagenVideo = 'fondo'.time().'.'.$imagenVideo->extension();
+            $imagenVideo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenVideo);
+        }else{
+            $nombreImagenVideo = 'default.jpg';
+        }
+
         $cuenta->nombre = $request->Nombre;
         $cuenta->sesiones = $request->Sesiones;
         $cuenta->trivias = $request->Trivias;
         $cuenta->jackpots = $request->Jackpots;
         $cuenta->canjeo_puntos = $request->CanjeoPuntos;
+        $cuenta->bono_login = $request->BonoLogin;
+        $cuenta->bono_login_cantidad = $request->BonoLoginCantidad;
+        $cuenta->logotipo = $nombreLogotipo;
+        $cuenta->fondo = $nombreFondo;
+        $cuenta->imagen_video = $nombreImagenVideo;
         $cuenta->temporada_actual = null;
         $cuenta->estado = $request->Estado;
 
@@ -85,7 +120,16 @@ class CuentasController extends Controller
         $request->validate([
             'Fondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
             'ImagenVideo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'Logotipo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
         ]);
+
+        if ($request->hasFile('Logotipo')) {
+            $logotipo = $request->file('Logotipo');
+            $nombreLogotipo = 'logo'.time().'.'.$logotipo->extension();
+            $logotipo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreLogotipo);
+        }else{
+            $nombreLogotipo = $cuenta->logotipo;
+        }
 
         if ($request->hasFile('Fondo')) {
             $fondo = $request->file('Fondo');
@@ -108,15 +152,22 @@ class CuentasController extends Controller
         $cuenta->trivias = $request->Trivias;
         $cuenta->jackpots = $request->Jackpots;
         $cuenta->canjeo_puntos = $request->CanjeoPuntos;
+        $cuenta->bono_login = $request->BonoLogin;
+        $cuenta->bono_login_cantidad = $request->BonoLoginCantidad;
         $cuenta->temporada_actual = $request->TemporadaActual;
         $cuenta->badge = $request->Badge;
         $cuenta->titulo = $request->Titulo;
         $cuenta->titulo_resaltado = $request->TituloResaltado;
         $cuenta->boton_texto = $request->BotonTexto;
         $cuenta->boton_enlace = $request->BotonEnlace;
+        $cuenta->logotipo = $nombreLogotipo;
         $cuenta->fondo = $nombreFondo;
         $cuenta->imagen_video = $nombreImagenVideo;
         $cuenta->link_video = $request->LinkVideo;
+        $cuenta->fondo_menu = $request->FondoMenu;
+        $cuenta->texto_menu = $request->TextoMenu;
+        $cuenta->color_realse = $request->ColorRealse;
+
         $cuenta->estado = $request->Estado;
         $cuenta->save();
 
