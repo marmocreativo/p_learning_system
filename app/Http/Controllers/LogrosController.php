@@ -84,6 +84,7 @@ class LogrosController extends Controller
          $logro->instrucciones = $request->Instrucciones;
          $logro->contenido = $request->Contenido;
          $logro->premio = $request->Premio;
+         $logro->premio_rola = $request->PremioRola;
          $logro->nivel_a = $request->NivelA;
          $logro->nivel_b = $request->NivelB;
          $logro->nivel_c = $request->NivelC;
@@ -149,6 +150,8 @@ class LogrosController extends Controller
         $request->validate([
             'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
             'ImagenFondo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'TablaMx' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'TablaRola' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
             ]);
 
         if ($request->hasFile('Imagen')) {
@@ -166,10 +169,26 @@ class LogrosController extends Controller
             $nombreImagenFondo = $logro->imagen_fondo;
         }
 
+        if ($request->hasFile('TablaMx')) {
+            $tabla_mx = $request->file('TablaMx');
+            $nombreTablaMx = 'tabla_mx_'.time().'.'.$tabla_mx->extension();
+            $tabla_mx->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreTablaMx);
+        }else{
+            $nombreTablaMx = $logro->tabla_mx;
+        }
+        if ($request->hasFile('TablaRola')) {
+            $tabla_rola = $request->file('TablaRola');
+            $nombreTablaRola = 'tabla_rola_'.time().'.'.$tabla_rola->extension();
+            $tabla_rola->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreTablaRola);
+        }else{
+            $nombreTablaRola = $logro->tabla_rola;
+        }
+
         $logro->id_temporada = $request->IdTemporada;
         $logro->nombre = $request->Nombre;
         $logro->instrucciones = $request->Instrucciones;
         $logro->premio = $request->Premio;
+        $logro->premio_rola = $request->PremioRola;
         $logro->contenido = $request->Contenido;
         $logro->nivel_a = $request->NivelA;
         $logro->nivel_b = $request->NivelB;
@@ -181,9 +200,17 @@ class LogrosController extends Controller
          $logro->premio_b = $request->PremioB;
          $logro->premio_c = $request->PremioC;
          $logro->premio_especial = $request->PremioEspecial;
+
+         $logro->premio_rola_a = $request->PremioRolaA;
+         $logro->premio_rola_b = $request->PremioRolaB;
+         $logro->premio_rola_c = $request->PremioRolaC;
+         $logro->premio_rola_especial = $request->PremioRolaEspecial;
+
          $logro->cantidad_evidencias = $request->CantidadEvidencias;
         $logro->imagen = $nombreImagen;
         $logro->imagen_fondo = $nombreImagenFondo;
+        $logro->tabla_mx = $nombreTablaMx;
+        $logro->tabla_rola = $nombreTablaRola;
         $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
  

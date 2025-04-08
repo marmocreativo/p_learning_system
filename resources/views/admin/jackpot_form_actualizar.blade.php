@@ -21,7 +21,14 @@
                 
             </div>
             <div class="col-4">
-               
+               <h5>Tipo de juego</h5>
+               <div class="form-group">
+                    <label for="Tipo">Tipo</label>
+                    <select class="form-control" name="Tipo" id="Tipo">
+                        <option value="jackpot" @if($jackpot->tipo=='jackpot')selected @endif>jackpot</option>
+                        <option value="ruleta" @if($jackpot->tipo=='ruleta')selected @endif>ruleta</option>
+                    </select>
+                </div>
                 <h5>Intentos</h5>
                 <div class="form-group">
                     <label for="Intentos">Intentos por jackpot</label>

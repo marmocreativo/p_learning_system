@@ -61,6 +61,7 @@ class JackpotsController extends Controller
          $jackpot->trivia = $request->Trivia;
          $jackpot->region = $request->Region;
          $jackpot->estado = $request->Estado;
+         $jackpot->tipo = $request->Tipo;
  
          $jackpot->save();
  
@@ -137,6 +138,7 @@ class JackpotsController extends Controller
          $jackpot->trivia = $request->Trivia;
          $jackpot->region = $request->Region;
          $jackpot->estado = $request->Estado;
+         $jackpot->tipo = $request->Tipo;
  
          $jackpot->save();
 

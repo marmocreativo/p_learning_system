@@ -20,6 +20,14 @@
                 
             </div>
             <div class="col-4">
+                <h5>Tipo de juego</h5>
+               <div class="form-group">
+                    <label for="Tipo">Tipo</label>
+                    <select class="form-control" name="Tipo" id="Tipo">
+                        <option value="jackpot">jackpot</option>
+                        <option value="ruleta">ruleta</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="Estado">Estado</label>
                     <select name="Estado" id="Estado" class="form-control">

@@ -14,9 +14,19 @@
                     <label for="Nombre">Nombre</label>
                     <input type="text" class="form-control" name="Nombre">
                 </div>
-                <div class="form-group">
-                    <label for="Premio">Premio en texto</label>
-                    <input type="text" class="form-control" name="Premio">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="Premio">Premio MX</label>
+                            <input type="text" class="form-control" name="Premio" value="">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="PremioRola">Premio ROLA</label>
+                            <input type="text" class="form-control" name="PremioRola" value="">
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -29,58 +39,82 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="NivelA">Describe el Nivel A</label>
-                            <textarea class="form-control TextEditor" name="NivelA" id="NivelA" rows="5"></textarea>
+                            <textarea class="form-control TextEditor" name="NivelA" id="NivelA" rows="5"> </textarea>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label for="PremioA">Premio nivel A (número)</label>
-                            <input type="number" class="form-control" step="0.01" name="PremioA">
+                            <label for="PremioA">Premio nivel A MX(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioA"  >
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioRolaA">Premio nivel A ROLA(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioRolaA"  >
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="NivelB">Describe el Nivel B</label>
-                            <textarea class="form-control TextEditor" name="NivelB" id="NivelB" rows="5"></textarea>
+                            <textarea class="form-control TextEditor" name="NivelB" id="NivelB" rows="5"> </textarea>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label for="PremioB">Premio nivel B (número)</label>
-                            <input type="number" class="form-control" step="0.01" name="PremioB">
+                            <label for="PremioB">Premio nivel B MX(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioB"  >
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioRolaB">Premio nivel B ROLA(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioRolaB" >
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="NivelC">Describe el Nivel C</label>
-                            <textarea class="form-control TextEditor" name="NivelC" id="NivelC" rows="5"></textarea>
+                            <textarea class="form-control TextEditor" name="NivelC" id="NivelC" rows="5"> </textarea>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label for="PremioC">Premio nivel C (número)</label>
-                            <input type="number" class="form-control" step="0.01" name="PremioC">
+                            <label for="PremioC">Premio nivel C MX(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioC" >
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioRolaC">Premio nivel C ROLA(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioRolaC"  >
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="NivelEspecial">Describe el Nivel Especial</label>
-                            <textarea class="form-control TextEditor" name="NivelEspecial" id="NivelEspecial" rows="5"></textarea>
+                            <textarea class="form-control TextEditor" name="NivelEspecial" id="NivelEspecial" rows="5"> </textarea>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label for="PremioEspecial">Premio nivel Especial (número)</label>
-                            <input type="number" class="form-control" step="0.01" name="PremioEspecial">
+                            <label for="PremioEspecial">Premio nivel Especial MX(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioEspecial" >
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="PremioRolaEspecial">Premio nivel Especial ROLA(número)</label>
+                            <input type="number" class="form-control" step="0.01" name="PremioRolaEspecial">
                         </div>
                     </div>
                 </div>
@@ -95,6 +129,15 @@
                     <label for="ImagenFondo">Imagen tabla de datos</label>
                     <input type="file" class="form-control" name="ImagenFondo" >
                 </div>
+                <div class="form-group">
+                    <label for="TablaMx">Imagen tabla premios MX</label>
+                    <input type="file" class="form-control" name="TablaMx" >
+                </div>
+                <div class="form-group">
+                    <label for="TablaRola">Imagen tabla premios ROLA</label>
+                    <input type="file" class="form-control" name="TablaRola" >
+                </div>
+
                 <hr>
                 
                 <div class="form-group">
