@@ -593,12 +593,16 @@ class LoginController extends Controller
                 // Premio de primer acceso
                 //
                 $primer_acceso = false;
+                $mensaje_primer_acceso = '';
                 switch ($request->id_cuenta) {
                     case '1':
+                        $mensaje_primer_acceso .= 'Caso 1 -';
                         $cuenta = $pl_el;
                         if($cuenta->bono_login=='si'){
+                            $mensaje_primer_acceso .= 'Si hay bono activo -';
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
+                            $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
                             $concepto = 'Bono pimer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
@@ -609,6 +613,7 @@ class LoginController extends Controller
                                                             ->first();
                             
                             if(!$registro_puntos){
+                                $mensaje_primer_acceso .= 'No hay registro de puntos -';
                                 $nuevo_registro = new PuntosExtra();
                                 $nuevo_registro->id_cuenta = $cuenta->id;
                                 $nuevo_registro->id_temporada = $id_temporada;
@@ -623,10 +628,13 @@ class LoginController extends Controller
                         }
                         break;
                     case '3':
+                        $mensaje_primer_acceso .= 'Caso 3 -';
                         $cuenta = $pl_ni;
                         if($cuenta->bono_login=='si'){
+                            $mensaje_primer_acceso .= 'Si hay bono activo -';
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
+                            $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
                             $concepto = 'Bono pimer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
@@ -637,6 +645,7 @@ class LoginController extends Controller
                                                             ->first();
                             
                             if(!$registro_puntos){
+                                $mensaje_primer_acceso .= 'No hay registro de puntos -';
                                 $nuevo_registro = new PuntosExtra();
                                 $nuevo_registro->id_cuenta = $cuenta->id;
                                 $nuevo_registro->id_temporada = $id_temporada;
@@ -651,10 +660,13 @@ class LoginController extends Controller
                         }
                         break;
                     case '4':
+                        $mensaje_primer_acceso .= 'Caso 4 -';
                         $cuenta = $pl_et;
                         if($cuenta->bono_login=='si'){
+                            $mensaje_primer_acceso .= 'Si hay bono activo -';
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
+                            $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
                             $concepto = 'Bono pimer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
@@ -665,6 +677,7 @@ class LoginController extends Controller
                                                             ->first();
                             
                             if(!$registro_puntos){
+                                $mensaje_primer_acceso .= 'No hay registro de puntos -';
                                 $nuevo_registro = new PuntosExtra();
                                 $nuevo_registro->id_cuenta = $cuenta->id;
                                 $nuevo_registro->id_temporada = $id_temporada;
@@ -680,6 +693,7 @@ class LoginController extends Controller
                         break;
                     
                     default:
+                        $mensaje_primer_acceso .= 'Falso por default -';
                         $primer_acceso = false;
                         break;
                 }
@@ -704,6 +718,7 @@ class LoginController extends Controller
                     'region_et'=>$region_dist_et,
 
                     'primer_acceso' => $primer_acceso,
+                    'mensaje_primer_acceso' => $mensaje_primer_acceso
                 ]);
             
 

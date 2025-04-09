@@ -518,6 +518,21 @@ class TemporadasController extends Controller
         ];
         return response()->json($completo);
     }
+
+    public function temporada_y_sesiones_2025(Request $request)
+    {
+        $id_cuenta = $request->input('cuenta');
+        $temporada = Temporada::where('id_cuenta', $id_cuenta)->where('url', $request->input('url'))->first();
+        $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+
+        $completo = [
+            'temporada' => $temporada,
+            'sesiones' => $sesiones,
+        ];
+        return response()->json($completo);
+    }
+
+
     public function lista_api(Request $request)
     {
         //

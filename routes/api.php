@@ -48,6 +48,8 @@ Route::get('check_token_api', [LoginController::class, 'check_token_api'])->name
 Route::post('login_gate_2025', [LoginController::class, 'login_gate_2025_api'])->name('login_gate_2025.api');
 Route::get('puntaje_usuario_2025', [UsuariosController::class, 'puntaje_usuario_2025'])->name('puntaje_usuario_2025.api');
 Route::get('detalles_logro_2025', [LogrosController::class, 'detalles_logro_2025_api'])->name('detalles_logro_2025.api');
+Route::get('temporada_y_sesiones_2025', [TemporadasController::class, 'temporada_y_sesiones_2025'])->name('temporada_y_sesiones_2025.api');
+Route::get('full_datos_sesion_2025', [SesionesController::class, 'full_datos_sesion_2025_api'])->name('full_datos_sesion_2025.api');
 
 // Aceptar términos y condiciones
 Route::post('aceptar_terminos_2025', [UsuariosController::class, 'aceptar_terminos_2025'])->name('aceptar_terminos_2025.api');

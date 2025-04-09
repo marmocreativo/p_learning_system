@@ -15,6 +15,10 @@
                     <label for="Titulo">Titulo</label>
                     <input type="text" class="form-control" name="Titulo" value="{{$sesion->titulo}}">
                 </div>
+                <div class="form-group">
+                    <label for="Url">URL</label>
+                    <input type="text" class="form-control" name="Url" value="{{$sesion->url}}">
+                </div>
                 
                 <div class="form-group">
                     <label for="Descripcion">Descripción</label>

@@ -11,6 +11,10 @@
             <label for="Nombre">Nombre de la temporada</label>
             <input type="text" class="form-control" name="Nombre" value="{{$temporada->nombre}}">
         </div>
+        <div class="form-group">
+            <label for="Url">URL</label>
+            <input type="text" class="form-control" name="Url" value="{{$temporada->url}}">
+        </div>
         <input type="hidden" name="IdCuenta" value="{{$temporada->id_cuenta}}">
         <div class="form-group">
             <label for="Descripcion">Descripción</label>

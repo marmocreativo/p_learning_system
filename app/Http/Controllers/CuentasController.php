@@ -215,6 +215,7 @@ class CuentasController extends Controller
     {
         $cuenta = Cuenta::where('id', $request->input('idCuenta'))->first();
         $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
+        $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->get();
         $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
         $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
         $cintillo = Cintillo::where('id_temporada', $cuenta->temporada_actual)
@@ -237,6 +238,7 @@ class CuentasController extends Controller
         $respuesta = [
             'cuenta' => $cuenta ? $cuenta : null,
             'temporada' => $temporada ? $temporada : null,
+            'lista_temporadas' => $lista_temporada ? $lista_temporada : null,
             'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
             'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
             'noticias' => $noticias ? $noticias : null,

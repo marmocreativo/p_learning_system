@@ -228,6 +228,7 @@ class SesionesController extends Controller
         $sesion->id_cuenta = $request->IdCuenta;
         $sesion->id_temporada = $request->IdTemporada;
         $sesion->titulo = $request->Titulo;
+        $sesion->url = $request->Url;
         $sesion->descripcion = $request->Descripcion;
         $sesion->contenido = $request->Contenido;
         $sesion->nombre_instructor = $request->NombreInstructor;
@@ -541,6 +542,7 @@ class SesionesController extends Controller
          $sesion->id_cuenta = $request->IdCuenta;
          $sesion->id_temporada = $request->IdTemporada;
          $sesion->titulo = $request->Titulo;
+         $sesion->url = $request->Url;
          $sesion->descripcion = $request->Descripcion;
          $sesion->contenido = $request->Contenido;
          $sesion->nombre_instructor = $request->NombreInstructor;
@@ -736,6 +738,53 @@ class SesionesController extends Controller
         //
         $sesion = SesionEv::find($request->input('id'));
         $cuenta = Cuenta::find($sesion->id_cuenta);
+        $temporada_sesion = Temporada::find($sesion->id_temporada);
+        $temporada_actual = Temporada::find($cuenta->temporada_actual);
+
+        if($temporada_sesion->id==$temporada_actual->id){
+            $mostrarPuntajes = true;
+        }else{
+            $mostrarPuntajes = false;
+        }
+        $dudas = DB::table('sesiones_dudas')
+            ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
+            ->where('sesiones_dudas.id_sesion', '=', $sesion->id)
+            ->select(
+                'sesiones_dudas.created_at as fecha_duda', 
+                'sesiones_dudas.*', 
+                'usuarios.nombre as nombre', 
+                'usuarios.apellidos as apellidos'
+            )
+            ->orderBy('sesiones_dudas.created_at', 'desc')
+            ->get();
+        $anexos = SesionAnexos::where('id_sesion',$sesion->id)->get();
+
+        $fecha_actual = now()->format('Y-m-d H:i:s');
+        
+        // consulta
+        $pendientes = SesionEv::where('id_temporada', $temporada_actual->id)
+                            ->whereDate('fecha_publicacion', '>', $fecha_actual)
+                            ->limit(2) // Limitar a dos resultados
+                            ->get();
+
+        $completo = [
+            'sesion' => $sesion,
+            'dudas' => $dudas,
+            'anexos' => $anexos,
+            'sesiones_pendientes' => $pendientes,
+            'mostrar_puntajes' => $mostrarPuntajes,
+            'temporada' => $temporada_sesion,
+        ];
+
+         return response()->json($completo);
+    }
+
+    public function full_datos_sesion_2025_api(Request $request)
+    {
+        //
+        $id_cuenta = $request->input('cuenta');
+        $sesion = SesionEv::where('id_cuenta', $id_cuenta)->where('url', $request->input('url'))->first();
+        $cuenta = Cuenta::find($id_cuenta);
         $temporada_sesion = Temporada::find($sesion->id_temporada);
         $temporada_actual = Temporada::find($cuenta->temporada_actual);
 

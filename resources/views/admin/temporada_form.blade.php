@@ -12,6 +12,10 @@
             <input type="text" class="form-control" name="Nombre">
         </div>
         <div class="form-group">
+            <label for="Url">URL</label>
+            <input type="text" class="form-control" name="Url">
+        </div>
+        <div class="form-group">
             <label for="Descripcion">Descripción</label>
             <textarea class="form-control" name="Descripcion" id="Descripcion" rows="10"></textarea>
         </div>
