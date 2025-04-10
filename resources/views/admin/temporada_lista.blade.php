@@ -8,8 +8,9 @@
         <div class="col-9">
             <nav aria-label="breadcrumb mb-3">
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
-                  <li class="breadcrumb-item">Temporadas</li>
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Cuentas</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">{{$cuenta->nombre}}</a></li>
+                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=> $_GET['id_cuenta']]) }}">Temporadas</a></li>
                 </ol>
             </nav>
         </div>

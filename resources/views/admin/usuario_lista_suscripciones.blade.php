@@ -4,6 +4,7 @@
 
 @section('contenido_principal')
     <h1>Usuarios inscritos</h1>
+    <h4><b>Cuenta:</b> {{$cuenta->nombre}} <b>Temporada:</b> {{$temporada->nombre}}</h4>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
     <a href="{{ route('admin_usuarios.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}">Inscribir usuario</a>
@@ -32,18 +33,10 @@
                 @csrf
                 <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
                 <div class="form-group">
+                    <label for="file">Suscribir usuarios</label>
                     <input type="file" name="file" accept=".xlsx">
                 </div>
-                <div class="form-group">
-                    <select class="form-control" name="accion" id="accion">
-                        <option value="comparar">Comparar</option>
-                        <option value="agregar">Agregar</option>
-                        <option value="actualizar">Actualizar</option>
-                        <option value="checar_suscripciones">Checar suscripciones</option>
-                        <option value="borrar_suscripciones">Borrar suscripciones</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Import</button>
+                <button type="submit" class="btn btn-primary">Importar</button>
             </form>
         </div>
     </div>

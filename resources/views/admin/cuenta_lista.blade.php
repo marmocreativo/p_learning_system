@@ -4,8 +4,20 @@
 
 @section('contenido_principal')
     <h1>Cuentas</h1>
+    <div class="row">
+        <div class="col-9">
+            <nav aria-label="breadcrumb mb-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Cuentas</a></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-3">
+            <a href="{{ route('cuentas.create') }}">Crear Cuenta</a>            
+        </div>
+    </div>
     <hr>
-    <a href="{{ route('cuentas.create') }}">Crear Cuenta</a>
+   
     <hr>
     <div class="row">
         @foreach ($cuentas as $cuenta)

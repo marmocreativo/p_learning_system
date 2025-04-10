@@ -51,8 +51,9 @@ class TemporadasController extends Controller
     {
         //
         $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
         $temporadas = Temporada::where('id_cuenta', $id_cuenta)->paginate();
-        return view('admin/temporada_lista', compact('temporadas'));
+        return view('admin/temporada_lista', compact('temporadas', 'cuenta'));
     }
 
     /**

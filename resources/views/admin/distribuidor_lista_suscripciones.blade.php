@@ -4,10 +4,51 @@
 
 @section('contenido_principal')
     <h1>Distribuidores suscritos</h1>
+    <h4><b>Cuenta:</b> {{$cuenta->nombre}} <b>Temporada:</b> {{$temporada->nombre}}</h4>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
     <a href="{{ route('distribuidores_suscritos.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}">Suscribir distribuidor</a>
     <hr>
+    <div class="row">
+        <div class="col-4">
+            <form class="d-flex" action="{{ route('admin_usuarios_suscritos') }}" method="GET">
+                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+                <div class="form-group me-2">
+                    <input type="text" class="form-control" name="search" placeholder="Buscar...">
+                </div>
+                <div class="form-group me-2">
+                <select name="region" id="" class="form-control">
+                    <option value="">Cualquier región</option>
+                    <option value="RoLA">RoLA</option>
+                    <option value="México">México</option>
+                </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+        </div>
+        <div class="col-4">
+            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+                <div class="form-group">
+                    <label for="file">Distribuidores</label>
+                    <input type="file" name="file" accept=".xlsx" placeholder="Importar distribuidores">
+                </div>
+                <button type="submit" class="btn btn-primary">Importar</button>
+            </form>
+        </div>
+        <div class="col-4">
+            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
+                <div class="form-group">
+                    <label for="file">Sucursales</label>
+                    <input type="file" name="file" accept=".xlsx" placeholder="Importar sucursales">
+                </div>
+                <button type="submit" class="btn btn-primary">Importar</button>
+            </form>
+        </div>
+    </div>
     <table class="table table-stripped">
         <tr>
             <th>ID</th>

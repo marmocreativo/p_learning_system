@@ -183,6 +183,7 @@ class UsuariosController extends Controller
 
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
         $id_cuenta = $temporada->id_cuenta;
         if($request->input('region')){
             $region = $request->input('region');
@@ -238,7 +239,7 @@ class UsuariosController extends Controller
         $clases = Clase::where('elementos','usuarios')->get();
         $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_suscripciones', compact('temporada', 'suscriptores', 'clases', 'distribuidores'));
+        return view('admin/usuario_lista_suscripciones', compact('cuenta', 'temporada', 'suscriptores', 'clases', 'distribuidores'));
     }
 
     public function usuarios_suscritos_reporte_temporada (Request $request)

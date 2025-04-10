@@ -6,6 +6,7 @@ use App\Models\Sucursal;
 use App\Models\DistribuidoresSuscripciones;
 use App\Models\Temporada;
 use App\Models\Clase;
+use App\Models\Cuenta;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -177,13 +178,15 @@ class DistribuidoresController extends Controller
     {
         //
         $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($id_temporada);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
         $suscripciones = DB::table('distribuidores')
             ->join('distribuidores_suscripciones', 'distribuidores.id', '=', 'distribuidores_suscripciones.id_distribuidor')
             ->where('distribuidores_suscripciones.id_temporada', '=', $id_temporada)
             ->select('distribuidores.*', 'distribuidores_suscripciones.*')
             ->get();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/distribuidor_lista_suscripciones', compact('suscripciones'));
+        return view('admin/distribuidor_lista_suscripciones', compact('suscripciones', 'cuenta', 'temporada'));
     }
 
     public function reporte_usuarios(Request $request)
