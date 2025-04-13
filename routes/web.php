@@ -288,3 +288,12 @@ Route::delete('admin/usuarios/desuscribir/{post}', [UsuariosController::class, '
 Route::get('usuarios/{id}', function ($id) {
     return "Panel del usuario $id";
 });
+
+
+/**
+ * Rutas 2025
+ */
+
+ Route::post('/imp_distribuidores', [CsvController::class, 'imp_distribuidores_2025'])->name('imp_distribuidores_2025');
+ Route::post('/imp_sucursales', [CsvController::class, 'importarSucursales'])->name('imp_sucursales_2025');
+ Route::post('/imp_usuarios', [CsvController::class, 'importarUsuarios'])->name('imp_usuarios_2025');

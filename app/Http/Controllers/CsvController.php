@@ -10,14 +10,19 @@ use App\Models\Temporada;
 use App\Models\Clase;
 use App\Models\Cuenta;
 use App\Models\Distribuidor;
+use App\Models\Sucursal;
 use App\Models\DistribuidoresSuscripciones;
 use App\Models\SesionVis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 use App\Imports\UsersImport;
+use App\Imports\DistribuidoresImport;
+use App\Imports\SucursalesImport;
+use App\Imports\UsuariosImport;
 
 class CsvController extends Controller
 {
@@ -585,8 +590,285 @@ class CsvController extends Controller
     }
 
     /**
-     * Funciones de excel
+     * Funciones 2025
      */
 
+     public function imp_distribuidores_2025(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx',
+        'id_temporada' => 'required|exists:temporadas,id'
+    ]);
+
+    $import = new DistribuidoresImport;
+    Excel::import($import, $request->file('file'));
+    $rows = $import->rows;
+
+    $resultados = [];
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::find($temporada->id_cuenta);
+
+    foreach ($rows as $row) {
+        $nombre = $row['nombre'];
+        $pais = $row['pais'];
+        $region = $row['region'];
+        $default_pass = $row['default_pass'];
+        $nivel = $row['nivel'];
+        $accion = $row['acción'] ?? null;
+
+        $registro = Distribuidor::where('nombre', $nombre)->first();
+        $ya_existe = $registro ? 'Sí' : 'No';
+        $ya_suscrito = 'No suscrito';
+
+        // Si el distribuidor ya existe, actualiza sus datos (menos el nombre)
+        if ($registro) {
+            $registro->pais = $pais;
+            $registro->region = $region;
+            $registro->default_pass = $default_pass;
+            $registro->nivel = $nivel;
+            $registro->save();
+
+            // Buscar suscripción
+            $suscripcion = DistribuidoresSuscripciones::where('id_distribuidor', $registro->id)
+                                ->where('id_temporada', $id_temporada)
+                                ->first();
+
+            if ($suscripcion) {
+                $ya_suscrito = 'Suscrito';
+            } else {
+                $nueva_suscripcion = new DistribuidoresSuscripciones;
+
+                $nueva_suscripcion->id_distribuidor = $registro->id;
+                $nueva_suscripcion->id_cuenta = $cuenta->id;
+                $nueva_suscripcion->id_temporada = $id_temporada;
+                $nueva_suscripcion->cantidad_usuarios = '0';
+                $nueva_suscripcion->nivel = 'completo';
+                $nueva_suscripcion->save();
+                $ya_suscrito = 'Suscripción creada';
+            }
+        } else {
+            // Si no existe el distribuidor, puedes decidir si lo creas o lo ignoras
+            // En este ejemplo solo lo reportamos en resultados
+            $distribuidor = new Distribuidor;
+            $distribuidor->nombre =  $nombre;
+            $distribuidor->pais =  $pais;
+            $distribuidor->region =  $region;
+            $distribuidor->default_pass =  $default_pass;
+            $distribuidor->nivel =  $nivel;
+            $distribuidor->save();
+            $ya_existe = 'Distribuidor creado';
+        }
+
+        $resultados[] = [
+            'nombre' => $nombre,
+            'pais_excel' => $pais,
+            'region_excel' => $region,
+            'default_pass_excel' => $default_pass,
+            'nivel_excel' => $nivel,
+            'accion' => $accion,
+            'ya_existe' => $ya_existe,
+            'suscripcion' => $ya_suscrito,
+        ];
+    }
+
+    return view('importacion.resultado_distribuidores', [
+        'resultados' => $resultados,
+        'id_temporada' => $id_temporada
+    ]);
+}
+
+public function importarSucursales(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx'
+    ]);
+
+    $import = new SucursalesImport;
+    Excel::import($import, $request->file('file'));
+
+    $rows = $import->rows;
+    $resultados = [];
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::find($temporada->id_cuenta);
+
+    foreach ($rows as $row) {
+        $nombreDistribuidor = $row['distribuidor'];
+        $nombreSucursal = $row['nombre'];
+        $accion = $row['acción'] ?? null;
+
+        $distribuidor = Distribuidor::where('nombre', $nombreDistribuidor)->first();
+
+        if ($distribuidor) {
+            $sucursalExiste = Sucursal::where('id_distribuidor', $distribuidor->id)
+                                      ->where('nombre', $nombreSucursal)
+                                      ->exists();
+
+            if(!$sucursalExiste){
+                $nueva_sucursal = new Sucursal;
+                $nueva_sucursal->id_distribuidor = $distribuidor->id;
+                $nueva_sucursal->nombre = $nombreSucursal;
+                $nueva_sucursal->save();
+            }
+
+            $existe = $sucursalExiste ? 'Sí' : 'No';
+        } else {
+            $existe = 'Distribuidor no encontrado';
+        }
+
+        $resultados[] = [
+            'distribuidor' => $nombreDistribuidor,
+            'sucursal' => $nombreSucursal,
+            'accion' => $accion,
+            'existe' => $existe
+        ];
+    }
+
+    return view('importacion.resultado_sucursales', [
+        'resultados' => $resultados,
+        'id_temporada' => $id_temporada
+    ]);
+}
+
+public function importarUsuarios(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx'
+    ]);
+
+    $import = new UsuariosImport;
+    Excel::import($import, $request->file('file'));
+
+    $rows = $import->rows;
+    $resultados = [];
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::find($temporada->id_cuenta);
+    
+
+    foreach ($rows as $row) {
+        $emailUsuario = $row['email'];
+        $nombreUsuario = $row['nombre'];
+        $apellidosUsuario = $row['apellidos'];
+        $usuarioUsuario = $row['usuario'];
+        $distribuidorUsuario = $row['distribuidor'];
+        $nombreSucursal = $row['sucursal'];
+        $categoriaUsuario = $row['categoria'];
+        $rolUsuario = $row['rol'];
+
+        if (empty($usuarioUsuario)) {
+            // Sacar la parte del email antes del @
+            $baseUsuario = Str::before($emailUsuario, '@');
+            $usuarioUsuario =  $this->generarLegacyIdUnico($baseUsuario);
+        } else {
+            $usuarioUsuario =  $this->generarLegacyIdUnico($usuarioUsuario);
+        }
+        
+        $usuario = User::where('email', $emailUsuario)->first();
+        $distribuidor = Distribuidor::where('nombre', $distribuidorUsuario)->first();
+        $sucursal = Sucursal::where('id_distribuidor', $distribuidor->id)
+                                      ->where('nombre', $nombreSucursal)
+                                      ->first();
+
+        $existe = '';
+        $estado_suscripcion = '';
+        $id_suscripcion = '';
+
+        if(!$usuario){
+            $usuario = new User;
+            $usuario->nombre = $nombreUsuario;
+            $usuario->apellidos = $apellidosUsuario;
+            $usuario->email = $emailUsuario;
+            $usuario->legacy_id = $usuarioUsuario;
+            $usuario->password = Hash::make($distribuidor->default_pass);
+            $usuario->lista_correo = 'no';
+            $usuario->imagen = 'default.jpg';
+            $usuario->clase = 'usuario';
+            $usuario->estado = 'activo';
+            $usuario->save();
+            $existe = 'Nuevo usuario';
+
+        }else{
+            $usuario->nombre = $nombreUsuario;
+            $usuario->apellidos = $apellidosUsuario;
+            $usuario->save();
+            $existe = 'Existente';
+        }
+
+        //Busco la suscripcion
+
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)
+                                            ->where('id_temporada', $id_temporada)
+                                            ->first();
+
+        if(!$suscripcion){
+            $suscripcion = new UsuariosSuscripciones;
+            $suscripcion->id_usuario = $usuario->id;
+            $suscripcion->id_cuenta = $cuenta->id;
+            $suscripcion->id_temporada = $id_temporada;
+            $suscripcion->id_distribuidor = $distribuidor->id;
+            $suscripcion->puntos_sesiones = 0;
+            $suscripcion->puntos_evaluaciones = 0;
+            $suscripcion->puntos_trivias = 0;
+            $suscripcion->puntos_jackpot = 0;
+            $suscripcion->puntos_extra = 0;
+            $suscripcion->puntos_totales = 0;
+            $suscripcion->champions_a = 'si';
+            $suscripcion->champions_b = 'si';
+            $suscripcion->region = $distribuidor->region;
+            $suscripcion->pais = $distribuidor->pais;
+            $suscripcion->confirmacion_puntos = 'pendiente';
+            $suscripcion->nivel = $distribuidor->nivel;
+            $suscripcion->nivel_usuario = $categoriaUsuario;
+            $suscripcion->funcion = $rolUsuario;
+            $suscripcion->funcion_region = $distribuidor->region;
+            $suscripcion->temporada_completa = 'no';
+            $suscripcion->id_sucursal = $sucursal ? $sucursal->id : null;
+            $suscripcion->fecha_terminos = null;
+            $suscripcion->save();
+            $estado_suscripcion = 'Nueva suscripcion';
+        }else{
+            $suscripcion->id_distribuidor = $distribuidor->id;
+            $suscripcion->region = $distribuidor->region;
+            $suscripcion->pais = $distribuidor->pais;
+            $suscripcion->nivel = $distribuidor->nivel;
+            $suscripcion->nivel_usuario = $categoriaUsuario;
+            $suscripcion->funcion = $rolUsuario;
+            $suscripcion->funcion_region = $distribuidor->region;
+            $suscripcion->id_sucursal = $sucursal ? $sucursal->id : null;
+            $suscripcion->save();
+            $estado_suscripcion = 'Suscripcion actualizada';
+        }
+        $id_suscripcion = $suscripcion->id;
+
+        $resultados[] = [
+            'nombre' => $nombreUsuario,
+            'apellidos' => $apellidosUsuario,
+            'email' => $emailUsuario,
+            'existe' => $existe,
+            'suscripcion' => $estado_suscripcion,
+            'id_suscripcion' => $id_suscripcion
+        ];
+    }
+
+    return view('importacion.resultado_usuarios', [
+        'resultados' => $resultados,
+        'id_temporada' => $id_temporada
+    ]);
+}
+
+private function generarLegacyIdUnico($base)
+{
+    $id = $base;
+    $contador = 1;
+
+    while (User::where('legacy_id', $id)->exists()) {
+        $id = $base . $contador;
+        $contador++;
+    }
+
+    return $id;
+}
 
 }

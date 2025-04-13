@@ -17,7 +17,7 @@
                         <img class="img-fluid" src="{{ asset('img/publicaciones/'.$logro->imagen_fondo) }}" >
                         <img class="img-fluid" src="{{ asset('img/publicaciones/'.$logro->tabla_mx) }}" >
                         <img class="img-fluid" src="{{ asset('img/publicaciones/'.$logro->tabla_rola) }}" >
-                        <h3>{{$logro->nombre}} </h3>
+                        <h3>{{$logro->nombre}} <small>({{$logro->orden}})</small></h3>
                         <p><span class="badge bg-primary">{{$logro->nivel_usuario}}</span> | <span class="badge @if($logro->region=='México'){{'bg-success'}} @else {{'bg-info'}} @endif">{{$logro->region}} </span> </p>
                     </div>
                     <div class="card-footer">

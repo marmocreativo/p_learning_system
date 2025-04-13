@@ -109,7 +109,7 @@
         </div>
         <div class="col-3">
             <div class="card card-body">
-                <h4>Jackpot</h4>
+                <h4>Minijuegos</h4>
                 <table class="table table-bordered table-sm">
                     <tr>
                         <td><b>Total</b></td>
@@ -120,7 +120,7 @@
                 <a class="btn btn-success" href="{{ route('jackpots.resultados', $jackpot_activo->id) }}">Jackpot activo {{$jackpot_activo->titulo}}</a>
                 @endif
                 <hr>
-                <a href="{{ route('jackpots', ['id_temporada'=> $temporada->id]) }}">Lista de jackpots</a>
+                <a href="{{ route('jackpots', ['id_temporada'=> $temporada->id]) }}">Lista de minijuegos</a>
             </div>
             
         </div>

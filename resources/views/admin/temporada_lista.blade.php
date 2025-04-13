@@ -25,6 +25,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3>{{$temporada->nombre}} </h3>
+                        <p>({{$temporada->estado}})</p>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('temporadas.show', $temporada->id)}}">Ver contenido</a>

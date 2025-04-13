@@ -80,6 +80,7 @@ class TemporadasController extends Controller
         $temporada->mensaje_landing = $request->MensajeLanding;
         $temporada->fecha_inicio = $request->FechaInicio;
         $temporada->fecha_final = $request->FechaFinal;
+        $temporada->estado = $request->Estado;
 
 
         $temporada->save();
@@ -480,6 +481,7 @@ class TemporadasController extends Controller
         $temporada->mensaje_landing = $request->MensajeLanding;
         $temporada->fecha_inicio = $request->FechaInicio;
         $temporada->fecha_final = $request->FechaFinal;
+        $temporada->estado = $request->Estado;
 
         $temporada->save();
 

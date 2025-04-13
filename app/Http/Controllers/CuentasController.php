@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Models\Cuenta;
 use App\Models\Temporada;
+use App\Models\Trivia;
+use App\Models\Jackpot;
 use App\Models\Publicacion;
 use App\Models\Cintillo;
 use App\Models\Popup;
@@ -215,8 +217,17 @@ class CuentasController extends Controller
     {
         $cuenta = Cuenta::where('id', $request->input('idCuenta'))->first();
         $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
-        $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->get();
+        $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->where('estado', 'activa')->orderBy('nombre', 'desc')->get();
         $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
+        $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
+        $proxima_trivia = Trivia::where('id_temporada', $cuenta->temporada_actual)
+            ->whereDate('fecha_publicacion', '>=', now()->toDateString())
+            ->orderBy('fecha_publicacion', 'asc')
+            ->first();
+        $proximo_jackpot = Jackpot::where('id_temporada', $cuenta->temporada_actual)
+            ->whereDate('fecha_publicacion', '>=', now()->toDateString())
+            ->orderBy('fecha_publicacion', 'asc')
+            ->first();
         $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
         $cintillo = Cintillo::where('id_temporada', $cuenta->temporada_actual)
                     ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
@@ -229,11 +240,11 @@ class CuentasController extends Controller
                 ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
                 ->first();
 
-            $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
-                ->where('clase', 'noticia')
-                ->orderBy('fecha_publicacion', 'desc')
-                ->limit(16)
-                ->get();
+        $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
+            ->where('clase', 'noticia')
+            ->orderBy('fecha_publicacion', 'desc')
+            ->limit(16)
+            ->get();
         
         $respuesta = [
             'cuenta' => $cuenta ? $cuenta : null,
@@ -244,6 +255,8 @@ class CuentasController extends Controller
             'noticias' => $noticias ? $noticias : null,
             'cintillo' => $cintillo ? $cintillo : null,
             'popup' => $popup ? $popup : null,
+            'proxima_trivia' => $proxima_trivia ? $proxima_trivia : null,
+            'proximo_jackpot' => $proximo_jackpot ? $proximo_jackpot : null,
         ];
 
          return response()->json($respuesta);

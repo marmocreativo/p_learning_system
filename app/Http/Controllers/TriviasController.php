@@ -303,7 +303,7 @@ class TriviasController extends Controller
 
             $preguntas = TriviaPreg::where('id_trivia',$trivia->id)->get();
             $respuestas = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$id_usuario)->get();
-            $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+            $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada', $id_temporada)->pluck('puntaje')->sum();
 
             $participantes = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->get();
             $ganadores= TriviaGanador::where('id_trivia', $trivia->id)->get();
@@ -580,10 +580,10 @@ class TriviasController extends Controller
             $preguntas = $query->limit($cantidad_preguntas)->get();
 
             $respuestas = TriviaRes::where('id_trivia',$trivia->id)->where('id_usuario',$id_usuario)->get();
-            $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->pluck('puntaje')->sum();
+            $respuestas_historico = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada', $id_temporada)->pluck('puntaje')->sum();
 
             $participantes = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->get();
-            $ganadores= TriviaGanador::where('id_trivia', $trivia->id)->get();
+            $ganadores= TriviaGanador::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->get();
             $ganador= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->first();
             $mis_premios= TriviaGanador::where('id_trivia', $trivia->id)->where('id_usuario', $id_usuario)->get();
             $soy_ganador = false;

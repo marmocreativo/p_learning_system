@@ -7,9 +7,12 @@ use App\Models\DistribuidoresSuscripciones;
 use App\Models\Temporada;
 use App\Models\Clase;
 use App\Models\Cuenta;
+use App\Models\User;
+use App\Models\UsuariosSuscripciones;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DistribuidoresController extends Controller
 {
@@ -142,8 +145,22 @@ class DistribuidoresController extends Controller
         }else{
             $nombreImagenFondoB = $distribuidor->imagen_fondo_b;
         }
-            
 
+        // Antes de actualizar necesito revisar todos los usuarios suscritos al distribuidor
+        $suscripciones = UsuariosSuscripciones::select('id_usuario')
+            ->where('id_distribuidor', $distribuidor->id)
+            ->distinct()
+            ->get();
+
+        foreach($suscripciones as $suscripcion){
+            $usuario = User::find($suscripcion->id_usuario);
+            if ($usuario && Hash::check($distribuidor->default_pass, $usuario->password)) {
+                $usuario->password = Hash::make($request->DefaultPass);
+                $usuario->save();
+            }
+        }
+            
+        
         $distribuidor->nombre = $request->Nombre;
         $distribuidor->pais = $request->Pais;
         $distribuidor->region = $request->Region;
@@ -157,6 +174,7 @@ class DistribuidoresController extends Controller
         $distribuidor->save();
 
         return redirect()->route('distribuidores.show', $distribuidor->id);
+        
     }
 
     /**

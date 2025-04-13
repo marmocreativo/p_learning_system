@@ -3,7 +3,7 @@
 @section('titulo', 'Trivias')
 
 @section('contenido_principal')
-    <h1>Jackpots</h1>
+    <h1>Minijuegos</h1>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
     <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Jackpot</a>

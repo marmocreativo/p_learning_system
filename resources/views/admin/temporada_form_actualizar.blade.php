@@ -37,6 +37,14 @@
             <label for="FechaFinal">Fecha final</label>
             <input type="date" class="form-control" name="FechaFinal" value="{{date('Y-m-d', strtotime($temporada->fecha_final))}}">
         </div>
+        <div class="form-group">
+            <label for="Estado">Estado</label>
+            <select name="Estado" id="Estado" class="form-control">
+                <option value="activa" @if($temporada->estado == 'activa') selected @endif>Activa</option>
+                <option value="inactiva" @if($temporada->estado == 'inactiva') selected @endif>Inactiva</option>
+            </select>
+        </div>
+        <hr>
         
         <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>

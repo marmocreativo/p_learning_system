@@ -3,8 +3,8 @@
 @section('titulo', 'Jackpot')
 
 @section('contenido_principal')
-    <h1>Resultado del Jackpot: <small>{{$jackpot->titulo}}</small></h1>
-    <a href="{{ route('jackpots', ['id_temporada'=>$jackpot->id_temporada]) }}">Lista de jackpots</a>
+    <h1>Resultado del Minijuego: <small>{{$jackpot->titulo}}</small></h1>
+    <a href="{{ route('jackpots', ['id_temporada'=>$jackpot->id_temporada]) }}">Lista de minijuegos</a>
     <hr>
     <a href="{{route('jackpots.edit', $jackpot->id)}}">Editar jackpot</a>
     <hr>

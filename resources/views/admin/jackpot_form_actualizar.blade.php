@@ -3,7 +3,7 @@
 @section('titulo', 'Jackpots')
 
 @section('contenido_principal')
-    <h1>Formulario de jackpots</h1>
+    <h1>Formulario de Minijuegos</h1>
     <form action="{{ route('jackpots.update', $jackpot->id) }}" method="POST">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$jackpot->id_temporada}}">

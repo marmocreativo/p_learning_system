@@ -11,23 +11,9 @@
     <hr>
     <div class="row">
         <div class="col-4">
-            <form class="d-flex" action="{{ route('admin_usuarios_suscritos') }}" method="GET">
-                <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
-                <div class="form-group me-2">
-                    <input type="text" class="form-control" name="search" placeholder="Buscar...">
-                </div>
-                <div class="form-group me-2">
-                <select name="region" id="" class="form-control">
-                    <option value="">Cualquier región</option>
-                    <option value="RoLA">RoLA</option>
-                    <option value="México">México</option>
-                </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </form>
         </div>
         <div class="col-4">
-            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('imp_distribuidores_2025') }}" class="d-flex" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
                 <div class="form-group">
@@ -38,7 +24,7 @@
             </form>
         </div>
         <div class="col-4">
-            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('imp_sucursales_2025') }}" class="d-flex" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
                 <div class="form-group">

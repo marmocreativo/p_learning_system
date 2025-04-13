@@ -36,6 +36,14 @@
             <label for="FechaFinal">Fecha final</label>
             <input type="date" class="form-control" name="FechaFinal">
         </div>
+        <div class="form-group">
+            <label for="Estado">Estado</label>
+            <select name="Estado" id="Estado" class="form-control">
+                <option value="activa">Activa</option>
+                <option value="inactiva">Inactiva</option>
+            </select>
+        </div>
+        <hr>
         
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>

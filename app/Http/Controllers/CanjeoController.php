@@ -273,7 +273,7 @@ class CanjeoController extends Controller
         }
 
         
-        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'transacciones', 'usuarios'));
+        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'usuarios'));
     }
 
     public function cortes_guardar(Request $request)

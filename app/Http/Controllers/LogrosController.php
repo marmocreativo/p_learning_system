@@ -35,7 +35,7 @@ class LogrosController extends Controller
         //
         //
         $id_temporada = $request->input('id_temporada');
-        $logros = Logro::where('id_temporada', $id_temporada)->paginate();
+        $logros = Logro::where('id_temporada', $id_temporada)->orderBy('orden', 'asc')->paginate();
         return view('admin/logro_lista', compact('logros'));
     }
 
@@ -100,6 +100,7 @@ class LogrosController extends Controller
          $logro->imagen_fondo = $nombreImagenFondo;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
          $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
+         $logro->orden = $request->Orden;
  
          $logro->save();
  
@@ -213,6 +214,7 @@ class LogrosController extends Controller
         $logro->tabla_rola = $nombreTablaRola;
         $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
+        $logro->orden = $request->Orden;
  
          $logro->save();
 
@@ -383,6 +385,7 @@ class LogrosController extends Controller
                             $query->where('region', 'RoLA')
                                 ->orWhere('region', 'Todas');
                         })
+                        ->orderBy('orden', 'asc')
                         ->get();
                 break;
             
@@ -393,6 +396,7 @@ class LogrosController extends Controller
                         ->orWhere('region', 'Interna')
                         ->orWhere('region', 'Todas');
                 })
+                ->orderBy('orden', 'asc')
                 ->get();
                 break;
         }

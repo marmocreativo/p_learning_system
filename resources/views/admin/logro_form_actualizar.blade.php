@@ -195,6 +195,10 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="Orden">Orden</label>
+                    <input type="number" min="0" class="form-control" name="Orden" value="{{$logro->orden}}">
+                </div>
                 <hr>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>

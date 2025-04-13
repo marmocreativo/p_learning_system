@@ -29,7 +29,7 @@
             </form>
         </div>
         <div class="col-6">
-            <form action="{{ route('admin_usuarios.importar') }}" class="d-flex" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('imp_usuarios_2025') }}" class="d-flex" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id_temporada" value="{{$_GET['id_temporada']}}">
                 <div class="form-group">
