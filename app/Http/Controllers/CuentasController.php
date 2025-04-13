@@ -77,6 +77,8 @@ class CuentasController extends Controller
         $cuenta->canjeo_puntos = $request->CanjeoPuntos;
         $cuenta->bono_login = $request->BonoLogin;
         $cuenta->bono_login_cantidad = $request->BonoLoginCantidad;
+        $cuenta->top10 = $request->top10;
+        $cuenta->champions = $request->Champions;
         $cuenta->logotipo = $nombreLogotipo;
         $cuenta->fondo = $nombreFondo;
         $cuenta->imagen_video = $nombreImagenVideo;
@@ -156,6 +158,8 @@ class CuentasController extends Controller
         $cuenta->canjeo_puntos = $request->CanjeoPuntos;
         $cuenta->bono_login = $request->BonoLogin;
         $cuenta->bono_login_cantidad = $request->BonoLoginCantidad;
+        $cuenta->top10 = $request->top10;
+        $cuenta->champions = $request->Champions;
         $cuenta->temporada_actual = $request->TemporadaActual;
         $cuenta->badge = $request->Badge;
         $cuenta->titulo = $request->Titulo;

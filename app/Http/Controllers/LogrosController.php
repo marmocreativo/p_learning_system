@@ -15,6 +15,8 @@ use App\Models\LogroAnexo;
 use App\Models\LogroAnexoProducto;
 use App\Models\User;
 use App\Models\Distribuidor;
+use App\Models\Sesion;
+use App\Models\SesionVis;
 use Illuminate\Support\Facades\DB;
 
 use App\Mail\ConfirmacionNivelChampions;
@@ -83,6 +85,7 @@ class LogrosController extends Controller
          $logro->nombre = $request->Nombre;
          $logro->instrucciones = $request->Instrucciones;
          $logro->contenido = $request->Contenido;
+         $logro->sesiones = $request->Sesiones;
          $logro->premio = $request->Premio;
          $logro->premio_rola = $request->PremioRola;
          $logro->nivel_a = $request->NivelA;
@@ -191,6 +194,7 @@ class LogrosController extends Controller
         $logro->premio = $request->Premio;
         $logro->premio_rola = $request->PremioRola;
         $logro->contenido = $request->Contenido;
+        $logro->sesiones = $request->Sesiones;
         $logro->nivel_a = $request->NivelA;
         $logro->nivel_b = $request->NivelB;
         $logro->nivel_c = $request->NivelC;
@@ -438,6 +442,7 @@ class LogrosController extends Controller
         $id_usuario = $request->input('id_usuario');
         $logro = Logro::find($request->input('id'));
         $participacion = LogroParticipacion::where('id_logro', $logro->id)->where('id_usuario', $id_usuario)->first();
+
         //$participaciones = LogroParticipacion::where('id_logro', $id_usuario)->get();
         if($participacion){
 
@@ -459,7 +464,7 @@ class LogrosController extends Controller
             'logro' => $logro,
             'participacion' => $participacion,
             'participaciones' => $participaciones,
-            'participaciones_pendientes' => $participaciones_pendientes
+            'participaciones_pendientes' => $participaciones_pendientes,
         ];
 
         return response()->json($completo);
@@ -472,6 +477,39 @@ class LogrosController extends Controller
         $id_temporada = $cuenta->temporada_actual;
         $id_usuario = $request->input('id_usuario');
         $logro = Logro::find($request->input('id'));
+        $permisos = [];
+        
+        if (!empty($logro->sesiones)) {
+            // Convertir la cadena en un array
+            $urls = explode(',', $logro->sesiones);
+        
+            foreach ($urls as $url) {
+                $url = trim($url); // limpiar espacios en blanco si los hubiera
+        
+                $sesion = Sesion::where('id_cuenta', $cuenta->id)
+                                ->where('url', $url)
+                                ->first(['id', 'titulo', 'url']);
+        
+                if ($sesion) {
+                    $sesionVis = SesionVis::where('id_sesion', $sesion->id)
+                                          ->where('id_usuario', $id_usuario)
+                                          ->first();
+        
+                    $permisos[$sesion->url] = [
+                        'existe'   => true,
+                        'completa' => $sesionVis ? true : false,
+                        'titulo'   => $sesion->titulo,
+                    ];
+                } else {
+                    $permisos[$url] = [
+                        'existe'   => false,
+                        'completa' => false,
+                        'titulo'   => null,
+                    ];
+                }
+            }
+        }
+
         $participacion = LogroParticipacion::where('id_logro', $logro->id)->where('id_usuario', $id_usuario)->first();
         //$participaciones = LogroParticipacion::where('id_logro', $id_usuario)->get();
         if($participacion){
@@ -498,6 +536,7 @@ class LogrosController extends Controller
             'participaciones_logro' => $participaciones,
             'participaciones_logro_pendientes' => $participaciones_pendientes,
             'fecha_ultimo_comprobante' => $fechaMasAlta,
+            'permisos' => $permisos
             
         ];
 

@@ -38,6 +38,10 @@
                     <label for="Contenido">Contenido</label>
                     <textarea class="form-control TextEditor" name="Contenido" id="Contenido" rows="5">{{$logro->contenido}}</textarea>
                 </div>
+                <div class="form-group">
+                    <label for="Sesiones">Sesiones requeridas <small>(Separadas por coma)</small></label>
+                    <textarea class="form-control" name="Sesiones" id="Sesiones" rows="5">{{$logro->sesiones}}</textarea>
+                </div>
                 <hr>
                 <div class="row">
                     <div class="col-4">

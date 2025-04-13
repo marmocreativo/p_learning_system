@@ -43,6 +43,7 @@ class PopupsController extends Controller
         $popup->id_temporada = $request->IdTemporada;
         $popup->titulo = $request->Titulo;
         $popup->contenido = $request->Contenido;
+        $popup->urls = $request->Urls;
         $popup->imagen = $nombreImagen;
         $popup->fecha_inicio = $request->FechaInicio;
         $popup->fecha_final = $request->FechaFinal;

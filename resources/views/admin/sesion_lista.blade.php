@@ -36,7 +36,7 @@
                 <div class="card mb-4">
                     <div class="card-header {{ $isPastOrToday ? 'bg-primary text-white' : '' }}">
                         <h5 title="{{$sesion->id}}">{{$sesion->titulo}} </h5>
-                        <h6>{{$sesion->url}} </h6>
+                        <h6>URL: {{$sesion->url}} </h6>
                         <p>{{$sesion->fecha_publicacion}}</p>
                     </div>
                     <div class="card-body">
@@ -71,6 +71,9 @@
                         </table>
                     </div>
                     <div class="card-footer d-flex justify-content-between">
+                        <div>
+                            <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar</a>
+                        </div>
                         <div>
                             <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-primary">Ver contenido</a>
                         </div>

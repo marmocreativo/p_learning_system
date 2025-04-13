@@ -56,6 +56,20 @@
             </select>
         </div>
         <div class="form-group">
+            <label for="Jackpots">Activar Top10?</label>
+            <select name="Top10" id="Top10" class="form-control">
+                <option value="si">Si</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="Champions">Activar Champions?</label>
+            <select name="Champions" id="Champions" class="form-control">
+                <option value="si">Si</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label for="CanjeoPuntos">Activar canjeo de puntos?</label>
             <select name="CanjeoPuntos" id="CanjeoPuntos" class="form-control">
                 <option value="si">Si</option>

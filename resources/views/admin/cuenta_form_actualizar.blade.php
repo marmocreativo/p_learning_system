@@ -72,6 +72,20 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="top10">Activar Top10?</label>
+                <select name="top10" id="top10" class="form-control">
+                    <option value="si" <?php if($cuenta->top10=='si'){ echo 'selected'; } ?>>Si</option>
+                    <option value="no" <?php if($cuenta->top10=='no'){ echo 'selected'; } ?>>No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Jackpots">Activar Champions?</label>
+                <select name="Champions" id="Champions" class="form-control">
+                    <option value="si" <?php if($cuenta->champions=='si'){ echo 'selected'; } ?>>Si</option>
+                    <option value="no" <?php if($cuenta->champions=='no'){ echo 'selected'; } ?>>No</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="CanjeoPuntos">Activar canjeo de puntos?</label>
                 <select name="CanjeoPuntos" id="CanjeoPuntos" class="form-control">
                     <option value="si" <?php if($cuenta->canjeo_puntos=='si'){ echo 'selected'; } ?>>Si</option>

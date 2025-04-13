@@ -35,6 +35,10 @@
                                     <label for="Contenido">Incrustar código</label>
                                     <textarea name="Contenido" class="form-control" rows="20"></textarea>
                                 </div>
+                                <div class="form-group">
+                                    <label for="Urls">Urls donde mostrar</label>
+                                    <textarea name="Urls" class="form-control" rows="20"></textarea>
+                                </div>
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
@@ -67,6 +71,10 @@
                                 <div class="form-group">
                                     <label for="Contenido">Contenido</label>
                                     <textarea name="Contenido" class="form-control TextEditor" rows="20"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Urls">Urls donde mostrar</label>
+                                    <textarea name="Urls" class="form-control" rows="20"></textarea>
                                 </div>
                             </div>
                             <div class="col-4">

@@ -19,6 +19,7 @@
                         <img class="img-fluid" src="{{ asset('img/publicaciones/'.$logro->tabla_rola) }}" >
                         <h3>{{$logro->nombre}} <small>({{$logro->orden}})</small></h3>
                         <p><span class="badge bg-primary">{{$logro->nivel_usuario}}</span> | <span class="badge @if($logro->region=='México'){{'bg-success'}} @else {{'bg-info'}} @endif">{{$logro->region}} </span> </p>
+                        <p>({{$logro->sesiones}})</p>
                     </div>
                     <div class="card-footer">
                         <a href="{{route('logros.show', $logro->id)}}">Ver contenido</a>
