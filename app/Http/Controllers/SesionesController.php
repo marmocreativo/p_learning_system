@@ -19,6 +19,7 @@ use App\Models\Cuenta;
 use App\Models\Temporada;
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
+use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\DB;
 
 use App\Exports\ReporteSesionExport;
@@ -814,11 +815,18 @@ class SesionesController extends Controller
                             ->limit(2) // Limitar a dos resultados
                             ->get();
 
+        $otras = SesionEv::where('id_cuenta', $temporada_actual->id_cuenta)
+                            ->where('id_temporada', '!=', $temporada_actual->id)
+                            ->whereDate('fecha_publicacion', '<', $fecha_actual)
+                            ->limit(2) // Limitar a dos resultados
+                            ->get();
+
         $completo = [
             'sesion' => $sesion,
             'dudas' => $dudas,
             'anexos' => $anexos,
             'sesiones_pendientes' => $pendientes,
+            'otras_sesiones' => $otras,
             'mostrar_puntajes' => $mostrarPuntajes,
             'temporada' => $temporada_sesion,
         ];
@@ -895,6 +903,38 @@ class SesionesController extends Controller
         ->first();
 
         return response()->json($visualizacion);
+    }
+
+    public function registrar_inicio_video_api(Request $request)
+    {
+        $id_sesion = $request->input('id_sesion');
+        $id_usuario = $request->input('id_usuario');
+        $index_video = $request->input('index_video') ?? 0;
+        $usuario= User::find($id_usuario);
+        $sesion = SesionEv::find($id_sesion);
+        $temporada = Temporada::find($sesion->id_temporada);
+
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'inicio video';
+        $accion->descripcion = 'inicio video de la sesión: '.$sesion->titulo;
+
+        if ($accion->save()) {
+            // El guardado fue exitoso, retorna lo que desees.
+            return response()->json([
+                'success' => true,
+                'message' => 'Almacenado'
+            ]); // Código de error 500 (Internal Server Error)
+        } else {
+            // El guardado falló, puedes retornar un error o manejarlo como prefieras.
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al guardar la visualización.'
+            ], 500); // Código de error 500 (Internal Server Error)
+        }
+        
     }
 
     public function registrar_visualizacion_api(Request $request)
@@ -1017,6 +1057,17 @@ class SesionesController extends Controller
                 $visualizacion->puntaje = 0;
             }
             $visualizacion->save();
+            
+            // Registro la acción 
+            $usuario= User::find($id_usuario);
+            $accion = new AccionesUsuarios;
+            $accion->id_usuario = $usuario->id;
+            $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+            $accion->correo = $usuario->email;
+            $accion->accion = 'Finalizó la sesión';
+            $accion->descripcion = 'finalizó la sesión: '.$sesion->titulo;
+            $accion->save();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Almacenado',
@@ -1083,6 +1134,16 @@ class SesionesController extends Controller
 
                 if ($visualizacion->save()) {
                     // El guardado fue exitoso, retorna lo que desees.
+                    // Registro la acción 
+                    $usuario= User::find($id_usuario);
+                    $accion = new AccionesUsuarios;
+                    $accion->id_usuario = $usuario->id;
+                    $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+                    $accion->correo = $usuario->email;
+                    $accion->accion = 'Finalizó la sesión';
+                    $accion->descripcion = 'finalizó la sesión: '.$sesion->titulo;
+                    $accion->save();
+                    
                     return response()->json([
                         'success' => true,
                         'message' => 'Almacenado',
@@ -1190,6 +1251,18 @@ class SesionesController extends Controller
             }
 
             $visualizacion->save();
+
+             // Registro la acción 
+             $usuario= User::find($id_usuario);
+             $accion = new AccionesUsuarios;
+             $accion->id_usuario = $usuario->id;
+             $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+             $accion->correo = $usuario->email;
+             $accion->accion = 'Avance en la sesión';
+             $accion->descripcion = 'Avance en la sesión: '.$sesion->titulo;
+             $accion->save();
+     
+
             return response()->json([
                 'success' => true,
                 'message' => 'Avance Almacenado',
@@ -1255,6 +1328,18 @@ class SesionesController extends Controller
 
             
             $visualizacion->save();
+
+            // Registro la acción 
+            $usuario= User::find($id_usuario);
+            $accion = new AccionesUsuarios;
+            $accion->id_usuario = $usuario->id;
+            $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+            $accion->correo = $usuario->email;
+            $accion->accion = 'Avance en la sesión';
+            $accion->descripcion = 'Avance en la sesión: '.$sesion->titulo;
+            $accion->save();
+
+
             return response()->json([
                 'success' => true,
                 'message' => 'Avance Almacenado',
@@ -1331,6 +1416,17 @@ class SesionesController extends Controller
                     $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
 
                     $registro_respuesta->save();
+
+                    // Registro la acción 
+                        $usuario= User::find($id_usuario);
+                        $accion = new AccionesUsuarios;
+                        $accion->id_usuario = $usuario->id;
+                        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+                        $accion->correo = $usuario->email;
+                        $accion->accion = 'Respondio la evaluacion';
+                        $accion->descripcion = 'Respondió la evaluación en la sesión: '.$sesion->titulo;
+                        $accion->save();
+                        
                 }
             }
         }
@@ -1343,6 +1439,7 @@ class SesionesController extends Controller
         $id_sesion = $request->input('id_sesion');
         $id_usuario = $request->input('id_usuario');
         $duda_texto = $request->input('duda');
+        $sesion = SesionEv::find($id_sesion);
 
         $duda = new SesionDudas();
         $duda->id_usuario = $id_usuario;
@@ -1350,6 +1447,16 @@ class SesionesController extends Controller
         $duda->duda = $duda_texto;
 
         $duda->save();
+
+        // Registro la acción 
+        $usuario= User::find($id_usuario);
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'Duda en sesion';
+        $accion->descripcion = 'Escribió una duda en la sesión: '.$sesion->titulo;
+        $accion->save();
 
         
     }

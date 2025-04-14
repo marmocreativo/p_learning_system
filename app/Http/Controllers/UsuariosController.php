@@ -29,6 +29,7 @@ use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
 use App\Models\NotificacionUsuario;
 use App\Models\Direccion;
+use App\Models\Publicacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -1111,8 +1112,10 @@ class UsuariosController extends Controller
     public function agregar_usuario_api (Request $request)
     {
             // Verificar si el usuario ya existe
+        $lider = User::find($request->id_usuario)->first();
         $usuario = User::where('email', $request->correo)->first();
         $distribuidor = Distribuidor::where('id', $request->id_distribuidor)->first();
+        
         
 
         if (!$usuario) {
@@ -1144,6 +1147,14 @@ class UsuariosController extends Controller
             $usuario->estado = 'activo';
 
             $usuario->save();
+
+            $accion = new AccionesUsuarios;
+            $accion->id_usuario = $lider->id;
+            $accion->nombre = $lider->nombre.' '.$lider->apellidos;
+            $accion->correo = $lider->email;
+            $accion->accion = 'registro usuario';
+            $accion->descripcion = 'Se registró el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+            $accion->save();
         }
 
 
@@ -1158,6 +1169,16 @@ class UsuariosController extends Controller
             $suscripcion->confirmacion_puntos = 'pendiente';
             $suscripcion->funcion = 'usuario';
             $suscripcion->save();
+            // Registro la acción de suscribir al usuario
+            $temporada = Temporada::find($request->id_temporada);
+            $cuenta = Cuenta::find($request->id_cuenta);
+            $accion = new AccionesUsuarios;
+            $accion->id_usuario = $lider->id;
+            $accion->nombre = $lider->nombre.' '.$lider->apellidos;
+            $accion->correo = $lider->email;
+            $accion->accion = 'registro usuario temporada';
+            $accion->descripcion = 'Se registró el usuario '.$usuario->email.' en la temporada: '.$cuenta->nombre.' '.$temporada->nombre;
+            $accion->save();
         }
         $mensaje = '<p><b>¡Te han seleccionado para participar en PLearning! Anexamos tu nombre de usuario y contraseña</b>, y te invitamos a cambiar esta última tan pronto como ingreses al programa. ¡Que tengas mucho éxito y disfrutes tu participación en esta temporada de PLearning!</p>';
         $mensaje .= '<table>';
@@ -1221,10 +1242,19 @@ class UsuariosController extends Controller
             // Verificar si el usuario ya existe
         $suscripcion = UsuariosSuscripciones::where('id', $request->suscripcion)->first();
         $usuario = User::where('id', $suscripcion->id_usuario)->first();
+        $lider = User::find($request->id_usuario);
         $usuario->nombre = $request->nombre;
         $usuario->apellidos = $request->apellidos;
         $usuario->email = $request->correo;
         $usuario->save();
+
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $lider->id;
+        $accion->nombre = $lider->nombre.' '.$lider->apellidos;
+        $accion->correo = $lider->email;
+        $accion->accion = 'actualizacion usuario';
+        $accion->descripcion = 'Se actualizó el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->save();
         
         return 'Guardado';
         
@@ -1483,6 +1513,7 @@ class UsuariosController extends Controller
         $temporada = Temporada::find($id_cuenta);
         $suscripcion = UsuariosSuscripciones::find($id_suscripcion);
         $usuario = User::find($suscripcion->id_usuario);
+        $lider = User::find($request->input('id_usuario'));
         
 
         $visualizaciones = SesionVis::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
@@ -1494,11 +1525,11 @@ class UsuariosController extends Controller
         $suscripcion->delete();
 
         $accion = new AccionesUsuarios();
-        $accion->id_usuario = $usuario->id;
-        $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
-        $accion->correo = $usuario->email;
+        $accion->id_usuario = $lider->id;
+        $accion->nombre = $lider->nombre.''.$lider->apellidos;
+        $accion->correo = $lider->email;
         $accion->accion = 'suscripcion_borrada';
-        $accion->descripcion = 'Fue eliminado de la temporada por un lider';
+        $accion->descripcion = $usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email.'Fue eliminado de la temporada: '.$cuenta->nombre.' '.$temporada->nombre.' por un lider';
         $accion->save();
 
         return 'Eliminado';
@@ -1506,60 +1537,37 @@ class UsuariosController extends Controller
        
     }
 
-    public function actualizar_usuario_perfil_api (Request $request)
-    {
-            // Verificar si el usuario ya existe
+    public function actualizar_usuario_perfil_api(Request $request)
+{
+    // Validaciones básicas para los campos de texto (ajústalas si necesitas)
+    $request->validate([
+        'id_usuario' => 'required|integer|exists:usuarios,id',
+        'legacy_id' => 'nullable|string',
+        'telefono' => 'nullable|string',
+        'fecha_nacimiento' => 'required|date',
+    ]);
 
-            $request->validate([
-                'photo' => 'nullable|mimes:jpeg,png,jpg,gif,pdf|max:10048' // Ajusta las reglas de validación según tus necesidades}
-            ]);
-            $subido = false;
-            if ($request->hasFile('photo')) {
-                $archivo = $request->file('photo');
-                $nombreArchivo = 'usuario'.time().'.'.$archivo->extension();
-                if($archivo->move(base_path('../public_html/system.panduitlatam.com/img/usuarios'), $nombreArchivo)){
-                    $subido = true;
-                }
-            }
-            
-           
+    $usuario = User::find($request->id_usuario);
+    if ($usuario) {
+        $usuario->legacy_id = $request->legacy_id;
+        $usuario->telefono = $request->telefono ?? ''; // si viene vacío, lo limpia
+        $usuario->fecha_nacimiento = date('Y-m-d', strtotime($request->fecha_nacimiento));
+        $usuario->save();
 
-        $usuario = User::find($request->id_usuario);
-        if($usuario){
-            $usuario->legacy_id = $request->legacy_id;
+        // Registro de acción
+        $accion = new AccionesUsuarios();
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre . ' ' . $usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'actualizacion_datos';
+        $accion->descripcion = 'Actualizó su perfil';
+        $accion->save();
 
-            if(!empty($request->telefono)){
-                $usuario->telefono = $request->telefono;
-            }else{
-                $usuario->telefono = '';
-            }
-
-            if ($subido) {
-                $usuario->imagen = $nombreArchivo;
-            }
-            
-            $usuario->fecha_nacimiento = date('Y-m-d', strtotime($request->fecha_nacimiento));
-            $usuario->save();
-
-                    $accion = new AccionesUsuarios();
-                    $accion->id_usuario = $usuario->id;
-                    $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
-                    $accion->correo = $usuario->email;
-                    $accion->accion = 'actualizacion_datos';
-                    $accion->descripcion = 'Actualizó su perfil';
-                    $accion->save();
-            
-            if ($subido) {
-                return 'Guardado con foto';
-            }else{
-                return 'Guardado sin foto';
-            }
-        }else{
-            return 'No hay usuario: '.$request->id_usuario;
-        }
-        
-        
+        return 'Guardado';
+    } else {
+        return 'No hay usuario: ' . $request->id_usuario;
     }
+}
 
     public function actualizar_imagen_perfil_api (Request $request)
     {
@@ -1584,6 +1592,14 @@ class UsuariosController extends Controller
             if ($subido) {
                 $usuario->imagen = $nombreArchivo;
                 $usuario->save();
+                // Registro la acción 
+                $accion = new AccionesUsuarios;
+                $accion->id_usuario = $usuario->id;
+                $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+                $accion->correo = $usuario->email;
+                $accion->accion = 'actualizacion imagen';
+                $accion->descripcion = 'Actualizó su imágen de perfil';
+                $accion->save();
             }
             
             
@@ -1599,60 +1615,87 @@ class UsuariosController extends Controller
         
     }
 
-    public function actualizar_pass_perfil_api (Request $request)
+    public function actualizar_pass_perfil_api(Request $request)
     {
-            // Verificar si el usuario ya existe
         $id_usuario = $request->id_usuario;
         $old_pass = $request->old_pass;
         $new_pass = $request->new_pass;
         $confirm_pass = $request->confirm_pass;
 
-        $usuario = User::find($request->id_usuario);
+        $usuario = User::find($id_usuario);
 
-        $data = [
-            'titulo' => 'Tu contraseña de PLearning ha sido cambiada',
-            'contenido' => '<p>Tu contraseña para ingresar al sitio de PLearning fue actualizada con éxito; de ahora en adelante debes usar sólo tu nueva contraseña. Si no solicitaste el cambio de contraseña, comunícate inmediatamente con nosotros para informar de un problema de seguridad.</p>
-
-            <p>Está es tu contraseña</p>
-            <p>'.$request->new_pass.'</p>
-           <p> No comparte o revele su contraseña a nadie.</p>',
-            'boton_texto' => 'ENTRAR AHORA',
-            'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login'
-        ];
-
-
-        
-        if($usuario){
-            if(Hash::check($old_pass, $usuario->password)){
-                if(($new_pass==$confirm_pass)){
-                    $usuario->password = Hash::make($new_pass);
-                    $usuario->save();
-                    Mail::to($usuario->email)->send(new CambioPass($data));
-                    $accion = new AccionesUsuarios();
-                    $accion->id_usuario = $usuario->id;
-                    $accion->nombre = $usuario->nombre.''.$usuario->apellidos;
-                    $accion->correo = $usuario->email;
-                    $accion->accion = 'actualizacion_pass';
-                    $accion->descripcion = 'Actualizó su contraseña';
-                    $accion->save();
-                    return 'ok';
-                }else{
-                    return 'new_pass';
-                }
-                
-            }else{
-                return 'old_pass';
-            }
-            
-            
-            
-        }else{
+        if (!$usuario) {
             return 'user';
         }
 
-        
-        
+        if (!Hash::check($old_pass, $usuario->password)) {
+            return 'old_pass';
+        }
+
+        if ($new_pass !== $confirm_pass) {
+            return 'new_pass';
+        }
+
+        // Actualizar contraseña
+        $usuario->password = Hash::make($new_pass);
+        $usuario->save();
+
+        // Registrar acción
+        $accion = new AccionesUsuarios();
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre . ' ' . $usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'actualizacion_pass';
+        $accion->descripcion = 'Actualizó su contraseña';
+        $accion->save();
+
+        // Enviar correo (sin detener el flujo si falla)
+        try {
+            $data = [
+                'titulo' => 'Tu contraseña de PLearning ha sido cambiada',
+                'contenido' => '<p>Tu contraseña para ingresar al sitio de PLearning fue actualizada con éxito; de ahora en adelante debes usar sólo tu nueva contraseña. Si no solicitaste el cambio de contraseña, comunícate inmediatamente con nosotros para informar de un problema de seguridad.</p>
+                                <p>Ésta es tu nueva contraseña:</p>
+                                <p>' . $new_pass . '</p>
+                                <p>No compartas ni reveles tu contraseña a nadie.</p>',
+                'boton_texto' => 'ENTRAR AHORA',
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login',
+                'newpass' => $new_pass,
+            ];
+
+            Mail::to($usuario->email)->send(new CambioPass($data));
+        } catch (\Exception $e) {
+            // Opcional: puedes registrar el error en logs si deseas
+            \Log::error('Error al enviar correo de cambio de contraseña: ' . $e->getMessage());
+        }
+
+        return 'ok';
     }
+
+    public function registro_clic_noticia_api(Request $request)
+{
+    $usuario = User::find($request->id_usuario);
+    $noticia = Publicacion::find($request->id_noticia);
+
+    if (!$usuario || !$noticia) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Usuario o noticia no encontrados',
+        ], 404);
+    }
+
+    $accion = new AccionesUsuarios();
+    $accion->id_usuario = $usuario->id;
+    $accion->nombre = $usuario->nombre . ' ' . $usuario->apellidos;
+    $accion->correo = $usuario->email;
+    $accion->accion = 'click en noticia';
+    $accion->descripcion = 'Se dio click en la noticia id: ' . $noticia->id . ' título: ' . $noticia->titulo;
+    $accion->save();
+
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Registro guardado correctamente',
+    ]);
+}
 
     /**
      * API SUPER LIDER

@@ -50,6 +50,7 @@ Route::get('puntaje_usuario_2025', [UsuariosController::class, 'puntaje_usuario_
 Route::get('detalles_logro_2025', [LogrosController::class, 'detalles_logro_2025_api'])->name('detalles_logro_2025.api');
 Route::get('temporada_y_sesiones_2025', [TemporadasController::class, 'temporada_y_sesiones_2025'])->name('temporada_y_sesiones_2025.api');
 Route::get('full_datos_sesion_2025', [SesionesController::class, 'full_datos_sesion_2025_api'])->name('full_datos_sesion_2025.api');
+Route::post('registro_clic_noticia', [UsuariosController::class, 'registro_clic_noticia_api'])->name('registro_clic_noticia.api');
 
 // Aceptar términos y condiciones
 Route::post('aceptar_terminos_2025', [UsuariosController::class, 'aceptar_terminos_2025'])->name('aceptar_terminos_2025.api');
@@ -71,6 +72,7 @@ Route::get('dudas_sesion', [SesionesController::class, 'dudas_sesion_api'])->nam
 Route::get('anexos_sesion', [SesionesController::class, 'anexos_sesion_api'])->name('anexos_sesion.api');
 Route::get('checar_visualizacion', [SesionesController::class, 'checar_visualizacion_api'])->name('checar_visualizacion.api');
 Route::get('checar_full_visualizacion', [SesionesController::class, 'checar_full_visualizacion_api'])->name('checar_full_visualizacion.api');
+Route::post('registrar_inicio_video', [SesionesController::class, 'registrar_inicio_video_api'])->name('registrar_inicio_video.api');
 Route::post('registrar_visualizacion', [SesionesController::class, 'registrar_visualizacion_api'])->name('registrar_visualizacion.api');
 Route::post('registrar_avance', [SesionesController::class, 'registrar_avance_api'])->name('registrar_avance.api');
 Route::post('registrar_respuestas_evaluacion', [SesionesController::class, 'registrar_respuestas_evaluacion_api'])->name('registrar_respuestas_evaluacion.api');

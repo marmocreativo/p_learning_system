@@ -444,7 +444,8 @@ class CanjeoController extends Controller
             $datos_corte = null;
             $datos_corte_usuario = null;
 
-            // Obtengo los puntos de visualización
+            if($corte_anterior){
+                // Obtengo los puntos de visualización
                 $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_ultimo_video', '>=', $corte_anterior->fecha_inicio)
@@ -475,9 +476,17 @@ class CanjeoController extends Controller
                     ->where('fecha_registro', '<=', $corte_anterior->fecha_final)
                     ->pluck('puntos')->sum();
             // Hago la suma total
-                $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
+            $puntaje_total = $visualizaciones+$evaluaciones+$trivia+$jackpots+$extra;
             $creditos_total = 0;
             $creditos_consumidos = 0;
+
+            }else{
+                $puntaje_total = 0;
+                $creditos_total = 0;
+                $creditos_consumidos = 0;
+            }
+
+            
         }else{
             // Si hay corte hago lo siguiente
             // Vacio los datos en la variable datos_corte
