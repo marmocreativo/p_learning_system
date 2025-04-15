@@ -13,6 +13,7 @@ use App\Models\Clase;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
 use App\Models\User;
+use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\DB;
 
 use App\Exports\ReporteJackpotExport;
@@ -374,6 +375,15 @@ class JackpotsController extends Controller
                     $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
 
                     $registro_respuesta->save();
+
+                    $accion = new AccionesUsuarios;
+                    $usuario = User::find($id_usuario);
+                    $accion->id_usuario = $usuario->id;
+                    $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+                    $accion->correo = $usuario->email;
+                    $accion->accion = 'respondio preguntas minijuego';
+                    $accion->descripcion = 'Se respondieron las preguntas del minijuego: '.$jackpot->titulo;
+                    $accion->save();
                 }
             }
         }
@@ -412,6 +422,15 @@ class JackpotsController extends Controller
         $registro_intento->fecha_registro = date('Y-m-d H:i:s');
 
         $registro_intento->save();
+
+        $accion = new AccionesUsuarios;
+        $usuario = User::find($id_usuario);
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'minijuego intento';
+        $accion->descripcion = 'Se completó un inento en el minijuego: '.$jackpot->titulo;
+        $accion->save();
 
         
     }

@@ -14,6 +14,7 @@ use App\Models\LogroParticipacion;
 use App\Models\LogroAnexo;
 use App\Models\LogroAnexoProducto;
 use App\Models\User;
+use App\Models\AccionesUsuarios;
 use App\Models\Distribuidor;
 use App\Models\Sesion;
 use App\Models\SesionVis;

@@ -739,8 +739,9 @@ class UsuariosController extends Controller
         $sesiones_anteriores = SesionEv::where('id_temporada', $temporada->temporada_anterior)->get();
         $visualizaciones_actuales = SesionVis::where('id_temporada', $temporada->id)->where('id_usuario', $usuario->id)->get();
         $visualizaciones_anteriores = SesionVis::where('id_temporada', $temporada->temporada_anterior)->where('id_usuario', $usuario->id)->get();
+        $acciones = AccionesUsuarios::where('id_usuario', $usuario->id)->orderBy('created_at', 'desc')->get();
         return view('admin/usuario_reporte_sesiones', compact('suscripcion','usuario','temporada', 'sesiones_actuales', 'sesiones_anteriores',
-        'visualizaciones_actuales', 'visualizaciones_anteriores'));
+        'visualizaciones_actuales', 'visualizaciones_anteriores', 'acciones'));
         
 
     }
@@ -1253,7 +1254,7 @@ class UsuariosController extends Controller
         $accion->nombre = $lider->nombre.' '.$lider->apellidos;
         $accion->correo = $lider->email;
         $accion->accion = 'actualizacion usuario';
-        $accion->descripcion = 'Se actualizó el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->descripcion = 'Como lider se actualizó el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
         $accion->save();
         
         return 'Guardado';

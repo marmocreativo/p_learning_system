@@ -10,14 +10,9 @@
         <div class="col-6">
             <div class="card card-body">
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-12">
                         <button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#formularioPopup" aria-expanded="false" aria-controls="formularioPopup">
                             Nuevo PopUp
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button class="btn btn-success w-100" type="button" data-bs-toggle="collapse" data-bs-target="#formularioPopupExterno" aria-expanded="false" aria-controls="formularioPopupExterno">
-                            Popup Externo
                         </button>
                     </div>
                 </div>
@@ -150,12 +145,12 @@
                             <div class="col-8">
                                 <div class="form-group">
                                     <label for="Texto">Texto</label>
-                                    <input type="text" class="form-control" name="Texto">
+                                    <textarea name="Texto" class="form-control TextEditor" rows="1"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="TextoBoton">Texto Botón</label>
                                     <input type="text" class="form-control" name="TextoBoton">
-                                </div>ç
+                                </div>
                                 <div class="form-group">
                                     <label for="EnlaceBoton">Enlace Botón</label>
                                     <input type="text" class="form-control" name="EnlaceBoton">

@@ -96,6 +96,25 @@
                     @endforeach
                 </tbody>
             </table>
+            <h3>Acciones</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Accion</th>
+                        <th>Descripcion</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($acciones as $accion)
+                    <tr>
+                        <td>{{$accion->accion}}</td>
+                        <td>{{$accion->descripcion}}</td>
+                        <td>{{$accion->created_at}}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
     

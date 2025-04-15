@@ -12,6 +12,7 @@ use App\Models\TriviaPreg;
 use App\Models\TriviaRes;
 use App\Models\TriviaGanador;
 use App\Models\User;
+use App\Models\AccionesUsuarios;
 use App\Models\Distribuidor;
 use App\Models\NotificacionUsuario;
 use Illuminate\Support\Facades\DB;
@@ -438,6 +439,15 @@ class TriviasController extends Controller
         }
     }
 
+    $accion = new AccionesUsuarios;
+    $usuario = User::find($id_usuario);
+    $accion->id_usuario = $usuario->id;
+    $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+    $accion->correo = $usuario->email;
+    $accion->accion = 'trivia resuelta';
+    $accion->descripcion = 'Se contestaron las preguntas de la trivia: '.$trivia->titulo;
+    $accion->save();
+
     // **Si todas las respuestas son correctas y no hay un ganador previo, registrar ganador**
     if (!$hay_ganador && $todas_correctas) {
         $nuevo_ganador = new TriviaGanador();
@@ -457,6 +467,15 @@ class TriviasController extends Controller
         $notificacion->texto = '<p>¡Fuiste el mejor participante de tu compañía en la <b>Trivia Mensual iLovePanduit!</b>...</p>';
         $notificacion->enlace = '#';
         $notificacion->save();
+
+        $accion = new AccionesUsuarios;
+        $usuario = User::find($id_usuario);
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'ganador trivia';
+        $accion->descripcion = 'Fuiste el ganador de la trivia: '.$trivia->titulo;
+        $accion->save();
 
 
         // **Enviar correo al ganador**
@@ -528,6 +547,7 @@ class TriviasController extends Controller
         $direccion .= '<p><b>Referencia</b>'.$ganador->direccion_referencia.'</p>';
         $direccion .= '<p><b>Notas</b>'.$ganador->direccion_notas.'</p>';
 
+        /*
         $data = [
             'titulo' => 'Dirección del ganador de la trivia '.$trivia->titulo,
             'contenido' => $direccion,
@@ -535,6 +555,7 @@ class TriviasController extends Controller
             'boton_enlace' => '#'
         ];
         Mail::to('marmocreativo@gmail.com')->send(new DireccionTrivia($data));
+        */
 
         return('Guardado');
         

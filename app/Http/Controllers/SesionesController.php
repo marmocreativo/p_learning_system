@@ -815,10 +815,11 @@ class SesionesController extends Controller
                             ->limit(2) // Limitar a dos resultados
                             ->get();
 
-        $otras = SesionEv::where('id_cuenta', $temporada_actual->id_cuenta)
+                            $otras = SesionEv::where('id_cuenta', $temporada_actual->id_cuenta)
                             ->where('id_temporada', '!=', $temporada_actual->id)
                             ->whereDate('fecha_publicacion', '<', $fecha_actual)
-                            ->limit(2) // Limitar a dos resultados
+                            ->inRandomOrder() // Orden aleatorio
+                            ->limit(2)        // Limitar a dos resultados
                             ->get();
 
         $completo = [
