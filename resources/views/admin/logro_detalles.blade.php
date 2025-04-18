@@ -84,6 +84,7 @@
         <div class="col-12">
             <table class="table table-bordered">
                 <tr>
+                    <th>ID</th>
                     <th>Usuario</th>
                     <th>Distribuidor</th>
                     <th>Archivos a revisar</th>
@@ -96,13 +97,14 @@
                 @else
                     @foreach ($logro->participaciones as $participacion)
                         <tr>
+                            <td>{{$participacion->id}}</td>
                             <td>
-                                <a href="{{ route('logros.detalles_participacion', ['id' => $participacion->id_participacion]) }}">
-                                    {{$participacion->nombre}} {{$participacion->apellidos}}
+                                <a href="{{ route('logros.detalles_participacion', ['id' => $participacion->id]) }}">
+                                    {{$participacion->usuario->nombre ?? '—'}} {{$participacion->usuario->apellidos ?? ''}}
                                 </a>
                             </td>
-                            <td>{{$participacion->nombre_distribuidor}}</td>
-                            <td>{{$participacion->anexos_no_validados}}</td>
+                            <td>{{$participacion->distribuidor->nombre ?? '—'}}</td>
+                            <td>{{$participacion->anexosNoValidados->count()}}</td>
                             <td>{{$participacion->estado}}</td>
                             <td>{{$participacion->fecha_registro}}</td>
                             <td>

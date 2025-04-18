@@ -212,6 +212,7 @@ Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::
 // Rutas CRUD para los popups y cintillos
 Route::get('admin/popups', [PopupsController::class, 'index'])->middleware('auth')->name('popups');
 Route::post('admin/popups/crear_popup', [PopupsController::class, 'crear_popup'])->middleware('auth')->name('popup.create');
+Route::post('admin/popups/actualizar_popup', [PopupsController::class, 'actualizar_popup'])->middleware('auth')->name('popup.update');
 Route::post('admin/cintillo/crear_cintillo', [PopupsController::class, 'crear_cintillo'])->middleware('auth')->name('cintillo.create');
 Route::delete('admin/popups/destroy/{post}', [PopupsController::class, 'borrar_popup'])->middleware('auth')->name('popup.destroy');
 Route::delete('admin/cintillo/destroy/{post}', [PopupsController::class, 'borrar_cintillo'])->middleware('auth')->name('cintillo.destroy');

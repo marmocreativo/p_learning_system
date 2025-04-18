@@ -116,7 +116,11 @@ class LogrosController extends Controller
      */
     public function show(string $id)
     {
-        $logro = Logro::find($id);
+        $logro = Logro::with([
+            'participaciones.usuario',
+            'participaciones.distribuidor',
+            'participaciones.anexosNoValidados',
+        ])->findOrFail($id);
 
     
         return view('admin/logro_detalles', compact('logro'));

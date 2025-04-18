@@ -44,6 +44,8 @@ class PopupsController extends Controller
         $popup->titulo = $request->Titulo;
         $popup->contenido = $request->Contenido;
         $popup->urls = $request->Urls;
+        $popup->boton_texto = $request->BotonTexto;
+        $popup->boton_link = $request->BotonLink;
         $popup->imagen = $nombreImagen;
         $popup->fecha_inicio = $request->FechaInicio;
         $popup->fecha_final = $request->FechaFinal;
@@ -61,6 +63,35 @@ class PopupsController extends Controller
 
     public function actualizar_popup(Request $request)
     {
+        $popup = Popup::find($request->input('Identificador'));
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+    
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'popup_'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $popup->imagen;
+        }
+
+        
+        $popup->id_cuenta = $request->IdCuenta;
+        $popup->id_temporada = $request->IdTemporada;
+        $popup->titulo = $request->Titulo;
+        $popup->contenido = $request->Contenido;
+        $popup->urls = $request->Urls;
+        $popup->boton_texto = $request->BotonTexto;
+        $popup->boton_link = $request->BotonLink;
+        $popup->imagen = $nombreImagen;
+        $popup->fecha_inicio = $request->FechaInicio;
+        $popup->fecha_final = $request->FechaFinal;
+
+        $popup->save();
+
+        return redirect()->route('popups', ['id_temporada' => $request->IdTemporada])
+                             ->with('success', 'Popup actualizado correctamente.');
 
     }
 

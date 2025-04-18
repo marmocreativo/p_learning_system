@@ -42,7 +42,7 @@
     </div>
     
     <hr>
-    <table class="table table-stripped">
+    <table class="table table-striped table-bordered">
         <tr>
             <th>#</th>
             <th>ID</th>
@@ -55,9 +55,8 @@
             <th>Disty</th>
             <th>Sucursal</th>
             <th>Region</th>
-            <th>Temp {{$temporada->nombre}}</th>
-            <th>Temp Anterior</th>
             <th>University</th>
+            <th>Términos y condiciones</th>
             <th>Pass</th>
             <th>Controles</th>
         </tr>
@@ -75,9 +74,8 @@
                     <td>{{$suscripcion->nombre_distribuidor}}<hr>{{$suscripcion->nivel}}</td>
                     <td>{{$suscripcion->id_sucursal}}</td>
                     <td>{{$suscripcion->region}}</td>
-                    <td>{{$suscripcion->temporada_completa}}</td>
-                    <td>{{$suscripcion->champions_a}}</td>
                     <td>{{$suscripcion->champions_b}}</td>
+                    <td>{{$suscripcion->fecha_terminos}}</td>
                     
                     <td>
                         @if(!$suscripcion->pass_restaurado)

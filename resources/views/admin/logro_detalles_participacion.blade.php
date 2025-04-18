@@ -9,61 +9,42 @@
     <a href="{{route('logros.edit', $logro->id)}}">Editar logro</a>
     <hr>
     <div class="row">
-        
-        <div class="col-4">
-            <h5>Datos del reto</h5>
+        <div class="col-3">
+            <h5>Datos de la participación</h5>
             <table class="table table-bordered">
                 <tr>
                     <th>Logro</th>
                     <td>{{$logro->nombre}}</td>
                 </tr>
                 <tr>
-                    <th>Max cantidad de archivos</th>
-                    <td>{{$logro->cantidad_evidencias}}</td>
-                </tr>
-                <tr>
-                    <th>Fecha inicio</th>
-                    <td>{{$logro->fecha_inicio}}</td>
-                </tr>
-                <tr>
-                    <th>Fecha finalización</th>
-                    <td>{{$logro->fecha_vigente}}</td>
-                </tr>
-            </table>
-            
-        </div>
-        <div class="col-4">
-            <h5>Datos del participante</h5>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Nombre</th>
+                    <th>Participante</th>
                     <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
                 </tr>
-                <tr>
-                    <th>Confirmación Nivel A</th>
-                    <td>{{$participacion->confirmacion_nivel_a}}</td>
-                </tr>
-                <tr>
-                    <th>Confirmación Nivel B</th>
-                    <td>{{$participacion->confirmacion_nivel_b}}</td>
-                </tr>
-                <tr>
-                    <th>Confirmación Nivel C</th>
-                    <td>{{$participacion->confirmacion_nivel_c}}</td>
-                </tr>
-                <tr>
-                    <th>Confirmación Nivel Especial</th>
-                    <td>{{$participacion->confirmacion_nivel_especial}}</td>
-                </tr>
+                @php
+                    $nivelConfirmado = null;
+                    if ($participacion->confirmacion_nivel_especial === 'SI') {
+                        $nivelConfirmado = 'Nivel Especial';
+                    } elseif ($participacion->confirmacion_nivel_c === 'SI') {
+                        $nivelConfirmado = 'Nivel C';
+                    } elseif ($participacion->confirmacion_nivel_b === 'SI') {
+                        $nivelConfirmado = 'Nivel B';
+                    } elseif ($participacion->confirmacion_nivel_a === 'SI') {
+                        $nivelConfirmado = 'Nivel A';
+                    }
+                @endphp
+                @if ($nivelConfirmado)
+                    <tr>
+                        <th>Confirmación de Nivel</th>
+                        <td>{{ $nivelConfirmado }}</td>
+                    </tr>
+                @endif
                 <tr>
                     <th>Estado</th>
                     <td>{{$participacion->estado}}</td>
                 </tr>
 
             </table>
-            
-        </div>
-        <div class="col-4">
+            <hr>
             <div class="card card-body bg-light">
                 @if($participacion->estado !='finalizado')
                 <form action="{{ route('logros.participacion_update', $participacion->id) }}" method="POST" enctype="multipart/form-data">
@@ -112,34 +93,62 @@
                 @endif
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
+        <div class="col-9">
             <h5>Evidencias</h5>
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                  <button class="nav-link active" id="nav-pendientes-tab" data-bs-toggle="tab" data-bs-target="#nav-pendientes" type="button" role="tab" aria-controls="nav-pendientes" aria-selected="true">Pendientes</button>
-                  <button class="nav-link" id="nav-nivel-a-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-a" type="button" role="tab" aria-controls="nav-nivel-a" aria-selected="false">Nivel A</button>
-                  <button class="nav-link" id="nav-nivel-b-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-b" type="button" role="tab" aria-controls="nav-nivel-b" aria-selected="false">Nivel B</button>
-                  <button class="nav-link" id="nav-nivel-c-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-c" type="button" role="tab" aria-controls="nav-nivel-c" aria-selected="false">Nivel C</button>
-                  <button class="nav-link" id="nav-nivel-especial-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-especial" type="button" role="tab" aria-controls="nav-nivel-especial" aria-selected="false">Nivel Especial</button>
-                  <button class="nav-link" id="nav-rechazados-tab" data-bs-toggle="tab" data-bs-target="#nav-rechazados" type="button" role="tab" aria-controls="nav-rechazados" aria-selected="false">Rechazados</button>
+                    <button class="nav-link active" id="nav-pendientes-tab" data-bs-toggle="tab" data-bs-target="#nav-pendientes" type="button" role="tab" aria-controls="nav-pendientes" aria-selected="true">Pendientes</button>
+                    <button class="nav-link" id="nav-nivel-a-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-a" type="button" role="tab" aria-controls="nav-nivel-a" aria-selected="false">Nivel A</button>
+                    <button class="nav-link" id="nav-nivel-b-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-b" type="button" role="tab" aria-controls="nav-nivel-b" aria-selected="false">Nivel B</button>
+                    <button class="nav-link" id="nav-nivel-c-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-c" type="button" role="tab" aria-controls="nav-nivel-c" aria-selected="false">Nivel C</button>
+                    <button class="nav-link" id="nav-nivel-especial-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-especial" type="button" role="tab" aria-controls="nav-nivel-especial" aria-selected="false">Nivel Especial</button>
+                    <button class="nav-link" id="nav-rechazados-tab" data-bs-toggle="tab" data-bs-target="#nav-rechazados" type="button" role="tab" aria-controls="nav-rechazados" aria-selected="false">Rechazados</button>
                 </div>
-              </nav>
-              <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active" id="nav-pendientes" role="tabpanel" aria-labelledby="nav-pendientes-tab" tabindex="0">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Verificado</th>
-                            <th>Borrar</th>
-                        </tr>
-                        @foreach ($anexos as $anexo)
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-pendientes" role="tabpanel" aria-labelledby="nav-pendientes-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Verificado</th>
+                        <th>Borrar</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='no')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+                            </td>
                             <td>
                                 @if($anexo->validado=='no')
                                 <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
@@ -190,180 +199,180 @@
                         </tr>
                         
                         @endif
-                         @endforeach
-                    </table>
-                </div>
-                <div class="tab-pane fade" id="nav-nivel-a" role="tabpanel" aria-labelledby="nav-nivel-a-tab" tabindex="0">
-                    <table class="table table-bordered">
+                    @endforeach
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-nivel-a" role="tabpanel" aria-labelledby="nav-nivel-a-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th>Nivel</th>
+                        <th>Verificado</th>
+                        <th>Comentario</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
+                        @if ($anexo->validado=='si'&&$anexo->nivel=='a')
                         <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Nivel</th>
-                            <th>Verificado</th>
-                            <th>Comentario</th>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>{{$anexo->nivel}}</td>
+                            <td>
+                                {{$anexo->validado}}<hr>
+                                <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                    @csrf
+                                    @method('put')
+                                    <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                    <input type="hidden" name="Validado" value="no">
+                                    <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{$anexo->comentario}}
+                            </td>
                         </tr>
-                        @foreach ($anexos as $anexo)
-                            @if ($anexo->validado=='si'&&$anexo->nivel=='a')
-                            <tr>
-                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                                <td>{{$anexo->fecha_registro}}</td>
-                                <td>{{$anexo->nivel}}</td>
-                                <td>
-                                    {{$anexo->validado}}<hr>
-                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
-                                        @csrf
-                                        @method('put')
-                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
-                                        <input type="hidden" name="Validado" value="no">
-                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    {{$anexo->comentario}}
-                                </td>
-                            </tr>
-                            
-                            @endif
-                        @endforeach
-                    </table>
-                </div>
-                <div class="tab-pane fade" id="nav-nivel-b" role="tabpanel" aria-labelledby="nav-nivel-b-tab" tabindex="0">
-                    <table class="table table-bordered">
+                        
+                        @endif
+                    @endforeach
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-nivel-b" role="tabpanel" aria-labelledby="nav-nivel-b-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th>Nivel</th>
+                        <th>Verificado</th>
+                        <th>Comentario</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
+                        @if ($anexo->validado=='si'&&$anexo->nivel=='b')
                         <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Nivel</th>
-                            <th>Verificado</th>
-                            <th>Comentario</th>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>{{$anexo->nivel}}</td>
+                            <td>
+                                {{$anexo->validado}}<hr>
+                                <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                    @csrf
+                                    @method('put')
+                                    <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                    <input type="hidden" name="Validado" value="no">
+                                    <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{$anexo->comentario}}
+                            </td>
                         </tr>
-                        @foreach ($anexos as $anexo)
-                            @if ($anexo->validado=='si'&&$anexo->nivel=='b')
-                            <tr>
-                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                                <td>{{$anexo->fecha_registro}}</td>
-                                <td>{{$anexo->nivel}}</td>
-                                <td>
-                                    {{$anexo->validado}}<hr>
-                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
-                                        @csrf
-                                        @method('put')
-                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
-                                        <input type="hidden" name="Validado" value="no">
-                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    {{$anexo->comentario}}
-                                </td>
-                            </tr>
-                            
-                            @endif
-                        @endforeach
-                    </table>
-                </div>
-                <div class="tab-pane fade" id="nav-nivel-c" role="tabpanel" aria-labelledby="nav-nivel-c-tab" tabindex="0">
-                    <table class="table table-bordered">
+                        
+                        @endif
+                    @endforeach
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-nivel-c" role="tabpanel" aria-labelledby="nav-nivel-c-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th>Nivel</th>
+                        <th>Verificado</th>
+                        <th>Comentario</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
+                        @if ($anexo->validado=='si'&&$anexo->nivel=='c')
                         <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Nivel</th>
-                            <th>Verificado</th>
-                            <th>Comentario</th>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>{{$anexo->nivel}}</td>
+                            <td>
+                                {{$anexo->validado}}<hr>
+                                <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                    @csrf
+                                    @method('put')
+                                    <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                    <input type="hidden" name="Validado" value="no">
+                                    <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{$anexo->comentario}}
+                            </td>
                         </tr>
-                        @foreach ($anexos as $anexo)
-                            @if ($anexo->validado=='si'&&$anexo->nivel=='c')
-                            <tr>
-                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                                <td>{{$anexo->fecha_registro}}</td>
-                                <td>{{$anexo->nivel}}</td>
-                                <td>
-                                    {{$anexo->validado}}<hr>
-                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
-                                        @csrf
-                                        @method('put')
-                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
-                                        <input type="hidden" name="Validado" value="no">
-                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    {{$anexo->comentario}}
-                                </td>
-                            </tr>
-                            
-                            @endif
-                        @endforeach
-                    </table>
-                </div>
-                <div class="tab-pane fade" id="nav-nivel-especial" role="tabpanel" aria-labelledby="nav-nivel-especial-tab" tabindex="0">
-                    <table class="table table-bordered">
+                        
+                        @endif
+                    @endforeach
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-nivel-especial" role="tabpanel" aria-labelledby="nav-nivel-especial-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th>Nivel</th>
+                        <th>Verificado</th>
+                        <th>Comentario</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
+                        @if ($anexo->validado=='si'&&$anexo->nivel=='especial')
                         <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Nivel</th>
-                            <th>Verificado</th>
-                            <th>Comentario</th>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>{{$anexo->nivel}}</td>
+                            <td>
+                                {{$anexo->validado}}<hr>
+                                <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                    @csrf
+                                    @method('put')
+                                    <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                    <input type="hidden" name="Validado" value="no">
+                                    <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{$anexo->comentario}}
+                            </td>
                         </tr>
-                        @foreach ($anexos as $anexo)
-                            @if ($anexo->validado=='si'&&$anexo->nivel=='especial')
-                            <tr>
-                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                                <td>{{$anexo->fecha_registro}}</td>
-                                <td>{{$anexo->nivel}}</td>
-                                <td>
-                                    {{$anexo->validado}}<hr>
-                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
-                                        @csrf
-                                        @method('put')
-                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
-                                        <input type="hidden" name="Validado" value="no">
-                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    {{$anexo->comentario}}
-                                </td>
-                            </tr>
-                            
-                            @endif
-                        @endforeach
-                    </table>
-                </div>
-                <div class="tab-pane fade" id="nav-rechazados" role="tabpanel" aria-labelledby="nav-rechazados-tab" tabindex="0">
-                    <table class="table table-bordered">
+                        
+                        @endif
+                    @endforeach
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-rechazados" role="tabpanel" aria-labelledby="nav-rechazados-tab" tabindex="0">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th>Nivel</th>
+                        <th>Verificado</th>
+                        <th>Comentario</th>
+                    </tr>
+                    @foreach ($anexos as $anexo)
+                        @if ($anexo->validado=='rechazar')
                         <tr>
-                            <th>Archivo</th>
-                            <th>Fecha</th>
-                            <th>Nivel</th>
-                            <th>Verificado</th>
-                            <th>Comentario</th>
+                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>{{$anexo->fecha_registro}}</td>
+                            <td>{{$anexo->nivel}}</td>
+                            <td>
+                                {{$anexo->validado}}<hr>
+                                <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
+                                    @csrf
+                                    @method('put')
+                                    <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
+                                    <input type="hidden" name="Validado" value="no">
+                                    <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
+                                </form>
+                            </td>
+                            <td>
+                                {{$anexo->comentario}}
+                            </td>
                         </tr>
-                        @foreach ($anexos as $anexo)
-                            @if ($anexo->validado=='rechazar')
-                            <tr>
-                                <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
-                                <td>{{$anexo->fecha_registro}}</td>
-                                <td>{{$anexo->nivel}}</td>
-                                <td>
-                                    {{$anexo->validado}}<hr>
-                                    <form action="{{route('logros.actualizar_anexo', $anexo->id)}}" method="POST">
-                                        @csrf
-                                        @method('put')
-                                        <input type="hidden" name="Nivel" value="{{$anexo->nivel}}">
-                                        <input type="hidden" name="Validado" value="no">
-                                        <button type="submit" class="btn btn-info mt-3">Quitar validación</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    {{$anexo->comentario}}
-                                </td>
-                            </tr>
-                            
-                            @endif
-                        @endforeach
-                    </table>
-                </div>
-              </div>
+                        
+                        @endif
+                    @endforeach
+                </table>
+            </div>
+            </div>
         </div>
     </div>
     

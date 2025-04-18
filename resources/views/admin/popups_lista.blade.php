@@ -16,40 +16,6 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="collapse" id="formularioPopupExterno">
-                    <form action="{{ route('popup.create') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="IdCuenta" value="{{$cuenta->id}}">
-                        <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
-                        <input type="hidden" name="Clase" value="externo">
-                        <input type="hidden" name="Titulo" value="Popup Ext {{ now()->format('Y-m-d') }}">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="form-group">
-                                    <label for="Contenido">Incrustar código</label>
-                                    <textarea name="Contenido" class="form-control" rows="20"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="Urls">Urls donde mostrar</label>
-                                    <textarea name="Urls" class="form-control" rows="20"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="form-group">
-                                    <label for="FechaInicio">Publicar desde:</label>
-                                    <input type="datetime-local" class="form-control" name="FechaInicio">
-                                </div>
-                                <div class="form-group">
-                                    <label for="FechaFinal">Hasta:</label>
-                                    <input type="datetime-local" class="form-control" name="FechaFinal">
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </form>
-                </div>
                 
                 <div class="collapse" id="formularioPopup">
                     <form action="{{ route('popup.create') }}" method="POST" enctype="multipart/form-data">
@@ -69,13 +35,22 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="Urls">Urls donde mostrar</label>
-                                    <textarea name="Urls" class="form-control" rows="20"></textarea>
+                                    <textarea name="Urls" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
                                     <label for="Imagen">Imagen</label>
                                     <input type="file" class="form-control" name="Imagen" >
+                                </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="BotonTexto">Texto del Botón</label>
+                                    <input type="text" class="form-control" name="BotonTexto">
+                                </div>
+                                <div class="form-group">
+                                    <label for="BotonLink">Enlace del botón</label>
+                                    <input type="text" class="form-control" name="BotonLink">
                                 </div>
                                 <hr>
                                 <div class="form-group">
@@ -99,23 +74,32 @@
                         @foreach ($popups as $pop)
                             <tr>
                                 <td class="bg-light text-center mb-3">
-                                    <h5>{{$pop->titulo}}</h5>
+                                    <h5>{{ $pop->titulo }}</h5>
+                                    
                                     <hr>
-                                    {{$pop->contenido}}
+                                    {!! $pop->contenido !!}
+                                    
                                     @if (!empty($pop->imagen)) 
-                                        <img src="{{ asset('img/publicaciones/'.$pop->imagen) }}" alt="Imagen de {{ $pop->titulo }}" style="width: 100%;">
+                                        <img src="{{ asset('img/publicaciones/' . $pop->imagen) }}" alt="Imagen de {{ $pop->titulo }}" style="width: 100%;">
                                     @endif
-                                    <table class="table table-bordered">
+                    
+                                    <table class="table table-bordered mt-3">
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    Publicar desde: <b>{{$pop->fecha_inicio}}</b>
+                                                    Publicar desde: <b>{{ $pop->fecha_inicio }}</b>
                                                 </td>
                                                 <td>
-                                                    hasta: <b>{{$pop->fecha_final}}</b>
+                                                    hasta: <b>{{ $pop->fecha_final }}</b>
                                                 </td>
                                                 <td>
-                                                    <form action="{{route('popup.destroy', $pop->id)}}" method="POST">
+                                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modalPopup{{ $pop->id }}">
+                                                        Editar
+                                                    </button>
+                                    
+                                                </td>
+                                                <td>
+                                                    <form action="{{ route('popup.destroy', $pop->id) }}" method="POST">
                                                         @csrf
                                                         @method('delete')
                                                         <button type="submit" class="btn btn-danger btn-sm">Borrar</button>
@@ -126,6 +110,75 @@
                                     </table>
                                 </td>
                             </tr>
+                    
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalPopup{{ $pop->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $pop->id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalLabel{{ $pop->id }}">{{ $pop->titulo }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ route('popup.update') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="hidden" name="IdCuenta" value="{{$cuenta->id}}">
+                                                <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
+                                                <input type="hidden" name="Clase" value="normal">
+                                                <input type="hidden" name="Identificador" value="{{$pop->id}}">
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <div class="form-group">
+                                                            <label for="Titulo">Titulo</label>
+                                                            <input type="text" class="form-control" name="Titulo" value="{{$pop->titulo}}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="Contenido">Contenido</label>
+                                                            <textarea name="Contenido" class="form-control TextEditor" rows="20">{!! $pop->contenido !!}</textarea>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="Urls">Urls donde mostrar</label>
+                                                            <textarea name="Urls" class="form-control" rows="3">{{$pop->urls}}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        @if (!empty($pop->imagen)) 
+                                                            <img src="{{ asset('img/publicaciones/' . $pop->imagen) }}" alt="Imagen de {{ $pop->titulo }}" class="img-fluid mt-3">
+                                                        @endif
+                                                        <div class="form-group">
+                                                            <label for="Imagen">Imagen</label>
+                                                            <input type="file" class="form-control" name="Imagen" >
+                                                        </div>
+                                                        <hr>
+                                                        <div class="form-group">
+                                                            <label for="BotonTexto">Texto del Botón</label>
+                                                            <input type="text" class="form-control" name="BotonTexto" value="{{$pop->boton_texto}}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="BotonLink">Enlace del botón</label>
+                                                            <input type="text" class="form-control" name="BotonLink" value="{{$pop->boton_link}}">
+                                                        </div>
+                                                        <hr>
+                                                        <div class="form-group">
+                                                            <label for="FechaInicio">Publicar desde:</label>
+                                                            <input type="datetime-local" class="form-control" name="FechaInicio" value="{{ $pop->fecha_inicio }}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="FechaFinal">Hasta:</label>
+                                                            <input type="datetime-local" class="form-control" name="FechaFinal" name="FechaInicio" value="{{ $pop->fecha_final }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <button type="submit" class="btn btn-primary">Actualizar</button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </tbody>
                 </table>
