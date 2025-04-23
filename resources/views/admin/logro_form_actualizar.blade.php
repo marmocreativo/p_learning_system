@@ -3,7 +3,7 @@
 @section('titulo', 'Logros')
 
 @section('contenido_principal')
-    <h1>Formulario de logros</h1>
+    <h1>Formulario de desafios</h1>
     <form action="{{ route('logros.update', $logro->id) }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$logro->id_temporada}}">

@@ -325,7 +325,9 @@ class LoginController extends Controller
 
     }
 
-    public function olvide_pass_api(Request $request){
+    /*
+    public function olvide_pass_api(Request $request)
+    {
         $user = User::where('email', $request->input('Email'))->first();
         if($user){
             $id_cuenta = $request->input('id_cuenta');
@@ -348,7 +350,47 @@ class LoginController extends Controller
         }
 
     }
-
+        */
+        public function olvide_pass_api(Request $request){
+            try {
+                $user = User::where('email', $request->input('Email'))->first();
+                if($user){
+                    $id_cuenta = $request->input('id_cuenta');
+                    $cuenta = Cuenta::find($id_cuenta);
+                    $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $cuenta->temporada_actual)->first();
+                    $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+                    
+                    if($id_cuenta==1){
+                        $data = [
+                            'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PLe.jpg',
+                            'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
+                        ];
+                    }else{
+                        $data = [
+                            'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PL.jpg',
+                            'boton_enlace' => 'https://p-learning.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
+                        ];
+                    }
+                   
+                    try {
+                        Mail::to($user->email)->send(new RestaurarPass($data));
+                    } catch (\Exception $e) {
+                        // Registrar el error pero continuar con la ejecución
+                        \Log::error('Error al enviar correo de restauración de contraseña: ' . $e->getMessage());
+                    }
+                    
+                    return response()->json(['success' => true]);
+                }
+                
+                return response()->json(['success' => false, 'message' => 'Usuario no encontrado']);
+                
+            } catch (\Exception $e) {
+                \Log::error('Error en olvide_pass_api: ' . $e->getMessage());
+                return response()->json(['success' => false, 'error' => $e->getMessage()]);
+            }
+        }
+    
+        /*
     public function restaurar_pass_api(Request $request){
        
 
@@ -380,6 +422,47 @@ class LoginController extends Controller
         return response()->json($distribuidor->default_pass);
 
     }
+        */ 
+
+        public function restaurar_pass_api(Request $request){
+            try {
+                $usuario = User::find($request->input('id'));
+                $id_distribuidor = $request->input('di');
+                $distribuidor = Distribuidor::find($request->input('di'));
+                $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_distribuidor', $id_distribuidor)->first();
+                
+                // Primero guardamos la nueva contraseña
+                $usuario->password = Hash::make($distribuidor->default_pass);
+                $usuario->save();
+                
+                // Preparamos los datos para el correo
+                if(!empty($suscripcion) && $suscripcion->id_distribuidor==1){
+                    $data = [
+                        'newpass' => $distribuidor->default_pass,
+                        'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login'
+                    ];
+                } else {
+                    $data = [
+                        'newpass' => $distribuidor->default_pass,
+                        'boton_enlace' => 'https://p-learning.panduitlatam.com/login'
+                    ];
+                }
+                
+                // Intentamos enviar el correo, pero capturamos la excepción si ocurre
+                try {
+                    Mail::to($usuario->email)->send(new CambioPass($data));
+                } catch (\Exception $e) {
+                    // Registramos el error pero continuamos con la ejecución
+                    \Log::error('Error al enviar correo de cambio de contraseña: ' . $e->getMessage());
+                }
+                
+                return response()->json($distribuidor->default_pass);
+                
+            } catch (\Exception $e) {
+                \Log::error('Error en restaurar_pass_api: ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
 
     public function full_check_api(Request $request){
 

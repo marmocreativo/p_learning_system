@@ -3,10 +3,10 @@
 @section('titulo', 'Logros')
 
 @section('contenido_principal')
-    <h1>Detalles del logro: <small>{{$logro->nombre}}</small></h1>
-    <a href="{{ route('logros', ['id_temporada'=>$logro->id_temporada]) }}">Lista de logros</a>
+    <h1>Detalles del desafío: <small>{{$logro->nombre}}</small></h1>
+    <a href="{{ route('logros', ['id_temporada'=>$logro->id_temporada]) }}">Lista de desafios</a>
     <hr>
-    <a href="{{route('logros.edit', $logro->id)}}">Editar logro</a>
+    <a href="{{route('logros.edit', $logro->id)}}">Editar desafio</a>
     <hr>
     <div class="row">
         <div class="col-8">
@@ -81,6 +81,28 @@
     <hr>
     <div class="row">
         <h4>Participaciones</h4>
+        <hr>
+        <form action="{{ route('logros.reporte') }}" method="GET" class="row g-3 align-items-end my-4">
+            <input type="hidden" name="id_temporada" value="{{ $logro->id_temporada }}">
+            <input type="hidden" name="id_logro" value="{{ $logro->id }}">
+        
+            <div class="col-md-4">
+                <label for="region" class="form-label">Selecciona una región</label>
+                <select name="region" id="region" class="form-select" required>
+                    <option value="">-- Selecciona --</option>
+                    <option value="México">México</option>
+                    <option value="RoLA">RoLA</option>
+                    <option value="Interna">Interna</option>
+                </select>
+            </div>
+        
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">
+                    Descargar EXCEL
+                </button>
+            </div>
+        </form>
+        <hr>
         <div class="col-12">
             <table class="table table-bordered">
                 <tr>

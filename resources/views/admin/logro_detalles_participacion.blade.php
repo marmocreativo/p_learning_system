@@ -3,10 +3,10 @@
 @section('titulo', 'Logros')
 
 @section('contenido_principal')
-    <h1>Detalles del logro: <small>{{$logro->nombre}}</small></h1>
-    <a href="{{ route('logros', ['id_temporada'=>$logro->id_temporada]) }}">Lista de logros</a>
+    <h1>Detalles del desafío: <small>{{$logro->nombre}}</small></h1>
+    <a href="{{ route('logros', ['id_temporada'=>$logro->id_temporada]) }}">Lista de desafios</a>
     <hr>
-    <a href="{{route('logros.edit', $logro->id)}}">Editar logro</a>
+    <a href="{{route('logros.show', $logro->id)}}">Volver al desafio</a>
     <hr>
     <div class="row">
         <div class="col-3">
@@ -22,19 +22,19 @@
                 </tr>
                 @php
                     $nivelConfirmado = null;
-                    if ($participacion->confirmacion_nivel_especial === 'SI') {
+                    if ($participacion->confirmacion_nivel_especial == 'si') {
                         $nivelConfirmado = 'Nivel Especial';
-                    } elseif ($participacion->confirmacion_nivel_c === 'SI') {
+                    } elseif ($participacion->confirmacion_nivel_c == 'si') {
                         $nivelConfirmado = 'Nivel C';
-                    } elseif ($participacion->confirmacion_nivel_b === 'SI') {
+                    } elseif ($participacion->confirmacion_nivel_b == 'si') {
                         $nivelConfirmado = 'Nivel B';
-                    } elseif ($participacion->confirmacion_nivel_a === 'SI') {
+                    } elseif ($participacion->confirmacion_nivel_a == 'si') {
                         $nivelConfirmado = 'Nivel A';
                     }
                 @endphp
                 @if ($nivelConfirmado)
                     <tr>
-                        <th>Confirmación de Nivel</th>
+                        <th>Nivel alcanzado</th>
                         <td>{{ $nivelConfirmado }}</td>
                     </tr>
                 @endif
@@ -214,7 +214,40 @@
                     @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='si'&&$anexo->nivel=='a')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+
+                            </td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>{{$anexo->nivel}}</td>
                             <td>
@@ -248,7 +281,39 @@
                     @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='si'&&$anexo->nivel=='b')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+                            </td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>{{$anexo->nivel}}</td>
                             <td>
@@ -282,7 +347,39 @@
                     @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='si'&&$anexo->nivel=='c')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+                            </td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>{{$anexo->nivel}}</td>
                             <td>
@@ -316,7 +413,39 @@
                     @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='si'&&$anexo->nivel=='especial')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+                            </td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>{{$anexo->nivel}}</td>
                             <td>
@@ -350,7 +479,39 @@
                     @foreach ($anexos as $anexo)
                         @if ($anexo->validado=='rechazar')
                         <tr>
-                            <td><a href="{{ asset('img/evidencias/'.$anexo->documento)}}" target="_blank">{{$anexo->documento}}</a></td>
+                            <td>
+                                <p><b>Folio:</b> {{$anexo->folio}}</p>
+                                <p><b>Moneda:</b> {{$anexo->moneda}}</p>
+                                <p><b>Emisión:</b> {{$anexo->emision}}</p>
+                                <a href="{{ asset('img/evidencias/'.$anexo->documento) }}" 
+                                    download="evidencia_folio_{{ $anexo->folio }}_usuario_{{$usuario->nombre}} {{$usuario->apellidos}}.pdf"
+                                    style="font-size: 24px; font-weight: bold">
+                                    Descargar {{ $anexo->documento }}
+                                 </a>
+                                @if($anexo->productos && $anexo->productos->count())
+                                    <table class="table table-sm mt-2 mb-0 border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Producto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($anexo->productos as $producto)
+                                                <tr>
+                                                    <td class="text-center">{{ $producto->sku ?? 'Sin SKU' }}</td>
+                                                    <td class="text-center">{{ $producto->cantidad ?? '-' }}</td>
+                                                    <td class="text-center">{{ $producto->importe_total ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-muted mt-2"><em>Sin productos</em></div>
+                                @endif
+                                <small class="text-muted">{{$anexo->fecha_registro}}</small>
+                            </td>
                             <td>{{$anexo->fecha_registro}}</td>
                             <td>{{$anexo->nivel}}</td>
                             <td>

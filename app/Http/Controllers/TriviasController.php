@@ -374,6 +374,7 @@ class TriviasController extends Controller
         return response()->json($trivia);
     }
 
+    /*
     public function registrar_respuestas_trivia_api(Request $request)
 {
     $id_trivia = $request->input('id_trivia');
@@ -495,6 +496,139 @@ class TriviasController extends Controller
         'success' => $guardadas,
         'message' => $guardadas ? 'Se guardaron todas las preguntas' : 'Hubo un error al guardar las respuestas'
     ]);
+}
+    */
+
+    public function registrar_respuestas_trivia_api(Request $request)
+{
+    try {
+        $id_trivia = $request->input('id_trivia');
+        $id_usuario = $request->input('id_usuario');
+        $usuario = User::find($id_usuario);
+        $trivia = Trivia::find($id_trivia);
+        $temporada = Temporada::find($trivia->id_temporada);
+        $suscripcion = UsuariosSuscripciones::where('id_usuario', $id_usuario)->where('id_temporada', $trivia->id_temporada)->first();
+        $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
+
+        $respuestas_json = $request->input('respuestas');
+
+        if (!is_array($respuestas_json)) {
+            return response()->json(['success' => false, 'message' => 'Las respuestas deben ser un array válido']);
+        }
+
+        $cantidad_preguntas = $trivia->cantidad_preguntas;
+        $hay_respuestas = TriviaRes::where('id_trivia', $id_trivia)->where('id_usuario', $id_usuario)->exists();
+        $hay_ganador = TriviaGanador::where('id_trivia', $id_trivia)->where('id_distribuidor', $distribuidor->id)->exists();
+
+        // **Validar que aún no existan respuestas**
+        if ($hay_respuestas) {
+            return response()->json(['success' => false, 'message' => 'Ya hay respuestas registradas para este usuario']);
+        }
+
+        // **Validar cantidad exacta de respuestas**
+        if (count($respuestas_json) !== $cantidad_preguntas) {
+            return response()->json(['success' => false, 'message' => 'Número incorrecto de respuestas']);
+        }
+
+        $guardadas = true;
+        $todas_correctas = true;
+
+        foreach ($respuestas_json as $pregunta_id => $respuesta_usuario) {
+            $pregunta = TriviaPreg::find($pregunta_id);
+
+            if (!$pregunta) {
+                return response()->json(['success' => false, 'message' => 'Pregunta no encontrada']);
+            }
+
+            $respuesta_correcta = ($respuesta_usuario == $pregunta->respuesta_correcta) ? 'correcto' : 'incorrecto';
+            $puntaje = ($respuesta_correcta === 'correcto') ? $trivia->puntaje : 0;
+
+            if ($respuesta_correcta === 'incorrecto') {
+                $todas_correctas = false;
+            }
+
+            // Guardar la respuesta
+            $nueva_respuesta = new TriviaRes();
+            $nueva_respuesta->id_usuario = $id_usuario;
+            $nueva_respuesta->id_trivia = $id_trivia;
+            $nueva_respuesta->id_temporada = $temporada->id;
+            $nueva_respuesta->id_distribuidor = $suscripcion->id_distribuidor ?? null;
+            $nueva_respuesta->id_pregunta = $pregunta_id;
+            $nueva_respuesta->puntaje = $puntaje;
+            $nueva_respuesta->respuesta_usuario = $respuesta_usuario;
+            $nueva_respuesta->respuesta_correcta = $respuesta_correcta;
+            $nueva_respuesta->fecha_registro = now();
+
+            if (!$nueva_respuesta->save()) {
+                $guardadas = false;
+                break;
+            }
+        }
+
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $usuario->id;
+        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+        $accion->correo = $usuario->email;
+        $accion->accion = 'trivia resuelta';
+        $accion->descripcion = 'Se contestaron las preguntas de la trivia: '.$trivia->titulo;
+        $accion->save();
+
+        // **Si todas las respuestas son correctas y no hay un ganador previo, registrar ganador**
+        if (!$hay_ganador && $todas_correctas) {
+            $nuevo_ganador = new TriviaGanador();
+            $nuevo_ganador->id_trivia = $id_trivia;
+            $nuevo_ganador->id_temporada = $temporada->id;
+            $nuevo_ganador->id_distribuidor = $suscripcion->id_distribuidor ?? null;
+            $nuevo_ganador->id_usuario = $id_usuario;
+            $nuevo_ganador->fecha_registro = now();
+            $nuevo_ganador->save();
+
+            // Creo la notificación
+            $notificacion = new NotificacionUsuario();
+            $notificacion->id_cuenta = $trivia->id_cuenta;
+            $notificacion->id_temporada = $trivia->id_temporada;
+            $notificacion->id_usuario = $id_usuario;
+            $notificacion->tipo = 'notificacion';
+            $notificacion->texto = '<p>¡Fuiste el mejor participante de tu compañía en la <b>Trivia Mensual iLovePanduit!</b>...</p>';
+            $notificacion->enlace = '#';
+            $notificacion->save();
+
+            $accion = new AccionesUsuarios;
+            $accion->id_usuario = $usuario->id;
+            $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+            $accion->correo = $usuario->email;
+            $accion->accion = 'ganador trivia';
+            $accion->descripcion = 'Fuiste el ganador de la trivia: '.$trivia->titulo;
+            $accion->save();
+
+            // **Preparamos datos para el correo al ganador**
+            $data = [
+                'titulo' => 'Ganador trivia ' . $distribuidor->region,
+                'boton_texto' => '',
+                'boton_enlace' => '#',
+                'contenido' => $distribuidor->region == 'RoLA'
+                    ? '<p>¡Fuiste el mejor participante de tu compañía en la <b>Trivia Mensual iLovePanduit!</b>...</p>'
+                    : '<p><b>En la Trivia mensual iLovePanduit, ¡fuiste el mejor participante de tu compañía!</b>...</p>'
+            ];
+
+            // Intentamos enviar el correo, pero capturamos la excepción si ocurre
+            try {
+                Mail::to($usuario->email)->send(new GanadorTrivia($data));
+            } catch (\Exception $e) {
+                // Registramos el error pero continuamos con la ejecución
+                \Log::error('Error al enviar correo de ganador de trivia: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => $guardadas,
+            'message' => $guardadas ? 'Se guardaron todas las preguntas' : 'Hubo un error al guardar las respuestas'
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error en registrar_respuestas_trivia_api: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
 }
 
 

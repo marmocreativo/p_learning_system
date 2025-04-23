@@ -801,6 +801,7 @@ class CanjeoController extends Controller
         Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanjeUsuario($data));
     }
 
+    /*
     public function canje_checkout_confirmar_api(Request $request)
 {
     DB::beginTransaction(); // Iniciar la transacción
@@ -879,4 +880,64 @@ class CanjeoController extends Controller
             return response()->json($completo);
     }
 
+}
+    */
+
+    public function canje_checkout_confirmar_api(Request $request)
+    {
+        DB::beginTransaction(); // Iniciar la transacción
+
+        try {
+            $id_transaccion = $request->input('idTransaccion');
+
+            // Guardo la transacción
+            $transaccion = CanjeoTransacciones::find($id_transaccion);
+            $transaccion_productos = CanjeoTransaccionesProductos::where('id_transacciones', $id_transaccion)->get();
+            $usuario = User::find($transaccion->id_usuario);
+            
+            $transaccion->confirmado = 'si';
+            $transaccion->fecha_confirmado = date('Y-m-d');
+            $transaccion->save();
+            
+            // Completamos la transacción de base de datos primero
+            DB::commit();
+            
+            // Preparamos los datos para correos
+            $url_admin = 'https://plsystem.quarkservers2.com/admin/canjeo/transacciones_usuario?id_temporada='.$transaccion->id_temporada.'&id_corte='.$transaccion->id_corte.'&id_usuario='.$transaccion->id_usuario;
+
+            $data_admin = [
+                'titulo' => 'Un nuevo canje ha llegado',
+                'productos' => $transaccion_productos,
+                'boton_texto' => 'Detalle de los productos',
+                'boton_enlace' => $url_admin
+            ];
+
+            $data = [
+                'titulo' => '¡El premio que seleccionaste ya está en camino!',
+                'productos' => $transaccion_productos,
+            ];
+
+            // Intentamos enviar los correos, pero capturamos las excepciones individualmente
+            try {
+                Mail::to('pl-electrico@panduitlatam.com')->send(new ConfirmacionCanje($data_admin));
+                //Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanje($data_admin));
+            } catch (\Exception $e) {
+                // Registrar el error pero continuar con la ejecución
+                \Log::error('Error al enviar correo al administrador: ' . $e->getMessage());
+            }
+            
+            try {
+                Mail::to($usuario->email)->send(new ConfirmacionCanjeUsuario($data));
+            } catch (\Exception $e) {
+                // Registrar el error pero continuar con la ejecución
+                \Log::error('Error al enviar correo al usuario: ' . $e->getMessage());
+            }
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción en caso de error
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
 }

@@ -3,7 +3,7 @@
 @section('titulo', 'Logros')
 
 @section('contenido_principal')
-    <h1>Formulario de logros</h1>
+    <h1>Formulario de deafios</h1>
     <form action="{{ route('logros.store') }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="IdCuenta" value="1">
         <input type="hidden" name="IdTemporada" value="{{$_GET['id_temporada']}}">

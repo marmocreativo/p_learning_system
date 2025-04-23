@@ -44,6 +44,8 @@ Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->mi
 Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.backup');
 Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
 
+Route::get('admin/logros/reporte', [LogrosController::class, 'reporte'])->name('logros.reporte');
+
 
 // Rutas Login
 Route::get('login', [LoginController::class, 'login_form'])->name('login');
@@ -191,6 +193,7 @@ Route::delete('admin/logros/destroy_participacion/{post}', [LogrosController::cl
 Route::delete('admin/logros/destroy_anexo/{post}', [LogrosController::class, 'destroy_anexo'])->middleware('auth')->name('logros.destroy_anexo');
 Route::put('admin/logros/actualizar_anexo/{post}', [LogrosController::class, 'actualizar_anexo'])->middleware('auth')->name('logros.actualizar_anexo');
 
+
 // Rutas CRUD para las'sliders'
 Route::get('admin/sliders', [SlidersController::class, 'index'])->middleware('auth')->name('sliders');
 Route::get('admin/sliders/create', [SlidersController::class, 'create'])->middleware('auth')->name('sliders.create');
@@ -298,3 +301,5 @@ Route::get('usuarios/{id}', function ($id) {
  Route::post('/imp_distribuidores', [CsvController::class, 'imp_distribuidores_2025'])->name('imp_distribuidores_2025');
  Route::post('/imp_sucursales', [CsvController::class, 'importarSucursales'])->name('imp_sucursales_2025');
  Route::post('/imp_usuarios', [CsvController::class, 'importarUsuarios'])->name('imp_usuarios_2025');
+
+

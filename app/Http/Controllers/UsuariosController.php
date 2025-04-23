@@ -28,6 +28,9 @@ use App\Models\Cuenta;
 use App\Models\Tokens;
 use App\Models\AccionesUsuarios;
 use App\Models\NotificacionUsuario;
+use App\Models\LogroParticipacion;
+use App\Models\LogroAnexo;
+use App\Models\LogroAnexoProducto;
 use App\Models\Direccion;
 use App\Models\Publicacion;
 use Illuminate\Http\Request;
@@ -416,6 +419,8 @@ class UsuariosController extends Controller
     }
 
 
+    /*
+
     public function suscribir_update(Request $request, string $id)
     {
         
@@ -494,6 +499,96 @@ class UsuariosController extends Controller
         
     }
 
+    */
+
+    public function suscribir_update(Request $request, string $id)
+{
+    try {
+        $suscripcion = UsuariosSuscripciones::find($id);
+        $id_usuario = $suscripcion->id_usuario;
+        $usuario = User::find($id_usuario);
+        $id_temporada = $request->IdTemporada;
+
+        // Actualizo
+        $suscripcion->id_distribuidor = $request->IdDistribuidor;
+        $suscripcion->funcion = $request->Funcion;
+        $suscripcion->nivel_usuario = $request->NivelUsuario;
+        $suscripcion->champions_a = $request->ChampionsA;
+        $suscripcion->champions_b = $request->ChampionsB;
+        $suscripcion->save();
+
+        // Reasigno el distribuidor en las actividades
+        $visualizaciones = SesionVis::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($visualizaciones as $visualizacion) {
+            $visualizacion->id_distribuidor = $request->IdDistribuidor;
+            $visualizacion->save();
+        }
+
+        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($evaluaciones_respuestas as $respuesta) {
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_respuestas = TriviaRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($trivias_respuestas as $respuesta) {
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_ganadores = TriviaGanador::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($trivias_ganadores as $ganador) {
+            $ganador->id_distribuidor = $request->IdDistribuidor;
+            $ganador->save();
+        }
+
+        $jackpot_respuestas = JackpotRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($jackpot_respuestas as $respuesta) {
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $jackpot_intentos = JackpotIntentos::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach ($jackpot_intentos as $intento) {
+            $intento->id_distribuidor = $request->IdDistribuidor;
+            $intento->save();
+        }
+
+        // Si cumple con los requisitos para Champions, intentamos enviar el correo
+        if ($request->ChampionsA == 'si' && $request->ChampionsB == 'si') {
+            $data = [
+                'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
+                'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
+                <p>• Elige una categoría entre oas que están disponibles.</p>
+                <p>• Vende los productos participantes para subir de nivel.</p>
+                <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
+                <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
+                
+                <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
+                
+                
+                <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                'boton_texto' => 'Desafío Champions',
+                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+            ];
+            
+            try {
+                Mail::to($usuario->email)->send(new InscripcionChampions($data));
+            } catch (\Exception $e) {
+                // Registramos el error pero continuamos con la ejecución
+                \Log::error('Error al enviar correo de inscripción Champions: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada' => $request->IdTemporada]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error en suscribir_update: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Ha ocurrido un error al actualizar la suscripción.']);
+    }
+}
+
+/*
     public function suscribir_full_update(Request $request, string $id)
     {
         
@@ -591,7 +686,112 @@ class UsuariosController extends Controller
         
         
     }
+*/
 
+public function suscribir_full_update(Request $request, string $id)
+{
+    try {
+        $suscripcion = UsuariosSuscripciones::find($id);
+        
+        $id_usuario = $suscripcion->id_usuario;
+        $usuario = User::find($id_usuario);
+        $id_temporada = $request->IdTemporada;
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+
+        // Actualizo usuario
+        $usuario->nombre = $request->Nombre;
+        $usuario->apellidos = $request->Apellidos;
+        $usuario->whatsapp = $request->Whatsapp;
+        $usuario->save(); // Esta línea faltaba en el código original
+
+        // Actualizo suscripción
+        $suscripcion->id_distribuidor = $request->IdDistribuidor;
+        $suscripcion->funcion = $request->Funcion;
+        $suscripcion->funcion_region = $request->FuncionRegion;
+        $suscripcion->nivel_usuario = $request->NivelUsuario;
+        $suscripcion->champions_a = $request->ChampionsA;
+        $suscripcion->champions_b = $request->ChampionsB;
+        $suscripcion->save();
+        
+        // Reasigno el distribuidor en las actividades
+        $visualizaciones = SesionVis::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($visualizaciones as $visualizacion){
+            $visualizacion->id_distribuidor = $request->IdDistribuidor;
+            $visualizacion->save();
+        }
+
+        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($evaluaciones_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_respuestas = TriviaRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($trivias_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $trivias_ganadores = TriviaGanador::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($trivias_ganadores as $ganador){
+            $ganador->id_distribuidor = $request->IdDistribuidor;
+            $ganador->save();
+        }
+
+        $jackpot_respuestas = JackpotRes::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($jackpot_respuestas as $respuesta){
+            $respuesta->id_distribuidor = $request->IdDistribuidor;
+            $respuesta->save();
+        }
+
+        $jackpot_intentos = JackpotIntentos::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
+        foreach($jackpot_intentos as $intento){
+            $intento->id_distribuidor = $request->IdDistribuidor;
+            $intento->save();
+        }
+
+        // Cambio el nivel del distribuidor
+        $suscripciones_actualizar = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_distribuidor', $request->IdDistribuidor)->get();
+        foreach($suscripciones_actualizar as $susc){
+            $susc->nivel = $request->NivelDistribuidor;
+            $susc->save();
+        }
+
+        // Verificamos si debemos enviar el correo de Champions
+        if ($request->has('CorreoChampions') && $request->CorreoChampions == 1) {
+            if($request->ChampionsA == 'si' && $request->ChampionsB == 'si') {
+                $data = [
+                    'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
+                    'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
+                    <p>• Elige una categoría entre oas que están disponibles.</p>
+                    <p>• Vende los productos participantes para subir de nivel.</p>
+                    <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
+                    <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
+                    
+                    <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
+                    
+                    
+                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
+                    'boton_texto' => 'Desafío Champions',
+                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                ];
+                
+                try {
+                    Mail::to($usuario->email)->send(new InscripcionChampions($data));
+                } catch (\Exception $e) {
+                    // Registramos el error pero continuamos con la ejecución
+                    \Log::error('Error al enviar correo de inscripción Champions: ' . $e->getMessage());
+                }
+            }
+        }
+        
+        return redirect()->route('admin_usuarios_suscritos', ['id_temporada' => $request->IdTemporada]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error en suscribir_full_update: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Ha ocurrido un error al actualizar la información. ' . $e->getMessage()]);
+    }
+}
     public function suscripcion(Request $request)
     {
         //
@@ -932,6 +1132,10 @@ class UsuariosController extends Controller
         $puntos_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
 
         $creditos_redimidos = CanjeoTransacciones::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('creditos')->sum();
+
+        $transacciones = CanjeoTransacciones::with('productos')->where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        $participaciones = LogroParticipacion::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        $anexos = LogroAnexo::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
         
 
 
@@ -951,7 +1155,10 @@ class UsuariosController extends Controller
             'suma_trivias'=>$suma_trivias,
             'suma_jackpots'=>$suma_jackpots,
             'suma_extra'=>$suma_extra,
-            'creditos_redimidos'=>$creditos_redimidos
+            'creditos_redimidos'=>$creditos_redimidos,
+            'transacciones'=>$transacciones,
+            'participaciones'=>$participaciones,
+            'anexos'=>$anexos,
         ];
         return response()->json($datos_usuario);
     }
@@ -1110,6 +1317,7 @@ class UsuariosController extends Controller
         return response()->json($completo);
     }
 
+    /*
     public function agregar_usuario_api (Request $request)
     {
             // Verificar si el usuario ya existe
@@ -1237,6 +1445,143 @@ class UsuariosController extends Controller
         return 'Guardado';
         
     }
+    */
+
+    public function agregar_usuario_api(Request $request)
+{
+    // Verificar si el usuario ya existe
+    $lider = User::find($request->id_usuario)->first();
+    $usuario = User::where('email', $request->correo)->first();
+    $distribuidor = Distribuidor::where('id', $request->id_distribuidor)->first();
+    
+    if (!$usuario) {
+        $usuario = new User();
+        
+        $usuario->email = $request->correo;
+
+        $emailPrefix = explode('@', $request->correo)[0];
+        do {
+            $randomNumbers = rand(100, 999);
+            $newLegacyId = $emailPrefix . $randomNumbers;
+        } while (User::where('legacy_id', $newLegacyId)->exists());
+        $usuario->legacy_id = $newLegacyId;
+
+        $usuario->nombre = $request->nombre;
+        $usuario->apellidos = $request->apellidos;
+        $usuario->telefono = '';
+        $usuario->whatsapp = '';
+        $usuario->fecha_nacimiento = null;
+        if(!empty($distribuidor->default_pass)){
+            $usuario->password = Hash::make($distribuidor->default_pass);
+        }else{
+            $usuario->password = Hash::make('12345');
+        }
+        
+        $usuario->lista_correo = 'si';
+        $usuario->imagen = 'default.jpg';
+        $usuario->clase = 'usuario';
+        $usuario->estado = 'activo';
+
+        $usuario->save();
+
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $lider->id;
+        $accion->nombre = $lider->nombre.' '.$lider->apellidos;
+        $accion->correo = $lider->email;
+        $accion->accion = 'registro usuario';
+        $accion->descripcion = 'Se registró el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->save();
+    }
+
+    $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', $request->id_temporada)->first();
+    if (!$suscripcion) {
+        $suscripcion = new UsuariosSuscripciones();
+        $suscripcion->id_usuario = $usuario->id;
+        $suscripcion->id_cuenta = $request->id_cuenta;
+        $suscripcion->id_temporada = $request->id_temporada;
+        $suscripcion->id_distribuidor = $request->id_distribuidor;
+        $suscripcion->id_sucursal = $request->id_sucursal;
+        $suscripcion->confirmacion_puntos = 'pendiente';
+        $suscripcion->funcion = 'usuario';
+        $suscripcion->save();
+        // Registro la acción de suscribir al usuario
+        $temporada = Temporada::find($request->id_temporada);
+        $cuenta = Cuenta::find($request->id_cuenta);
+        $accion = new AccionesUsuarios;
+        $accion->id_usuario = $lider->id;
+        $accion->nombre = $lider->nombre.' '.$lider->apellidos;
+        $accion->correo = $lider->email;
+        $accion->accion = 'registro usuario temporada';
+        $accion->descripcion = 'Se registró el usuario '.$usuario->email.' en la temporada: '.$cuenta->nombre.' '.$temporada->nombre;
+        $accion->save();
+    }
+    
+    $mensaje = '<p><b>¡Te han seleccionado para participar en PLearning! Anexamos tu nombre de usuario y contraseña</b>, y te invitamos a cambiar esta última tan pronto como ingreses al programa. ¡Que tengas mucho éxito y disfrutes tu participación en esta temporada de PLearning!</p>';
+    $mensaje .= '<table>';
+    $mensaje .= '<tbody>';
+    $mensaje .= '<tr>';
+    $mensaje .= '<th>Nombre</th>';
+    $mensaje .= '<td>'.$usuario->nombre.' '.$usuario->apellidos.'</td>';
+    $mensaje .= '</tr>';
+    $mensaje .= '<tr>';
+    $mensaje .= '<th>Correo</th>';
+    $mensaje .= '<td>'.$usuario->email.'</td>';
+    $mensaje .= '</tr>';
+    $mensaje .= '<tr>';
+    $mensaje .= '<th>Nombre de Usuario</th>';
+    $mensaje .= '<td>'.$usuario->legacy_id.'</td>';
+    $mensaje .= '</tr>';
+    $mensaje .= '<tr>';
+    $mensaje .= '<th>Contraseña</th>';
+    $mensaje .= '<td>'.$distribuidor->default_pass.'</td>';
+    $mensaje .= '</tr>';
+    $mensaje .= '</tbody>';
+    $mensaje .= '<table>';
+
+    switch ($request->id_cuenta) {
+        case '1':
+            $data = [
+                'titulo' => '¡Bienvenido a PL-Electrico!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://pls-test.panduitlatam.com/'
+            ];
+            break;
+
+        case '3':
+            $data = [
+                'titulo' => '¡Bienvenido a P-Learning!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://pl-test.panduitlatam.com/'
+            ];
+            break;
+        
+        default:
+            $data = [
+                'titulo' => '¡Bienvenido a PL-Electrico!',
+                'contenido' => $mensaje,
+                'boton_texto' => 'Entrar',
+                'boton_enlace' => 'https://ple-test.panduitlatam.com/'
+            ];
+            break;
+    }
+    
+    try {
+        Mail::to($usuario->email)->send(new RegistroUsuario($data));
+    } catch (\Exception $e) {
+        // Registrar el error pero permitir que el programa continúe
+        \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+        
+        // Opcional: Crear un registro en la base de datos del error
+        $errorLog = new ErrorLog(); // Asumiendo que tienes un modelo para registrar errores
+        $errorLog->tipo = 'email_error';
+        $errorLog->mensaje = 'Error al enviar correo a: ' . $usuario->email . ' - ' . $e->getMessage();
+        $errorLog->save();
+    }
+    
+    return 'Guardado';
+}
 
     public function actualizar_usuario_api (Request $request)
     {   
@@ -1322,8 +1667,14 @@ class UsuariosController extends Controller
         $jackpots = Jackpot::where('id_temporada', $id_temporada)->count();
         $jackpots_pendientes = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '>', now())->count();
         $lista_jackpots = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '<=', now())->get();
-       
+
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+
+        $participaciones_logros = LogroParticipacion::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->count();
+        $anexos_logros = LogroAnexo::where('id_temporada', $id_temporada)->count();
+        $productos_logros = LogroAnexoProducto::where('id_temporada', $id_temporada)->count();
+       
+        
         $suscriptores = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
@@ -1499,6 +1850,9 @@ class UsuariosController extends Controller
                 'engagement_evaluaciones' => $engagement_evaluaciones,
                 'engagement_trivias' => $engagement_trivias,
                 'engagement_jackpots' => $engagement_jackpots,
+                'no_participaciones_logros' => $participaciones_logros,
+                'no_anexos' => $anexos_logros,
+                'no_anexos_productos' => $productos_logros,
             ];
             return response()->json($completo);
 

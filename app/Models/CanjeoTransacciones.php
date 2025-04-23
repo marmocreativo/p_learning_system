@@ -10,4 +10,9 @@ class CanjeoTransacciones extends Model
     protected $table = "canjeo_transacciones";
     public $timestamps = false;
     use HasFactory;
+
+    public function productos()
+    {
+        return $this->hasMany(CanjeoTransaccionesProductos::class, 'id_transacciones');
+    }
 }

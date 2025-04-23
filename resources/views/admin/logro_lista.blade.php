@@ -3,10 +3,10 @@
 @section('titulo', 'Logros')
 
 @section('contenido_principal')
-    <h1>Logros</h1>
+    <h1>Desafíos</h1>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
-    <a href="{{ route('logros.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Logro</a>
+    <a href="{{ route('logros.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Desafio</a>
     <hr>
     <div class="row">
         @foreach ($logros as $logro)
