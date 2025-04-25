@@ -692,7 +692,7 @@ public function suscribir_full_update(Request $request, string $id)
 {
     try {
         $suscripcion = UsuariosSuscripciones::find($id);
-        
+
         $id_usuario = $suscripcion->id_usuario;
         $usuario = User::find($id_usuario);
         $id_temporada = $request->IdTemporada;
@@ -704,6 +704,7 @@ public function suscribir_full_update(Request $request, string $id)
         $usuario->whatsapp = $request->Whatsapp;
         $usuario->save(); // Esta línea faltaba en el código original
 
+        
         // Actualizo suscripción
         $suscripcion->id_distribuidor = $request->IdDistribuidor;
         $suscripcion->funcion = $request->Funcion;

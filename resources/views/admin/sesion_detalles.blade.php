@@ -230,6 +230,21 @@
                         </select>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="Video">Pregunta exclusiva del video número...</label>
+                            <select name="Video" class="form-control">
+                                <option value="">Ningúno</option>
+                                <option value="0">Video 1</option>
+                                <option value="1">Video 2</option>
+                                <option value="2">Video 3</option>
+                                <option value="3">Video 4</option>
+                                <option value="4">Video 5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <hr>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </form>
@@ -242,12 +257,12 @@
                     <th>B</th>
                     <th>C</th>
                     <th>D</th>
-                    <th>Orden</th>
+                    <th>Video</th>
                     <th>Controles</th>
                 </tr>
                 @foreach ($preguntas as $pregunta)
                 <tr>
-                    <td>{{$pregunta->pregunta}}</td>
+                    <td>{{$pregunta->pregunta}} ({{$pregunta->id}})</td>
                     <td>
                         <p>{{$pregunta->respuesta_a}}</p>
                         <p><b>{{$pregunta->resultado_a}}</b></p>
@@ -268,7 +283,7 @@
                         <p><b>{{$pregunta->resultado_d}}</b></p>
                         
                     </td>
-                    <td>{{$pregunta->orden}}</td>
+                    <td>{{$pregunta->video}}</td>
                     <td> 
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$pregunta->id}}">
                             Editar
@@ -343,6 +358,19 @@
                                                     <select name="ResultadoD" class="form-control">
                                                         <option value="incorrecto" @if($pregunta->resultado_d == 'incorrecto') selected @endif>Incorrecto</option>
                                                         <option value="correcto" @if($pregunta->resultado_d == 'correcto') selected @endif>Correcto</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="Video">Esta pregunta pertenece al video</label>
+                                                    <select name="Video" class="form-control">
+                                                        <option value="" >Ningúno</option>
+                                                        <option value="0" @if($pregunta->video == '0') selected @endif>Video 1</option>
+                                                        <option value="1" @if($pregunta->video == '1') selected @endif>Video 2</option>
+                                                        <option value="2" @if($pregunta->video == '2') selected @endif>Video 3</option>
+                                                        <option value="3" @if($pregunta->video == '3') selected @endif>Video 4</option>
+                                                        <option value="4" @if($pregunta->video == '4') selected @endif>Video 5</option>
                                                     </select>
                                                 </div>
                                             </div>

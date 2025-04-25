@@ -82,6 +82,7 @@ class TemporadasController extends Controller
         $temporada->fecha_inicio = $request->FechaInicio;
         $temporada->fecha_final = $request->FechaFinal;
         $temporada->estado = $request->Estado;
+        $temporada->url = $request->Url;
 
 
         $temporada->save();
@@ -485,6 +486,7 @@ class TemporadasController extends Controller
         $temporada->fecha_inicio = $request->FechaInicio;
         $temporada->fecha_final = $request->FechaFinal;
         $temporada->estado = $request->Estado;
+        $temporada->url = $request->Url;
 
         $temporada->save();
 

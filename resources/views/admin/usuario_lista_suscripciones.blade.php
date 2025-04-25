@@ -11,6 +11,11 @@
     <hr>
     <a href="{{ route('admin_usuarios_suscritos_reporte_temporada', ['id_temporada'=>$_GET['id_temporada']]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>
     <hr>
+    @if ($errors->has('error'))
+    <div class="alert alert-danger">
+        {{ $errors->first('error') }}
+    </div>
+    @endif
     <div class="row">
         <div class="col-6">
             <form class="d-flex" action="{{ route('admin_usuarios_suscritos') }}" method="GET">

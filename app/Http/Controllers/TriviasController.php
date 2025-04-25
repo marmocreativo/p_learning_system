@@ -532,6 +532,11 @@ class TriviasController extends Controller
 
         $guardadas = true;
         $todas_correctas = true;
+        $es_usuario = true;
+        
+        if($suscripcion->funcion!='usuario'){
+            $es_usuario = false;
+        }
 
         foreach ($respuestas_json as $pregunta_id => $respuesta_usuario) {
             $pregunta = TriviaPreg::find($pregunta_id);
@@ -574,7 +579,7 @@ class TriviasController extends Controller
         $accion->save();
 
         // **Si todas las respuestas son correctas y no hay un ganador previo, registrar ganador**
-        if (!$hay_ganador && $todas_correctas) {
+        if (!$hay_ganador && $todas_correctas && $es_usuario) {
             $nuevo_ganador = new TriviaGanador();
             $nuevo_ganador->id_trivia = $id_trivia;
             $nuevo_ganador->id_temporada = $temporada->id;

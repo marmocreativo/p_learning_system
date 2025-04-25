@@ -169,8 +169,8 @@
                                                 <input type="text" class="form-control" name="RespuestaD" value="{{$pregunta->respuesta_d}}">
                                             </div>
                                             <div class="form-group">
-                                                <label for="ResultadoA">Resultado A</label>
-                                                <select name="ResultadoA" class="form-control">
+                                                <label for="RespuestaCorrecta">Respuesta Correcta</label>
+                                                <select name="RespuestaCorrecta" class="form-control">
                                                     <option value="A" @if($pregunta->respuesta_correcta == 'A') selected @endif>A</option>
                                                     <option value="B" @if($pregunta->respuesta_correcta == 'B') selected @endif>B</option>
                                                     <option value="C" @if($pregunta->respuesta_correcta == 'C') selected @endif>C</option>

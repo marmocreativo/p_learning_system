@@ -30,136 +30,171 @@
                 <hr>
                 
                 <!-- Videos -->
-                <div class="row">
-                    <div class="col-3">
+                <div class="row my-4 bg-light">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="IdVideo1">ID Video 1</label>
                             <input type="text" class="form-control" name="IdVideo1">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo1">Título Video 1</label>
                             <input type="text" class="form-control" name="TituloVideo1">
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="PuntajeVideo1Estreno">Puntaje Estreno Video 1</label>
                             <input type="text" class="form-control" name="PuntajeVideo1Estreno">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="PuntajeVideo1Normal">Puntaje Normal Video 1</label>
                             <input type="text" class="form-control" name="PuntajeVideo1Normal">
                         </div>
                     </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="FechaVideo1">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="FechaVideo1">
+                        </div>
+                        <div class="form-group">
+                            <label for="HoraVideo1">Hora de Inicio</label>
+                            <input type="time" class="form-control" name="HoraVideo1">
+                        </div>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-3">
+
+                <div class="row my-4 bg-light">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="IdVideo2">ID Video 2</label>
                             <input type="text" class="form-control" name="IdVideo2">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo2">Título Video 2</label>
                             <input type="text" class="form-control" name="TituloVideo2">
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="PuntajeVideo2Estreno">Puntaje Estreno Video 2</label>
                             <input type="text" class="form-control" name="PuntajeVideo2Estreno">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="PuntajeVideo2Normal">Puntaje Normal Video 2</label>
                             <input type="text" class="form-control" name="PuntajeVideo2Normal">
                         </div>
                     </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="FechaVideo2">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="FechaVideo2">
+                        </div>
+                        <div class="form-group">
+                            <label for="HoraVideo2">Hora de Inicio</label>
+                            <input type="time" class="form-control" name="HoraVideo2">
+                        </div>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-3">
+                
+                <div class="row my-4 bg-light">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="IdVideo3">ID Video 3</label>
                             <input type="text" class="form-control" name="IdVideo3">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo3">Título Video 3</label>
                             <input type="text" class="form-control" name="TituloVideo3">
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="PuntajeVideo3Estreno">Puntaje Estreno Video 3</label>
                             <input type="text" class="form-control" name="PuntajeVideo3Estreno">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="PuntajeVideo3Normal">Puntaje Normal Video 3</label>
                             <input type="text" class="form-control" name="PuntajeVideo3Normal">
                         </div>
                     </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="FechaVideo3">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="FechaVideo3">
+                        </div>
+                        <div class="form-group">
+                            <label for="HoraVideo3">Hora de Inicio</label>
+                            <input type="time" class="form-control" name="HoraVideo3">
+                        </div>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-3">
+                
+                <div class="row my-4 bg-light">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="IdVideo4">ID Video 4</label>
                             <input type="text" class="form-control" name="IdVideo4">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo4">Título Video 4</label>
                             <input type="text" class="form-control" name="TituloVideo4">
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="PuntajeVideo4Estreno">Puntaje Estreno Video 4</label>
                             <input type="text" class="form-control" name="PuntajeVideo4Estreno">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="PuntajeVideo4Normal">Puntaje Normal Video 4</label>
                             <input type="text" class="form-control" name="PuntajeVideo4Normal">
                         </div>
                     </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="FechaVideo4">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="FechaVideo4">
+                        </div>
+                        <div class="form-group">
+                            <label for="HoraVideo4">Hora de Inicio</label>
+                            <input type="time" class="form-control" name="HoraVideo4">
+                        </div>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-3">
+                
+                <div class="row my-4 bg-light">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="IdVideo5">ID Video 5</label>
                             <input type="text" class="form-control" name="IdVideo5">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="TituloVideo5">Título Video 5</label>
                             <input type="text" class="form-control" name="TituloVideo5">
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <div class="form-group">
                             <label for="PuntajeVideo5Estreno">Puntaje Estreno Video 5</label>
                             <input type="text" class="form-control" name="PuntajeVideo5Estreno">
                         </div>
-                    </div>
-                    <div class="col-3">
                         <div class="form-group">
                             <label for="PuntajeVideo5Normal">Puntaje Normal Video 5</label>
                             <input type="text" class="form-control" name="PuntajeVideo5Normal">
                         </div>
                     </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="FechaVideo5">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="FechaVideo5">
+                        </div>
+                        <div class="form-group">
+                            <label for="HoraVideo5">Hora de Inicio</label>
+                            <input type="time" class="form-control" name="HoraVideo5">
+                        </div>
+                    </div>
                 </div>
+                
                 
             </div>
             <div class="col-4">

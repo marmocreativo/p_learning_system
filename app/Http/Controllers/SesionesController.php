@@ -257,6 +257,25 @@ class SesionesController extends Controller
         $sesion->puntaje_video_3_normal = $request->PuntajeVideo3Normal;
         $sesion->puntaje_video_4_normal = $request->PuntajeVideo4Normal;
         $sesion->puntaje_video_5_normal = $request->PuntajeVideo5Normal;
+        $sesion->fecha_video_1 = (!empty($request->FechaVideo1) && !empty($request->HoraVideo1)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo1 . ' ' . $request->HoraVideo1)) 
+            : null;
+
+        $sesion->fecha_video_2 = (!empty($request->FechaVideo2) && !empty($request->HoraVideo2)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo2 . ' ' . $request->HoraVideo2)) 
+            : null;
+
+        $sesion->fecha_video_3 = (!empty($request->FechaVideo3) && !empty($request->HoraVideo3)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo3 . ' ' . $request->HoraVideo3)) 
+            : null;
+
+        $sesion->fecha_video_4 = (!empty($request->FechaVideo4) && !empty($request->HoraVideo4)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo4 . ' ' . $request->HoraVideo4)) 
+            : null;
+
+        $sesion->fecha_video_5 = (!empty($request->FechaVideo5) && !empty($request->HoraVideo5)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo5 . ' ' . $request->HoraVideo5)) 
+            : null;
         $sesion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
         $sesion->cantidad_preguntas_evaluacion = $request->CantidadPreguntasEvaluacion;
         $sesion->ordenar_preguntas_evaluacion = $request->OrdenarPreguntasEvaluacion;
@@ -571,6 +590,25 @@ class SesionesController extends Controller
         $sesion->puntaje_video_3_normal = $request->PuntajeVideo3Normal;
         $sesion->puntaje_video_4_normal = $request->PuntajeVideo4Normal;
         $sesion->puntaje_video_5_normal = $request->PuntajeVideo5Normal;
+        $sesion->fecha_video_1 = (!empty($request->FechaVideo1) && !empty($request->HoraVideo1)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo1 . ' ' . $request->HoraVideo1)) 
+            : null;
+
+        $sesion->fecha_video_2 = (!empty($request->FechaVideo2) && !empty($request->HoraVideo2)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo2 . ' ' . $request->HoraVideo2)) 
+            : null;
+
+        $sesion->fecha_video_3 = (!empty($request->FechaVideo3) && !empty($request->HoraVideo3)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo3 . ' ' . $request->HoraVideo3)) 
+            : null;
+
+        $sesion->fecha_video_4 = (!empty($request->FechaVideo4) && !empty($request->HoraVideo4)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo4 . ' ' . $request->HoraVideo4)) 
+            : null;
+
+        $sesion->fecha_video_5 = (!empty($request->FechaVideo5) && !empty($request->HoraVideo5)) 
+            ? date('Y-m-d H:i:s', strtotime($request->FechaVideo5 . ' ' . $request->HoraVideo5)) 
+            : null;
          $sesion->fecha_publicacion = date('Y-m-d H:i:s', strtotime($request->FechaPublicacion.' '.$request->HoraPublicacion));
          $sesion->cantidad_preguntas_evaluacion = $request->CantidadPreguntasEvaluacion;
          $sesion->ordenar_preguntas_evaluacion = $request->OrdenarPreguntasEvaluacion;
@@ -647,6 +685,7 @@ class SesionesController extends Controller
         $pregunta->resultado_b = $request->ResultadoB;
         $pregunta->resultado_c = $request->ResultadoC;
         $pregunta->resultado_d = $request->ResultadoD;
+        $pregunta->video = $request->filled('Video') ? (int) $request->Video : null;
         $pregunta->orden = 0;
         
 
@@ -672,6 +711,7 @@ class SesionesController extends Controller
         $pregunta->resultado_b = $request->ResultadoB;
         $pregunta->resultado_c = $request->ResultadoC;
         $pregunta->resultado_d = $request->ResultadoD;
+        $pregunta->video = $request->filled('Video') ? (int) $request->Video : null;
  
          $pregunta->save();
 
@@ -1352,88 +1392,85 @@ class SesionesController extends Controller
     }
 
     public function registrar_respuestas_evaluacion_api(Request $request)
-    {
-        $id_sesion = $request->input('id_sesion');
-        $id_usuario = $request->input('id_usuario');
-        $respuestas_json = $request->input('respuestas');
-        $sesion = SesionEv::find($id_sesion);
-        $temporada = Temporada::find($sesion->id_temporada);
-        $suscripcion = UsuariosSuscripciones::where('id_usuario',$id_usuario)->where('id_temporada',$temporada->id)->first();
+{
+    $id_sesion = $request->input('id_sesion');
+    $id_usuario = $request->input('id_usuario');
+    $respuestas_json = $request->input('respuestas');
+    $sesion = SesionEv::find($id_sesion);
+    $temporada = Temporada::find($sesion->id_temporada);
+    $suscripcion = UsuariosSuscripciones::where('id_usuario', $id_usuario)
+                                        ->where('id_temporada', $temporada->id)
+                                        ->first();
 
+    $fecha_publicacion = $sesion->fecha_publicacion;
+    $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
+    $fecha_actual = date('Y-m-d H:i:s');
 
-        $fecha_publicacion = $sesion->fecha_publicacion;
-        $fecha_limite_estreno = date('Y-m-d H:i:s', strtotime($fecha_publicacion.' +'.$sesion->horas_estreno.' hours'));
-        $fecha_actual = date('Y-m-d H:i:s');
+    $puntaje_preguntas = ($fecha_actual < $fecha_limite_estreno)
+        ? $sesion->preguntas_puntaje_estreno
+        : $sesion->preguntas_puntaje_normal;
 
-        $puntaje_preguntas = $sesion->preguntas_puntaje_normal;
+    // Total de preguntas para esa sesión
+    $total_preguntas = EvaluacionPreg::where('id_sesion', $id_sesion)->count();
 
-        if($fecha_actual<$fecha_limite_estreno){
-            $puntaje_preguntas = $sesion->preguntas_puntaje_estreno;
-        }
-        
-        //$respuestas_array = json_decode($respuestas_json, true);
-        $hay_respuestas = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->first();
-        if(!$hay_respuestas){
-            foreach ($respuestas_json as $pregunta=>$respuesta) {
-                $registro_respuesta = EvaluacionRes::where('id_sesion', $id_sesion)->where('id_usuario', $id_usuario)->where('id_pregunta', $pregunta)->first();
-                // Verificar si la visualización existe
-                if(!$registro_respuesta){
-                    $pregunta_reg = EvaluacionPreg::find($pregunta);
-                    switch ($respuesta) {
-                        case 'A':
-                            $respuesta_correcta = $pregunta_reg->resultado_a;
-                            break;
-                        case 'B':
-                            $respuesta_correcta = $pregunta_reg->resultado_b;
-                            break;
-                        case 'C':
-                            $respuesta_correcta = $pregunta_reg->resultado_c;
-                            break;
-                        case 'D':
-                            $respuesta_correcta = $pregunta_reg->resultado_d;
-                            break;
-                        default:
-                        $respuesta_correcta = 'incorrecto';
-                            break;
-                    }
+    // Total de respuestas registradas actualmente
+    $respuestas_existentes = EvaluacionRes::where('id_sesion', $id_sesion)
+                                          ->where('id_usuario', $id_usuario)
+                                          ->count();
 
-                    if($respuesta_correcta=='correcto'){
-                        $puntaje = $puntaje_preguntas;
-                    }else{
-                        $puntaje = 0;
-                    }
-                    // Si no existe, crear una nueva visualización
-                    $registro_respuesta = new EvaluacionRes();
-                    $registro_respuesta->id_temporada = $temporada->id;
-                    if($suscripcion){
-                        $registro_respuesta->id_distribuidor = $suscripcion->id_distribuidor;
-                    }
-                    $registro_respuesta->id_usuario = $id_usuario;
-                    $registro_respuesta->id_sesion = $id_sesion;
-                    $registro_respuesta->id_pregunta = $pregunta;
-                    $registro_respuesta->respuesta_usuario = $respuesta;
-                    $registro_respuesta->respuesta_correcta = $respuesta_correcta;
-                    $registro_respuesta->puntaje = $puntaje;
-                    $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
-
-                    $registro_respuesta->save();
-
-                    // Registro la acción 
-                        $usuario= User::find($id_usuario);
-                        $accion = new AccionesUsuarios;
-                        $accion->id_usuario = $usuario->id;
-                        $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
-                        $accion->correo = $usuario->email;
-                        $accion->accion = 'Respondio la evaluacion';
-                        $accion->descripcion = 'Respondió la evaluación en la sesión: '.$sesion->titulo;
-                        $accion->save();
-                        
-                }
-            }
-        }
-
-        
+    // Si ya respondió todas las preguntas, no guardar nada
+    if ($respuestas_existentes >= $total_preguntas) {
+        return response()->json(['message' => 'Todas las preguntas ya fueron respondidas.'], 200);
     }
+
+    foreach ($respuestas_json as $pregunta => $respuesta) {
+        // Solo registrar si no existe esa respuesta aún
+        $registro_respuesta = EvaluacionRes::where('id_sesion', $id_sesion)
+                                           ->where('id_usuario', $id_usuario)
+                                           ->where('id_pregunta', $pregunta)
+                                           ->first();
+
+        if (!$registro_respuesta) {
+            $pregunta_reg = EvaluacionPreg::find($pregunta);
+            switch ($respuesta) {
+                case 'A': $respuesta_correcta = $pregunta_reg->resultado_a; break;
+                case 'B': $respuesta_correcta = $pregunta_reg->resultado_b; break;
+                case 'C': $respuesta_correcta = $pregunta_reg->resultado_c; break;
+                case 'D': $respuesta_correcta = $pregunta_reg->resultado_d; break;
+                default:  $respuesta_correcta = 'incorrecto'; break;
+            }
+
+            $puntaje = ($respuesta_correcta === 'correcto') ? $puntaje_preguntas : 0;
+
+            $registro_respuesta = new EvaluacionRes();
+            $registro_respuesta->id_temporada = $temporada->id;
+            if ($suscripcion) {
+                $registro_respuesta->id_distribuidor = $suscripcion->id_distribuidor;
+            }
+            $registro_respuesta->id_usuario = $id_usuario;
+            $registro_respuesta->id_sesion = $id_sesion;
+            $registro_respuesta->id_pregunta = $pregunta;
+            $registro_respuesta->respuesta_usuario = $respuesta;
+            $registro_respuesta->respuesta_correcta = $respuesta_correcta;
+            $registro_respuesta->puntaje = $puntaje;
+            $registro_respuesta->fecha_registro = date('Y-m-d H:i:s');
+            $registro_respuesta->save();
+
+            // Registrar acción del usuario
+            $usuario = User::find($id_usuario);
+            $accion = new AccionesUsuarios();
+            $accion->id_usuario = $usuario->id;
+            $accion->nombre = $usuario->nombre.' '.$usuario->apellidos;
+            $accion->correo = $usuario->email;
+            $accion->accion = 'Respondió la evaluación';
+            $accion->descripcion = 'Respondió la evaluación en la sesión: '.$sesion->titulo;
+            $accion->save();
+        }
+    }
+
+    return response()->json(['message' => 'Respuestas registradas correctamente.'], 200);
+}
+
 
     public function registrar_duda_api(Request $request)
     {

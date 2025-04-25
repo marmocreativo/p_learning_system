@@ -703,6 +703,7 @@ class LoginController extends Controller
                                 $nuevo_registro->id_usuario = $user->id;
                                 $nuevo_registro->concepto = $concepto;
                                 $nuevo_registro->puntos = $puntos;
+                                $nuevo_registro->fecha_registro = date('Y-m-d H:i:s');
 
                                 $nuevo_registro->save();
                                 $primer_acceso = true;
