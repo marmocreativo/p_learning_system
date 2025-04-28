@@ -111,7 +111,6 @@
                     <th>C</th>
                     <th>D</th>
                     <th>Correcta</th>
-                    <th>Orden</th>
                     <th>Controles</th>
                 </tr>
                 @foreach ($preguntas as $pregunta)
@@ -134,12 +133,13 @@
                         
                     </td>
                     <td> <b>{{$pregunta->respuesta_correcta}}</b> </td>
-                    <td>{{$pregunta->orden}}</td>
-                    <td> 
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$pregunta->id}}">
-                            Editar
-                        </button>
-                        <!-- Modal -->
+                    <td>
+                        @if($trivia->fecha_publicacion > now())
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$pregunta->id}}">
+                                Editar
+                            </button>
+                    
+                            <!-- Modal -->
                             <div class="modal fade" id="formulario{{$pregunta->id}}" tabindex="-1" aria-labelledby="formulario{{$pregunta->id}}Label" aria-hidden="true">
                                 <div class="modal-dialog">
                                 <div class="modal-content">
@@ -184,11 +184,13 @@
                                 </div>
                                 </div>
                             </div>
-                        <form action="{{route('trivias.destroy_pregunta', $pregunta->id)}}" method="POST">
-                            @csrf
-                            @method('delete')
-                            <button type="submit" class="btn btn-danger">Borrar</button>
-                        </form>
+                    
+                            <form action="{{route('trivias.destroy_pregunta', $pregunta->id)}}" method="POST">
+                                @csrf
+                                @method('delete')
+                                <button type="submit" class="btn btn-danger">Borrar</button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                  @endforeach

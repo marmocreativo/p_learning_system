@@ -877,15 +877,40 @@ class SesionesController extends Controller
 
     public function preguntas_y_respuestas_sesion_api(Request $request)
     {
-        //
-        $preguntas = EvaluacionPreg::where('id_sesion',$request->input('id_sesion'))->get();
-        $respuestas = EvaluacionRes::where('id_sesion',$request->input('id_sesion'))->where('id_usuario',$request->input('id_usuario'))->get();
+        $sesion = SesionEv::find($request->input('id_sesion'));
+        $cantidad_preguntas = $sesion->cantidad_preguntas_evaluacion;
+        $orden = $sesion->ordenar_preguntas_evaluacion;
+
+        // Preparo la consulta de las preguntas
+        $query = EvaluacionPreg::where('id_sesion', $request->input('id_sesion'));
+
+        // Checo el orden
+        if ($orden === 'ordenado') {
+            $query->orderBy('id', 'asc');
+        }
+
+        if ($orden === 'aleatorio') {
+            $query->inRandomOrder($request->input('id_usuario'));
+        }
+
+        // Limitar el número de preguntas
+        $preguntas = $query->limit($cantidad_preguntas)->get();
+
+        // Obtener los IDs de las preguntas seleccionadas
+        $ids_preguntas = $preguntas->pluck('id');
+
+        // Obtener solo las respuestas relacionadas a esas preguntas
+        $respuestas = EvaluacionRes::where('id_sesion', $request->input('id_sesion'))
+            ->where('id_usuario', $request->input('id_usuario'))
+            ->whereIn('id_pregunta', $ids_preguntas)
+            ->get();
+
         $completo = [
             'preguntas' => $preguntas,
             'respuestas' => $respuestas
         ];
 
-         return response()->json($completo);
+        return response()->json($completo);
     }
 
     public function respuestas_sesion_api(Request $request)

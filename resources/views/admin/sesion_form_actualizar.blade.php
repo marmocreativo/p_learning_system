@@ -253,15 +253,15 @@
                 <div class="form-group">
                     <label for="OrdenarPreguntasEvaluacion">¿Cómo se ordenarán las preguntas?</label>
                     <select class="form-control" name="OrdenarPreguntasEvaluacion" id="OrdenarPreguntasEvaluacion">
-                        <option value="aleatorio" @if($sesion->orden_preguntas_evaluacion == 'aleatorio') selected @endif>Aleatorio</option>
-                        <option value="ordenado" @if($sesion->orden_preguntas_evaluacion == 'ordenado') selected @endif>Ordenado</option>
+                        <option value="aleatorio" @if($sesion->ordenar_preguntas_evaluacion == 'aleatorio') selected @endif>Aleatorio</option>
+                        <option value="ordenado" @if($sesion->ordenar_preguntas_evaluacion == 'ordenado') selected @endif>Ordenado</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="EvaluacionObligatoria">¿La evaluación es obligatoria?</label>
                     <select class="form-control" name="EvaluacionObligatoria" id="EvaluacionObligatoria">
-                        <option value="si"  @if($sesion->orden_preguntas_evaluacion == 'si') selected @endif>Si</option>
-                        <option value="no"  @if($sesion->orden_preguntas_evaluacion == 'no') selected @endif>No</option>
+                        <option value="si"  @if($sesion->evaluacion_obligatoria == 'si') selected @endif>Si</option>
+                        <option value="no"  @if($sesion->evaluacion_obligatoria == 'no') selected @endif>No</option>
                         
                     </select>
                 </div>

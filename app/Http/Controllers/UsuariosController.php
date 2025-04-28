@@ -1573,12 +1573,6 @@ public function suscribir_full_update(Request $request, string $id)
     } catch (\Exception $e) {
         // Registrar el error pero permitir que el programa continúe
         \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
-        
-        // Opcional: Crear un registro en la base de datos del error
-        $errorLog = new ErrorLog(); // Asumiendo que tienes un modelo para registrar errores
-        $errorLog->tipo = 'email_error';
-        $errorLog->mensaje = 'Error al enviar correo a: ' . $usuario->email . ' - ' . $e->getMessage();
-        $errorLog->save();
     }
     
     return 'Guardado';

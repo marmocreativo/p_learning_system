@@ -10,10 +10,12 @@ use App\Models\Distribuidor;
 use App\Models\DistribuidorSuscripciones;
 use App\Models\SesionVis;
 use App\Models\SesionEv;
+use App\Models\Sesion;
 use App\Models\EvaluacionPreg;
 use App\Models\EvaluacionRes;
 use App\Models\EvaluacionesRespuestas;
 use App\Models\TriviaRes;
+use App\Models\TriviaPreg;
 use App\Models\Trivia;
 use App\Models\JackpotIntentos;
 use App\Models\Jackpot;
@@ -37,23 +39,73 @@ class FrontController extends Controller
     }
 
     public function scripts_ajustes()
-{
-    // Obtener todos los registros de logros
-    $logros = Logro::all();
+{   
+    $sesion = Sesion::find(58);
+    $cantidad_preguntas = $sesion->cantidad_preguntas_evaluacion;
+    $visualizaciones = SesionVis::where('id_sesion', 58)->get();
 
-    foreach ($logros as $logro) {
-        // Actualizar los SKUs que coinciden con el nombre del desafío
-        $skus = Sku::where('desafio', $logro->nombre)->get();
+    // Iniciar tabla
+    $tabla = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
+    $tabla .= '<thead>';
+    $tabla .= '<tr>';
+    $tabla .= '<th>ID Respuesta</th>';
+    $tabla .= '<th>Preguntas</th>';
+    $tabla .= '<th>Respuesta</th>';
+    $tabla .= '<th>Estado</th>';
+    $tabla .= '</tr>';
+    $tabla .= '</thead>';
+    $tabla .= '<tbody>';
 
-        foreach ($skus as $sku) {
-            // Asignar el id_logro a cada SKU encontrado
-            $sku->id_logro = $logro->id;
-            $sku->save();
+    foreach ($visualizaciones as $visualizacion) {
+        $usuario = User::find($visualizacion->id_usuario);
+
+        // Obtener todas las preguntas y sus respuestas de este usuario
+        $preguntas = EvaluacionPreg::where('id_sesion', 58)->get();
+        $respuestas_usuario = [];
+
+        foreach ($preguntas as $pregunta) {
+            $respuesta = EvaluacionRes::where('id_pregunta', $pregunta->id)
+                                       ->where('id_usuario', $usuario->id)
+                                       ->first();
+            if ($respuesta) {
+                $respuestas_usuario[] = [
+                    'respuesta_id' => $respuesta->id,
+                    'pregunta' => $pregunta->pregunta,
+                    'respuesta_usuario' => $respuesta->respuesta_usuario,
+                    'respuesta_correcta' => $respuesta->respuesta_correcta,
+                ];
+            }
+        }
+
+        // Verificamos si tiene más respuestas de las permitidas
+        $exceso = count($respuestas_usuario) > $cantidad_preguntas;
+
+        // Definimos estilo si tiene exceso
+        $estiloFila = $exceso ? 'style="background-color: red; color: white;"' : '';
+
+        // Fila del usuario (nombre/email)
+        $tabla .= '<tr '.$estiloFila.'>';
+        $tabla .= '<td colspan="4" style="font-weight: bold;">' . htmlspecialchars($usuario->email) . '</td>';
+        $tabla .= '</tr>';
+
+        // Filas de respuestas
+        foreach ($respuestas_usuario as $respuesta_info) {
+            $tabla .= '<tr '.$estiloFila.'>';
+            $tabla .= '<td>' . $respuesta_info['respuesta_id'] . '</td>';
+            $tabla .= '<td>' . htmlspecialchars($respuesta_info['pregunta']) . '</td>';
+            $tabla .= '<td>' . htmlspecialchars($respuesta_info['respuesta_usuario']) . '</td>';
+            $tabla .= '<td>' . htmlspecialchars($respuesta_info['respuesta_correcta']) . '</td>';
+            $tabla .= '</tr>';
         }
     }
 
-    return response()->json(['message' => 'SKUs asignados']);
+    $tabla .= '</tbody>';
+    $tabla .= '</table>';
+
+    echo $tabla;
 }
+
+
     public function restaurar_suscripciones()
     
     {
