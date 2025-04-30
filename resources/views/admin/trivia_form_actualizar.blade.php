@@ -52,6 +52,12 @@
                         <option value="random" @if($trivia->orden == 'random') selected @endif>Random</option>
                     </select>
                 </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="IdJackpot">Incrustar Minijuego</label>
+                        <input type="text" class="form-control" name="IdJackpot" value="{{ $trivia->id_jackpot }}">
+                    </div>
+                </div>
                 <hr>
                 <div class="row mb-3">
                     <div class="col-6">

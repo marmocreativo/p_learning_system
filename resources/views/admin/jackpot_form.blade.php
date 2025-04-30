@@ -35,6 +35,13 @@
                         <option value="inactivo"  >Inactivo</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="EnTrivia">Permitir incrustar en trivia</label>
+                    <select name="EnTrivia" id="EnTrivia" class="form-control">
+                        <option value="no"  >No</option>
+                        <option value="si"  >Si</option>
+                    </select>
+                </div>
                 <h5>Intentos</h5>
                 <div class="form-group">
                     <label for="Intentos">Intentos por jackpot</label>

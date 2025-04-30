@@ -51,6 +51,12 @@
                         <option value="random">Random</option>
                     </select>
                 </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="IdJackpot">Incrustar Minijuego</label>
+                        <input type="text" class="form-control" name="IdJackpot">
+                    </div>
+                </div>
                 <hr>
                 <div class="row mb-3">
                     <div class="col-6">
