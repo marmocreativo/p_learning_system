@@ -267,6 +267,7 @@ class JackpotsController extends Controller
          $jackpot = Jackpot::where('id_temporada', $id_temporada)
                        ->where('fecha_publicacion', '<=', $fecha_hoy)
                         ->where('fecha_vigencia', '>=', $fecha_hoy)
+                        ->where('en_trivia', 'no')
                        ->first();
         if($jackpot){
             $preguntas = JackpotPreg::where('id_jackpot',$jackpot->id)->get();

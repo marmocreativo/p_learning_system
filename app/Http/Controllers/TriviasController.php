@@ -605,7 +605,9 @@ class TriviasController extends Controller
                         ->where('fecha_vigencia', '>=', $fecha_hoy)
                        ->first();
         if($trivia){
-            $jackpot = Jackpot::where('id', $trivia->id_jackpot)->first();
+            $jackpot = Jackpot::where('id', $trivia->id_jackpot)->where('fecha_publicacion', '<=', $fecha_hoy)
+            ->where('fecha_vigencia', '>=', $fecha_hoy)
+            ->where('en_trivia', 'si')->first();
             $intentos_jackpot = JackpotIntentos::where('id_jackpot',$trivia->id_jackpot)->where('id_usuario',$id_usuario)->get();
             $cantidad_preguntas = $trivia->cantidad_preguntas;
             $orden = $trivia->orden;

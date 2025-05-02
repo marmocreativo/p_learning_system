@@ -229,6 +229,7 @@ class CuentasController extends Controller
             ->orderBy('fecha_publicacion', 'asc')
             ->first();
         $proximo_jackpot = Jackpot::where('id_temporada', $cuenta->temporada_actual)
+            ->where('en_trivia', 'no')
             ->whereDate('fecha_publicacion', '>=', now()->toDateString())
             ->orderBy('fecha_publicacion', 'asc')
             ->first();

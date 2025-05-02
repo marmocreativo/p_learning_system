@@ -972,6 +972,8 @@ public function suscribir_full_update(Request $request, string $id)
         $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
         $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+
+        
         $extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
         $creditos_redimidos = CanjeoTransacciones::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('creditos')->sum();
 
@@ -1023,6 +1025,10 @@ public function suscribir_full_update(Request $request, string $id)
         ->join('trivias_preguntas', 'trivias.id', '=', 'trivias_preguntas.id_trivia')
         ->join('trivias_respuestas', 'trivias_preguntas.id', '=', 'trivias_respuestas.id_pregunta')
         ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where(function ($query) {
+            $query->whereNull('trivias.id_jackpot')
+                  ->orWhere('trivias.id_jackpot', '');
+        })
         ->where('trivias_respuestas.id_usuario', '=', $id_usuario)
         ->select('trivias.*', 'trivias_preguntas.*' , 'trivias_respuestas.*')
         ->get();
@@ -1030,6 +1036,7 @@ public function suscribir_full_update(Request $request, string $id)
         $jackpot_intentos = DB::table('jackpot')
         ->join('jackpot_intentos', 'jackpot.id', '=', 'jackpot_intentos.id_jackpot')
         ->where('jackpot.id_temporada', '=', $id_temporada)
+        ->where('jackpot.en_trivia', '=', 'no')
         ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
         ->select('jackpot.*', 'jackpot_intentos.*' )
         ->get();
@@ -1115,18 +1122,32 @@ public function suscribir_full_update(Request $request, string $id)
         ->join('trivias_preguntas', 'trivias.id', '=', 'trivias_preguntas.id_trivia')
         ->join('trivias_respuestas', 'trivias_preguntas.id', '=', 'trivias_respuestas.id_pregunta')
         ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where(function ($query) {
+            $query->whereNull('trivias.id_jackpot')
+                  ->orWhere('trivias.id_jackpot', '');
+        })
         ->where('trivias_respuestas.id_usuario', '=', $id_usuario)
         ->select('trivias.*', 'trivias_preguntas.*' , 'trivias_respuestas.*')
         ->get();
 
-        $suma_jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-
         $jackpot_intentos = DB::table('jackpot')
         ->join('jackpot_intentos', 'jackpot.id', '=', 'jackpot_intentos.id_jackpot')
         ->where('jackpot.id_temporada', '=', $id_temporada)
+        ->where('jackpot.en_trivia', '=', 'no')
         ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
         ->select('jackpot.*', 'jackpot_intentos.*' )
         ->get();
+
+        $trivias_con_jackpot = DB::table('trivias')
+        ->join('jackpot_intentos', 'trivias.id_jackpot', '=', 'jackpot_intentos.id_jackpot')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->whereNotNull('trivias.id_jackpot')
+        ->where('trivias.id_jackpot', '!=', '')
+        ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
+        ->select('trivias.titulo', 'trivias.id_jackpot', 'jackpot_intentos.*')
+        ->get();
+
+        $suma_jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
 
         $suma_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
 
@@ -1151,6 +1172,7 @@ public function suscribir_full_update(Request $request, string $id)
             'trivias_ganadores' => $trivias_ganadores,
             'jackpot_intentos' => $jackpot_intentos,
             'puntos_extra'=> $puntos_extra,
+            'trivias_con_jackpot' => $trivias_con_jackpot,
             'suma_visualizaciones'=>$suma_visualizaciones,
             'suma_evaluaciones'=>$suma_evaluaciones,
             'suma_trivias'=>$suma_trivias,
