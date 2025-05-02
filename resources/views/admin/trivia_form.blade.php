@@ -51,11 +51,15 @@
                         <option value="random">Random</option>
                     </select>
                 </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <label for="IdJackpot">Incrustar Minijuego</label>
-                        <input type="text" class="form-control" name="IdJackpot">
-                    </div>
+                <div class="form-group">
+                    <label for="IdJackpot">Incrustar Minijuego</label>
+                    <select name="IdJackpot" id="IdJackpot" class="form-control">
+                        <option value="">Ningúno</option>
+                        @foreach ($jackpots as $jackpot)
+                            <option value="{{$jackpot->id}}">{{$jackpot->titulo}}</option>
+                        @endforeach
+                        
+                    </select>
                 </div>
                 <hr>
                 <div class="row mb-3">

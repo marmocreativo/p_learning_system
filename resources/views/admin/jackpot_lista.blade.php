@@ -1,12 +1,12 @@
 @extends('plantillas/plantilla_admin')
 
-@section('titulo', 'Trivias')
+@section('titulo', 'Minijuegos')
 
 @section('contenido_principal')
     <h1>Minijuegos</h1>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
-    <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Jackpot</a>
+    <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Minijuego</a>
     <hr>
     <div class="row">
         @foreach ($jackpots as $jackpot)

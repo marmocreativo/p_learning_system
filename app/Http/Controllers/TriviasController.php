@@ -51,7 +51,9 @@ class TriviasController extends Controller
     {
         //
         $temporada = Temporada::find($request->input('id_temporada'));
-        return view('admin/trivia_form');
+        $jackpots = Jackpot::where('id_temporada', $temporada->id)->where('en_trivia', 'si')->get();
+        //dd($jackpots);
+        return view('admin/trivia_form', compact('temporada', 'jackpots'));
     }
 
     /**
@@ -145,7 +147,8 @@ class TriviasController extends Controller
     {
         //
         $trivia = Trivia::find($id);
-        return view('admin/trivia_form_actualizar', compact('trivia'));
+        $jackpots = Jackpot::where('id_temporada', $trivia->id_temporada)->where('en_trivia', 'si')->get();
+        return view('admin/trivia_form_actualizar', compact('trivia', 'jackpots'));
     }
 
     /**
@@ -499,12 +502,14 @@ class TriviasController extends Controller
             ];
 
             // Intentamos enviar el correo, pero capturamos la excepción si ocurre
+            /*
             try {
                 Mail::to($usuario->email)->send(new GanadorTrivia($data));
             } catch (\Exception $e) {
                 // Registramos el error pero continuamos con la ejecución
                 \Log::error('Error al enviar correo de ganador de trivia: ' . $e->getMessage());
             }
+                */
         }
 
         return response()->json([

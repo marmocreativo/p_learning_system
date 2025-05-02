@@ -52,11 +52,14 @@
                         <option value="random" @if($trivia->orden == 'random') selected @endif>Random</option>
                     </select>
                 </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <label for="IdJackpot">Incrustar Minijuego</label>
-                        <input type="text" class="form-control" name="IdJackpot" value="{{ $trivia->id_jackpot }}">
-                    </div>
+                <div class="form-group">
+                    <label for="IdJackpot">Incrustar Minijuego</label>
+                    <select name="IdJackpot" id="IdJackpot" class="form-control">
+                        <option value="">Ningúno</option>
+                        @foreach ($jackpots as $jackpot)
+                            <option value="{{$jackpot->id}}" @if ($jackpot->id==$trivia->id_jackpot) selected @endif>{{$jackpot->titulo}}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <hr>
                 <div class="row mb-3">
