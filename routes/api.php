@@ -56,6 +56,9 @@ Route::post('registro_clic_noticia', [UsuariosController::class, 'registro_clic_
 Route::post('aceptar_terminos_2025', [UsuariosController::class, 'aceptar_terminos_2025'])->name('aceptar_terminos_2025.api');
 // Trivias
 Route::get('datos_trivia_2025', [TriviasController::class, 'datos_trivia_2025_api'])->name('datos_trivia_2025.api');
+Route::post('registrar_visita_trivia', [TriviasController::class, 'registrar_visita_api'])->name('registrar_visita_trivia.api');
+// Sesiones
+Route::post('registrar_visita_sesion', [SesionesController::class, 'registrar_visita_api'])->name('registrar_visita_sesion.api');
 
 
 

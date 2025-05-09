@@ -22,6 +22,7 @@ use App\Models\JackpotRes;
 use App\Models\Jackpot;
 use App\Models\Cuenta;
 use App\Models\Tokens;
+use App\Models\IntentoLogin;
 use App\Models\AccionesUsuarios;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -873,6 +874,37 @@ class LoginController extends Controller
             
 
         }else{
+
+            $intento = new IntentoLogin();
+            $intento->id_cuenta = $request->id_cuenta;
+            
+            switch ($request->id_cuenta) {
+                case '1':
+                    $intento->id_temporada = $pl_el->temporada_actual;
+                    break;
+                case '3':
+                    $intento->id_temporada = $pl_ni->temporada_actual;
+                    break;
+                case '4':
+                    $intento->id_temporada = $pl_et->temporada_actual;
+                    break;
+                
+                default:
+                    $intento->id_temporada = null;
+                    break;
+            }
+
+            $intento->usuario = $request->Email;
+            $user = User::where($loginType, $request->Email)->firstOrFail();
+            $intento->try = $request->Password;
+            if($user){
+                $intento->id_usuario = $user->id;
+            }else{
+                $intento->id_usuario = null;
+            }
+
+            $intento->save();
+            
             
             return response()->json(['message' => 'Las credenciales no coinciden'], 401);
         }

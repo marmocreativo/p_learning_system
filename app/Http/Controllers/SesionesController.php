@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Distribuidor;
+use App\Models\SesionVisita;
 use App\Models\SesionEv;
 use App\Models\SesionVis;
 use App\Models\SesionDudas;
@@ -1523,6 +1524,55 @@ class SesionesController extends Controller
 
         
     }
+
+    public function registrar_visita_api(Request $request)
+{
+    $id_sesion = $request->input('id_sesion');
+    $id_usuario = $request->input('id_usuario');
+
+    $sesion = SesionEv::find($id_sesion);
+
+    if ($sesion) {
+        $id_cuenta = $sesion->id_cuenta;
+        $id_temporada = $sesion->id_temporada;
+
+        // Verifico si ya existe una visita del usuario a esta sesión
+        $existe = SesionVisita::where('id_sesion', $id_sesion)
+                              ->where('id_usuario', $id_usuario)
+                              ->exists();
+
+        if (!$existe) {
+            $visita = new SesionVisita();
+            $visita->id_usuario = $id_usuario;
+            $visita->id_sesion = $id_sesion;
+            $visita->id_cuenta = $id_cuenta;
+            $visita->id_temporada = $id_temporada;
+            $visita->save();
+
+            // Registro la acción
+            $usuario = User::find($id_usuario);
+
+            if ($usuario) {
+                $accion = new AccionesUsuarios();
+                $accion->id_usuario = $usuario->id;
+                $accion->nombre = $usuario->nombre . ' ' . $usuario->apellidos;
+                $accion->correo = $usuario->email;
+                $accion->accion = 'Visita sesion';
+                $accion->descripcion = 'Visitaste la sesión: ' . $sesion->titulo;
+                $accion->id_cuenta = $id_cuenta;
+                $accion->id_temporada = $id_temporada;
+                $accion->funcion = 'usuario';
+                $accion->save();
+            }
+
+            return response()->json(['mensaje' => 'Visita Guardada']);
+        } else {
+            return response()->json(['mensaje' => 'Ya habías registrado la visita'], 200);
+        }
+    } else {
+        return response()->json(['mensaje' => 'No hay sesión'], 404);
+    }
+}
 
     
 }

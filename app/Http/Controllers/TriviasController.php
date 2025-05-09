@@ -11,6 +11,7 @@ use App\Models\Trivia;
 use App\Models\TriviaPreg;
 use App\Models\TriviaRes;
 use App\Models\TriviaGanador;
+use App\Models\TriviaVisita;
 use App\Models\Jackpot;
 use App\Models\JackpotPreg;
 use App\Models\JackpotRes;
@@ -692,4 +693,52 @@ class TriviasController extends Controller
         }
         
      }
+
+     public function registrar_visita_api(Request $request)
+{
+    $id_trivia = $request->input('id_trivia');
+    $id_usuario = $request->input('id_usuario');
+
+    $trivia = Trivia::find($id_trivia);
+
+    if (!$trivia) {
+        return response()->json(['mensaje' => 'Trivia no encontrada'], 404);
+    }
+
+    $id_cuenta = $trivia->id_cuenta;
+    $id_temporada = $trivia->id_temporada;
+
+    // Verifico si ya existe una visita del usuario a esta trivia
+    $existe = TriviaVisita::where('id_trivia', $id_trivia)
+                          ->where('id_usuario', $id_usuario)
+                          ->exists();
+
+    if (!$existe) {
+        $visita = new TriviaVisita();
+        $visita->id_usuario = $id_usuario;
+        $visita->id_trivia = $id_trivia;
+        $visita->id_cuenta = $id_cuenta;
+        $visita->id_temporada = $id_temporada;
+        $visita->save();
+
+        // Registro la acción
+        $usuario = User::find($id_usuario);
+
+        if ($usuario) {
+            $accion = new AccionesUsuarios();
+            $accion->id_usuario = $usuario->id;
+            $accion->nombre = $usuario->nombre . ' ' . $usuario->apellidos;
+            $accion->correo = $usuario->email;
+            $accion->accion = 'Visita trivia';
+            $accion->descripcion = 'Visitaste la trivia: ' . $trivia->titulo;
+            $accion->id_cuenta = $id_cuenta;
+            $accion->id_temporada = $id_temporada;
+            $accion->funcion = 'usuario';
+            $accion->save();
+        }
+    }
+
+    return response()->json(['mensaje' => 'Visita guardada']);
+}
+
 }
