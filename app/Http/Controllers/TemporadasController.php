@@ -225,14 +225,15 @@ class TemporadasController extends Controller
         if($region!='todas'){
             $distribuidores = Distribuidor::where('region',$region)->get();
         }
+
         $usuarios_suscritos = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->leftJoin('sucursales', 'usuarios_suscripciones.id_sucursal', '=', 'sucursales.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id)
             ->when($region !== 'todas', function ($query) use ($region) {
                 return $query->where('distribuidores.region', $region);
             })
-            // Añade la condición de distribuidor si no es 0
             ->when($distribuidor != 0, function ($query) use ($distribuidor) {
                 return $query->where('distribuidores.id', $distribuidor);
             })
@@ -243,8 +244,10 @@ class TemporadasController extends Controller
                 'usuarios.email as email',
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
+                'sucursales.nombre as sucursal',
             )
             ->get();
+            
             
         return view('admin/temporada_reporte', compact('temporada',
                                                         'sesiones',
@@ -311,7 +314,7 @@ class TemporadasController extends Controller
                 ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
                 ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
                 ->when($region !== 'todas', function ($query) use ($region) {
-                    return $query->where('distribuidores.region', $region);
+                    return $query->where('usuarios_suscripciones.region', $region);
                 })
                 ->when($distribuidor != 0, function ($query) use ($distribuidor) {
                     return $query->where('distribuidores.id', $distribuidor);
@@ -478,6 +481,18 @@ class TemporadasController extends Controller
         //
         $temporada = Temporada::find($id);
 
+        $request->validate([
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+        ]);
+    
+        if ($request->hasFile('Imagen')) {
+            $imagen = $request->file('Imagen');
+            $nombreImagen = 'calendario_'.time().'.'.$imagen->extension();
+            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+        }else{
+            $nombreImagen = $temporada->imagen;
+        }
+
         $temporada->id_cuenta = $request->IdCuenta;
         $temporada->nombre = $request->Nombre;
         $temporada->descripcion = $request->Descripcion;
@@ -486,6 +501,7 @@ class TemporadasController extends Controller
         $temporada->fecha_inicio = $request->FechaInicio;
         $temporada->fecha_final = $request->FechaFinal;
         $temporada->estado = $request->Estado;
+        $temporada->imagen = $nombreImagen;
         $temporada->url = $request->Url;
 
         $temporada->save();

@@ -70,6 +70,7 @@
                             <th>Correo</th>
                             <th>Region</th>
                             <th>Distribuidor</th>
+                            <th>Sucursal</th>
                             @php
                                 $numero_sesion = 1;
                                 $numero_trivia = 1;
@@ -102,6 +103,7 @@
                             <td>{{$usuario->email}}</td>
                             <td>{{$usuario->region}}</td>
                             <td>{{$usuario->distribuidor}}</td>
+                            <td>{{$usuario->sucursal}}</td>
                             @foreach ($sesiones as $sesion)
                                 @php
                                     $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {

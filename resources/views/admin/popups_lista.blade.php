@@ -3,7 +3,7 @@
 @section('titulo', 'Notificaciones')
 
 @section('contenido_principal')
-    <h1>PopUps y Cintillos</h1>
+    <h1>PopUps y Tiras</h1>
     <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
     <hr>
     <div class="row">
@@ -187,7 +187,7 @@
         <div class="col-6">
             <div class="card card-body">
                 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formularioCintillo" aria-expanded="false" aria-controls="formularioCintillo">
-                    Nuevo Cintillo
+                    Nueva Tira
                 </button>
                 <div class="collapse" id="formularioCintillo">
                     <form action="{{ route('cintillo.create') }}" method="POST" enctype="multipart/form-data">
@@ -210,11 +210,6 @@
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="form-group">
-                                    <label for="Imagen">Imagen</label>
-                                    <input type="file" class="form-control" name="Imagen" >
-                                </div>
-                                <hr>
                                 <div class="form-group">
                                     <label for="FechaInicio">Publicar desde:</label>
                                     <input type="datetime-local" class="form-control" name="FechaInicio">
@@ -243,16 +238,22 @@
                         @foreach ($cintillos as $cintillo)
                             <tr>
                                 <td>
-                                    <h5>{{$cintillo->texto}}</h5>
+                                    <h5>{!! $cintillo->texto !!}</h5>
                                     @if (!empty($cintillo->imagen)) 
                                             <img src="{{ asset('img/publicaciones/'.$cintillo->imagen) }}" alt="Imagen de {{ $cintillo->titulo }}" style="width: 100%;">
                                         @endif
                                     <hr>
-                                    {{$cintillo->texto_boton}}
+                                    <button class="btn btn-outline-dark">{{$cintillo->texto_boton}}</button>
                                 </td>
                                 <td>
                                     Publicar desde: <b>{{$cintillo->fecha_inicio}}</b><br>
                                     hasta: <b>{{$cintillo->fecha_final}}</b>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modalCintillo{{ $cintillo->id }}">
+                                        Editar
+                                    </button>
+                    
                                 </td>
                                 <td>
                                     <form action="{{route('cintillo.destroy', $cintillo->id)}}" method="POST">
@@ -262,6 +263,56 @@
                                     </form>
                                 </td>
                             </tr>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalCintillo{{ $cintillo->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $cintillo->id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalLabel{{ $cintillo->id }}">{{ $cintillo->titulo }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ route('cintillo.update') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="hidden" name="Identificador" value="{{$cintillo->id}}">
+                                                <input type="hidden" name="IdCuenta" value="{{$cuenta->id}}">
+                                                <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <div class="form-group">
+                                                            <label for="Texto">Texto</label>
+                                                            <textarea name="Texto" class="form-control TextEditor" rows="1">{{$cintillo->texto}}</textarea>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="TextoBoton">Texto Botón</label>
+                                                            <input type="text" class="form-control" name="TextoBoton" value="{{$cintillo->texto_boton}}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="EnlaceBoton">Enlace Botón</label>
+                                                            <input type="text" class="form-control" name="EnlaceBoton" value="{{$cintillo->enlace_boton}}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="form-group">
+                                                            <label for="FechaInicio">Publicar desde:</label>
+                                                            <input type="datetime-local" class="form-control" name="FechaInicio" value="{{$cintillo->fecha_inicio}}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="FechaFinal">Hasta:</label>
+                                                            <input type="datetime-local" class="form-control" name="FechaFinal" value="{{$cintillo->fecha_final}}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </tbody>
                     

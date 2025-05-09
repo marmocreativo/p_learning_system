@@ -39,6 +39,43 @@ class FrontController extends Controller
     }
 
     public function scripts_ajustes()
+    {
+        $suscripciones = UsuariosSuscripciones::all();
+
+        $tabla = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
+        $tabla .= '<thead>';
+        $tabla .= '<tr>';
+        $tabla .= '<th>ID</th>';
+        $tabla .= '<th>Distribuidor</th>';
+        $tabla .= '<th>Suscripcion</th>';
+        $tabla .= '</tr>';
+        $tabla .= '</thead>';
+        $tabla .= '<tbody>';
+
+        foreach($suscripciones as $suscripcion){
+            $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+            $region_dist = '';
+            if($distribuidor){
+                $region_dist = $distribuidor->region;
+
+                if($suscripcion->region!=$distribuidor->region){
+                    $suscripcion->region = $distribuidor->region;
+                    $suscripcion->save();
+                }
+            }
+            $tabla .= '<tr>';
+            $tabla .= '<td>'.$suscripcion->id.'</td>';
+            $tabla .= '<td>'.$region_dist.'</td>';
+            $tabla .= '<td>'.$suscripcion->region.'</td>';
+            $tabla .= '</tr>';
+        }
+        $tabla .= '</tbody>';
+        $tabla .= '</table>';
+
+        echo $tabla;
+    }
+
+    public function scripts_ajustes_sesiones_con_problema()
 {   
     $sesion = Sesion::find(58);
     $cantidad_preguntas = $sesion->cantidad_preguntas_evaluacion;

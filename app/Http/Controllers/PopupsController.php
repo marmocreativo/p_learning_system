@@ -132,6 +132,32 @@ class PopupsController extends Controller
         
     }
 
+    public function actualizar_cintillo(Request $request)
+    {
+        //
+        $cintillo = Cintillo::find($request->input('Identificador'));
+
+
+        $cintillo->id_cuenta = $request->IdCuenta;
+        $cintillo->id_temporada = $request->IdTemporada;
+        $cintillo->texto = $request->Texto;
+        $cintillo->texto_boton = $request->TextoBoton;
+        $cintillo->enlace_boton = $request->EnlaceBoton;
+        $cintillo->imagen = '';
+        $cintillo->fecha_inicio = $request->FechaInicio;
+        $cintillo->fecha_final = $request->FechaFinal;
+        //dd($cintillo);
+        try {
+            $cintillo->save();
+            //dd($cintillo);
+            return redirect()->route('popups', ['id_temporada' => $request->IdTemporada])
+                             ->with('success', 'Cintillo actualizado correctamente.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+        
+    }
+
      /**
      * Remove the specified resource from storage.
      */

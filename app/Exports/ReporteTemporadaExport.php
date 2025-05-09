@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UsuariosSuscripciones;
 use App\Models\Temporada;
 use App\Models\Clase;
+use App\Models\Sucursal;
 use App\Models\Distribuidor;
 use App\Models\DistribuidorSuscripciones;
 use App\Models\SesionVis;
@@ -67,9 +68,10 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         $usuarios_suscritos = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
+            ->leftJoin('sucursales', 'usuarios_suscripciones.id_sucursal', '=', 'sucursales.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
             ->when($region !== 'todas', function ($query) use ($region) {
-                return $query->where('distribuidores.region', $region);
+                return $query->where('usuarios_suscripciones.region', $region);
             })
             // Añade la condición de distribuidor si no es 0
             ->when($distribuidor != 0, function ($query) use ($distribuidor) {
@@ -82,6 +84,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 'usuarios.email as email',
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
+                'sucursales.nombre as sucursal',
             )
             ->get();
         //dd($usuarios_suscritos);
@@ -95,6 +98,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $coleccion[$index]['email'] = $usuario->email;
             $coleccion[$index]['region'] = $usuario->region;
             $coleccion[$index]['distribuidor'] = $usuario->distribuidor;
+            $coleccion[$index]['sucursal'] = $usuario->sucursal;
             $s = 1;
             $t = 1;
             $j = 1;
@@ -121,46 +125,86 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 }
                 $s++;
             }
-            foreach ($trivias as $trivia) {
-                $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
-                    return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
-                });
-                $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
-                    return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
-                });
-                $puntaje_trivias = 0;
-                foreach($t_respuestas as $res){
-                    $puntaje_trivias += $res->puntaje;
+            if($temporada->id_cuenta==3){
+                foreach ($jackpots as $jackpot) {
+                    $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
+                        return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
+                    });
+                    $puntaje_jackpot = 0;
+                    foreach($intentos as $int){
+                        $puntaje_jackpot += $int->puntaje;
+                    }
+                    if($intentos){
+                        $puntaje_total +=$puntaje_jackpot;
+                        $coleccion[$index]['r'.$j] = (string) $puntaje_jackpot;
+                    }else{
+                        $coleccion[$index]['r'.$j] = '0';
+                    }
+                    $j ++;
                 }
-                if($t_respuestas){
-                    $puntaje_total +=$puntaje_trivias; 
-                    $coleccion[$index]['t'.$t] = (string) $puntaje_trivias;
-                }else{
-                    $coleccion[$index]['t'.$t] = '0';
+                foreach ($trivias as $trivia) {
+                    $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
+                        return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
+                    });
+                    $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
+                        return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
+                    });
+                    $puntaje_trivias = 0;
+                    foreach($t_respuestas as $res){
+                        $puntaje_trivias += $res->puntaje;
+                    }
+                    if($ganador){
+                        $coleccion[$index]['t'.$t.'-G'] = 'Si';
+                    }else{
+                        $coleccion[$index]['t'.$t.'-G'] = '-';
+                    }
+                    $t++;
                 }
-                if($ganador){
-                    $coleccion[$index]['t'.$t.'-G'] = 'Si';
-                }else{
-                    $coleccion[$index]['t'.$t.'-G'] = '-';
+                
+
+            }else{
+                foreach ($trivias as $trivia) {
+                    $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
+                        return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
+                    });
+                    $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
+                        return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
+                    });
+                    $puntaje_trivias = 0;
+                    foreach($t_respuestas as $res){
+                        $puntaje_trivias += $res->puntaje;
+                    }
+                    if($t_respuestas){
+                        $puntaje_total +=$puntaje_trivias; 
+                        $coleccion[$index]['t'.$t] = (string) $puntaje_trivias;
+                    }else{
+                        $coleccion[$index]['t'.$t] = '0';
+                    }
+                    if($ganador){
+                        $coleccion[$index]['t'.$t.'-G'] = 'Si';
+                    }else{
+                        $coleccion[$index]['t'.$t.'-G'] = '-';
+                    }
+                    $t++;
                 }
-                $t++;
+                foreach ($jackpots as $jackpot) {
+                    $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
+                        return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
+                    });
+                    $puntaje_jackpot = 0;
+                    foreach($intentos as $int){
+                        $puntaje_jackpot += $int->puntaje;
+                    }
+                    if($intentos){
+                        $puntaje_total +=$puntaje_jackpot;
+                        $coleccion[$index]['j'.$j] = (string) $puntaje_jackpot;
+                    }else{
+                        $coleccion[$index]['j'.$j] = '0';
+                    }
+                    $j ++;
+                }
             }
-            foreach ($jackpots as $jackpot) {
-                $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
-                    return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
-                });
-                $puntaje_jackpot = 0;
-                foreach($intentos as $int){
-                    $puntaje_jackpot += $int->puntaje;
-                }
-                if($intentos){
-                    $puntaje_total +=$puntaje_jackpot;
-                    $coleccion[$index]['j'.$j] = (string) $puntaje_jackpot;
-                }else{
-                    $coleccion[$index]['j'.$j] = '0';
-                }
-                $j ++;
-            }
+            
             $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
                 return $entrada->id_usuario == $usuario->id_usuario;
             });
@@ -223,7 +267,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             'Apellidos',
             'Correo',
             'Region',
-            'Distribuidor'
+            'Distribuidor',
+            'Sucursal'
         ];
         $s = 1;
         $t = 1;
@@ -234,15 +279,28 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $encabezados[] = 'S'.$s.'-E';
             $s++;
         }
-        foreach ($trivias as $trivia) {
-            $encabezados[] = 'T'.$t;
-            $encabezados[] = 'T'.$t.'-G';
-            $t++;
+        if($temporada->id_cuenta==3){
+            foreach ($jackpots as $jackpot) {
+                $encabezados[] = 'R'.$j;
+                $j++;
+            }
+            foreach ($trivias as $trivia) {
+                $encabezados[] = 'T'.$t.'-G';
+                $t++;
+            }
+            
+        }else{
+            foreach ($trivias as $trivia) {
+                $encabezados[] = 'T'.$t;
+                $encabezados[] = 'T'.$t.'-G';
+                $t++;
+            }
+            foreach ($jackpots as $jackpot) {
+                $encabezados[] = 'J'.$j;
+                $j++;
+            }
         }
-        foreach ($jackpots as $jackpot) {
-            $encabezados[] = 'J'.$j;
-            $j++;
-        }
+        
         $encabezados[] = 'Puntos Extra';
         $encabezados[] = 'Total';
         $encabezados[] = 'Creditos Consumidos';
@@ -257,7 +315,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:G1')->applyFromArray([
+                $event->sheet->getStyle('A1:H1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']

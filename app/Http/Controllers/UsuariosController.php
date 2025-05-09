@@ -1935,9 +1935,16 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->descripcion = 'Actualizó su perfil';
         $accion->save();
 
-        return 'Guardado';
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Guardado',
+            'usuario' => $usuario
+        ]);
     } else {
-        return 'No hay usuario: ' . $request->id_usuario;
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No hay usuario: ' . $request->id_usuario
+        ],404);
     }
 }
 
