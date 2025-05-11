@@ -227,8 +227,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             if($puntaje_total>0){
                 $coleccion[$index]['activo'] = (string) 'Si';
             }else{
-                $acciones_login = AccionesUsuarios::where('id_usuario', $usuario->id_usuario)->where('accion', 'login')->first();
-                $tokens = Tokens::where('tokenable_id', $usuario->id_usuario)->first();
+                $acciones_login = AccionesUsuarios::where('id_usuario', $usuario->id_usuario)->where('accion', 'login')->where('created_at', '>=', $temporada->fecha_inicio)->first();
+                $tokens = Tokens::where('tokenable_id', $usuario->id_usuario)->where('created_at', '>=', $temporada->fecha_inicio)->first();
 
                 if($acciones_login || $tokens){
                     $coleccion[$index]['activo'] = (string) 'Si';

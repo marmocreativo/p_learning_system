@@ -38,7 +38,7 @@ class FrontController extends Controller
         return view('front/home');
     }
 
-    public function scripts_ajustes()
+    public function scripts_ajustes_back()
     {
         $suscripciones = UsuariosSuscripciones::all();
 
@@ -75,7 +75,7 @@ class FrontController extends Controller
         echo $tabla;
     }
 
-    public function scripts_ajustes_sesiones_con_problema()
+    public function scripts_ajustes()
 {   
     $sesion = Sesion::find(58);
     $cantidad_preguntas = $sesion->cantidad_preguntas_evaluacion;
@@ -97,7 +97,7 @@ class FrontController extends Controller
         $usuario = User::find($visualizacion->id_usuario);
 
         // Obtener todas las preguntas y sus respuestas de este usuario
-        $preguntas = EvaluacionPreg::where('id_sesion', 58)->get();
+        $preguntas = EvaluacionPreg::where('id_sesion', 58)->inRandomOrder($visualizacion->id_usuario)->get();
         $respuestas_usuario = [];
 
         foreach ($preguntas as $pregunta) {
