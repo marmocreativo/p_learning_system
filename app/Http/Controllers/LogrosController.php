@@ -42,8 +42,35 @@ class LogrosController extends Controller
         //
         //
         $id_temporada = $request->input('id_temporada');
-        $logros = Logro::where('id_temporada', $id_temporada)->orderBy('orden', 'asc')->paginate();
-        return view('admin/logro_lista', compact('logros'));
+
+// Obtener todos los distribuidores
+$distribuidores = Distribuidor::all();
+
+// Inicializar arreglo de logros por distribuidor
+$logrosPorDistribuidor = [];
+
+// Bucle por cada distribuidor
+foreach ($distribuidores as $distribuidor) {
+    $logros = Logro::where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->orderBy('orden', 'asc')
+        ->get();
+
+    // Asignar los logros al array, usando el ID como clave
+    $logrosPorDistribuidor[$distribuidor->id] = $logros;
+    }
+
+    // También puedes obtener los logros sin distribuidor (base)
+    $logrosSinDistribuidor = Logro::where('id_temporada', $id_temporada)
+        ->where(function($query) {
+            $query->whereNull('id_distribuidor')
+                ->orWhere('id_distribuidor', '');
+        })
+        ->orderBy('orden', 'asc')
+        ->get();
+
+    // Enviar todo a la vista
+    return view('admin/logro_lista', compact('distribuidores', 'logrosPorDistribuidor', 'logrosSinDistribuidor'));
     }
 
     /**
@@ -53,7 +80,8 @@ class LogrosController extends Controller
     {
         //
         $temporada = Temporada::find($request->input('id_temporada'));
-        return view('admin/logro_form');
+        $distribuidores = Distribuidor::all();
+        return view('admin/logro_form', compact('temporada', 'distribuidores'));
     }
 
     /**
@@ -106,6 +134,7 @@ class LogrosController extends Controller
          $logro->region = $request->Region;
          $logro->imagen = $nombreImagen;
          $logro->imagen_fondo = $nombreImagenFondo;
+         $logro->id_distribuidor = $request->IdDistribuidor;
          $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
          $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
          $logro->orden = $request->Orden;
@@ -148,7 +177,8 @@ class LogrosController extends Controller
     {
         //
         $logro = Logro::find($id);
-        return view('admin/logro_form_actualizar', compact('logro'));
+        $distribuidores = Distribuidor::all();
+        return view('admin/logro_form_actualizar', compact('logro', 'distribuidores'));
     }
     
 
@@ -225,6 +255,7 @@ class LogrosController extends Controller
         $logro->imagen_fondo = $nombreImagenFondo;
         $logro->tabla_mx = $nombreTablaMx;
         $logro->tabla_rola = $nombreTablaRola;
+         $logro->id_distribuidor = $request->IdDistribuidor;
         $logro->fecha_inicio = date('Y-m-d H:i:s', strtotime($request->FechaInicio.' '.$request->HoraInicio));
         $logro->fecha_vigente = date('Y-m-d H:i:s', strtotime($request->FechaVigente.' '.$request->HoraVigente));
         $logro->orden = $request->Orden;
@@ -312,75 +343,6 @@ class LogrosController extends Controller
         
     }
 
-    /*
-    public function participacion_update(Request $request, string $id)
-    {
-        //
-        $participacion = LogroParticipacion::find($id);
-        $logro = Logro::find($participacion->id_logro);
-        $nivel_email = '';
-        switch ($request->ConfirmacionNivel) {
-            case 'a':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'no';
-                $participacion->confirmacion_nivel_c = 'no';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'A';
-                break;
-            case 'b':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'no';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'B';
-                break;
-            case 'c':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'si';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'C';
-                break;
-
-            case 'especial':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'si';
-                $participacion->confirmacion_nivel_especial = 'si';
-                $nivel_email = 'Especial';
-                break;
-            
-            default:
-                # code...
-                break;
-        }
-        $participacion->estado = $request->Estado;
-
-
-        if($participacion->estado=='finalizado'){
-            $data = [
-                'titulo' => ' ¡Desafío completado! ',
-                'contenido' => '<p>"Has superado los niveles de tu desafio Champions  ¡Gracias por participar, y prepárate para la próxima temporada!</p>',
-                'boton_texto' => 'Desafío Champions',
-                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-            ];
-            Mail::to($request->UsuarioEmail)->send(new FinalizacionChampions($data));
-        }else{
-            $data = [
-                'desafio' => $logro->nombre,
-                'nivel' => $nivel_email,
-                'estado' => $logro->estado,
-                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-            ];
-            Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-        }
-
- 
-         $participacion->save();
- 
-         return redirect()->route('logros.detalles_participacion', ['id'=>$participacion->id]);
-    }
-    */
 
     public function participacion_update(Request $request, string $id)
 {
@@ -494,6 +456,10 @@ public function reporte_excel(Request $request)
                             $query->where('region', 'RoLA')
                                 ->orWhere('region', 'Todas');
                         })
+                        ->where(function($query) {
+                            $query->whereNull('id_distribuidor')
+                                ->orWhere('id_distribuidor', '');
+                        })
                         ->orderBy('orden', 'asc')
                         ->get();
                 break;
@@ -504,6 +470,10 @@ public function reporte_excel(Request $request)
                     $query->where('region', 'México')
                         ->orWhere('region', 'Interna')
                         ->orWhere('region', 'Todas');
+                })
+                ->where(function($query) {
+                    $query->whereNull('id_distribuidor')
+                        ->orWhere('id_distribuidor', '');
                 })
                 ->orderBy('orden', 'asc')
                 ->get();

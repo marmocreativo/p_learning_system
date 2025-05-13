@@ -1340,135 +1340,7 @@ public function suscribir_full_update(Request $request, string $id)
         return response()->json($completo);
     }
 
-    /*
-    public function agregar_usuario_api (Request $request)
-    {
-            // Verificar si el usuario ya existe
-        $lider = User::find($request->id_usuario)->first();
-        $usuario = User::where('email', $request->correo)->first();
-        $distribuidor = Distribuidor::where('id', $request->id_distribuidor)->first();
-        
-        
-
-        if (!$usuario) {
-            $usuario = new User();
-            
-            $usuario->email = $request->correo;
-
-            $emailPrefix = explode('@', $request->correo)[0];
-            do {
-                $randomNumbers = rand(100, 999);
-                $newLegacyId = $emailPrefix . $randomNumbers;
-            } while (User::where('legacy_id', $newLegacyId)->exists());
-            $usuario->legacy_id = $newLegacyId;
-
-            $usuario->nombre = $request->nombre;
-            $usuario->apellidos = $request->apellidos;
-            $usuario->telefono = '';
-            $usuario->whatsapp = '';
-            $usuario->fecha_nacimiento = null;
-            if(!empty($distribuidor->default_pass)){
-                $usuario->password = Hash::make($distribuidor->default_pass);
-            }else{
-                $usuario->password = Hash::make('12345');
-            }
-            
-            $usuario->lista_correo = 'si';
-            $usuario->imagen = 'default.jpg';
-            $usuario->clase = 'usuario';
-            $usuario->estado = 'activo';
-
-            $usuario->save();
-
-            $accion = new AccionesUsuarios;
-            $accion->id_usuario = $lider->id;
-            $accion->nombre = $lider->nombre.' '.$lider->apellidos;
-            $accion->correo = $lider->email;
-            $accion->accion = 'registro usuario';
-            $accion->descripcion = 'Se registró el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
-            $accion->save();
-        }
-
-
-        $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', $request->id_temporada)->first();
-        if (!$suscripcion) {
-            $suscripcion = new UsuariosSuscripciones();
-            $suscripcion->id_usuario = $usuario->id;
-            $suscripcion->id_cuenta = $request->id_cuenta;
-            $suscripcion->id_temporada = $request->id_temporada;
-            $suscripcion->id_distribuidor = $request->id_distribuidor;
-            $suscripcion->id_sucursal = $request->id_sucursal;
-            $suscripcion->confirmacion_puntos = 'pendiente';
-            $suscripcion->funcion = 'usuario';
-            $suscripcion->save();
-            // Registro la acción de suscribir al usuario
-            $temporada = Temporada::find($request->id_temporada);
-            $cuenta = Cuenta::find($request->id_cuenta);
-            $accion = new AccionesUsuarios;
-            $accion->id_usuario = $lider->id;
-            $accion->nombre = $lider->nombre.' '.$lider->apellidos;
-            $accion->correo = $lider->email;
-            $accion->accion = 'registro usuario temporada';
-            $accion->descripcion = 'Se registró el usuario '.$usuario->email.' en la temporada: '.$cuenta->nombre.' '.$temporada->nombre;
-            $accion->save();
-        }
-        $mensaje = '<p><b>¡Te han seleccionado para participar en PLearning! Anexamos tu nombre de usuario y contraseña</b>, y te invitamos a cambiar esta última tan pronto como ingreses al programa. ¡Que tengas mucho éxito y disfrutes tu participación en esta temporada de PLearning!</p>';
-        $mensaje .= '<table>';
-        $mensaje .= '<tbody>';
-        $mensaje .= '<tr>';
-        $mensaje .= '<th>Nombre</th>';
-        $mensaje .= '<td>'.$usuario->nombre.' '.$usuario->apellidos.'</td>';
-        $mensaje .= '</tr>';
-        $mensaje .= '<tr>';
-        $mensaje .= '<th>Correo</th>';
-        $mensaje .= '<td>'.$usuario->email.'</td>';
-        $mensaje .= '</tr>';
-        $mensaje .= '<tr>';
-        $mensaje .= '<th>Nombre de Usuario</th>';
-        $mensaje .= '<td>'.$usuario->legacy_id.'</td>';
-        $mensaje .= '</tr>';
-        $mensaje .= '<tr>';
-        $mensaje .= '<th>Contraseña</th>';
-        $mensaje .= '<td>'.$distribuidor->default_pass.'</td>';
-        $mensaje .= '</tr>';
-        $mensaje .= '</tbody>';
-        $mensaje .= '<table>';
-
-        switch ($request->id_cuenta) {
-            case '1':
-                $data = [
-                    'titulo' => '¡Bienvenido a PL-Electrico!',
-                'contenido' => $mensaje,
-                'boton_texto' => 'Entrar',
-                'boton_enlace' => 'https://pls-test.panduitlatam.com/'
-                ];
-                break;
-
-            case '3':
-                $data = [
-                    'titulo' => '¡Bienvenido a P-Learning!',
-                'contenido' => $mensaje,
-                'boton_texto' => 'Entrar',
-                'boton_enlace' => 'https://pl-test.panduitlatam.com/'
-                ];
-                break;
-            
-            default:
-                $data = [
-                    'titulo' => '¡Bienvenido a PL-Electrico!',
-                'contenido' => $mensaje,
-                'boton_texto' => 'Entrar',
-                'boton_enlace' => 'https://ple-test.panduitlatam.com/'
-                ];
-                break;
-        }
-        
-        Mail::to($usuario->email)->send(new RegistroUsuario($data));
-        
-        return 'Guardado';
-        
-    }
-    */
+    
 
     public function agregar_usuario_api(Request $request)
 {
@@ -1512,7 +1384,10 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->nombre = $lider->nombre.' '.$lider->apellidos;
         $accion->correo = $lider->email;
         $accion->accion = 'registro usuario';
-        $accion->descripcion = 'Se registró el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->descripcion = 'Lider registró el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->id_cuenta = null;
+        $accion->id_temporada = null;
+        $accion->funcion = 'lider';
         $accion->save();
     }
 
@@ -1536,6 +1411,9 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->correo = $lider->email;
         $accion->accion = 'registro usuario temporada';
         $accion->descripcion = 'Se registró el usuario '.$usuario->email.' en la temporada: '.$cuenta->nombre.' '.$temporada->nombre;
+        $accion->id_cuenta = $cuenta->id;
+        $accion->temporada = $temporada->id;
+        $accion->funcion = 'lider';
         $accion->save();
     }
     
@@ -1617,6 +1495,9 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->correo = $lider->email;
         $accion->accion = 'actualizacion usuario';
         $accion->descripcion = 'Como lider se actualizó el usuario: '.$usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email;
+        $accion->id_cuenta = $suscripcion->id_cuenta;
+        $accion->id_temporada = $suscripcion->id_temporada;
+        $accion->funcion = 'lider';
         $accion->save();
         
         return 'Guardado';
@@ -1887,13 +1768,14 @@ public function suscribir_full_update(Request $request, string $id)
         $usuario = User::find($suscripcion->id_usuario);
         $lider = User::find($request->input('id_usuario'));
         
-
+        /*
         $visualizaciones = SesionVis::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $evaluaciones = EvaluacionRes::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $trivias = TriviaRes::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $trivias = TriviaGanador::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $jackpot_respuestas = JackpotRes::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
         $jackpot_intentos = JackpotIntentos::where('id_usuario',$usuario->id)->where('id_temporada', $id_temporada)->delete();
+        */
         $suscripcion->delete();
 
         $accion = new AccionesUsuarios();
@@ -1902,6 +1784,9 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->correo = $lider->email;
         $accion->accion = 'suscripcion_borrada';
         $accion->descripcion = $usuario->nombre.' '.$usuario->apellidos.' | '.$usuario->email.'Fue eliminado de la temporada: '.$cuenta->nombre.' '.$temporada->nombre.' por un lider';
+        $accion->id_cuenta = $id_cuenta;
+        $accion->id_temporada = $id_temporada;
+        $accion->funcion = 'lider';
         $accion->save();
 
         return 'Eliminado';
@@ -1920,6 +1805,7 @@ public function suscribir_full_update(Request $request, string $id)
     ]);
 
     $usuario = User::find($request->id_usuario);
+    $suscripcion = UsuariosSuscripciones::where('id', $request->id_suscripcion)->first();
     if ($usuario) {
         $usuario->legacy_id = $request->legacy_id;
         $usuario->telefono = $request->telefono ?? ''; // si viene vacío, lo limpia
@@ -1933,6 +1819,9 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->correo = $usuario->email;
         $accion->accion = 'actualizacion_datos';
         $accion->descripcion = 'Actualizó su perfil';
+        $accion->id_cuenta = $suscripcion->id_cuenta ? $suscripcion->id_cuenta : null;
+        $accion->id_temporada = $suscripcion->id_temporada ? $suscripcion->id_temporada : null;
+        $accion->funcion = 'usuario';
         $accion->save();
 
         return response()->json([
@@ -1967,6 +1856,7 @@ public function suscribir_full_update(Request $request, string $id)
            
 
         $usuario = User::find($request->id_usuario);
+        $suscripcion = UsuariosSuscripciones::where('id', $request->id_suscripcion)->first();
         if($usuario){
             if ($subido) {
                 $usuario->imagen = $nombreArchivo;
@@ -1978,6 +1868,9 @@ public function suscribir_full_update(Request $request, string $id)
                 $accion->correo = $usuario->email;
                 $accion->accion = 'actualizacion imagen';
                 $accion->descripcion = 'Actualizó su imágen de perfil';
+                $accion->id_cuenta = $suscripcion->id_cuenta;
+                $accion->id_temporada = $suscripcion->id_teporada;
+                $accion->funcion = 'usuario';
                 $accion->save();
             }
             
@@ -2068,6 +1961,9 @@ public function suscribir_full_update(Request $request, string $id)
     $accion->correo = $usuario->email;
     $accion->accion = 'click en noticia';
     $accion->descripcion = 'Se dio click en la noticia id: ' . $noticia->id . ' título: ' . $noticia->titulo;
+    $accion->id_cuenta = $noticia->id_cuenta;
+    $accion->id_temporada = $noticia->id_temporada;
+    $accion->funcion = 'usuario';
     $accion->save();
 
     return response()->json([

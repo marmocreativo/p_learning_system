@@ -160,6 +160,15 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="IdDistribuidor">Distribuidor</label>
+                    <select class="form-control" name="IdDistribuidor" id="IdDistribuidor">
+                        <option value="">Ninguno</option>
+                        @foreach ($distribuidores as $distribuidor)
+                            <option value="{{ $distribuidor->id }}">{{ $distribuidor->nombre }}</option> 
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="CantidadEvidencias">Cantidad de evidencias (Max)</label>
                     <input type="number" class="form-control" step="1" name="CantidadEvidencias">
                 </div>

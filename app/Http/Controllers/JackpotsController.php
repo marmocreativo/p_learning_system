@@ -386,6 +386,9 @@ class JackpotsController extends Controller
                     $accion->correo = $usuario->email;
                     $accion->accion = 'respondio preguntas minijuego';
                     $accion->descripcion = 'Se respondieron las preguntas del minijuego: '.$jackpot->titulo;
+                    $accion->id_cuenta = $jackpot->id_cuenta;
+                    $accion->id_temporada = $jackpot->id_temporada;
+                    $accion->funcion = 'usuario';
                     $accion->save();
                 }
             }
@@ -433,6 +436,9 @@ class JackpotsController extends Controller
         $accion->correo = $usuario->email;
         $accion->accion = 'minijuego intento';
         $accion->descripcion = 'Se completó un inento en el minijuego: '.$jackpot->titulo;
+        $accion->id_cuenta = $jackpot->id_cuenta;
+        $accion->id_temporada = $jackpot->id_cuenta;
+        $accion->funcion = 'usuario';
         $accion->save();
 
         

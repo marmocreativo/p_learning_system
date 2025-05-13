@@ -987,6 +987,9 @@ class SesionesController extends Controller
         $accion->correo = $usuario->email;
         $accion->accion = 'inicio video';
         $accion->descripcion = 'inicio video de la sesión: '.$sesion->titulo;
+        $accion->id_cuenta = $sesion->id_cuenta;
+        $accion->id_temporada = $sesion->id_temporada;
+        $accion->funcion = 'usuario';
 
         if ($accion->save()) {
             // El guardado fue exitoso, retorna lo que desees.
@@ -1133,6 +1136,9 @@ class SesionesController extends Controller
             $accion->correo = $usuario->email;
             $accion->accion = 'Finalizó la sesión';
             $accion->descripcion = 'finalizó la sesión: '.$sesion->titulo;
+            $accion->id_cuenta = $sesion->id_cuenta;
+            $accion->id_temporada = $sesion->id_temporada;
+            $accion->funcion = 'usuario';
             $accion->save();
 
             return response()->json([
@@ -1209,6 +1215,9 @@ class SesionesController extends Controller
                     $accion->correo = $usuario->email;
                     $accion->accion = 'Finalizó la sesión';
                     $accion->descripcion = 'finalizó la sesión: '.$sesion->titulo;
+                    $accion->id_cuenta = $sesion->id_cuenta;
+                    $accion->id_temporada = $sesion->id_temporada;
+                    $accion->funcion = 'usuario';
                     $accion->save();
                     
                     return response()->json([
@@ -1327,6 +1336,9 @@ class SesionesController extends Controller
              $accion->correo = $usuario->email;
              $accion->accion = 'Avance en la sesión';
              $accion->descripcion = 'Avance en la sesión: '.$sesion->titulo;
+             $accion->id_cuenta = $sesion->id_cuenta;
+            $accion->id_temporada = $sesion->id_temporada;
+            $accion->funcion = 'usuario';
              $accion->save();
      
 
@@ -1404,6 +1416,9 @@ class SesionesController extends Controller
             $accion->correo = $usuario->email;
             $accion->accion = 'Avance en la sesión';
             $accion->descripcion = 'Avance en la sesión: '.$sesion->titulo;
+            $accion->id_cuenta = $sesion->id_cuenta;
+            $accion->id_temporada = $sesion->id_temporada;
+            $accion->funcion = 'usuario';
             $accion->save();
 
 
@@ -1490,6 +1505,9 @@ class SesionesController extends Controller
             $accion->correo = $usuario->email;
             $accion->accion = 'Respondió la evaluación';
             $accion->descripcion = 'Respondió la evaluación en la sesión: '.$sesion->titulo;
+            $accion->id_cuenta = $sesion->id_cuenta;
+            $accion->id_temporada = $sesion->id_temporada;
+            $accion->funcion = 'usuario';
             $accion->save();
         }
     }
@@ -1520,6 +1538,9 @@ class SesionesController extends Controller
         $accion->correo = $usuario->email;
         $accion->accion = 'Duda en sesion';
         $accion->descripcion = 'Escribió una duda en la sesión: '.$sesion->titulo;
+        $accion->id_cuenta = $sesion->id_cuenta;
+        $accion->id_temporada = $sesion->id_temporada;
+        $accion->funcion = 'usuario';
         $accion->save();
 
         

@@ -462,6 +462,9 @@ class TriviasController extends Controller
         $accion->correo = $usuario->email;
         $accion->accion = 'trivia resuelta';
         $accion->descripcion = 'Se contestaron las preguntas de la trivia: '.$trivia->titulo;
+        $accion->id_cuenta = $trivia->id_cuenta;
+        $accion->id_temporada = $trivia->id_temporada;
+        $accion->funcion = 'usuario';
         $accion->save();
 
         // **Si todas las respuestas son correctas y no hay un ganador previo, registrar ganador**
@@ -490,6 +493,9 @@ class TriviasController extends Controller
             $accion->correo = $usuario->email;
             $accion->accion = 'ganador trivia';
             $accion->descripcion = 'Fuiste el ganador de la trivia: '.$trivia->titulo;
+            $accion->id_cuenta = $trivia->id_cuenta;
+            $accion->id_temporada = $trivia->id_temporada;
+            $accion->funcion = 'usuario';
             $accion->save();
 
             // **Preparamos datos para el correo al ganador**

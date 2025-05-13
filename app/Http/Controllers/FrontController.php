@@ -38,7 +38,8 @@ class FrontController extends Controller
         return view('front/home');
     }
 
-    public function scripts_ajustes_back()
+
+    public function scripts_ajustes_suscripciones()
     {
         $suscripciones = UsuariosSuscripciones::all();
 
@@ -75,7 +76,7 @@ class FrontController extends Controller
         echo $tabla;
     }
 
-    public function scripts_ajustes()
+    public function scripts_ajustes_reparacion_sesion()
 {   
     $sesion = Sesion::find(58);
     $cantidad_preguntas = $sesion->cantidad_preguntas_evaluacion;

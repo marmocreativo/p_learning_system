@@ -190,6 +190,9 @@ class LoginController extends Controller
                 $accion->correo = $user->email;
                 $accion->accion = 'login';
                 $accion->descripcion = 'Se inicio sesión via API';
+                $accion->id_cuenta = $id_cuenta;
+                $accion->id_temporada = $suscripcion->id_temporada;
+                $accion->funcion = 'usuario';
                 $accion->save();
                 
                 return response()->json([
@@ -237,18 +240,22 @@ class LoginController extends Controller
             $id_usuario = $user->id;
             $suscripcion_electrico = UsuariosSuscripciones::where('id_temporada', $pl_electrico->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $suscripcion_ni = UsuariosSuscripciones::where('id_temporada', $pl_ni->temporada_actual)->where('id_usuario', $id_usuario)->first();
+            $temporada_accion = null;
             $redireccion = 'ninguna';
             switch ($request->id_cuenta) {
                 case '1':
                     if($suscripcion_electrico&&$suscripcion_ni){
                         $redireccion = 'gate_doble';
                     }
+                    
                     if($suscripcion_electrico&&!$suscripcion_ni){
                         $redireccion = 'usuario';
                     }
                     if(!$suscripcion_electrico&&$suscripcion_ni){
                         $redireccion = 'gate_ni';
                     }
+
+                    $temporada_accion = $pl_electrico->temporada_actual;
                     break;
 
                 case '3':
@@ -261,6 +268,7 @@ class LoginController extends Controller
                     if(!$suscripcion_electrico&&$suscripcion_ni){
                         $redireccion = 'usuario';
                     }
+                    $temporada_accion = $pl_ni->temporada_actual;
                     break;
                 
                 default:
@@ -297,6 +305,9 @@ class LoginController extends Controller
                 $accion->correo = $user->email;
                 $accion->accion = 'login';
                 $accion->descripcion = 'Se inicio sesión via API';
+                $accion->id_cuenta = $request->id_cuenta;
+                $accion->id_temporada = $temporada_accion;
+                $accion->funcion = 'usuario';
                 $accion->save();
                 
                 return response()->json([
@@ -586,6 +597,8 @@ class LoginController extends Controller
             $suscripcion_test = UsuariosSuscripciones::where('id_temporada', $pl_test->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $redireccion = 'ninguna';
 
+            $temporada_accion = null;
+
 
             switch ($request->id_cuenta) {
                 case '1':
@@ -598,6 +611,7 @@ class LoginController extends Controller
                     if(!$suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'gate_ni';
                     }
+                    $temporada_accion = $pl_el->temporada_actual;
                     break;
 
                 case '3':
@@ -610,6 +624,7 @@ class LoginController extends Controller
                     if(!$suscripcion_el&&$suscripcion_ni){
                         $redireccion = 'usuario';
                     }
+                    $temporada_accion = $pl_ni->temporada_actual;
                     break;
                 case '4':
                     if($suscripcion_et){
@@ -625,6 +640,7 @@ class LoginController extends Controller
                             $redireccion = 'gate_ni';
                         }
                     }
+                    $temporada_accion = $pl_et->temporada_actual;
                     
                     break;
                 case '5':
@@ -641,7 +657,7 @@ class LoginController extends Controller
                             $redireccion = 'gate_ni';
                         }
                     }
-                    
+                    $temporada_accion = $pl_test->temporada_actual;
                     break;
                 
                 default:
@@ -700,6 +716,9 @@ class LoginController extends Controller
                 $accion->correo = $user->email;
                 $accion->accion = 'login';
                 $accion->descripcion = 'Se inicio sesión via API';
+                $accion->id_cuenta = $request->id_cuenta;
+                $accion->id_temporada = $temporada_accion;
+                $accion->funcion = 'usuario';
                 $accion->save();
                 /* Este fragmento guarda una acción agregar en cualquier acción que se desee guardar */
 
