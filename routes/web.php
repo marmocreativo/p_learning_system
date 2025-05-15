@@ -21,6 +21,7 @@ use App\Http\Controllers\LogrosController;
 use App\Http\Controllers\CsvController;
 use App\Http\Controllers\CanjeoController;
 use App\Http\Controllers\PopupsController;
+use App\Http\Controllers\AccionesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.back
 Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
 
 Route::get('admin/logros/reporte', [LogrosController::class, 'reporte'])->name('logros.reporte');
+
+Route::get('admin/acciones', [AccionesController::class, 'lista_acciones'])->middleware('auth')->name('acciones');
 
 
 // Rutas Login

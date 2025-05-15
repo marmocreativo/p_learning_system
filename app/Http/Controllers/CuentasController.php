@@ -247,6 +247,7 @@ class CuentasController extends Controller
 
         $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
             ->where('clase', 'noticia')
+            ->where('estado', 'activo')
             ->orderBy('fecha_publicacion', 'desc')
             ->limit(16)
             ->get();

@@ -44,6 +44,7 @@
                 </table>
                 <a href="{{route('temporadas.reporte', ['post'=>$temporada->id, 'region'=>'todas', 'distribuidor'=>'0'])}}" class="btn btn-info">Reporte</a>
                 <hr>
+                <a href="{{route('acciones')}}" class="btn btn-info">Acciones</a>
             </div>
         </div>
         

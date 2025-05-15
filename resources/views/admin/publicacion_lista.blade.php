@@ -37,5 +37,5 @@
             </tr>
         @endforeach
     </table>
-    {{$publicaciones->links()}}
+    {{$publicaciones->appends(['id_temporada' =>$_GET['id_temporada'], 'clase' =>$_GET['clase']])->links()}}
 @endsection
