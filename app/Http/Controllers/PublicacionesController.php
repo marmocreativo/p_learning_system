@@ -52,14 +52,14 @@ class PublicacionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'publicacion'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'default.jpg';
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'publicacion_fondo'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = 'default_fondo.jpg';
         }
@@ -138,14 +138,14 @@ class PublicacionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'publicacion'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $publicacion->imagen;
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'publicacion_fondo'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = $publicacion->imagen_fondo;
         }

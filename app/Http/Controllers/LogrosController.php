@@ -102,14 +102,14 @@ foreach ($distribuidores as $distribuidor) {
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'logro_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'default.jpg';
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = 'default_fondo.jpg';
         }
@@ -200,14 +200,14 @@ foreach ($distribuidores as $distribuidor) {
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'logro'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $logro->imagen;
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_logro_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = $logro->imagen_fondo;
         }
@@ -215,14 +215,14 @@ foreach ($distribuidores as $distribuidor) {
         if ($request->hasFile('TablaMx')) {
             $tabla_mx = $request->file('TablaMx');
             $nombreTablaMx = 'tabla_mx_'.time().'.'.$tabla_mx->extension();
-            $tabla_mx->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreTablaMx);
+            $tabla_mx->move(base_path('../public_html/img/publicaciones'), $nombreTablaMx);
         }else{
             $nombreTablaMx = $logro->tabla_mx;
         }
         if ($request->hasFile('TablaRola')) {
             $tabla_rola = $request->file('TablaRola');
             $nombreTablaRola = 'tabla_rola_'.time().'.'.$tabla_rola->extension();
-            $tabla_rola->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreTablaRola);
+            $tabla_rola->move(base_path('../public_html/img/publicaciones'), $nombreTablaRola);
         }else{
             $nombreTablaRola = $logro->tabla_rola;
         }
@@ -675,7 +675,7 @@ public function reporte_excel(Request $request)
         if ($request->hasFile('file')) {
             $archivo = $request->file('file');
             $nombreArchivo = 'evidencia'.time().'.'.$archivo->extension();
-            $archivo->move(base_path('../public_html/system.panduitlatam.com/img/evidencias'), $nombreArchivo);
+            $archivo->move(base_path('../public_html/img/evidencias'), $nombreArchivo);
 
             $id_cuenta = $request->input('id_cuenta');
             $id_usuario = $request->input('id_usuario');

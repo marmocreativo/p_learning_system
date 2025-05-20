@@ -51,10 +51,13 @@ class TemporadasController extends Controller
     public function index(Request $request)
     {
         //
+        $cuentas = Cuenta::all();
         $id_cuenta = $request->input('id_cuenta');
         $cuenta = Cuenta::find($id_cuenta);
-        $temporadas = Temporada::where('id_cuenta', $id_cuenta)->paginate();
-        return view('admin/temporada_lista', compact('temporadas', 'cuenta'));
+        $temporadas = Temporada::where('id_cuenta', $id_cuenta)->orderBy('nombre', 'desc')->paginate();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/temporada_lista', compact('temporadas', 'cuenta', 'color_barra_superior', 'logo_cuenta', 'cuentas'));
     }
 
     /**
@@ -96,7 +99,9 @@ class TemporadasController extends Controller
     public function show(string $id)
     {
         //
+        $cuentas = Cuenta::all();
         $temporada = Temporada::find($id);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
         $hoy = date('Y-m-d H:i:s');
         $sesiones_totales = SesionEv::where('id_temporada', $temporada->id)->count();
         $sesiones_publicadas = SesionEv::where('id_temporada', $temporada->id)->where('fecha_publicacion', '<=', $hoy)->count();
@@ -118,7 +123,9 @@ class TemporadasController extends Controller
         $productos = CanjeoProductos::where('id_temporada', $temporada->id)->count();
         $cortes = CanjeoCortesUsuarios::where('id_temporada', $temporada->id)->count();
         $transacciones = CanjeoTransacciones::where('id_temporada', $temporada->id)->count();
-        $acciones = AccionesUsuarios::orderBy('id', 'desc')->take(200)->get();
+
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
 
         return view('admin/temporada_detalles', compact('temporada',
@@ -142,7 +149,10 @@ class TemporadasController extends Controller
                                                         'productos',
                                                         'cortes',
                                                         'transacciones',
-                                                        'acciones'
+                                                        'cuentas',
+                                                        'cuenta',
+                                                        'color_barra_superior',
+                                                        'logo_cuenta'
                                                     ));
 
     }
@@ -488,7 +498,7 @@ class TemporadasController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'calendario_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $temporada->imagen;
         }

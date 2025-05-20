@@ -4,8 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('titulo')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- Place the first <script> tag in your HTML's <head> -->
+    <link rel="stylesheet" href="{{ asset('css/mdb.min.css') }}">
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+      rel="stylesheet"
+    /><!-- Place the first <script> tag in your HTML's <head> -->
     <script src="https://cdn.tiny.cloud/1/y3nn7mnqo19xsacsvznxqarsmohkoz42yat38khcnolpk6bf/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -23,7 +26,7 @@
         });
     });
     </script>
-    <link rel="stylesheet" href="{{ asset('css/estilos_admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/estilos_admin_new.css') }}">
     <style>
 
 
@@ -83,31 +86,46 @@
   <body>
    <div id="loader-container" class="d-none"> <div class="loader"></div></div>
         <div class="contenedor_flex">
-            <div class="menu_admin">
-                <a href="{{ route('login.logout')}}">Cerrar Sesión</a>
-            </div>
-            <div class="cuerpo_admin">
-                <div class="barra_lateral">
-                    <ul class="list">
-                        <li><a href="{{ route('cuentas') }}">Cuentas</a></li>
-                        <li><a href="{{ route('distribuidores') }}">Distribuidores</a></li>
-                        <li><a href="{{ route('admin_usuarios') }}">Usuarios</a></li>
-                        <li><a href="{{ route('clases') }}">Clases</a></li>
-                        <li><a href="{{ route('configuraciones') }}">Configuraciones</a></li>
-                        <li><a href="{{ route('admin.base_de_datos') }}">Base de datos</a></li>
+            <div class="barra_lateral">
+                    <ul class="nav-icons">
+                        <li><a href="{{ route('cuentas') }}" title="Cuentas"><i class="fas fa-user-circle"></i></a></li>
+                        <li><a href="{{ route('distribuidores') }}" title="Distribuidores"><i class="fas fa-truck"></i></a></li>
+                        <li><a href="{{ route('admin_usuarios') }}" title="Usuarios"><i class="fas fa-users"></i></a></li>
+                        <li><a href="{{ route('clases') }}" title="Clases"><i class="fas fa-book"></i></a></li>
+                        <li><a href="{{ route('configuraciones') }}" title="Configuraciones"><i class="fas fa-cogs"></i></a></li>
+                        <li><a href="{{ route('admin.base_de_datos') }}" title="Base de datos"><i class="fas fa-database"></i></a></li>
                     </ul>
+                </div>
+            <div class="cuerpo_admin">
+                
+                <div class="barra_superior" id="barra-superior" style="background-color: {{ $color_barra_superior ?? '#ddd' }}">
+                    <div class="logo">
+                        <img src="{{ $logo_cuenta ?? 'https://www.panduitlatam.com/img/logo-panduit-w.png' }}" alt="Logo" height="40">
+                    </div>
+                    <div class="dropdown">
+                    <button
+                        class="btn btn-light dropdown-toggle"
+                        type="button"
+                        id="dropdownMenuButton"
+                        data-mdb-dropdown-init
+                        data-mdb-ripple-init
+                        aria-expanded="false"
+                    >
+                        {{ Auth::user()->name ?? 'Usuario' }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('login.logout') }}">Cerrar sesión</a></li>
+                    </ul>
+                    </div>
                 </div>
                 <div class="contenedor_principal">
                     @yield('contenido_principal')
                 </div>
             </div>
-            <div class="footer">
-
-            </div>
         </div>
-        
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-        
+        <script src="https://unpkg.com/@popperjs/core@2"></script>
+        <script src="{{ asset('js/mdb.umd.min.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const loader = document.getElementById('loader-container');

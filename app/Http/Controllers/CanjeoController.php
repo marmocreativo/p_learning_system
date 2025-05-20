@@ -80,7 +80,7 @@ class CanjeoController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'producto_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'producto_default.jpg';
         }
@@ -126,7 +126,7 @@ class CanjeoController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'producto_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $producto->imagen;
         }
@@ -166,7 +166,7 @@ class CanjeoController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'producto_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
 
             $galeria = new CanjeoProductosGaleria();
 

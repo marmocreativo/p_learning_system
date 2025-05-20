@@ -49,7 +49,7 @@ class CuentasController extends Controller
         if ($request->hasFile('Logotipo')) {
             $logotipo = $request->file('Logotipo');
             $nombreLogotipo = 'fondo'.time().'.'.$fondo->extension();
-            $logotipo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreLogotipo);
+            $logotipo->move(base_path('../public_html/img/publicaciones'), $nombreLogotipo);
         }else{
             $nombreLogotipo = 'default.png';
         }
@@ -57,7 +57,7 @@ class CuentasController extends Controller
         if ($request->hasFile('Fondo')) {
             $fondo = $request->file('Fondo');
             $nombreFondo = 'fondo'.time().'.'.$fondo->extension();
-            $fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreFondo);
+            $fondo->move(base_path('../public_html/img/publicaciones'), $nombreFondo);
         }else{
             $nombreFondo = 'default.jpg';
         }
@@ -65,7 +65,7 @@ class CuentasController extends Controller
         if ($request->hasFile('ImagenVideo')) {
             $imagenVideo = $request->file('ImagenVideo');
             $nombreImagenVideo = 'fondo'.time().'.'.$imagenVideo->extension();
-            $imagenVideo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenVideo);
+            $imagenVideo->move(base_path('../public_html/img/publicaciones'), $nombreImagenVideo);
         }else{
             $nombreImagenVideo = 'default.jpg';
         }
@@ -130,7 +130,7 @@ class CuentasController extends Controller
         if ($request->hasFile('Logotipo')) {
             $logotipo = $request->file('Logotipo');
             $nombreLogotipo = 'logo'.time().'.'.$logotipo->extension();
-            $logotipo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreLogotipo);
+            $logotipo->move(base_path('../public_html/img/publicaciones'), $nombreLogotipo);
         }else{
             $nombreLogotipo = $cuenta->logotipo;
         }
@@ -138,7 +138,7 @@ class CuentasController extends Controller
         if ($request->hasFile('Fondo')) {
             $fondo = $request->file('Fondo');
             $nombreFondo = 'fondo'.time().'.'.$fondo->extension();
-            $fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreFondo);
+            $fondo->move(base_path('../public_html/img/publicaciones'), $nombreFondo);
         }else{
             $nombreFondo = $cuenta->fondo;
         }
@@ -146,7 +146,7 @@ class CuentasController extends Controller
         if ($request->hasFile('ImagenVideo')) {
             $imagenVideo = $request->file('ImagenVideo');
             $nombreImagenVideo = 'fondo'.time().'.'.$imagenVideo->extension();
-            $imagenVideo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenVideo);
+            $imagenVideo->move(base_path('../public_html/img/publicaciones'), $nombreImagenVideo);
         }else{
             $nombreImagenVideo = $cuenta->imagen_video;
         }

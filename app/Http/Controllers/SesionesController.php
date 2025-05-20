@@ -39,6 +39,10 @@ class SesionesController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($request->input('id_temporada'));
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        $cuentas = Cuenta::all();
         $sesiones = SesionEv::where('id_temporada', $id_temporada)->paginate();
         foreach($sesiones as $sesion){
             $preguntas = SesionDudas::where('id_sesion', $sesion->id)->count();
@@ -47,7 +51,8 @@ class SesionesController extends Controller
             $sesion->setAttribute('preguntas_sin_resolver', $preguntas_sin_resolver);
         }
 
-        return view('admin/sesion_lista', compact('sesiones', 'temporada'));
+        return view('admin/sesion_lista', compact('sesiones', 'temporada', 'cuentas', 'cuenta','color_barra_superior',
+                                                        'logo_cuenta'));
     }
 
     public function completadas(Request $request)
@@ -208,21 +213,21 @@ class SesionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'default.jpg';
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagenFondo = 'default_fondo.jpg';
         }
         if ($request->hasFile('ImagenInstructor')) {
             $imagen_instructor = $request->file('ImagenInstructor');
             $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
-            $imagen_instructor->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen_instructor->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagenInstructor = 'default_instructor.jpg';
         }
@@ -426,7 +431,12 @@ class SesionesController extends Controller
         $preguntas = EvaluacionPreg::where('id_sesion',$id)->get();
         $dudas = SesionDudas::where('id_sesion',$id)->get();
         $anexos = SesionAnexos::where('id_sesion',$id)->get();
-        return view('admin/sesion_detalles', compact('sesion', 'preguntas'));
+        $temporada = Temporada::find($sesion->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/sesion_detalles', compact('sesion', 'preguntas','temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
      /**
@@ -466,8 +476,13 @@ class SesionesController extends Controller
         $preguntas = EvaluacionPreg::where('id_sesion',$id)->get();
         $dudas = SesionDudas::where('id_sesion',$id)->get();
         $anexos = SesionAnexos::where('id_sesion',$id)->get();
+         $temporada = Temporada::find($sesion->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
-        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas', 'preguntas', 'dudas', 'anexos'));
+        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas', 'preguntas', 'dudas', 'anexos','temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function dudas(string $id)
@@ -537,21 +552,21 @@ class SesionesController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $sesion->imagen;
         }
         if ($request->hasFile('ImagenFondo')) {
             $imagen_fondo = $request->file('ImagenFondo');
             $nombreImagenFondo = 'fondo_sesion_'.time().'.'.$imagen_fondo->extension();
-            $imagen_fondo->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenFondo);
+            $imagen_fondo->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondo);
         }else{
             $nombreImagenFondo = $sesion->imagen_fondo;
         }
         if ($request->hasFile('ImagenInstructor')) {
             $imagen_instructor = $request->file('ImagenInstructor');
             $nombreImagenInstructor = 'instructor_'.time().'.'.$imagen_instructor->extension();
-            $imagen_instructor->move(base_path('../public_html/system.panduitlatam.com/img/publicaciones'), $nombreImagenInstructor);
+            $imagen_instructor->move(base_path('../public_html/img/publicaciones'), $nombreImagenInstructor);
         }else{
             $nombreImagenInstructor = $sesion->imagen_instructor;
         }

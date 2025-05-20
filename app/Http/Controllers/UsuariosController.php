@@ -1848,7 +1848,7 @@ public function suscribir_full_update(Request $request, string $id)
             if ($request->hasFile('photo')) {
                 $archivo = $request->file('photo');
                 $nombreArchivo = 'photo'.time().'.'.$archivo->extension();
-                if($archivo->move(base_path('../public_html/system.panduitlatam.com/img/usuarios'), $nombreArchivo)){
+                if($archivo->move(base_path('../public_html/img/usuarios'), $nombreArchivo)){
                     $subido = true;
                 }
             }
