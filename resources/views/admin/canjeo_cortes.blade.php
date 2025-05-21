@@ -149,7 +149,7 @@
                                                                 ])}}" class="btn btn-sm btn-secondary w-100"> <i class="fa fa-list"></i> </a>
                                                         </div>
                                                         <div class="col">
-                                                            <button type="button" class="btn btn-sm btn-warning w-100" data-bs-toggle="modal" data-bs-target="#editarCorte{{$corte_usuario->id}}">
+                                                            <button type="button" class="btn btn-sm btn-warning w-100" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#editarCorte{{$corte_usuario->id}}">
                                                                 <i class="fa fa-pencil"></i>
                                                             </button>
                                                         </div>

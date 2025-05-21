@@ -355,7 +355,7 @@
                                     <td>{{$pregunta->video}}</td>
                                     <td> 
                                         <div class="d-flex">
-                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$pregunta->id}}">
+                                            <button type="button" class="btn btn-warning" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#formulario{{$pregunta->id}}">
                                                 Editar
                                             </button>
                                         

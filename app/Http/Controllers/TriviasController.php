@@ -17,6 +17,7 @@ use App\Models\JackpotPreg;
 use App\Models\JackpotRes;
 use App\Models\JackpotIntentos;
 use App\Models\User;
+use App\Models\Cuenta;
 use App\Models\AccionesUsuarios;
 use App\Models\Distribuidor;
 use App\Models\NotificacionUsuario;
@@ -42,7 +43,11 @@ class TriviasController extends Controller
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($request->input('id_temporada'));
         $trivias = Trivia::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/trivia_lista', compact('trivias', 'temporada'));
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/trivia_lista', compact('trivias', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     /**
@@ -53,8 +58,12 @@ class TriviasController extends Controller
         //
         $temporada = Temporada::find($request->input('id_temporada'));
         $jackpots = Jackpot::where('id_temporada', $temporada->id)->where('en_trivia', 'si')->get();
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         //dd($jackpots);
-        return view('admin/trivia_form', compact('temporada', 'jackpots'));
+        return view('admin/trivia_form', compact('temporada', 'jackpots', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     /**
@@ -93,7 +102,12 @@ class TriviasController extends Controller
         //
         $trivia = Trivia::find($id);
         $preguntas = TriviaPreg::where('id_trivia',$id)->get();
-        return view('admin/trivia_detalles', compact('trivia', 'preguntas'));
+        $temporada = Temporada::find($trivia->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/trivia_detalles', compact('trivia', 'preguntas','temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function resultados(string $id)
@@ -121,6 +135,11 @@ class TriviasController extends Controller
         $ganadores = TriviaGanador::where('id_trivia',$id)->get();
         $numero_participantes = TriviaRes::where('id_trivia',$id)->distinct('id_usuario')->count();
         $numero_ganadores = TriviaGanador::where('id_trivia',$id)->distinct('id_usuario')->count();
+        $temporada = Temporada::find($trivia->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         return view('admin/trivia_resultados', 
             compact(
                 'trivia',
@@ -132,7 +151,7 @@ class TriviasController extends Controller
                 'respuestas',
                 'ganadores',
                 'numero_participantes',
-                'numero_ganadores'));
+                'numero_ganadores', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function resultados_excel (Request $request)

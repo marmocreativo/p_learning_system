@@ -93,7 +93,7 @@
                                                     hasta: <b>{{ $pop->fecha_final }}</b>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modalPopup{{ $pop->id }}">
+                                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#modalPopup{{ $pop->id }}">
                                                         Editar
                                                     </button>
                                     
@@ -250,7 +250,7 @@
                                     hasta: <b>{{$cintillo->fecha_final}}</b>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modalCintillo{{ $cintillo->id }}">
+                                    <button type="button" class="btn btn-primary btn-sm mb-2" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#modalCintillo{{ $cintillo->id }}">
                                         Editar
                                     </button>
                     
