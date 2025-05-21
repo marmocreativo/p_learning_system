@@ -197,6 +197,9 @@ class UsuariosController extends Controller
             $region = '';
             $distribuidores = Distribuidor::all();
         }
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         
 
         // Obtener la colección de distribuidores
@@ -243,7 +246,7 @@ class UsuariosController extends Controller
         $clases = Clase::where('elementos','usuarios')->get();
         $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_suscripciones', compact('cuenta', 'temporada', 'suscriptores', 'clases', 'distribuidores'));
+        return view('admin/usuario_lista_suscripciones', compact('cuenta', 'temporada', 'suscriptores', 'clases', 'distribuidores', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function usuarios_suscritos_reporte_temporada (Request $request)

@@ -3,13 +3,35 @@
 @section('titulo', 'Usuarios inscritos')
 
 @section('contenido_principal')
-    <h1>Usuarios inscritos</h1>
-    <h4><b>Cuenta:</b> {{$cuenta->nombre}} <b>Temporada:</b> {{$temporada->nombre}}</h4>
-    <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
-    <hr>
-    <a href="{{ route('admin_usuarios.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}">Inscribir usuario</a>
-    <hr>
-    <a href="{{ route('admin_usuarios_suscritos_reporte_temporada', ['id_temporada'=>$_GET['id_temporada']]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Usuarios participantes <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="{{ route('admin_usuarios.suscripcion', ['id_temporada'=>$_GET['id_temporada']]) }}" class="btn btn-success">Inscribir usuario</a>
+        </div>
+    </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item">Participantes</li>
+        </ol>
+    </nav>
     <hr>
     @if ($errors->has('error'))
     <div class="alert alert-danger">
@@ -47,7 +69,7 @@
     </div>
     
     <hr>
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered table-sm">
         <tr>
             <th>#</th>
             <th>ID</th>
@@ -60,8 +82,8 @@
             <th>Disty</th>
             <th>Sucursal</th>
             <th>Region</th>
-            <th>University</th>
-            <th>Términos y condiciones</th>
+            <th>Campions</th>
+            <th>TyC</th>
             <th>Pass</th>
             <th>Controles</th>
         </tr>
@@ -79,8 +101,12 @@
                     <td>{{$suscripcion->nombre_distribuidor}}<hr>{{$suscripcion->nivel}}</td>
                     <td>{{$suscripcion->id_sucursal}}</td>
                     <td>{{$suscripcion->region}}</td>
-                    <td>{{$suscripcion->champions_b}}</td>
-                    <td>{{$suscripcion->fecha_terminos}}</td>
+                    <td>
+                        {!! ($suscripcion->champions_a === 'si' && $suscripcion->champions_b === 'si') 
+                            ? '<span class="badge bg-success">Habilitado</span>' 
+                            : '<span class="badge bg-light">Deshabilitado</span>' !!}
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($suscripcion->fecha_terminos)->translatedFormat('d \d\e F \d\e Y') }}</td>
                     
                     <td>
                         @if(!$suscripcion->pass_restaurado)
@@ -98,14 +124,27 @@
                         @endif
                     </td>
                     <td>
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formulario{{$suscripcion->id}}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-warning btn-sm" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#formulario{{$suscripcion->id_suscripcion}}">
                             Editar
-                        </button>
-                        <a href="{{route('admin_usuarios.reporte_sesiones', $suscripcion->id_suscripcion)}}" class="btn btn-info">
-                            Reporte
-                        </a>
+                            </button>
+                            <a href="{{route('admin_usuarios.reporte_sesiones', $suscripcion->id_suscripcion)}}" class="btn btn-info btn-sm">
+                                Reporte
+                            </a>
+                            
+                                <a href="{{ route('admin_usuarios.borrar_tokens', ['id' => $suscripcion->id_usuario]) }}" class="btn btn-outline-danger btn-sm">
+                                    Cerrar sesión
+                                </a>
+                        </div>
+                        
+                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id_suscripcion)}}" class="form-confirmar" method="POST">
+                            @csrf
+                            @method('delete')
+                            <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
+                            <button type="submit" class="btn btn-danger btn-sm w-100 mt-4">Desuscribir</button>
+                        </form>
                         <!-- Modal -->
-                            <div class="modal fade" id="formulario{{$suscripcion->id}}" tabindex="-1" aria-labelledby="formulario{{$suscripcion->id}}Label" aria-hidden="true">
+                            <div class="modal fade" id="formulario{{$suscripcion->id_suscripcion}}" tabindex="-1" aria-labelledby="formulario{{$suscripcion->id}}Label" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-lg">
                                 <div class="modal-content">
                                     <div class="modal-body">
@@ -211,15 +250,6 @@
                                 </div>
                                 </div>
                             </div>
-                            <a href="{{ route('admin_usuarios.borrar_tokens', ['id' => $suscripcion->id_usuario]) }}" class="btn btn-outline-danger">
-                                Cerrar sesión
-                            </a>
-                        <form action="{{route('admin_usuarios.desuscribir', $suscripcion->id_suscripcion)}}" class="form-confirmar" method="POST">
-                            @csrf
-                            @method('delete')
-                            <input type="hidden" name="id_temporada" value='{{$_GET['id_temporada']}}'>
-                            <button type="submit" class="btn btn-danger">Desuscribir</button>
-                        </form>
 
                     </td>
                 </tr>

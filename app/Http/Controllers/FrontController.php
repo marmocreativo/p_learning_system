@@ -39,7 +39,7 @@ class FrontController extends Controller
     }
 
 
-    public function scripts_ajustes_suscripciones()
+    public function scripts_ajustes()
     {
         $suscripciones = UsuariosSuscripciones::all();
 
@@ -47,28 +47,21 @@ class FrontController extends Controller
         $tabla .= '<thead>';
         $tabla .= '<tr>';
         $tabla .= '<th>ID</th>';
-        $tabla .= '<th>Distribuidor</th>';
-        $tabla .= '<th>Suscripcion</th>';
+        $tabla .= '<th>Funcion</th>';
         $tabla .= '</tr>';
         $tabla .= '</thead>';
         $tabla .= '<tbody>';
 
         foreach($suscripciones as $suscripcion){
-            $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
-            $region_dist = '';
-            if($distribuidor){
-                $region_dist = $distribuidor->region;
-
-                if($suscripcion->region!=$distribuidor->region){
-                    $suscripcion->region = $distribuidor->region;
-                    $suscripcion->save();
-                }
+            if($suscripcion->funcion == 'superlider'){
+                $tabla .= '<tr>';
+                $tabla .= '<td>'.$suscripcion->id.'</td>';
+                $tabla .= '<td ' . ($suscripcion->funcion == 'superlider' ? 'style="color:red"' : '') . '>' . $suscripcion->funcion . '</td>';
+                $tabla .= '</tr>';
+                $suscripcion->funcion = 'super_lider';
+                $suscripcion->save();
             }
-            $tabla .= '<tr>';
-            $tabla .= '<td>'.$suscripcion->id.'</td>';
-            $tabla .= '<td>'.$region_dist.'</td>';
-            $tabla .= '<td>'.$suscripcion->region.'</td>';
-            $tabla .= '</tr>';
+            
         }
         $tabla .= '</tbody>';
         $tabla .= '</table>';

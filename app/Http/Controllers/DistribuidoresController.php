@@ -21,11 +21,16 @@ class DistribuidoresController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        //
-        $distribuidores = Distribuidor::paginate();
-        return view('admin/distribuidor_lista', compact('distribuidores'));
-    }
+{
+    $busqueda = $request->input('busqueda');
+
+    $distribuidores = Distribuidor::when($busqueda, function ($query, $busqueda) {
+        return $query->where('nombre', 'like', '%' . $busqueda . '%');
+    })->paginate(10); // Puedes ajustar el número de resultados por página
+
+    return view('admin/distribuidor_lista', compact('distribuidores'));
+}
+
 
     /**
      * Show the form for creating a new resource.

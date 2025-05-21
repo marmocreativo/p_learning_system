@@ -3,7 +3,7 @@
 @section('titulo', 'Cuenta del sistema')
 
 @section('contenido_principal')
-<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Resultados {{$sesion->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
             <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-primary">Contenido</a>
