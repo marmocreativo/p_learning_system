@@ -11,7 +11,9 @@
             <div class="card card-body">
                 <div class="row">
                     <div class="col-12">
-                        <button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#formularioPopup" aria-expanded="false" aria-controls="formularioPopup">
+                        <button class="btn btn-primary w-100" type="button" data-mdb-collapse-init
+  data-mdb-ripple-init
+  data-mdb-target="#formularioPopup" aria-expanded="false" aria-controls="formularioPopup">
                             Nuevo PopUp
                         </button>
                     </div>
@@ -186,7 +188,9 @@
         </div>
         <div class="col-6">
             <div class="card card-body">
-                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formularioCintillo" aria-expanded="false" aria-controls="formularioCintillo">
+                <button class="btn btn-primary" type="button" data-mdb-collapse-init
+  data-mdb-ripple-init
+  data-mdb-target="#formularioCintillo" aria-expanded="false" aria-controls="formularioCintillo">
                     Nueva Tira
                 </button>
                 <div class="collapse" id="formularioCintillo">
