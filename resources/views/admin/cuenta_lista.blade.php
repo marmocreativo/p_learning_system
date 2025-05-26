@@ -1,10 +1,10 @@
 @extends('plantillas/plantilla_admin')
 
-@section('titulo', 'Cuentas del sistema')
+@section('titulo', 'PLearning PANEL - Cuentas')
 
 @section('contenido_principal')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 m-0">Cuentas</h1>
+        <h1 class="h3 m-0">PLearning PANEL - Cuentas</h1>
         <a href="{{ route('cuentas.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Nueva Cuenta
         </a>

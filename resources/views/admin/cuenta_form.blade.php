@@ -3,7 +3,19 @@
 @section('titulo', 'Cuentas')
 
 @section('contenido_principal')
-    <h1>Formulario de cuentas</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 m-0">Formulario de cuentas</h1>
+        <a href="{{ route('cuentas') }}" class="btn btn-warning">
+             Salir
+        </a>
+    </div>
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('admin') }}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cuentas</li>
+        </ol>
+    </nav>
     <form action="{{ route('cuentas.store') }}" method="POST">
         @csrf
         <div class="form-group">

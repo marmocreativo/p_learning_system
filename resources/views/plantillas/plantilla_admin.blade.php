@@ -114,7 +114,6 @@
                         {{ Auth::user()->name ?? 'Usuario' }}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item" href="#">Perfil</a></li>
                             <li><a class="dropdown-item" href="{{ route('login.logout') }}">Cerrar sesión</a></li>
                     </ul>
                     </div>

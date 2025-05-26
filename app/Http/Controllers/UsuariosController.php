@@ -422,87 +422,7 @@ class UsuariosController extends Controller
     }
 
 
-    /*
 
-    public function suscribir_update(Request $request, string $id)
-    {
-        
-        $suscripcion = UsuariosSuscripciones::find($id);
-        $id_usuario = $suscripcion->id_usuario;
-        $usuario = User::find($id_usuario);
-        $id_temporada = $request->IdTemporada;
-
-        //Actualizo
-        $suscripcion->id_distribuidor = $request->IdDistribuidor;
-        $suscripcion->funcion = $request->Funcion;
-        $suscripcion->nivel_usuario = $request->NivelUsuario;
-        $suscripcion->champions_a = $request->ChampionsA;
-        $suscripcion->champions_b = $request->ChampionsB;
-        $suscripcion->save();
-
-        // reasigno el distribuidor en las actividades
-        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($visualizaciones as $visualizacion){
-            $visualizacion->id_distribuidor = $request->IdDistribuidor;
-            $visualizacion->save();
-        }
-
-        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($evaluaciones_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $trivias_respuestas = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($trivias_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $trivias_ganadores = TriviaGanador::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($trivias_ganadores as $ganador){
-            $ganador->id_distribuidor = $request->IdDistribuidor;
-            $ganador->save();
-        }
-
-        $jackpot_respuestas = JackpotRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($jackpot_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $jackpot_intentos = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($jackpot_intentos as $intento){
-            $intento->id_distribuidor = $request->IdDistribuidor;
-            $intento->save();
-        }
-
-        if($request->ChampionsA=='si'&& $request->ChampionsB=='si'){
-            $data = [
-                'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
-                'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
-                <p>• Elige una categoría entre oas que están disponibles.</p>
-                <p>• Vende los productos participantes para subir de nivel.</p>
-                <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
-                <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
-                
-                <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
-                
-                
-                <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                'boton_texto' => 'Desafío Champions',
-                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-            ];
-            Mail::to($usuario->email)->send(new InscripcionChampions($data));
-        }
-
-        
-        
-        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
-        
-    }
-
-    */
 
     public function suscribir_update(Request $request, string $id)
 {
@@ -1572,8 +1492,8 @@ public function suscribir_full_update(Request $request, string $id)
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
 
         $participaciones_logros = LogroParticipacion::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->count();
-        $anexos_logros = LogroAnexo::where('id_temporada', $id_temporada)->count();
-        $productos_logros = LogroAnexoProducto::where('id_temporada', $id_temporada)->count();
+        $anexos_logros = 0;
+        $productos_logros = 0;
        
         
         $suscriptores = DB::table('usuarios_suscripciones')
@@ -1644,7 +1564,12 @@ public function suscribir_full_update(Request $request, string $id)
             $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
             $puntos_totales = $puntos_sesiones+$puntos_evaluaciones+$puntos_trivias+$puntos_jackpot+$puntos_extras;
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
+
+            $anexos = LogroAnexo::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->count();
+            $productos_anexos = LogroAnexoProducto::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->count();
             
+            $anexos_logros += $anexos;
+            $productos_logros += $productos_anexos;
             
             $array_suscriptores[$suscriptor->id_usuario] = [ 
                 'nombre' => $suscriptor->nombre,
@@ -2063,6 +1988,7 @@ public function suscribir_full_update(Request $request, string $id)
         $usuario = User::find($id_usuario);
         $temporada = Temporada::find($id_temporada);
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $distribuidor = Distribuidor::find( $request->input('id_distribuidor'));
         $sesiones = SesionEv::where('id_temporada', $id_temporada)->count();
         $sesiones_pendientes = SesionEv::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '>', now())->count();
         $lista_sesiones = SesionEv::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '<=', now())->get();
@@ -2072,8 +1998,12 @@ public function suscribir_full_update(Request $request, string $id)
         $jackpots = Jackpot::where('id_temporada', $id_temporada)->count();
         $jackpots_pendientes = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '>', now())->count();
         $lista_jackpots = Jackpot::where('id_temporada', $id_temporada)->whereDate('fecha_publicacion', '<=', now())->get();
+        
+        $participaciones_logros = LogroParticipacion::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->count();
+        $anexos_logros = 0;
+        $productos_logros = 0;
        
-        $distribuidor = Distribuidor::find( $request->input('id_distribuidor'));
+        
         $suscriptores = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $id_temporada)
@@ -2142,6 +2072,12 @@ public function suscribir_full_update(Request $request, string $id)
             $puntos_extras = (int) PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
             $puntos_totales = $puntos_sesiones+$puntos_evaluaciones+$puntos_trivias+$puntos_jackpot+$puntos_extras;
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
+
+            $anexos = LogroAnexo::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->count();
+            $productos_anexos = LogroAnexoProducto::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->count();
+            
+            $anexos_logros += $anexos;
+            $productos_logros += $productos_anexos;
             
             
             $array_suscriptores[$suscriptor->id_usuario] = [ 
@@ -2249,6 +2185,9 @@ public function suscribir_full_update(Request $request, string $id)
                 'engagement_evaluaciones' => $engagement_evaluaciones,
                 'engagement_trivias' => $engagement_trivias,
                 'engagement_jackpots' => $engagement_jackpots,
+                'no_participaciones_logros' => $participaciones_logros,
+                'no_anexos' => $anexos_logros,
+                'no_anexos_productos' => $productos_logros,
             ];
             return response()->json($completo);
 
