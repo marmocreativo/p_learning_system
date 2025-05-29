@@ -54,7 +54,7 @@ class TemporadasController extends Controller
         $cuentas = Cuenta::all();
         $id_cuenta = $request->input('id_cuenta');
         $cuenta = Cuenta::find($id_cuenta);
-        $temporadas = Temporada::where('id_cuenta', $id_cuenta)->orderBy('nombre', 'desc')->paginate();
+        $temporadas = Temporada::where('id_cuenta', $id_cuenta)->orderBy('estado', 'desc')->orderBy('nombre', 'desc')->paginate();
         $color_barra_superior = $cuenta->fondo_menu;
         $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         return view('admin/temporada_lista', compact('temporadas', 'cuenta', 'color_barra_superior', 'logo_cuenta', 'cuentas'));

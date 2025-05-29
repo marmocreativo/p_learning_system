@@ -13,6 +13,7 @@ use App\Models\Distribuidor;
 use App\Models\Sucursal;
 use App\Models\DistribuidoresSuscripciones;
 use App\Models\SesionVis;
+use App\Models\PuntosExtra;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,10 +23,83 @@ use Illuminate\Support\Str;
 use App\Imports\UsersImport;
 use App\Imports\DistribuidoresImport;
 use App\Imports\SucursalesImport;
+use App\Imports\PuntosExtraImport;
 use App\Imports\UsuariosImport;
 
 class CsvController extends Controller
 {
+
+    public function puntos_extra_masivo(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx'
+    ]);
+
+    $import = new PuntosExtraImport;
+    Excel::import($import, $request->file('file'));
+
+    $rows = $import->rows;
+    $resultados = [];
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::find($temporada->id_cuenta);
+
+    foreach ($rows as $row) {
+        $correo = $row['correo'];
+        $concepto = $row['concepto'];
+        $puntos = $row['puntos'];
+
+        $usuario = null;
+        $suscripcion = null;
+        $concepto_existe = null;
+        $existe = null;
+
+        $usuario = User::where('email', $correo)->first();
+        if($usuario){
+            $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', $id_temporada)->first();
+        }else{
+            $existe = 'El correo no es correcto';
+        }
+
+        if($usuario && $suscripcion){
+            // reviso el concepto
+            $concepto_existe = PuntosExtra::where('id_usuario', $usuario->id)->where('id_temporada', $id_temporada)->where('concepto', $concepto)->first();
+        }else{
+            $existe = 'El usuario no está suscrito a esta temporada';
+        }
+
+        if($concepto_existe){
+            $existe = 'No agregado, concepto ya existente';
+            
+        }else{
+
+            $nuevo = new PuntosExtra;
+            $nuevo->id_cuenta = $temporada->id_cuenta;
+            $nuevo->id_temporada = $temporada->id;
+            $nuevo->id_usuario = $usuario->id;  
+            $nuevo->concepto = $concepto;  
+            $nuevo->puntos = $puntos;
+            $nuevo->fecha_registro = date('Y-m-d H:i:s');
+            $nuevo->save();
+
+            $existe = 'Agregado correctamente';
+
+             
+        }
+        $resultados[] = [
+                'correo' => $correo,
+                'concepto' => $concepto,
+                'puntos' => $puntos,
+                'existe' => $existe
+            ];
+    }
+
+    return view('importacion.resultado_puntos', [
+            'resultados' => $resultados,
+            'id_temporada' => $id_temporada
+        ]);
+}
+
     public function importar_usuarios(Request $request)
     {
         $request->validate([

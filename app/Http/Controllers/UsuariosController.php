@@ -316,6 +316,9 @@ class UsuariosController extends Controller
             $region = '';
             $distribuidores = Distribuidor::all();
         }
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         
 
         // Obtener la colección de distribuidores
@@ -367,7 +370,7 @@ class UsuariosController extends Controller
         $clases = Clase::where('elementos','usuarios')->get();
         $distribuidores = Distribuidor::all();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/usuario_lista_puntos_extra', compact('cuenta', 'temporada', 'suscriptores', 'clases', 'distribuidores'));
+        return view('admin/usuario_lista_puntos_extra', compact('cuenta', 'temporada', 'cuentas', 'color_barra_superior', 'logo_cuenta', 'suscriptores', 'clases', 'distribuidores'));
     }
 
     public function usuarios_agregar_puntos_extra(Request $request)
@@ -510,106 +513,6 @@ class UsuariosController extends Controller
         return back()->withErrors(['error' => 'Ha ocurrido un error al actualizar la suscripción.']);
     }
 }
-
-/*
-    public function suscribir_full_update(Request $request, string $id)
-    {
-        
-        $suscripcion = UsuariosSuscripciones::find($id);
-        
-        $id_usuario = $suscripcion->id_usuario;
-        $usuario = User::find($id_usuario);
-        $id_temporada = $request->IdTemporada;
-        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
-
-        //Actualizo
-        $usuario->nombre = $request->Nombre;
-        $usuario->apellidos = $request->Apellidos;
-        $usuario->whatsapp = $request->Whatsapp;
-
-        $suscripcion->id_distribuidor = $request->IdDistribuidor;
-        $suscripcion->funcion = $request->Funcion;
-        $suscripcion->funcion_region = $request->FuncionRegion;
-        $suscripcion->nivel_usuario = $request->NivelUsuario;
-        $suscripcion->champions_a = $request->ChampionsA;
-        $suscripcion->champions_b = $request->ChampionsB;
-        $suscripcion->save();
-        
-
-        // reasigno el distribuidor en las actividades
-        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($visualizaciones as $visualizacion){
-            $visualizacion->id_distribuidor = $request->IdDistribuidor;
-            $visualizacion->save();
-        }
-
-        $evaluaciones_respuestas = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($evaluaciones_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $trivias_respuestas = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($trivias_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $trivias_ganadores = TriviaGanador::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($trivias_ganadores as $ganador){
-            $ganador->id_distribuidor = $request->IdDistribuidor;
-            $ganador->save();
-        }
-
-        $jackpot_respuestas = JackpotRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($jackpot_respuestas as $respuesta){
-            $respuesta->id_distribuidor = $request->IdDistribuidor;
-            $respuesta->save();
-        }
-
-        $jackpot_intentos = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
-        foreach($jackpot_intentos as $intento){
-            $intento->id_distribuidor = $request->IdDistribuidor;
-            $intento->save();
-        }
-
-         // Cambio el nivel del distribuidor
-
-         $suscripciones_actualizar = UsuariosSuscripciones::where('id_temporada',$id_temporada)->where('id_distribuidor', $request->IdDistribuidor)->get();
-         foreach($suscripciones_actualizar as $susc){
-             $susc->nivel = $request->NivelDistribuidor;
-             $susc->save();
-         }
-
-        if ($request->has('CorreoChampions') && $request->CorreoChampions == 1) {
-            // Luego, verifica las condiciones adicionales
-            if($request->ChampionsA == 'si' && $request->ChampionsB == 'si') {
-                $data = [
-                    'titulo' => '¡Has sido elegido para el Desafío Champios de Panduit!',
-                    'contenido' => '<p>¡Bienvenido al Desafío Champions! Debido a tu participación destacada en la temporada anterior y a que participaste en todas las sesiones, te extendemos la invitación a participar en un desafío especial, para los mejores de PLearning, en el que podrás ganar incentivos económicos independientes de tu participación en el programa.</p>
-                    <p>• Elige una categoría entre oas que están disponibles.</p>
-                    <p>• Vende los productos participantes para subir de nivel.</p>
-                    <p>• Comprueba tus ventas con facturas y órdenes de compra.</p>
-                    <p>• Recibe el bono del nivel del desafío superado. Son acumulables.</p>
-                    
-                    <p>Hay más información en el sitio web; ¡esperamos que aceptes el reto y te deseamos un gran éxito!</p>
-                    
-                    
-                    <p>Si recibiste este correo por error o necesitas comunicarte con nosotros, contáctanos.</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($usuario->email)->send(new InscripcionChampions($data));
-            }
-        }
-
-        
-        
-        return redirect()->route('admin_usuarios_suscritos', ['id_temporada'=>$request->IdTemporada]);
-        
-        
-    }
-*/
 
 public function suscribir_full_update(Request $request, string $id)
 {

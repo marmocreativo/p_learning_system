@@ -261,6 +261,7 @@ Route::post('admin/usuarios/store', [UsuariosController::class, 'store'])->middl
 Route::get('admin/usuarios_suscritos/puntos_extra', [UsuariosController::class, 'usuarios_suscritos_puntos_extra'])->name('admin_usuarios_puntos_extra');
 Route::post('admin/usuarios_suscritos/puntos_extra/agregar', [UsuariosController::class, 'usuarios_agregar_puntos_extra'])->middleware('auth')->name('admin_usuarios_agregar_puntos_extra');
 Route::delete('admin/usuarios_suscritos/puntos_extra/borrar/{post}', [UsuariosController::class, 'usuarios_borrar_puntos_extra'])->middleware('auth')->name('admin_usuarios_borrar_puntos_extra');
+Route::post('/puntos_extra_masivo', [CsvController::class, 'puntos_extra_masivo'])->name('puntos_extra_masivo');
 
 Route::get('admin/usuarios_suscritos/reporte_temporada', [UsuariosController::class, 'usuarios_suscritos_reporte_temporada'])->name('admin_usuarios_suscritos_reporte_temporada');
 Route::get('admin/usuarios_suscritos/reporte_interno', [UsuariosController::class, 'usuarios_suscritos_reporte_interno'])->name('admin_usuarios_suscritos_reporte_interno');

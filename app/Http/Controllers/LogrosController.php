@@ -155,8 +155,16 @@ foreach ($distribuidores as $distribuidor) {
             'participaciones.anexosNoValidados',
         ])->findOrFail($id);
 
+        $skus = Sku::where('desafio', $logro->nombre)->get();
+
+        $temporada = Temporada::find($logro->id_temporada);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+
     
-        return view('admin/logro_detalles', compact('logro'));
+        return view('admin/logro_detalles', compact('logro', 'skus', 'cuenta', 'temporada', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function participacion(Request $request)
@@ -509,6 +517,109 @@ public function reporte_excel(Request $request)
         return response()->json($completo);
     }
 
+     public function lista_logros_2025_api(Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+        $id_usuario = $request->input('id_usuario');
+       
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        switch ($distribuidor->region) {
+            case 'RoLA':
+                $logros = Logro::where('id_temporada', $id_temporada)
+                        ->where(function($query) use ($distribuidor) {
+                            $query->where('region', 'RoLA')
+                                ->orWhere('region', 'Todas');
+                        })
+                        ->where(function($query) {
+                            $query->whereNull('id_distribuidor')
+                                ->orWhere('id_distribuidor', '');
+                        })
+                        ->orderBy('orden', 'asc')
+                        ->get();
+                break;
+
+                $logros_distribuidor = collect(); // colección vacía por defecto
+
+                if (isset($distribuidor) && $distribuidor !== null) {
+                    $logros_distribuidor = Logro::where('id_temporada', $id_temporada)
+                        ->where(function($query) use ($distribuidor) {
+                            $query->where('region', 'RoLA')
+                                ->orWhere('region', 'Todas');
+                        })
+                        ->where(function($query) {
+                            $query->where('id_distribuidor', $distribuidor->id);
+                        })
+                        ->orderBy('orden', 'asc')
+                        ->get();
+                break;
+                }
+
+            
+            default:
+                $logros = Logro::where('id_temporada', $id_temporada)
+                ->where(function($query) use ($distribuidor) {
+                    $query->where('region', 'México')
+                        ->orWhere('region', 'Interna')
+                        ->orWhere('region', 'Todas');
+                })
+                ->where(function($query) {
+                    $query->whereNull('id_distribuidor')
+                        ->orWhere('id_distribuidor', '');
+                })
+                ->orderBy('orden', 'asc')
+                ->get();
+
+                $logros_distribuidor = collect(); // colección vacía por defecto
+
+                if (isset($distribuidor) && $distribuidor !== null) {
+                    $logros_distribuidor = Logro::where('id_temporada', $id_temporada)
+                        ->where(function($query) {
+                            $query->where('region', 'México')
+                                ->orWhere('region', 'Interna')
+                                ->orWhere('region', 'Todas');
+                        })
+                        ->where(function($query) use ($distribuidor) {
+                            $query->where('id_distribuidor', $distribuidor->id);
+                        })
+                        ->orderBy('orden', 'asc')
+                        ->get();
+                }
+
+                break;
+        }
+        
+        
+        $participaciones = DB::table('logros_participantes')
+            ->join('logros', 'logros_participantes.id_logro', '=', 'logros.id')
+            ->where('logros_participantes.id_usuario', '=', $id_usuario)
+            ->where('logros_participantes.id_temporada', $id_temporada)
+            ->select('logros_participantes.*', 'logros.*')
+            ->get();
+        $premios_acumulados = 0;
+        foreach($participaciones as $participacion){
+            if($participacion->estado=='finalizado'){
+                $log = Logro::where('id', $participacion->id_logro)->first();
+                if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_especial; }
+                if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_c; }
+                if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_b; }
+                if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_a; }
+            }
+        }
+         
+        $completo = [
+            'logros' => $logros,
+            'logros_distribuidor' => $logros_distribuidor,
+            'participaciones' => $participaciones,
+            'premios_acumulados' => $premios_acumulados,
+            'nivel_usuario' => $suscripcion->nivel_usuario,
+            'champions_a' => $suscripcion->champions_a,
+            'champions_b' => $suscripcion->champions_b,
+        ];
+        return response()->json($completo);
+    }
     public function detalles_logro_api (Request $request)
     {
         $id_cuenta = $request->input('id_cuenta');
