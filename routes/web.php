@@ -187,6 +187,7 @@ Route::get('admin/logros', [LogrosController::class, 'index'])->middleware('auth
 Route::get('admin/logros/create', [LogrosController::class, 'create'])->middleware('auth')->name('logros.create');
 Route::get('admin/logros/detalles_participacion', [LogrosController::class, 'detalles_participacion'])->middleware('auth')->name('logros.detalles_participacion');
 Route::post('admin/logros/store', [LogrosController::class, 'store'])->middleware('auth')->name('logros.store');
+Route::post('admin/logros/crear_sku', [LogrosController::class, 'crear_sku'])->middleware('auth')->name('logros.crear_sku');
 Route::get('admin/logros/{post}', [LogrosController::class, 'show'])->middleware('auth')->name('logros.show');
 Route::get('admin/logros/edit/{post}', [LogrosController::class, 'edit'])->middleware('auth')->name('logros.edit');
 Route::put('admin/logros/update/{post}', [LogrosController::class, 'update'])->middleware('auth')->name('logros.update');

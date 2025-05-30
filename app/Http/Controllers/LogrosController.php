@@ -147,7 +147,7 @@ foreach ($distribuidores as $distribuidor) {
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $logro = Logro::with([
             'participaciones.usuario',
@@ -155,16 +155,27 @@ foreach ($distribuidores as $distribuidor) {
             'participaciones.anexosNoValidados',
         ])->findOrFail($id);
 
-        $skus = Sku::where('desafio', $logro->nombre)->get();
+        // Obtener el valor de búsqueda si existe
+        $busqueda = $request->input('busqueda');
+
+        // Filtrar los SKUs si hay búsqueda
+        $skusQuery = Sku::where('desafio', $logro->nombre);
+
+        if ($busqueda) {
+            $skusQuery->where('sku', 'like', '%' . $busqueda . '%');
+        }
+
+        $skus = $skusQuery->get();
 
         $temporada = Temporada::find($logro->id_temporada);
         $cuenta = Cuenta::find($temporada->id_cuenta);
         $cuentas = Cuenta::all();
         $color_barra_superior = $cuenta->fondo_menu;
-        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/' . $cuenta->logotipo;
 
-    
-        return view('admin/logro_detalles', compact('logro', 'skus', 'cuenta', 'temporada', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
+        return view('admin/logro_detalles', compact(
+            'logro', 'skus', 'cuenta', 'temporada', 'cuentas', 'color_barra_superior', 'logo_cuenta'
+        ));
     }
 
     public function participacion(Request $request)

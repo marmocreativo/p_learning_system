@@ -9,6 +9,7 @@ use App\Models\Clase;
 use App\Models\Sucursal;
 use App\Models\Distribuidor;
 use App\Models\DistribuidorSuscripciones;
+use App\Models\SesionVisita;
 use App\Models\SesionVis;
 use App\Models\SesionEv;
 use App\Models\EvaluacionPreg;
@@ -51,6 +52,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         $temporada = Temporada::find($this->id);
         $hoy = date('Y-m-d H:i:s');
         $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+        $visitas = SesionVisita::where('id_temporada', $temporada->id)->get();
         $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
         $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
         $trivias = Trivia::where('id_temporada', $temporada->id)->get();
@@ -85,6 +87,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
                 'sucursales.nombre as sucursal',
+                'usuarios_suscripciones.fecha_terminos as fecha_terminos'
             )
             ->get();
         //dd($usuarios_suscritos);
@@ -104,6 +107,11 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $j = 1;
             
             foreach ($sesiones as $sesion) {
+                $visita = $visitas->first(function ($visita) use ($usuario, $sesion) {
+                    return $visita->id_usuario == $usuario->id_usuario && $visita->id_sesion == $sesion->id;
+                });
+
+
                 $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {
                     return $visualizacion->id_usuario == $usuario->id_usuario && $visualizacion->id_sesion == $sesion->id;
                 });
@@ -120,8 +128,14 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                     $coleccion[$index]['s'.$s.'-v']= (string) $visualizacion->puntaje;
                     $coleccion[$index]['s'.$s.'-e']= (string) $puntaje_evaluacion;
                 }else{  
-                    $coleccion[$index]['s'.$s.'-v'] = '0';
-                    $coleccion[$index]['s'.$s.'-e'] = '0';
+                    if ($visita){
+                        $coleccion[$index]['s'.$s.'-v'] = '0';
+                        $coleccion[$index]['s'.$s.'-e'] = '0';
+                    }else{
+                        $coleccion[$index]['s'.$s.'-v'] = '-';
+                        $coleccion[$index]['s'.$s.'-e'] = '-';
+                    }
+                    
                 }
                 $s++;
             }
@@ -138,7 +152,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                         $puntaje_total +=$puntaje_jackpot;
                         $coleccion[$index]['r'.$j] = (string) $puntaje_jackpot;
                     }else{
-                        $coleccion[$index]['r'.$j] = '0';
+                        $coleccion[$index]['r'.$j] = '-';
                     }
                     $j ++;
                 }
@@ -227,10 +241,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             if($puntaje_total>0){
                 $coleccion[$index]['activo'] = (string) 'Si';
             }else{
-                $acciones_login = AccionesUsuarios::where('id_usuario', $usuario->id_usuario)->where('accion', 'login')->where('created_at', '>=', $temporada->fecha_inicio)->first();
-                $tokens = Tokens::where('tokenable_id', $usuario->id_usuario)->where('created_at', '>=', $temporada->fecha_inicio)->first();
-
-                if($acciones_login || $tokens){
+               
+                if(!empty($usuario->fecha_terminos)){
                     $coleccion[$index]['activo'] = (string) 'Si';
                 }else{
                     $coleccion[$index]['activo'] = (string) 'No';

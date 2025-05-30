@@ -29,7 +29,7 @@
             </li>
             <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
             <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
-            <li class="breadcrumb-item">Puntos extra</li>
+            <li class="breadcrumb-item">Desafio {{$logro->nombre}}</li>
         </ol>
     </nav>
 
@@ -73,21 +73,14 @@
         <h5>Skus</h5>
 
         <!-- Formulario de búsqueda -->
-        <form method="GET" action="" class="mb-2">
+        <form method="GET" action="{{route('logros.show', $logro->id)}}" class="mb-2">
             <div class="input-group input-group-sm">
                 <input type="text" name="busqueda" class="form-control" placeholder="Buscar SKU" value="{{ request('busqueda') }}">
                 <button class="btn btn-primary" type="submit">Buscar</button>
             </div>
         </form>
 
-        <!-- Formulario para agregar SKU -->
-        <form method="POST" action="" class="mb-2">
-            @csrf
-            <div class="input-group input-group-sm">
-                <input type="text" name="sku" class="form-control" placeholder="Nuevo SKU" required>
-                <button class="btn btn-success" type="submit">Agregar</button>
-            </div>
-        </form>
+        
 
         <!-- Tabla en contenedor scrolleable -->
         <div style="max-height: 300px; overflow-y: auto;">
@@ -118,6 +111,21 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <!-- Formulario para agregar SKU -->
+        <div class="border border-dashed p-3">
+            <form method="POST" action="" class="mt-2">
+                @csrf
+                <div class="form-group">
+                    <label>Nuevo SKU</label>
+                    <input type="text" name="Sku" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="Descripcion" class="form-control" rows="3"></textarea>
+                </div>
+                <button class="btn btn-success w-100 mt-3" type="submit">Agregar</button>
+            </form>
         </div>
     </div>
 </div>

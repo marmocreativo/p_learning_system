@@ -5,6 +5,7 @@ use App\Models\Temporada;
 use App\Models\Cuenta;
 use App\Models\SesionEv;
 use App\Models\SesionVis;
+use App\Models\SesionVisita;
 use App\Models\SesionDudas;
 use App\Models\SesionAnexos;
 use App\Models\EvaluacionPreg;
@@ -219,8 +220,13 @@ class TemporadasController extends Controller
     {
         //
         $temporada = Temporada::find($id);
+        $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         $hoy = date('Y-m-d H:i:s');
         $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
+        $visitas = SesionVisita::where('id_temporada', $temporada->id)->get();
         $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
         $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
         $trivias = Trivia::where('id_temporada', $temporada->id)->get();
@@ -255,12 +261,18 @@ class TemporadasController extends Controller
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
                 'sucursales.nombre as sucursal',
+                'usuarios_suscripciones.fecha_terminos as fecha_terminos'
             )
             ->get();
             
             
         return view('admin/temporada_reporte', compact('temporada',
+                                                        'cuenta',
+                                                        'cuentas',
+                                                        'color_barra_superior',
+                                                        'logo_cuenta',
                                                         'sesiones',
+                                                        'visitas',
                                                         'visualizaciones',
                                                         'respuestas',
                                                         'trivias',
@@ -275,14 +287,6 @@ class TemporadasController extends Controller
 
     }
 
-    /*
-    public function reporte_excel (Request $request, string $id)
-    {
-        return Excel::download(new ReporteTemporadaExport($request, $id), 'reporte_temporada.xlsx');
-        
-        
-    }
-    */
     public function reporte_excel(Request $request, string $id)
     {
         // Crear una instancia del exportador con los parámetros requeridos

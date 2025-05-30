@@ -3,18 +3,9 @@
 @section('titulo', 'Cuenta del sistema')
 
 @section('contenido_principal')
-    <h1>Detalles de la temporada <small>{{$temporada->nombre}}</small></h1>
-    <div class="row">
-        <div class="col-9">
-            <nav aria-label="breadcrumb mb-3">
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
-                  <li class="breadcrumb-item">Temporada</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="col-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Reporte de temporada <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
             <form action="{{ route('temporadas.reporte_excel', ['post' => $temporada->id]) }}" method="GET" class="d-flex">
                 @csrf
                 <input type="hidden" name="region" value="{{request()->get('region')}}">
@@ -23,11 +14,32 @@
                 <div class="form-group">
                     <button type="submit" class="btn btn-success">Descargar excel</button>
                 </div>
-                
-
             </form>
         </div>
     </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item">Reporte</li>
+        </ol>
+    </nav>
     <hr>
     <div class="row mb-3">
         <div class="col-12">
@@ -62,15 +74,13 @@
     <div class="row">
         <div class="col-12 mb-3">
             <div class="table-responsive">
-                <table class="table table-sm table-bordered">
+                <table class="table table-bordered table-sm table-hover align-middle">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Region</th>
+                            <th>Usuario</th>
+                            <th>Región</th>
                             <th>Distribuidor</th>
-                            <th>Sucursal</th>
                             @php
                                 $numero_sesion = 1;
                                 $numero_trivia = 1;
@@ -99,13 +109,21 @@
                         @php $puntaje_total = 0; @endphp
                         <tr>
                             <td>{{$usuario->id_usuario}}</td>
-                            <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
-                            <td>{{$usuario->email}}</td>
+                            <td>
+                                {{$usuario->nombre}} {{$usuario->apellidos}}<br>
+                                {{$usuario->email}}
+                            </td>
                             <td>{{$usuario->region}}</td>
-                            <td>{{$usuario->distribuidor}}</td>
-                            <td>{{$usuario->sucursal}}</td>
+                            <td>
+                                Disty: <b>{{$usuario->distribuidor}}</b><br>
+                                Suc: <b>{{$usuario->sucursal}}</b>
+                            </td>
                             @foreach ($sesiones as $sesion)
                                 @php
+                                    $visita = $visitas->first(function ($visita) use ($usuario, $sesion) {
+                                        return $visita->id_usuario == $usuario->id_usuario && $visita->id_sesion == $sesion->id;
+                                    });
+
                                     $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {
                                         return $visualizacion->id_usuario == $usuario->id_usuario && $visualizacion->id_sesion == $sesion->id;
                                     });
@@ -122,8 +140,14 @@
                                     <td>{{$visualizacion->puntaje}}</td>
                                     <td>{{$puntaje_evaluacion}}</td>
                                 @else
-                                    <td>0</td>
-                                    <td>0</td>
+                                    @if ($visita)
+                                        <td>0</td>
+                                        <td>0</td>
+                                    @else
+                                        <td>-</td>
+                                        <td>-</td>
+                                    @endif
+                                    
                                 @endif
                             @endforeach
                             @foreach ($trivias as $trivia)
@@ -149,7 +173,7 @@
                                     @endif
                                     
                                 @else
-                                    <td>0</td>
+                                    <td>-</td>
                                     <td>-</td>
                                 @endif
                                 
@@ -168,7 +192,7 @@
                                     @php $puntaje_total +=$puntaje_jackpot; @endphp
                                     <td>{{$puntaje_jackpot}}</td>
                                 @else
-                                    <td>0</td>
+                                    <td>-</td>
                                 @endif
                                 
                             @endforeach
@@ -178,9 +202,20 @@
                                     return $entrada->id_usuario == $usuario->id_usuario;
                                 });
                                 $total_puntos_extra = $puntos_usuario->sum('puntos');
+                                 $puntaje_total +=$total_puntos_extra;
                             @endphp
-                            <td>{{$total_puntos_extra}}</td>
-                            <td>{{$puntaje_total}}</td>
+                            @if ($puntos_usuario)
+                                <td>{{$total_puntos_extra}}</td>
+                            @else
+                                <td>-</td>
+                            @endif
+                            
+                            @if (!empty($usuario->fecha_terminos))
+                                <td>{{$puntaje_total}}</td>
+                            @else
+                                <td>-</td>
+                            @endif
+                            
                         </tr>
                         @endforeach
                     

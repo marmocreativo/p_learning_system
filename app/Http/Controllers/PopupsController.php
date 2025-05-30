@@ -17,9 +17,12 @@ class PopupsController extends Controller
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
         $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         $popups = Popup::where(['id_temporada' => $id_temporada])->get();
         $cintillos = Cintillo::where(['id_temporada' => $id_temporada])->get();
-        return view('admin/popups_lista', compact('cuenta', 'temporada','popups', 'cintillos'));
+        return view('admin/popups_lista', compact('cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta', 'temporada','popups', 'cintillos'));
     }
 
     public function crear_popup(Request $request)
