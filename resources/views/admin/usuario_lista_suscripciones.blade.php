@@ -126,7 +126,7 @@
                     <td>
                         <div class="btn-group">
                             <button type="button" class="btn btn-warning btn-sm" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#formulario{{$suscripcion->id_suscripcion}}">
-                            Editar
+                                Editar
                             </button>
                             <a href="{{route('admin_usuarios.reporte_sesiones', $suscripcion->id_suscripcion)}}" class="btn btn-info btn-sm">
                                 Reporte

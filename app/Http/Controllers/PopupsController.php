@@ -31,7 +31,7 @@ class PopupsController extends Controller
         $popup = new Popup();
 
         $request->validate([
-            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ajusta las reglas de validación según tus necesidades
+            'Imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048', // Ajusta las reglas de validación según tus necesidades
         ]);
     
         if ($request->hasFile('Imagen')) {

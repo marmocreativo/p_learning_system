@@ -56,7 +56,11 @@ class CanjeoController extends Controller
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
         $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
-        return view('admin/canjeo_productos', compact('productos', 'temporada'));
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/canjeo_productos', compact('productos', 'temporada', 'cuenta','cuentas','color_barra_superior','logo_cuenta'));
     }
 
     public function productos_crear(Request $request)
@@ -64,7 +68,11 @@ class CanjeoController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
-        return view('admin/canjeo_productos_crear', compact('temporada'));
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/canjeo_productos_crear', compact('temporada', 'cuenta','cuentas','color_barra_superior','logo_cuenta'));
     }
 
     public function productos_guardar(Request $request)
@@ -109,7 +117,11 @@ class CanjeoController extends Controller
         $id_temporada = $producto->id_temporada;
         $temporada = Temporada::find($id_temporada);
         $galeria = CanjeoProductosGaleria::where('id_producto', $id)->orderBy('orden')->get();
-        return view('admin/canjeo_productos_editar', compact('producto', 'temporada', 'galeria', 'canjeados'));
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/canjeo_productos_editar', compact('producto', 'temporada', 'galeria', 'canjeados', 'cuenta','cuentas','color_barra_superior','logo_cuenta'));
     }
     public function productos_actualizar(Request $request, string $id)
     {
@@ -219,6 +231,10 @@ class CanjeoController extends Controller
         $cortes_usuarios = CanjeoCortesUsuarios::where('id_temporada', $id_temporada)->get();
         //$transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->get();
         $usuarios = User::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
         foreach($cortes_usuarios as $cort_usuario){
             $corte = $cortes->firstWhere('id', $cort_usuario->id_corte);
@@ -273,18 +289,19 @@ class CanjeoController extends Controller
         }
 
         
-        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'usuarios'));
+        return view('admin/canjeo_cortes', compact('temporada', 'cortes', 'cortes_usuarios', 'usuarios', 'cuenta','cuentas','color_barra_superior','logo_cuenta'));
     }
 
     public function cortes_guardar(Request $request)
     {
         //
+        $temporada = Temporada::find($request->input('IdTemporada'));
         $corte = new CanjeoCortes();
 
         $corte->id_temporada = $request->input('IdTemporada');
         $corte->titulo = $request->input('Titulo');
-        $corte->fecha_inicio = $request->input('FechaInicio');
-        $corte->fecha_final = $request->input('FechaFinal');
+        $corte->fecha_inicio = date('Y-m-d', strtotime($temporada->fecha_inicio));
+        $corte->fecha_final = date('Y-m-d', strtotime($temporada->fecha_final));
         $corte->fecha_publicacion_inicio = $request->input('FechaPublicacionInicio');
         $corte->fecha_publicacion_final = $request->input('FechaPublicacionFinal');
         $corte->save();
@@ -294,6 +311,17 @@ class CanjeoController extends Controller
     public function cortes_actualizar(Request $request, string $id)
     {
         //
+        $temporada = Temporada::find($request->input('IdTemporada'));
+        $corte = CanjeoCortes::find($id);
+        $corte->id_temporada = $request->input('IdTemporada');
+        $corte->titulo = $request->input('Titulo');
+        $corte->fecha_inicio = date('Y-m-d', strtotime($temporada->fecha_inicio));
+        $corte->fecha_final = date('Y-m-d', strtotime($temporada->fecha_final));
+        $corte->fecha_publicacion_inicio = $request->input('FechaPublicacionInicio');
+        $corte->fecha_publicacion_final = $request->input('FechaPublicacionFinal');
+        $corte->save();
+
+        return redirect()->route('canjeo.cortes', ['id_temporada' => $request->input('IdTemporada')]);
     }
 
     public function cortes_usuario_actualizar(Request $request, string $id)
@@ -412,7 +440,7 @@ class CanjeoController extends Controller
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
         $distribuidor_nombre = $distribuidor->nombre;
         //$prueba =  $request->input('prueba');
-        $prueba = 'no';
+        $prueba = 'si';
 
         // consulta productos
         $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
@@ -495,7 +523,7 @@ class CanjeoController extends Controller
             $corte_usuario = CanjeoCortesUsuarios::where('id_corte', $corte->id)
             ->where('id_usuario', $id_usuario)
             ->first();
-
+            
             // Si no hay corte del usuario lo genero
             if(!$corte_usuario){
 
@@ -505,11 +533,13 @@ class CanjeoController extends Controller
                 $corte_usuario->id_temporada = $id_temporada;
                 $corte_usuario->id_usuario = $id_usuario;
                 // Calculo el puntaje de visualizaciones
+                
                 $visualizaciones = SesionVis::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
                             ->where('fecha_ultimo_video', '>=', $corte->fecha_inicio)
                             ->where('fecha_ultimo_video', '<=', $corte->fecha_final)
                             ->pluck('puntaje')->sum();
+                            
                 // Calculo el puntaje de Evaluaciones
                 $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)
                             ->where('id_temporada',$id_temporada)
@@ -712,6 +742,20 @@ class CanjeoController extends Controller
         }
     }
 
+    public function lista_transacciones_api(Request $request)
+    {
+        //
+        $cuenta = Cuenta::find($request->input('id_cuenta'));
+        $transacciones = CanjeoTransacciones::where('id_temporada',$cuenta->temporada_actual )->where('id_usuario', $request->input('id_usuario'))->with('productos')->get();
+        $usuario = User::find($request->input('id_usuario'));
+        $completo = [
+            'usuario' => $usuario,
+            'transacciones' => $transacciones
+            ];
+    
+            return response()->json($completo);
+    }
+
     public function detalles_transaccion_api(Request $request)
     {
         //
@@ -801,88 +845,6 @@ class CanjeoController extends Controller
         Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanjeUsuario($data));
     }
 
-    /*
-    public function canje_checkout_confirmar_api(Request $request)
-{
-    DB::beginTransaction(); // Iniciar la transacción
-
-    try {
-        $id_transaccion = $request->input('idTransaccion');
-
-        // Guardo la transacción
-        $transaccion = CanjeoTransacciones::find($id_transaccion);
-        $transaccion_productos = CanjeoTransaccionesProductos::where('id_transacciones', $id_transaccion)->get();
-        $usuario = User::find($transaccion->id_usuario);
-        
-        $transaccion->confirmado = 'si';
-        $transaccion->fecha_confirmado = date('Y-m-d');
-        $transaccion->save();
-        $url_admin = 'https://plsystem.quarkservers2.com/admin/canjeo/transacciones_usuario?id_temporada='.$transaccion->id_temporada.'&id_corte='.$transaccion->id_corte.'&id_usuario='.$transaccion->id_usuario;
-
-        // Envio el mail
-
-        // Generar la tabla HTML con las variables correctamente
-        
-
-                        // Datos a pasar a la vista de email
-                        $data_admin = [
-                            'titulo' => 'Un nuevo canje ha llegado',
-                            'productos' => $transaccion_productos,
-                            'boton_texto' => 'Detalle de los productos',
-                            'boton_enlace' => $url_admin
-                        ];
-
-                        $data = [
-                            'titulo' => '¡El premio que seleccionaste ya está en camino!',
-                            'productos' => $transaccion_productos,
-
-                        ];
-
-                        // Enviar el correo
-
-                        Mail::to('pl-electrico@panduitlatam.com')->send(new ConfirmacionCanje($data_admin));
-                        //Mail::to('marmocreativo@gmail.com')->send(new ConfirmacionCanje($data_admin));
-                        Mail::to($usuario->email)->send(new ConfirmacionCanjeUsuario($data));
-
-                        DB::commit(); // Confirmar la transacción
-                        return response()->json(['success' => true]);
-
-                    } catch (\Exception $e) {
-                        DB::rollBack(); // Revertir la transacción en caso de error
-                        return response()->json(['success' => false, 'error' => $e->getMessage()]);
-                    }
-                }
-
-    public function lista_transacciones_api(Request $request)
-    {
-        //
-        $id_cuenta = $request->input('id_cuenta');
-        $cuenta = Cuenta::find($id_cuenta);
-        $id_temporada = $cuenta->temporada_actual;
-        $temporada = Temporada::find($id_temporada);
-        $id_usuario = $request->input('id_usuario');
-        $usuario = User::find($id_usuario);
-        $transacciones = CanjeoTransacciones::where('id_usuario', $id_usuario)->where('id_temporada', $id_temporada)->get();
-        foreach($transacciones as $transaccion){
-            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $transaccion->id)->get();
-            foreach($productos as $producto){
-                $detalles_producto = CanjeoProductos::find($producto->id_producto);
-                $producto->imagen = $detalles_producto->imagen;
-            }
-
-            $transaccion->productos = $productos;
-        }
-        $completo = [
-            'usuario' => $usuario,
-            'transacciones' => $transacciones,
-            ];
-    
-            return response()->json($completo);
-    }
-
-}
-    */
-
     public function canje_checkout_confirmar_api(Request $request)
     {
         DB::beginTransaction(); // Iniciar la transacción
@@ -940,4 +902,5 @@ class CanjeoController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
+
 }

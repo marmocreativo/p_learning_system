@@ -244,6 +244,11 @@ class CuentasController extends Controller
                 ->where('fecha_final', '>=', now()) // Fecha final aún vigente
                 ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
                 ->first();
+        $multi_popup = Popup::where('id_temporada', $cuenta->temporada_actual)
+        ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
+        ->where('fecha_final', '>=', now()) // Fecha final aún vigente
+        ->orderBy('fecha_inicio', 'asc') // Ordenado por la fecha de inicio más reciente
+        ->get();
 
         $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
             ->where('clase', 'noticia')
@@ -261,6 +266,7 @@ class CuentasController extends Controller
             'noticias' => $noticias ? $noticias : null,
             'cintillo' => $cintillo ? $cintillo : null,
             'popup' => $popup ? $popup : null,
+            'multi_popup' => $multi_popup ? $multi_popup : null,
             'proxima_trivia' => $proxima_trivia ? $proxima_trivia : null,
             'proximo_jackpot' => $proximo_jackpot ? $proximo_jackpot : null,
         ];

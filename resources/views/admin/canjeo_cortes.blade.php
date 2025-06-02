@@ -3,62 +3,91 @@
 @section('titulo', 'Canjeo Cortes')
 
 @section('contenido_principal')
-    <h1>Ventanas de canjeo</h1>
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb mb-3">
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">Temporada</a></li>
-                  <li class="breadcrumb-item">Ventanas de canjeo</li>
-                </ol>
-            </nav>
+<div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Ventanas de canje <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+           
         </div>
     </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item">Ventanas de canje</li>
+        </ol>
+    </nav>
     <div class="row">
-        <div class="col-12 mb-3">
-            <div class="card card-body bg-light">
-                <form action="{{ route('canjeo.cortes_guardar') }}" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
-                    @csrf
-                    <h4>Crear nueva ventana</h4>
-                    <div class="d-flex justify-">
-                        <div class="flex-fill form-group mb-3 mx-3">
-                            <label for="Titulo">Título</label>
-                            <input type="text" class="form-control" name="Titulo">
-                        </div>
-                        <div class="flex-fill form-group mb-3 mx-3">
-                            <label>¿Contar puntos entre que fechas?</label>
-                            <input type="date" class="form-control w-100 mb-3" name="FechaInicio">
-                            <input type="date" class="form-control w-100 mb-3" name="FechaFinal">
-                        </div>
-                        <div class="flex-fill form-group mb-3 mx-3">
-                            <label>¿Permitir canje entre que fechas?</label>
-                            <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionInicio">
-                            <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionFinal">
-                        </div>
-                        <div class="flex-fill mx-3">
-                            <button type="submit" class="btn btn-primary w-100">Crear ventana</button>
-                        </div>
-                        
-                    </div>
-                    
-                </form>
-            </div>
-        </div>
-        <div class="col-12">
+        <div class="col-8">
             @foreach ($cortes as $corte)
                 <div class="card mb-3">
-                    <div class="card-header">
-                        <h4>
-                            {{$corte->titulo}} 
-                            <small>{{$corte->fecha_publicacion_inicio}} - {{$corte->fecha_publicacion_final}}</small> 
-                            <!-- Botón para colapsar -->
-                            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCorte{{$corte->id}}" aria-expanded="true" aria-controls="collapseCorte{{$corte->id}}">
-                                Mostrar/ocultar
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #dddddd">
+                        <h5>{{$corte->titulo}}</h5>
+                        <div>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Inicio: {{$corte->fecha_publicacion_inicio}} </th>
+                                    <th>Fin: {{$corte->fecha_publicacion_final}} </th>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="btn-goup">
+                            <button class="btn btn-warning" type="button" data-mdb-collapse-init data-mdb-ripple-init data-mdb-target="#collapseForm{{$corte->id}}" aria-expanded="true" aria-controls="collapseCorte{{$corte->id}}">
+                                Editar fecha de corte
                             </button>
+                            <button class="btn btn-success" type="button" data-mdb-collapse-init data-mdb-ripple-init data-mdb-target="#collapseCorte{{$corte->id}}" aria-expanded="true" aria-controls="collapseCorte{{$corte->id}}">
+                                Ver lista de canjes
+                            </button>
+                        </div>
+                        <h4>
+                            
+                            <!-- Botón para colapsar -->
+                            
                         </h4>
+                    </div>
+                    <div id="collapseForm{{$corte->id}}" class="collapse">
+                        <div class="card card-body">
+                            <form action="{{ route('canjeo.cortes_actualizar', $corte->id) }}" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
+                            @csrf
+                            @method('put')
+                            <h4>Editar ventana de canje</h4>
+                            <h5 class="my-3">Título</h5>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="Titulo" value="{{$corte->titulo}}">
+                            </div>
+                            <h5 class="my-3">¿Permitir canje entre que fechas?</h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionInicio" value="{{$corte->fecha_publicacion_inicio}}">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionFinal" value="{{$corte->fecha_publicacion_final}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3 w-100">Actualizar ventana</button>
+                            
+                        </form>
+                        </div>
                     </div>
                     <div id="collapseCorte{{$corte->id}}" class="collapse">
                         <div class="card-body">
@@ -205,6 +234,35 @@
                 </div>
             @endforeach
         </div>
+        <div class="col-3 mb-3">
+            <div class="card card-body">
+                <form action="{{ route('canjeo.cortes_guardar') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="IdTemporada" value="{{$temporada->id}}">
+                    @csrf
+                    <h4>Nueva Ventana de canje</h4>
+                    <h5 class="my-3">Título</h5>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="Titulo">
+                    </div>
+                    <h5 class="my-3">¿Permitir canje entre que fechas?</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionInicio">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="date" class="form-control w-100 mb-3" name="FechaPublicacionFinal">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3 w-100">Crear ventana</button>
+                    
+                </form>
+            </div>
+        </div>
+        
         
     </div>
     
