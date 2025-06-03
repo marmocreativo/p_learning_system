@@ -611,13 +611,20 @@ public function reporte_excel(Request $request)
             ->get();
         $premios_acumulados = 0;
         foreach($participaciones as $participacion){
-            if($participacion->estado=='finalizado'){
                 $log = Logro::where('id', $participacion->id_logro)->first();
-                if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_especial; }
-                if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_c; }
-                if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_b; }
-                if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_a; }
-            }
+                
+                if($distribuidor->region=='RoLA'){
+                    if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_rola_especial; }
+                    if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_rola_c; }
+                    if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_rola_b; }
+                    if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_rola_a; }
+                }else{
+                    if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_especial; }
+                    if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_c; }
+                    if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_b; }
+                    if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_a; }
+                }
+                
         }
          
         $completo = [

@@ -22,6 +22,9 @@ use App\Models\Jackpot;
 use App\Models\Cuenta;
 use App\Models\Sku;
 use App\Models\Logro;
+use App\Models\LogroParticipacion;
+use App\Models\LogroAnexo;
+use App\Models\LogroAnexoProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -40,34 +43,43 @@ class FrontController extends Controller
 
 
     public function scripts_ajustes()
-    {
-        $suscripciones = UsuariosSuscripciones::all();
+{
+    /*
+    $productos = LogroAnexoProducto::all();
 
-        $tabla = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
-        $tabla .= '<thead>';
-        $tabla .= '<tr>';
-        $tabla .= '<th>ID</th>';
-        $tabla .= '<th>Funcion</th>';
-        $tabla .= '</tr>';
-        $tabla .= '</thead>';
-        $tabla .= '<tbody>';
+    $tabla = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
+    $tabla .= '<thead>';
+    $tabla .= '<tr>';
+    $tabla .= '<th>Producto</th>';
+    $tabla .= '<th>Id Anexo</th>';
+    $tabla .= '<th>Id Participacion</th>';
+    $tabla .= '</tr>';
+    $tabla .= '</thead>';
+    $tabla .= '<tbody>';
 
-        foreach($suscripciones as $suscripcion){
-            if($suscripcion->funcion == 'superlider'){
-                $tabla .= '<tr>';
-                $tabla .= '<td>'.$suscripcion->id.'</td>';
-                $tabla .= '<td ' . ($suscripcion->funcion == 'superlider' ? 'style="color:red"' : '') . '>' . $suscripcion->funcion . '</td>';
-                $tabla .= '</tr>';
-                $suscripcion->funcion = 'super_lider';
-                $suscripcion->save();
-            }
-            
+    foreach ($productos as $producto) {
+        $exist_anexo = LogroAnexo::where('id', $producto->id_anexo)->exists();
+        $exist_participacion = LogroParticipacion::where('id', $producto->id_participacion)->exists();
+
+        // Eliminar de la base si no existe el anexo o la participación
+        if (!$exist_anexo || !$exist_participacion) {
+            $producto->delete();
+            continue; // No lo mostramos en la tabla
         }
-        $tabla .= '</tbody>';
-        $tabla .= '</table>';
 
-        echo $tabla;
+        $tabla .= '<tr>';
+        $tabla .= '<td>' . $producto->id . '</td>';
+        $tabla .= '<td style="color:green">' . $producto->id_anexo . '</td>';
+        $tabla .= '<td style="color:green">' . $producto->id_participacion . '</td>';
+        $tabla .= '</tr>';
     }
+
+    $tabla .= '</tbody>';
+    $tabla .= '</table>';
+
+    echo $tabla;
+    */
+}
 
     public function scripts_ajustes_reparacion_sesion()
 {   
