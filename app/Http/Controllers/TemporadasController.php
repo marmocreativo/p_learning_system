@@ -261,7 +261,8 @@ class TemporadasController extends Controller
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
                 'sucursales.nombre as sucursal',
-                'usuarios_suscripciones.fecha_terminos as fecha_terminos'
+                'usuarios_suscripciones.fecha_terminos as fecha_terminos',
+                'usuarios_suscripciones.id as id_suscripcion'
             )
             ->get();
             

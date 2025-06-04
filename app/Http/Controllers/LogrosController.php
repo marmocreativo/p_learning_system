@@ -536,7 +536,10 @@ public function reporte_excel(Request $request)
         $id_usuario = $request->input('id_usuario');
        
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
-        $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        $distribuidor = null;
+        if ($suscripcion && $suscripcion->id_distribuidor) {
+            $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        }
         switch ($distribuidor->region) {
             case 'RoLA':
                 $logros = Logro::where('id_temporada', $id_temporada)
@@ -550,23 +553,23 @@ public function reporte_excel(Request $request)
                         })
                         ->orderBy('orden', 'asc')
                         ->get();
-                break;
+                
 
                 $logros_distribuidor = collect(); // colección vacía por defecto
 
-                if (isset($distribuidor) && $distribuidor !== null) {
+                if ($distribuidor) {
                     $logros_distribuidor = Logro::where('id_temporada', $id_temporada)
                         ->where(function($query) use ($distribuidor) {
                             $query->where('region', 'RoLA')
                                 ->orWhere('region', 'Todas');
                         })
-                        ->where(function($query) {
+                        ->where(function($query) use ($distribuidor) {
                             $query->where('id_distribuidor', $distribuidor->id);
                         })
                         ->orderBy('orden', 'asc')
                         ->get();
-                break;
                 }
+                 break;
 
             
             default:
@@ -576,7 +579,7 @@ public function reporte_excel(Request $request)
                         ->orWhere('region', 'Interna')
                         ->orWhere('region', 'Todas');
                 })
-                ->where(function($query) {
+                ->where(function($query) use ($distribuidor) {
                     $query->whereNull('id_distribuidor')
                         ->orWhere('id_distribuidor', '');
                 })
@@ -585,7 +588,7 @@ public function reporte_excel(Request $request)
 
                 $logros_distribuidor = collect(); // colección vacía por defecto
 
-                if (isset($distribuidor) && $distribuidor !== null) {
+                if ($distribuidor) {
                     $logros_distribuidor = Logro::where('id_temporada', $id_temporada)
                         ->where(function($query) {
                             $query->where('region', 'México')
@@ -614,15 +617,15 @@ public function reporte_excel(Request $request)
                 $log = Logro::where('id', $participacion->id_logro)->first();
                 
                 if($distribuidor->region=='RoLA'){
-                    if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_rola_especial; }
-                    if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_rola_c; }
-                    if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_rola_b; }
-                    if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_rola_a; }
+                    if($participacion->confirmacion_nivel_especial == 'si'){  $premios_acumulados += $log->premio_rola_especial; }
+                    if($participacion->confirmacion_nivel_c == 'si'){ $premios_acumulados += $log->premio_rola_c; }
+                    if($participacion->confirmacion_nivel_b == 'si'){ $premios_acumulados += $log->premio_rola_b; }
+                    if($participacion->confirmacion_nivel_a == 'si'){ $premios_acumulados += $log->premio_rola_a; }
                 }else{
-                    if($participacion->confirmacion_nivel_especial = 'si'){  $premios_acumulados += $log->premio_especial; }
-                    if($participacion->confirmacion_nivel_c = 'si'){ $premios_acumulados += $log->premio_c; }
-                    if($participacion->confirmacion_nivel_b = 'si'){ $premios_acumulados += $log->premio_b; }
-                    if($participacion->confirmacion_nivel_a = 'si'){ $premios_acumulados += $log->premio_a; }
+                    if($participacion->confirmacion_nivel_especial == 'si'){  $premios_acumulados += $log->premio_especial; }
+                    if($participacion->confirmacion_nivel_c == 'si'){ $premios_acumulados += $log->premio_c; }
+                    if($participacion->confirmacion_nivel_b == 'si'){ $premios_acumulados += $log->premio_b; }
+                    if($participacion->confirmacion_nivel_a == 'si'){ $premios_acumulados += $log->premio_a; }
                 }
                 
         }

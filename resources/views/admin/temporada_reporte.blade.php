@@ -107,114 +107,143 @@
                     <tbody>
                         @foreach ($usuarios_suscritos as $usuario)
                         @php $puntaje_total = 0; @endphp
+                        @php
+                            $class_text= '';
+                            if(empty($usuario->fecha_terminos)){ $class_text= 'bg-light text-danger';}
+                        @endphp
                         <tr>
-                            <td>{{$usuario->id_usuario}}</td>
-                            <td>
+                            <td class="{{$class_text}}">{{$usuario->id_usuario}}</td>
+                            <td class="{{$class_text}}">
+                                
                                 {{$usuario->nombre}} {{$usuario->apellidos}}<br>
-                                {{$usuario->email}}
+                                <a href="{{route('admin_usuarios.reporte_sesiones', $usuario->id_suscripcion)}}" target="_blank">{{$usuario->email}}</a><br>
+                                {{$usuario->fecha_terminos}}
                             </td>
-                            <td>{{$usuario->region}}</td>
-                            <td>
+                            <td class="{{$class_text}}">{{$usuario->region}}</td>
+                            <td class="{{$class_text}}">
                                 Disty: <b>{{$usuario->distribuidor}}</b><br>
                                 Suc: <b>{{$usuario->sucursal}}</b>
                             </td>
-                            @foreach ($sesiones as $sesion)
-                                @php
-                                    $visita = $visitas->first(function ($visita) use ($usuario, $sesion) {
-                                        return $visita->id_usuario == $usuario->id_usuario && $visita->id_sesion == $sesion->id;
-                                    });
-
-                                    $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {
-                                        return $visualizacion->id_usuario == $usuario->id_usuario && $visualizacion->id_sesion == $sesion->id;
-                                    });
-                                    $evaluacion = $respuestas->filter(function ($respuesta) use ($usuario, $sesion) {
-                                        return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_sesion == $sesion->id;
-                                    });
-                                    $puntaje_evaluacion = 0;
-                                    foreach($evaluacion as $res){
-                                        $puntaje_evaluacion += $res->puntaje;
-                                    }
-                                @endphp
-                                @if ($visualizacion)
-                                    @php $puntaje_total +=$visualizacion->puntaje+$puntaje_evaluacion; @endphp
-                                    <td>{{$visualizacion->puntaje}}</td>
-                                    <td>{{$puntaje_evaluacion}}</td>
-                                @else
-                                    @if ($visita)
-                                        <td>0</td>
-                                        <td>0</td>
-                                    @else
-                                        <td>-</td>
-                                        <td>-</td>
-                                    @endif
-                                    
-                                @endif
-                            @endforeach
-                            @foreach ($trivias as $trivia)
-                                @php
-                                    $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
-                                        return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
-                                    });
-                                    $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
-                                        return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
-                                    });
-                                    $puntaje_trivias = 0;
-                                    foreach($t_respuestas as $res){
-                                        $puntaje_trivias += $res->puntaje;
-                                    }
-                                @endphp
-                                @if ($t_respuestas)
-                                    @php $puntaje_total +=$puntaje_trivias; @endphp
-                                    <td>{{$puntaje_trivias}}</td>
-                                    @if ($ganador)
-                                        <td>Si</td>
-                                    @else
-                                        <td>-</td>
-                                    @endif
-                                    
-                                @else
-                                    <td>-</td>
-                                    <td>-</td>
-                                @endif
-                                
-                            @endforeach
-                            @foreach ($jackpots as $jackpot)
-                                @php
-                                    $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
-                                        return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
-                                    });
-                                    $puntaje_jackpot = 0;
-                                    foreach($intentos as $int){
-                                        $puntaje_jackpot += $int->puntaje;
-                                    }
-                                @endphp
-                                @if ($intentos)
-                                    @php $puntaje_total +=$puntaje_jackpot; @endphp
-                                    <td>{{$puntaje_jackpot}}</td>
-                                @else
-                                    <td>-</td>
-                                @endif
-                                
-                            @endforeach
-                            @php
-                                $total_puntos_extra = 0;
-                                $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
-                                    return $entrada->id_usuario == $usuario->id_usuario;
-                                });
-                                $total_puntos_extra = $puntos_usuario->sum('puntos');
-                                 $puntaje_total +=$total_puntos_extra;
-                            @endphp
-                            @if ($puntos_usuario)
-                                <td>{{$total_puntos_extra}}</td>
-                            @else
-                                <td>-</td>
-                            @endif
-                            
                             @if (!empty($usuario->fecha_terminos))
-                                <td>{{$puntaje_total}}</td>
+                                <!-- SESIONES -->
+                                @foreach ($sesiones as $sesion)
+                                    @php
+                                        $visita = $visitas->first(function ($visita) use ($usuario, $sesion) {
+                                            return $visita->id_usuario == $usuario->id_usuario && $visita->id_sesion == $sesion->id;
+                                        });
+
+                                        $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {
+                                            return $visualizacion->id_usuario == $usuario->id_usuario && $visualizacion->id_sesion == $sesion->id;
+                                        });
+                                        $evaluacion = $respuestas->filter(function ($respuesta) use ($usuario, $sesion) {
+                                            return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_sesion == $sesion->id;
+                                        });
+                                        $puntaje_evaluacion = 0;
+                                        foreach($evaluacion as $res){
+                                            $puntaje_evaluacion += $res->puntaje;
+                                        }
+                                    @endphp
+                                    @if ($visualizacion)
+                                        @php $puntaje_total +=$visualizacion->puntaje+$puntaje_evaluacion; @endphp
+                                        <td class="{{$class_text}}">{{$visualizacion->puntaje}}</td>
+                                        <td class="{{$class_text}}">{{$puntaje_evaluacion}}</td>
+                                    @else
+                                        @if ($visita)
+                                            <td class="{{$class_text}}">0</td>
+                                            <td class="{{$class_text}}">0</td>
+                                        @else
+                                            <td class="{{$class_text}}">-</td>
+                                            <td class="{{$class_text}}">-</td>
+                                        @endif
+                                        
+                                    @endif
+                                @endforeach
+                                <!-- TRIVIAS -->
+                                @foreach ($trivias as $trivia)
+                                    @php
+                                        $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
+                                            return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
+                                        });
+                                        $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
+                                            return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
+                                        });
+                                        $puntaje_trivias = 0;
+                                        foreach($t_respuestas as $res){
+                                            $puntaje_trivias += $res->puntaje;
+                                        }
+                                    @endphp
+                                    @if (count($t_respuestas) > 0)
+                                        @php $puntaje_total +=$puntaje_trivias; @endphp
+                                        <td class="{{$class_text}}">{{$puntaje_trivias}}</td>
+                                        
+                                        @if ($ganador)
+                                            <td class="{{$class_text}}">Si</td>
+                                        @else
+                                            <td class="{{$class_text}}">-</td>
+                                        @endif
+                                        
+                                    @else
+                                        <td class="{{$class_text}}">-</td>
+                                        <td class="{{$class_text}}">-</td>
+                                    @endif
+                                    
+                                @endforeach
+                                <!-- MINIJUEGOS -->
+                                @foreach ($jackpots as $jackpot)
+                                    @php
+                                        $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
+                                            return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
+                                        });
+                                        $puntaje_jackpot = 0;
+                                        foreach($intentos as $int){
+                                            $puntaje_jackpot += $int->puntaje;
+                                        }
+                                    @endphp
+                                    @if (count($intentos) > 0)
+                                        @php $puntaje_total +=$puntaje_jackpot; @endphp
+                                        <td class="{{$class_text}}">{{$puntaje_jackpot}}</td>
+                                    @else
+                                        <td class="{{$class_text}}">-</td>
+                                    @endif
+                                    
+                                @endforeach
+                                <!-- PUNTOS EXTRA -->
+                                @php
+                                    $total_puntos_extra = 0;
+                                    $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
+                                        return $entrada->id_usuario == $usuario->id_usuario;
+                                    });
+                                    $total_puntos_extra = $puntos_usuario->sum('puntos');
+                                    $puntaje_total +=$total_puntos_extra;
+                                @endphp
+                                @if (count($puntos_usuario) > 0)
+                                    <td class="{{$class_text}}">{{$total_puntos_extra}}</td>
+                                @else
+                                    <td class="{{$class_text}}">-</td>
+                                @endif
+                                <!-- TOTAL -->
+                                <td class="{{$class_text}}">{{$puntaje_total}}</td>
                             @else
-                                <td>-</td>
+                                <!-- SESIONES -->
+                                @foreach ($sesiones as $sesion)
+                                    <td class="{{$class_text}}">X</td>
+                                    <td class="{{$class_text}}">X</td>
+                                @endforeach
+                                <!-- TRIVIAS -->
+                                @foreach ($trivias as $trivia)
+                                    <td class="{{$class_text}}">X</td>
+                                    <td class="{{$class_text}}">X</td>
+                                @endforeach
+                                <!-- MINIJUEGOS -->
+                                @foreach ($jackpots as $jackpot)
+                                    <td class="{{$class_text}}">X</td>
+                                @endforeach
+                                <!-- PUNTOS EXTRA -->
+                                <td class="{{$class_text}}">X</td>
+                                <!-- TOTAL -->
+                                <td class="{{$class_text}}">X</td>
                             @endif
+                           
                             
                         </tr>
                         @endforeach

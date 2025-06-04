@@ -758,7 +758,7 @@ public function suscribir_full_update(Request $request, string $id)
     public function reporte_sesiones(string $id)
     {
         //
-        
+        /*
         $suscripcion = UsuariosSuscripciones::find($id);
         $usuario = User::find($suscripcion->id_usuario);
         $temporada = Temporada::find($suscripcion->id_temporada);
@@ -767,8 +767,117 @@ public function suscribir_full_update(Request $request, string $id)
         $visualizaciones_actuales = SesionVis::where('id_temporada', $temporada->id)->where('id_usuario', $usuario->id)->get();
         $visualizaciones_anteriores = SesionVis::where('id_temporada', $temporada->temporada_anterior)->where('id_usuario', $usuario->id)->get();
         $acciones = AccionesUsuarios::where('id_usuario', $usuario->id)->orderBy('created_at', 'desc')->get();
-        return view('admin/usuario_reporte_sesiones', compact('suscripcion','usuario','temporada', 'sesiones_actuales', 'sesiones_anteriores',
-        'visualizaciones_actuales', 'visualizaciones_anteriores', 'acciones'));
+        */
+        $suscripcion = UsuariosSuscripciones::find($id);
+        $temporada = Temporada::find($suscripcion->id_temporada);
+        $id_temporada = $temporada->id;
+        $id_usuario = $suscripcion->id_usuario;
+        $usuario = User::find($suscripcion->id_usuario);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        // datos
+        $usuario = User::find($id_usuario);
+        // notificaciones y línea del tiempo
+        $acciones = AccionesUsuarios::where('id_usuario', $id_usuario)
+            ->latest() // Ordena por la columna de timestamps (created_at por defecto)
+            ->get();
+
+        // Puntajes
+        $suma_visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        $suma_evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+        
+        $sesiones = DB::table('sesiones')
+            ->join('sesiones_visualizaciones', 'sesiones.id', '=', 'sesiones_visualizaciones.id_sesion')
+            ->where('sesiones.id_temporada', '=', $id_temporada)
+            ->where('sesiones_visualizaciones.id_usuario', '=', $id_usuario)
+            ->select('sesiones.id as id_sesion', 'sesiones.*', 'sesiones_visualizaciones.*')
+            ->get();
+
+        $evaluaciones = DB::table('evaluaciones_preguntas')
+        ->join('evaluaciones_respuestas', 'evaluaciones_preguntas.id', '=', 'evaluaciones_respuestas.id_pregunta')
+        ->where('evaluaciones_respuestas.id_temporada', '=', $id_temporada)
+        ->where('evaluaciones_respuestas.id_usuario', '=', $id_usuario)
+        ->select('evaluaciones_preguntas.*', 'evaluaciones_respuestas.*')
+        ->get();
+
+        $suma_trivias = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+
+        $trivias_ganadores = DB::table('trivias')
+        ->join('trivias_ganadores', 'trivias.id', '=', 'trivias_ganadores.id_trivia')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where('trivias_ganadores.id_usuario', '=', $id_usuario)
+        ->select('trivias.*', 'trivias_ganadores.*')
+        ->get();
+
+        $trivias_respuestas = DB::table('trivias')
+        ->join('trivias_preguntas', 'trivias.id', '=', 'trivias_preguntas.id_trivia')
+        ->join('trivias_respuestas', 'trivias_preguntas.id', '=', 'trivias_respuestas.id_pregunta')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->where(function ($query) {
+            $query->whereNull('trivias.id_jackpot')
+                  ->orWhere('trivias.id_jackpot', '');
+        })
+        ->where('trivias_respuestas.id_usuario', '=', $id_usuario)
+        ->select('trivias.*', 'trivias_preguntas.*' , 'trivias_respuestas.*')
+        ->get();
+
+        $jackpot_intentos = DB::table('jackpot')
+        ->join('jackpot_intentos', 'jackpot.id', '=', 'jackpot_intentos.id_jackpot')
+        ->where('jackpot.id_temporada', '=', $id_temporada)
+        ->where('jackpot.en_trivia', '=', 'no')
+        ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
+        ->select('jackpot.*', 'jackpot_intentos.*' )
+        ->get();
+
+        $trivias_con_jackpot = DB::table('trivias')
+        ->join('jackpot_intentos', 'trivias.id_jackpot', '=', 'jackpot_intentos.id_jackpot')
+        ->where('trivias.id_temporada', '=', $id_temporada)
+        ->whereNotNull('trivias.id_jackpot')
+        ->where('trivias.id_jackpot', '!=', '')
+        ->where('jackpot_intentos.id_usuario', '=', $id_usuario)
+        ->select('trivias.titulo', 'trivias.id_jackpot', 'jackpot_intentos.*')
+        ->get();
+
+        $suma_jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
+
+        $suma_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntos')->sum();
+
+        $puntos_extra = PuntosExtra::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+
+        $creditos_redimidos = CanjeoTransacciones::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('creditos')->sum();
+
+        $transacciones = CanjeoTransacciones::with('productos')->where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        $participaciones = LogroParticipacion::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+        $anexos = LogroAnexo::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->get();
+
+
+        return view('admin/usuario_reporte_sesiones', compact(
+            'suscripcion',
+            'usuario',
+            'cuenta',
+            'cuentas',
+            'color_barra_superior',
+            'logo_cuenta',
+            'temporada',
+            'suma_visualizaciones',
+            'suma_evaluaciones',
+            'suma_trivias',
+            'suma_jackpots',
+            'suma_extra',
+            'creditos_redimidos',
+            'acciones',
+            'sesiones',
+            'evaluaciones',
+            'trivias_ganadores',
+            'trivias_respuestas',
+            'jackpot_intentos',
+            'trivias_con_jackpot',
+            'transacciones',
+            'participaciones',
+            'anexos',
+        ));
         
 
     }
@@ -820,12 +929,6 @@ public function suscribir_full_update(Request $request, string $id)
         //
         $id_temporada = $request->input('id_temporada');
         $id_usuario = $request->input('id_usuario');
-        /*
-        $visualizaciones = SesionVis::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-        $evaluaciones = EvaluacionRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-        $trivia = TriviaRes::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-        $jackpots = JackpotIntentos::where('id_usuario',$id_usuario)->where('id_temporada',$id_temporada)->pluck('puntaje')->sum();
-        */
         $sesiones = DB::table('sesiones')
             ->join('sesiones_visualizaciones', 'sesiones.id', '=', 'sesiones_visualizaciones.id_sesion')
             ->where('sesiones.id_temporada', '=', $id_temporada)
