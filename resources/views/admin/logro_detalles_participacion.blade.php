@@ -97,12 +97,12 @@
             <h5>Evidencias</h5>
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-pendientes-tab" data-bs-toggle="tab" data-bs-target="#nav-pendientes" type="button" role="tab" aria-controls="nav-pendientes" aria-selected="true">Pendientes</button>
-                    <button class="nav-link" id="nav-nivel-a-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-a" type="button" role="tab" aria-controls="nav-nivel-a" aria-selected="false">Nivel A</button>
-                    <button class="nav-link" id="nav-nivel-b-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-b" type="button" role="tab" aria-controls="nav-nivel-b" aria-selected="false">Nivel B</button>
-                    <button class="nav-link" id="nav-nivel-c-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-c" type="button" role="tab" aria-controls="nav-nivel-c" aria-selected="false">Nivel C</button>
-                    <button class="nav-link" id="nav-nivel-especial-tab" data-bs-toggle="tab" data-bs-target="#nav-nivel-especial" type="button" role="tab" aria-controls="nav-nivel-especial" aria-selected="false">Nivel Especial</button>
-                    <button class="nav-link" id="nav-rechazados-tab" data-bs-toggle="tab" data-bs-target="#nav-rechazados" type="button" role="tab" aria-controls="nav-rechazados" aria-selected="false">Rechazados</button>
+                    <a class="nav-link active" id="nav-pendientes-tab" data-mdb-tab-init href="#nav-pendientes" role="tab" aria-controls="nav-pendientes" aria-selected="true">Pendientes</button>
+                    <a class="nav-link" id="nav-nivel-a-tab" data-mdb-tab-init href="#nav-nivel-a" role="tab" aria-controls="nav-nivel-a" aria-selected="false">Nivel A</button>
+                    <a class="nav-link" id="nav-nivel-b-tab" data-mdb-tab-init href="#nav-nivel-b" role="tab" aria-controls="nav-nivel-b" aria-selected="false">Nivel B</button>
+                    <a class="nav-link" id="nav-nivel-c-tab" data-mdb-tab-init href="#nav-nivel-c" role="tab" aria-controls="nav-nivel-c" aria-selected="false">Nivel C</button>
+                    <a class="nav-link" id="nav-nivel-especial-tab" data-mdb-tab-init href="#nav-nivel-especial" role="tab" aria-controls="nav-nivel-especial" aria-selected="false">Nivel Especial</button>
+                    <a class="nav-link" id="nav-rechazados-tab" data-mdb-tab-init href="#nav-rechazados"role="tab" aria-controls="nav-rechazados" aria-selected="false">Rechazados</button>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">

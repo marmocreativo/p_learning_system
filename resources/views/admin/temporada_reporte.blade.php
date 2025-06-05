@@ -150,7 +150,7 @@
                                     @else
                                         @if ($visita)
                                             <td class="{{$class_text}}">0</td>
-                                            <td class="{{$class_text}}">0</td>
+                                            <td class="{{$class_text}}">-</td>
                                         @else
                                             <td class="{{$class_text}}">-</td>
                                             <td class="{{$class_text}}">-</td>

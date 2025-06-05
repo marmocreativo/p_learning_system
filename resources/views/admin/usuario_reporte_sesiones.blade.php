@@ -23,6 +23,10 @@
             </div>
             <div class="card card-body">
                 <table class="table table-stripped table-sm">
+                     <tr>
+                        <th>ID</th>
+                        <td>{{$usuario->id}}</td>
+                    </tr>
                     <tr>
                         <th>Nombre</th>
                         <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
@@ -30,6 +34,10 @@
                     <tr>
                         <th>Correo</th>
                         <td>{{$usuario->email}}</td>
+                    </tr>
+                    <tr>
+                        <th>ID Suscripción</th>
+                        <td>{{$suscripcion->id}}</td>
                     </tr>
                     <tr>
                         <th>Nivel usuario</th>

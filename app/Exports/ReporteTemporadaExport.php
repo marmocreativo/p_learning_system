@@ -133,7 +133,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                     }else{  
                         if ($visita){
                             $coleccion[$index]['s'.$s.'-v'] = '0';
-                            $coleccion[$index]['s'.$s.'-e'] = '0';
+                            $coleccion[$index]['s'.$s.'-e'] = '-';
                         }else{
                             $coleccion[$index]['s'.$s.'-v'] = '-';
                             $coleccion[$index]['s'.$s.'-e'] = '-';

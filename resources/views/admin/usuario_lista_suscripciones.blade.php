@@ -106,7 +106,7 @@
                             ? '<span class="badge bg-success">Habilitado</span>' 
                             : '<span class="badge bg-light">Deshabilitado</span>' !!}
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($suscripcion->fecha_terminos)->translatedFormat('d \d\e F \d\e Y') }}</td>
+                    <td>{{ $suscripcion->fecha_terminos }}</td>
                     
                     <td>
                         @if(!$suscripcion->pass_restaurado)

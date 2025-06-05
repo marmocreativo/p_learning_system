@@ -52,27 +52,34 @@ class CsvController extends Controller
         $usuario = null;
         $suscripcion = null;
         $concepto_existe = null;
-        $existe = null;
+        $existe = '';
+        $agregar = true;
 
         $usuario = User::where('email', $correo)->first();
-        if($usuario){
+        
+
+        if(!empty($usuario)){
+            // Reviso la suscripcion
             $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_temporada', $id_temporada)->first();
         }else{
-            $existe = 'El correo no es correcto';
+            $agregar = false;
+            $existe .= 'El correo no es correcto';
         }
 
-        if($usuario && $suscripcion){
+        if(!empty($suscripcion)){
             // reviso el concepto
             $concepto_existe = PuntosExtra::where('id_usuario', $usuario->id)->where('id_temporada', $id_temporada)->where('concepto', $concepto)->first();
         }else{
-            $existe = 'El usuario no está suscrito a esta temporada';
+            $agregar = false;
+            $existe .= 'El usuario no está suscrito a esta temporada';
         }
 
-        if($concepto_existe){
-            $existe = 'No agregado, concepto ya existente';
-            
-        }else{
+        if ($concepto_existe) {
+            $agregar = false;
+            $existe .= 'El concepto ya se había agregado';
+        }
 
+        if($agregar){
             $nuevo = new PuntosExtra;
             $nuevo->id_cuenta = $temporada->id_cuenta;
             $nuevo->id_temporada = $temporada->id;
@@ -82,10 +89,10 @@ class CsvController extends Controller
             $nuevo->fecha_registro = date('Y-m-d H:i:s');
             $nuevo->save();
 
-            $existe = 'Agregado correctamente';
-
-             
+            $existe .= 'Agregado correctamente';
+            
         }
+
         $resultados[] = [
                 'correo' => $correo,
                 'concepto' => $concepto,
