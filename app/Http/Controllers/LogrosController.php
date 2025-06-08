@@ -42,35 +42,40 @@ class LogrosController extends Controller
         //
         //
         $id_temporada = $request->input('id_temporada');
+        $temporada = Temporada::find($id_temporada);
+        $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
-// Obtener todos los distribuidores
-$distribuidores = Distribuidor::all();
+        // Obtener todos los distribuidores
+        $distribuidores = Distribuidor::all();
 
-// Inicializar arreglo de logros por distribuidor
-$logrosPorDistribuidor = [];
+        // Inicializar arreglo de logros por distribuidor
+        $logrosPorDistribuidor = [];
 
-// Bucle por cada distribuidor
-foreach ($distribuidores as $distribuidor) {
-    $logros = Logro::where('id_temporada', $id_temporada)
-        ->where('id_distribuidor', $distribuidor->id)
-        ->orderBy('orden', 'asc')
-        ->get();
+        // Bucle por cada distribuidor
+        foreach ($distribuidores as $distribuidor) {
+            $logros = Logro::where('id_temporada', $id_temporada)
+                ->where('id_distribuidor', $distribuidor->id)
+                ->orderBy('orden', 'asc')
+                ->get();
 
-    // Asignar los logros al array, usando el ID como clave
-    $logrosPorDistribuidor[$distribuidor->id] = $logros;
-    }
+            // Asignar los logros al array, usando el ID como clave
+            $logrosPorDistribuidor[$distribuidor->id] = $logros;
+            }
 
-    // También puedes obtener los logros sin distribuidor (base)
-    $logrosSinDistribuidor = Logro::where('id_temporada', $id_temporada)
-        ->where(function($query) {
-            $query->whereNull('id_distribuidor')
-                ->orWhere('id_distribuidor', '');
-        })
-        ->orderBy('orden', 'asc')
-        ->get();
+            // También puedes obtener los logros sin distribuidor (base)
+            $logrosSinDistribuidor = Logro::where('id_temporada', $id_temporada)
+                ->where(function($query) {
+                    $query->whereNull('id_distribuidor')
+                        ->orWhere('id_distribuidor', '');
+                })
+                ->orderBy('orden', 'asc')
+                ->get();
 
-    // Enviar todo a la vista
-    return view('admin/logro_lista', compact('distribuidores', 'logrosPorDistribuidor', 'logrosSinDistribuidor'));
+            // Enviar todo a la vista
+            return view('admin/logro_lista', compact('distribuidores', 'logrosPorDistribuidor', 'logrosSinDistribuidor', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     /**

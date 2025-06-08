@@ -21,21 +21,36 @@
                     <td>{{$usuario->nombre}} {{$usuario->apellidos}}</td>
                 </tr>
                 @php
-                    $nivelConfirmado = null;
+                    $nivelActual = null;
+                    $nivelCompleto = null;
                     if ($participacion->confirmacion_nivel_especial == 'si') {
-                        $nivelConfirmado = 'Nivel Especial';
+                        $nivelActual = 'Nivel Especial';
+                        $nivelCompleto = 'Nivel Especial';
                     } elseif ($participacion->confirmacion_nivel_c == 'si') {
-                        $nivelConfirmado = 'Nivel C';
+                        $nivelActual = 'Nivel Especial';
+                        $nivelCompleto = 'Nivel C';
                     } elseif ($participacion->confirmacion_nivel_b == 'si') {
-                        $nivelConfirmado = 'Nivel B';
+                        $nivelActual = 'Nivel C';
+                        $nivelCompleto = 'Nivel B';
                     } elseif ($participacion->confirmacion_nivel_a == 'si') {
-                        $nivelConfirmado = 'Nivel A';
+                        $nivelActual = 'Nivel B';
+                        $nivelCompleto = 'Nivel A';
+                    } elseif ($participacion->confirmacion_nivel_a == 'no') {
+                        $nivelActual = 'Nivel A';
+                        $nivelCompleto = '-';
                     }
                 @endphp
-                @if ($nivelConfirmado)
+                @if ($nivelActual)
                     <tr>
-                        <th>Nivel alcanzado</th>
-                        <td>{{ $nivelConfirmado }}</td>
+                        <td>
+                            Nivel actual<br>
+                            {{ $nivelActual }}
+                        </td>
+                        <td>
+                            Nivel completo<br>
+                            {{ $nivelCompleto }}
+                        </td>
+                        
                     </tr>
                 @endif
                 <tr>
@@ -95,18 +110,40 @@
         </div>
         <div class="col-9">
             <h5>Evidencias</h5>
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-link active" id="nav-pendientes-tab" data-mdb-tab-init href="#nav-pendientes" role="tab" aria-controls="nav-pendientes" aria-selected="true">Pendientes</button>
-                    <a class="nav-link" id="nav-nivel-a-tab" data-mdb-tab-init href="#nav-nivel-a" role="tab" aria-controls="nav-nivel-a" aria-selected="false">Nivel A</button>
-                    <a class="nav-link" id="nav-nivel-b-tab" data-mdb-tab-init href="#nav-nivel-b" role="tab" aria-controls="nav-nivel-b" aria-selected="false">Nivel B</button>
-                    <a class="nav-link" id="nav-nivel-c-tab" data-mdb-tab-init href="#nav-nivel-c" role="tab" aria-controls="nav-nivel-c" aria-selected="false">Nivel C</button>
-                    <a class="nav-link" id="nav-nivel-especial-tab" data-mdb-tab-init href="#nav-nivel-especial" role="tab" aria-controls="nav-nivel-especial" aria-selected="false">Nivel Especial</button>
-                    <a class="nav-link" id="nav-rechazados-tab" data-mdb-tab-init href="#nav-rechazados"role="tab" aria-controls="nav-rechazados" aria-selected="false">Rechazados</button>
-                </div>
-            </nav>
+            <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="ex1-tab-1" data-mdb-tab-init data-mdb-target="#ex1-tabs-1" type="button" role="tab" aria-controls="ex1-tabs-1" aria-selected="true">
+                        Pendientes
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ex1-tab-2" data-mdb-tab-init data-mdb-target="#ex1-tabs-2" type="button" role="tab" aria-controls="ex1-tabs-2" aria-selected="false">
+                        Nivel A
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ex1-tab-3" data-mdb-tab-init data-mdb-target="#ex1-tabs-3" type="button" role="tab" aria-controls="ex1-tabs-3" aria-selected="false">
+                        Nivel B
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ex1-tab-4" data-mdb-tab-init data-mdb-target="#ex1-tabs-4" type="button" role="tab" aria-controls="ex1-tabs-4" aria-selected="false">
+                        Nivel C
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ex1-tab-5" data-mdb-tab-init data-mdb-target="#ex1-tabs-5" type="button" role="tab" aria-controls="ex1-tabs-5" aria-selected="false">
+                        Nivel Especial
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ex1-tab-6" data-mdb-tab-init data-mdb-target="#ex1-tabs-6" type="button" role="tab" aria-controls="ex1-tabs-6" aria-selected="false">
+                        Rechazados
+                    </button>
+                </li>
+            </ul>
             <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="nav-pendientes" role="tabpanel" aria-labelledby="nav-pendientes-tab" tabindex="0">
+            <div class="tab-pane fade show active" id="ex1-tabs-1" role="tabpanel" aria-labelledby="ex1-tab-1">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
@@ -202,7 +239,7 @@
                     @endforeach
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-nivel-a" role="tabpanel" aria-labelledby="nav-nivel-a-tab" tabindex="0">
+             <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
@@ -269,7 +306,7 @@
                     @endforeach
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-nivel-b" role="tabpanel" aria-labelledby="nav-nivel-b-tab" tabindex="0">
+             <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tab-3">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
@@ -335,7 +372,7 @@
                     @endforeach
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-nivel-c" role="tabpanel" aria-labelledby="nav-nivel-c-tab" tabindex="0">
+             <div class="tab-pane fade" id="ex1-tabs-4" role="tabpanel" aria-labelledby="ex1-tab-4">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
@@ -401,7 +438,7 @@
                     @endforeach
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-nivel-especial" role="tabpanel" aria-labelledby="nav-nivel-especial-tab" tabindex="0">
+             <div class="tab-pane fade" id="ex1-tabs-5" role="tabpanel" aria-labelledby="ex1-tab-5">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
@@ -467,7 +504,7 @@
                     @endforeach
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-rechazados" role="tabpanel" aria-labelledby="nav-rechazados-tab" tabindex="0">
+            <div class="tab-pane fade" id="ex1-tabs-6" role="tabpanel" aria-labelledby="ex1-tab-6">
                 <table class="table table-bordered">
                     <tr>
                         <th>Archivo</th>
