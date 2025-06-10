@@ -67,19 +67,19 @@
                     @method('PUT')
                     <input type="hidden" name="UsuarioEmail" value="{{$usuario->email}}">
                     <div class="form-group">
-                        <label for="ConfirmacionNivel">Cumple el Nivel?</label>
+                        <label for="ConfirmacionNivel">Pasar a nivel</label>
                         <select name="ConfirmacionNivel" id="" class="form-control">
-                            <option value="a" @if($participacion->confirmacion_nivel_a=='si') selected @endif>A</option>
-                            <option value="b" @if($participacion->confirmacion_nivel_b=='si') selected @endif>B</option>
-                            <option value="c" @if($participacion->confirmacion_nivel_c=='si') selected @endif>C</option>
-                            <option value="especial" @if($participacion->confirmacion_nivel_especial=='si') selected @endif>ESPECIAL</option>
+                            <option value="" @if($participacion->confirmacion_nivel_a=='si') selected @endif>A</option>
+                            <option value="a" @if($participacion->confirmacion_nivel_a=='si') selected @endif>B</option>
+                            <option value="b" @if($participacion->confirmacion_nivel_b=='si') selected @endif>C</option>
+                            <option value="c" @if($participacion->confirmacion_nivel_c=='si') selected @endif>ESPECIAL</option>
+                            <option value="especial" @if($participacion->confirmacion_nivel_especial=='si') selected @endif>ESPECIAL (finalizado)</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="Estado">Estado</label>
                         <select name="Estado" id="" class="form-control">
                             <option value="participante" @if($participacion->estado=='participante') selected @endif>Participante</option>
-                            <option value="validando" @if($participacion->estado=='validando') selected @endif>Arbitro / Validación</option>
                             <option value="finalizado" @if($participacion->estado=='finalizado') selected @endif>Finalizado</option>
                         </select>
                     </div>

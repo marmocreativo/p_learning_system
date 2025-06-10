@@ -224,6 +224,7 @@ class CuentasController extends Controller
         $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->where('estado', 'activa')->orderBy('nombre', 'desc')->get();
         $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
         $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
+         $terminos_y_condiciones_champions = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos_champions')->first();
         $proxima_trivia = Trivia::where('id_temporada', $cuenta->temporada_actual)
             ->whereDate('fecha_publicacion', '>=', now()->toDateString())
             ->orderBy('fecha_publicacion', 'asc')
@@ -263,6 +264,7 @@ class CuentasController extends Controller
             'lista_temporadas' => $lista_temporada ? $lista_temporada : null,
             'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
             'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
+            'terminos_y_condiciones_champions' => $terminos_y_condiciones_champions ? $terminos_y_condiciones_champions : null,
             'noticias' => $noticias ? $noticias : null,
             'cintillo' => $cintillo ? $cintillo : null,
             'popup' => $popup ? $popup : null,

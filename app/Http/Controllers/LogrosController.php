@@ -339,16 +339,17 @@ class LogrosController extends Controller
     public function destroy_anexo(string $id)
     {
         //
-        $anexo = LogroParticipacion::find($id);
+        $anexo = LogroAnexo::find($id);
         $id_temporada = $anexo->id_temporada;
         $id_participacion = $anexo->id_participacion;
+
         // Buscar y eliminar registros relacionados en otras tablas
         
         LogroAnexo::where('id', $anexo->$id)->delete();
 
 
         $anexo->delete();
-        return redirect()->route('logros.detalles_participacion', ['id'=>$id_temporada]);
+        return redirect()->route('logros.detalles_participacion', ['id'=>$id_participacion]);
         
     }
 
@@ -711,12 +712,14 @@ public function reporte_excel(Request $request)
                         'existe'   => true,
                         'completa' => $sesionVis ? true : false,
                         'titulo'   => $sesion->titulo,
+                        'url'   => $sesion->url,
                     ];
                 } else {
                     $permisos[$url] = [
                         'existe'   => false,
                         'completa' => false,
                         'titulo'   => null,
+                        'url'   => null,
                     ];
                 }
             }

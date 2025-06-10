@@ -1341,7 +1341,7 @@ public function suscribir_full_update(Request $request, string $id)
         $accion->accion = 'registro usuario temporada';
         $accion->descripcion = 'Se registró el usuario '.$usuario->email.' en la temporada: '.$cuenta->nombre.' '.$temporada->nombre;
         $accion->id_cuenta = $cuenta->id;
-        $accion->temporada = $temporada->id;
+        $accion->id_temporada = $temporada->id;
         $accion->funcion = 'lider';
         $accion->save();
     }
