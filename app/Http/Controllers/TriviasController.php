@@ -528,14 +528,14 @@ class TriviasController extends Controller
             ];
 
             // Intentamos enviar el correo, pero capturamos la excepción si ocurre
-            /*
+            
             try {
                 Mail::to($usuario->email)->send(new GanadorTrivia($data));
             } catch (\Exception $e) {
                 // Registramos el error pero continuamos con la ejecución
                 \Log::error('Error al enviar correo de ganador de trivia: ' . $e->getMessage());
             }
-                */
+                
         }
 
         return response()->json([
