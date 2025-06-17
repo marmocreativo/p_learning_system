@@ -20,6 +20,7 @@ use App\Models\Trivia;
 use App\Models\JackpotIntentos;
 use App\Models\Jackpot;
 use App\Models\Cuenta;
+use App\Models\PuntosExtra;
 use App\Models\Sku;
 use App\Models\Logro;
 use App\Models\LogroParticipacion;
@@ -42,43 +43,12 @@ class FrontController extends Controller
     }
 
 
-    public function scripts_ajustes()
+public function scripts_ajustes()
 {
-    /*
-    $productos = LogroAnexoProducto::all();
-
-    $tabla = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">';
-    $tabla .= '<thead>';
-    $tabla .= '<tr>';
-    $tabla .= '<th>Producto</th>';
-    $tabla .= '<th>Id Anexo</th>';
-    $tabla .= '<th>Id Participacion</th>';
-    $tabla .= '</tr>';
-    $tabla .= '</thead>';
-    $tabla .= '<tbody>';
-
-    foreach ($productos as $producto) {
-        $exist_anexo = LogroAnexo::where('id', $producto->id_anexo)->exists();
-        $exist_participacion = LogroParticipacion::where('id', $producto->id_participacion)->exists();
-
-        // Eliminar de la base si no existe el anexo o la participación
-        if (!$exist_anexo || !$exist_participacion) {
-            $producto->delete();
-            continue; // No lo mostramos en la tabla
-        }
-
-        $tabla .= '<tr>';
-        $tabla .= '<td>' . $producto->id . '</td>';
-        $tabla .= '<td style="color:green">' . $producto->id_anexo . '</td>';
-        $tabla .= '<td style="color:green">' . $producto->id_participacion . '</td>';
-        $tabla .= '</tr>';
-    }
-
-    $tabla .= '</tbody>';
-    $tabla .= '</table>';
-
-    echo $tabla;
-    */
+    $registros_actualizados = PuntosExtra::where('concepto', 'Bono pimer ingreso')
+        ->update(['concepto' => 'Bono primer ingreso']);
+    
+    echo "Se actualizaron {$registros_actualizados} registros.";
 }
 
     public function scripts_ajustes_reparacion_sesion()

@@ -735,7 +735,7 @@ class LoginController extends Controller
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
                             $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
-                            $concepto = 'Bono pimer ingreso';
+                            $concepto = 'Bono primer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
                             $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
@@ -768,7 +768,7 @@ class LoginController extends Controller
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
                             $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
-                            $concepto = 'Bono pimer ingreso';
+                            $concepto = 'Bono primer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
                             $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
@@ -801,7 +801,7 @@ class LoginController extends Controller
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
                             $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
-                            $concepto = 'Bono pimer ingreso';
+                            $concepto = 'Bono primer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
                             $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)
@@ -834,7 +834,7 @@ class LoginController extends Controller
                             //Buscar si ya se registraron los puntos
                             $puntos = $cuenta->bono_login_cantidad;
                             $mensaje_primer_acceso .= 'de '.$puntos.' puntos -';
-                            $concepto = 'Bono pimer ingreso';
+                            $concepto = 'Bono primer ingreso';
                             $id_temporada = $cuenta->temporada_actual;
                             
                             $registro_puntos = PuntosExtra::where('id_cuenta', $cuenta->id)

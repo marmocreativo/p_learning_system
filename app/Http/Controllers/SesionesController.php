@@ -1542,6 +1542,7 @@ class SesionesController extends Controller
         $duda->id_usuario = $id_usuario;
         $duda->id_sesion = $id_sesion;
         $duda->duda = $duda_texto;
+        $duda->respuesta = ''; 
 
         $duda->save();
 

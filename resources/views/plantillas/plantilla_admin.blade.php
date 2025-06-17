@@ -20,9 +20,73 @@
         // Inicializar TinyMCE en las áreas de texto con la clase TextEditor
         tinymce.init({
             selector: "textarea.TextEditor",
-            plugins: "autolink lists link code",
-            toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | code" ,
+            plugins: "autolink lists link code codesample textcolor colorpicker", // Sin el plugin 'format'
+            toolbar: "undo redo | formatselect | bold italic | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | code",
             menubar: false,
+            
+            // Configuración de formatos personalizados
+            formats: {
+                h1: { block: 'h1' },
+                h2: { block: 'h2' },
+                h3: { block: 'h3' },
+                h4: { block: 'h4' },
+                h5: { block: 'h5' },
+                h6: { block: 'h6' },
+                p: { block: 'p' },
+                div: { block: 'div' },
+                pre: { block: 'pre' },
+                address: { block: 'address' }
+            },
+            
+            // Definir qué formatos aparecen en el dropdown
+            block_formats: 'Párrafo=p; Encabezado 1=h1; Encabezado 2=h2; Encabezado 3=h3; Encabezado 4=h4; Encabezado 5=h5; Encabezado 6=h6; Preformateado=pre; Dirección=address; Div=div',
+            
+            // Configuración para el selector de formato
+            format_block_elements: 'div,h1,h2,h3,h4,h5,h6,p,pre,address',
+            
+            // Configuración de colores personalizados
+            color_map: [
+                "000000", "Negro",
+                "993300", "Marrón oscuro",
+                "333300", "Verde oscuro",
+                "003300", "Verde muy oscuro",
+                "003366", "Azul marino",
+                "000080", "Azul marino",
+                "333399", "Azul índigo",
+                "333333", "Gris muy oscuro",
+                "800000", "Granate",
+                "FF6600", "Naranja",
+                "808000", "Oliva",
+                "008000", "Verde",
+                "008080", "Verde azulado",
+                "0000FF", "Azul",
+                "666699", "Gris azulado",
+                "808080", "Gris",
+                "FF0000", "Rojo",
+                "FF9900", "Ámbar",
+                "99CC00", "Lima amarillenta",
+                "339966", "Verde mar",
+                "33CCCC", "Turquesa",
+                "3366FF", "Azul real",
+                "800080", "Púrpura",
+                "999999", "Gris medio",
+                "FF00FF", "Fucsia",
+                "FFCC00", "Dorado",
+                "FFFF00", "Amarillo",
+                "00FF00", "Lima",
+                "00FFFF", "Agua",
+                "00CCFF", "Azul cielo",
+                "993366", "Marrón",
+                "C0C0C0", "Plata",
+                "FF99CC", "Rosa",
+                "FFCC99", "Melocotón",
+                "FFFF99", "Amarillo claro",
+                "CCFFCC", "Verde claro",
+                "CCFFFF", "Azul claro",
+                "99CCFF", "Azul muy claro",
+                "CC99FF", "Púrpura claro",
+                "FFFFFF", "Blanco"
+            ]
         });
     });
     </script>
