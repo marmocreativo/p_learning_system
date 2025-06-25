@@ -3,11 +3,33 @@
 @section('titulo', 'Minijuegos')
 
 @section('contenido_principal')
-    <h1>Minijuegos</h1>
-    <a href="{{ route('temporadas.show', $_GET['id_temporada']) }}">Volver a la temporada</a>
-    <hr>
-    <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}">Crear Minijuego</a>
-    <hr>
+<div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">MiniJuegos <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}" class="btn btn-success">Crear Minijuego</a>
+    </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item">Minijuegos</li>
+        </ol>
+    </nav>
     <div class="row">
         @foreach ($jackpots as $jackpot)
             <div class="col-3">

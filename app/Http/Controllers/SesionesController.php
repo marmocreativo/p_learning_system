@@ -447,6 +447,7 @@ class SesionesController extends Controller
         //
         $sesion = SesionEv::find($id);
 
+
         $visualizaciones = DB::table('sesiones_visualizaciones')
             ->join('usuarios', 'sesiones_visualizaciones.id_usuario', '=', 'usuarios.id')
             ->where('sesiones_visualizaciones.id_sesion', '=', $id)
@@ -457,10 +458,17 @@ class SesionesController extends Controller
         foreach($visualizaciones as $visualizacion){
             
             $detalles_distribuidor = Distribuidor::find($visualizacion->id_distribuidor);
+            
             if($detalles_distribuidor){
                 $visualizacion->nombre_distribuidor = $detalles_distribuidor->nombre;
             }else{
                 $visualizacion->nombre_distribuidor = 'N/A';
+            }
+            $visita = SesionVisita::where('id_sesion', $visualizacion->id_sesion)->where('id_usuario', $visualizacion->id_usuario)->first();
+            if($visita){
+                $visualizacion->visita = $visita->created_at;
+            }else{
+                $visualizacion->visita = 'N/A';
             }
             
 
@@ -530,7 +538,18 @@ class SesionesController extends Controller
         //
         $sesion = SesionEv::find($id);
         $clases = Clase::where('elementos','publicaciones')->get();
-        return view('admin/sesion_form_actualizar', compact('sesion', 'clases'));
+        $temporada = Temporada::find($sesion->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/sesion_form_actualizar', compact('sesion',
+                                                            'clases',
+                                                            'temporada',
+                                                            'cuentas',
+                                                            'cuenta',
+                                                            'color_barra_superior',
+                                                            'logo_cuenta'));
     }
 
     /**

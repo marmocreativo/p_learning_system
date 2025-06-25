@@ -7,7 +7,7 @@
         <h1 class="h3 mb-0">Resultados {{$sesion->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
             <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-primary">Contenido</a>
-            <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-info">Dudas</a>
+            <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-info">Comentarios usuarios</a>
             <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
             <a href="{{route('sesiones.reparar', $sesion->id)}}" class="btn btn-outline-danger">Reparar puntaje</a>
             <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
@@ -101,41 +101,50 @@
                 <tr>
                     <th>Usuario</th>
                     <th>Distribuidor</th>
-                    <th>Puntaje</th>
+                    <th>Visita</th>
                     <th>Visualización</th>
-                    @php $i=1; @endphp
-                    @foreach($preguntas as $pregunta)
-                        <th>Q{{$i}}</th>
-                        <th>Puntaje {{$i}}</th>
-                    @php $i++; @endphp
-                    @endforeach
+                    <th>Puntaje Visualización</th>
+                    <th>Preguntas</th>
+                    <th>Puntaje Preguntas</th>
+                    <th>Total</th>
                     <th>Control</th>
                 </tr>
                 @foreach($visualizaciones as $vis)
+                @php
+                    $total = 0;
+                @endphp
                 <tr>
                     <td>{{$vis->nombre}} {{$vis->apellidos}}</td>
                     <td>{{$vis->nombre_distribuidor}}</td>
-                    <td>{{$vis->puntaje}}</td>
+                    <td>{{$vis->visita}}</td>
                     <td>{{$vis->fecha_ultimo_video}}</td>
+                    <td>{{$vis->puntaje}}</td>
+                    @php
+                        $total += $vis->puntaje;
+                        $preguntas_texto = '';
+                        $puntaje_preguntas = 0;
+                    @endphp
                     @foreach($preguntas as $pregunta)
                         @php
                             $respuestasFiltradas = $respuestas->filter(function ($respuesta) use ($vis, $pregunta) {
                                 return $respuesta->id_usuario == $vis->id_usuario && $respuesta->id_pregunta == $pregunta->id;
                             });
                         @endphp
-                    <td>
                         @foreach ($respuestasFiltradas as $respuesta)
-                            {{$respuesta->respuesta_usuario}}
-                            @if($respuesta->respuesta_correcta=='correcto') <i class="fa-solid fa-circle-check"></i> @else <i class="fa-solid fa-circle-xmark"></i> @endif
+                         @php $preguntas_texto .=$respuesta->respuesta_usuario; @endphp
+                            @if($respuesta->respuesta_correcta=='correcto') @php $preguntas_texto .=' <i class="fa-solid fa-circle-check"></i>'; @endphp  @else @php  $preguntas_texto .=' <i class="fa-solid fa-circle-xmark"></i>'; @endphp  @endif
                         @endforeach
-                    </td>
                     
-                    <td>
                         @foreach ($respuestasFiltradas as $respuesta)
-                            {{$respuesta->puntaje}}
+                            @php
+                                $puntaje_preguntas += $respuesta->puntaje;
+                                $total += $respuesta->puntaje;
+                            @endphp
                         @endforeach
-                    </td>
                     @endforeach
+                    <td>{!! $preguntas_texto !!}</td>
+                    <td>{{$puntaje_preguntas}}</td>
+                    <td>{{$total}}</td>
                     <td>
                         <form action="{{route('sesiones.destroy_visualizacion', $vis->id_visualizacion)}}" class="form-confirmar" method="POST">
                             @csrf

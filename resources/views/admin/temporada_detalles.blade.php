@@ -146,11 +146,6 @@
                                                 
                                             </div>
                                         </div>
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <a class="btn btn-outline-warning w-100" href="{{ route('sesiones.completadas', ['id_temporada'=> $temporada->id]) }}">Verificar completadas</a>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-4">

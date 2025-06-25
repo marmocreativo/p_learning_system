@@ -3,7 +3,40 @@
 @section('titulo', 'Sesiones')
 
 @section('contenido_principal')
-    <h1>Formulario de sesiones</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Editar {{$sesion->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}" class="btn btn-info">Salir</a>
+            <a href="{{route('sesiones.resultados', $sesion->id)}}" class="btn btn-info enlace_pesado">Reporte Sesión</a>
+            <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-primary">Comentarios usuarios</a>
+            <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
+            <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
+        </div>
+    </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Sesiones</a> </li>
+            <li class="breadcrumb-item">{{$sesion->titulo}}</li>
+        </ol>
+    </nav>
     <form action="{{ route('sesiones.update', $sesion->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')

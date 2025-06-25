@@ -6,8 +6,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Detalles {{$sesion->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
-            <a href="{{route('sesiones.resultados', $sesion->id)}}" class="btn btn-info">Resultados</a>
-            <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-primary">Dudas</a>
+            <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}" class="btn btn-info">Salir</a>
+            <a href="{{route('sesiones.resultados', $sesion->id)}}" class="btn btn-info enlace_pesado">Reporte Sesión</a>
+            <a href="{{route('sesiones.dudas', $sesion->id)}}" class="btn btn-primary">Comentarios usuarios</a>
             <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
             <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
         </div>

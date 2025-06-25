@@ -10,6 +10,7 @@ use App\Models\JackpotRes;
 use App\Models\JackpotIntentos;
 use App\Models\Distribuidor;
 use App\Models\Clase;
+use App\Models\Cuenta;
 use App\Models\Temporada;
 use App\Models\UsuariosSuscripciones;
 use App\Models\User;
@@ -29,7 +30,16 @@ class JackpotsController extends Controller
         //
         $id_temporada = $request->input('id_temporada');
         $jackpots = Jackpot::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/jackpot_lista', compact('jackpots'));
+        $temporada = Temporada::find($id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/jackpot_lista', compact('jackpots', 'temporada',
+'cuentas',
+'cuenta',
+'color_barra_superior',
+'logo_cuenta',));
     }
 
     /**
