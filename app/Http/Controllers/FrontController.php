@@ -42,8 +42,20 @@ class FrontController extends Controller
         return view('front/home');
     }
 
-
 public function scripts_ajustes()
+{
+    $suscripciones = UsuariosSuscripciones::where('funcion', 'superlider')->get();
+    $encontrados = 0;
+
+    foreach ($suscripciones as $suscripcion) {
+        $suscripcion->funcion = 'super_lider';
+        $suscripcion->save();
+        $encontrados++;
+    }
+
+    echo 'Encontrados y corregidos: ' . $encontrados;
+}
+public function scripts_ajustes_reparacion_bono()
 {
     $registros_actualizados = PuntosExtra::where('concepto', 'Bono pimer ingreso')
         ->update(['concepto' => 'Bono primer ingreso']);
