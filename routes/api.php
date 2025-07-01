@@ -117,6 +117,7 @@ Route::get('panel_lider', [UsuariosController::class, 'panel_lider_api'])->name(
 
 Route::get('distribuidores_super_lider', [UsuariosController::class, 'distribuidores_super_lider_api'])->name('distribuidores_super_lider.api');
 Route::get('datos_basicos_super_lider', [UsuariosController::class, 'datos_basicos_super_lider_api'])->name('datos_basicos_super_lider.api');
+Route::get('datos_champions_super_lider', [UsuariosController::class, 'datos_champions_super_lider_api'])->name('datos_champions_super_lider.api');
 Route::get('panel_super_lider', [UsuariosController::class, 'panel_super_lider_api'])->name('panel_super_lider.api');
 
 Route::post('agregar_usuario', [UsuariosController::class, 'agregar_usuario_api'])->name('agregar_usuario.api');

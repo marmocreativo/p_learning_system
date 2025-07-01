@@ -31,6 +31,7 @@ use App\Models\NotificacionUsuario;
 use App\Models\LogroParticipacion;
 use App\Models\LogroAnexo;
 use App\Models\LogroAnexoProducto;
+use App\Models\Logro;
 use App\Models\Direccion;
 use App\Models\Publicacion;
 use Illuminate\Http\Request;
@@ -2199,4 +2200,72 @@ public function suscribir_full_update(Request $request, string $id)
 
 
     }
+
+    public function datos_champions_super_lider_api(Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $id_usuario = $request->input('id_usuario');
+        $id_distribuidor = $request->input('id_distribuidor');
+
+        $cuenta = Cuenta::find($id_cuenta);
+        $id_temporada = $cuenta->temporada_actual;
+
+        $usuario = User::find($id_usuario);
+        $temporada = Temporada::find($id_temporada);
+
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)
+            ->where('id_usuario', $id_usuario)
+            ->first();
+
+        $distribuidor = Distribuidor::find($id_distribuidor);
+
+        $lista_logros = Logro::where('id_temporada', $id_temporada)
+            ->where(function ($query) use ($distribuidor) {
+                $query->whereNull('id_distribuidor')
+                    ->orWhere('id_distribuidor', '')
+                    ->orWhere('id_distribuidor', $distribuidor->id);
+            })
+            ->with('participaciones')
+            ->get();
+
+        foreach ($lista_logros as $logro) {
+            $participaciones = $logro->participaciones;
+
+            $cantidad_participantes = $participaciones->whereIn('estado', ['participante', 'validando'])->where('id_distribuidor', $distribuidor->id)->count();
+            $cantidad_finalizados = $participaciones->where('estado', 'finalizado')->where('id_distribuidor', $distribuidor->id)->count();
+
+            $total_a = $participaciones->where('confirmacion_nivel_a', 'si')->where('id_distribuidor', $distribuidor->id)->count();
+            $total_b = $participaciones->where('confirmacion_nivel_b', 'si')->where('id_distribuidor', $distribuidor->id)->count();
+            $total_c = $participaciones->where('confirmacion_nivel_c', 'si')->where('id_distribuidor', $distribuidor->id)->count();
+            $total_especial = $participaciones->where('confirmacion_nivel_d', 'si')->where('id_distribuidor', $distribuidor->id)->count();
+
+            if ($distribuidor->region == 'RoLA') {
+                $total_acumulado = 
+                    ($logro->premio_rola_a * $total_a) +
+                    ($logro->premio_rola_b * $total_b) +
+                    ($logro->premio_rola_c * $total_c) +
+                    ($logro->premio_rola_especial * $total_especial);
+            } else {
+                $total_acumulado = 
+                    ($logro->premio_a * $total_a) +
+                    ($logro->premio_b * $total_b) +
+                    ($logro->premio_c * $total_c) +
+                    ($logro->premio_especial * $total_especial);
+            }
+
+            $logro->cantidad_participantes = $cantidad_participantes;
+            $logro->cantidad_finalizados = $cantidad_finalizados;
+            $logro->total_a = $total_a;
+            $logro->total_b = $total_b;
+            $logro->total_c = $total_c;
+            $logro->total_especial = $total_especial;
+            $logro->total_acumulado = $total_acumulado;
+        }
+
+        return response()->json([
+            'distribuidor' => $distribuidor,
+            'logros' => $lista_logros
+        ]);
+    }
+
 }
