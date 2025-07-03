@@ -294,7 +294,7 @@ class TemporadasController extends Controller
         $export = new ReporteTemporadaExport($request, $id);
         
         // Generar un nombre de archivo único usando timestamp
-        $filename = 'reporte_temporada_' . time() . '.xlsx';
+        $filename = 'reporte_temporada_'.$id.'_region_'.$request->region.'_distribuidor_'.$request->distribuidor.'_'. time() . '.xlsx';
 
         // Generar la respuesta de descarga con los encabezados HTTP
         $response = Excel::download($export, $filename);

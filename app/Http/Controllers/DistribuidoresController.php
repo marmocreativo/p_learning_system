@@ -58,21 +58,21 @@ class DistribuidoresController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = 'distribuidor_default.jpg';
         }
         if ($request->hasFile('ImagenFondoA')) {
             $imagen = $request->file('ImagenFondoA');
             $nombreImagenFondoA = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoA);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondoA);
         }else{
             $nombreImagenFondoA = 'fondo_distribuidor_default.jpg';
         }
         if ($request->hasFile('ImagenFondoB')) {
             $imagen = $request->file('ImagenFondoB');
             $nombreImagenFondoB = 'sesion_'.time().'.'.$imagen->extension();
-            $imagen->move(public_path('img/publicaciones'), $nombreImagenFondoB);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondoB);
         }else{
             $nombreImagenFondoB = 'fondo_distribuidor_default.jpg';
         }
@@ -131,7 +131,7 @@ class DistribuidoresController extends Controller
         if ($request->hasFile('Imagen')) {
             $imagen = $request->file('Imagen');
             $nombreImagen = 'distribuidor_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagen);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagen);
         }else{
             $nombreImagen = $distribuidor->imagen;
         }
@@ -139,14 +139,14 @@ class DistribuidoresController extends Controller
         if ($request->hasFile('ImagenFondoA')) {
             $imagen = $request->file('ImagenFondoA');
             $nombreImagenFondoA = 'distribuidor_f_a_'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondoA);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondoA);
         }else{
             $nombreImagenFondoA = $distribuidor->imagen_fondo_a;
         }
         if ($request->hasFile('ImagenFondoB')) {
             $imagen = $request->file('ImagenFondoB');
             $nombreImagenFondoB = 'distribuidor__f_b'.time().'.'.$imagen->extension();
-            $imagen->move(base_path('../public_html/plsystem/img/publicaciones'), $nombreImagenFondoB);
+            $imagen->move(base_path('../public_html/img/publicaciones'), $nombreImagenFondoB);
         }else{
             $nombreImagenFondoB = $distribuidor->imagen_fondo_b;
         }

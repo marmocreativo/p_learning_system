@@ -73,7 +73,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             ->leftJoin('sucursales', 'usuarios_suscripciones.id_sucursal', '=', 'sucursales.id')
             ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
             ->when($region !== 'todas', function ($query) use ($region) {
-                return $query->where('usuarios_suscripciones.region', $region);
+                return $query->where('distribuidores.region', $region);
             })
             // Añade la condición de distribuidor si no es 0
             ->when($distribuidor != 0, function ($query) use ($distribuidor) {

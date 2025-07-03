@@ -42,7 +42,8 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         $this->id_temporada = $request->input('id_temporada');
         $this->id_logro = $request->input('id_logro');
-        $this->region = $request->input('region');
+        $this->region = $request->input('region');  
+        $this->id_distribuidor = $request->input('id_distribuidor', null);  
     }
     public function collection()
     {
@@ -66,27 +67,47 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
                 ->where('id_temporada', $temporada->id ?? null)
                 ->first();
 
-            $distribuidor = $suscripcion->distribuidor->nombre ?? '—';
+            $distribuidor_id = $suscripcion->distribuidor->id ?? '—';
+            $distribuidor_nombre = $suscripcion->distribuidor->nombre ?? '—';
             $region_distribuidor = $suscripcion->distribuidor->region ?? '—';
             
-
-            if($region_distribuidor==$this->region){
-                $listado_productos[] = [
-                    'nombre' => $usuario->nombre ?? '—',
-                    'apellido' => $usuario->apellidos ?? '—',
-                    'correo' => $usuario->email ?? '—',
-                    'distribuidor' => $distribuidor ?? '—',
-                    'region' => $region_distribuidor ?? '—',
-                    'folio' => $anexo->folio ?? '—',
-                    'moneda' => $anexo->moneda ?? '—',
-                    'sku' => $producto->sku ?? '—',
-                    'cantidad' => $producto->cantidad ?? 0,
-                    'importe' => $producto->importe_total ?? 0,
-                    'fecha' => $anexo->emision ?? '—',
-                    'validado' => $anexo->validado ?? '—',
-                ];
+            if($this->id_distribuidor){
+                if($distribuidor_id==$this->id_distribuidor){
+                    $listado_productos[] = [
+                        'desafio'=> $logro->nombre ?? '-',
+                        'nombre' => $usuario->nombre ?? '—',
+                        'apellido' => $usuario->apellidos ?? '—',
+                        'correo' => $usuario->email ?? '—',
+                        'distribuidor' => $distribuidor_nombre ?? '—',
+                        'region' => $region_distribuidor ?? '—',
+                        'folio' => $anexo->folio ?? '—',
+                        'moneda' => $anexo->moneda ?? '—',
+                        'sku' => $producto->sku ?? '—',
+                        'cantidad' => $producto->cantidad ?? 0,
+                        'importe' => $producto->importe_total ?? 0,
+                        'fecha' => $anexo->emision ?? '—',
+                        'validado' => $anexo->validado ?? '—',
+                    ];
+                }
+            }else{
+                if($region_distribuidor==$this->region){
+                    $listado_productos[] = [
+                        'desafio'=> $logro->nombre ?? '-',
+                        'nombre' => $usuario->nombre ?? '—',
+                        'apellido' => $usuario->apellidos ?? '—',
+                        'correo' => $usuario->email ?? '—',
+                        'distribuidor' => $distribuidor_nombre ?? '—',
+                        'region' => $region_distribuidor ?? '—',
+                        'folio' => $anexo->folio ?? '—',
+                        'moneda' => $anexo->moneda ?? '—',
+                        'sku' => $producto->sku ?? '—',
+                        'cantidad' => $producto->cantidad ?? 0,
+                        'importe' => $producto->importe_total ?? 0,
+                        'fecha' => $anexo->emision ?? '—',
+                        'validado' => $anexo->validado ?? '—',
+                    ];
+                }
             }
-
         }
 
 
@@ -96,6 +117,7 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
+            'Desafio',
             'Nombre',
             'Apellidos',
             'Correo',

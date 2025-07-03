@@ -165,6 +165,7 @@
                     <th>Usuario</th>
                     <th>Distribuidor</th>
                     <th>Archivos a revisar</th>
+                    <th>Progreso</th>
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Controles</th>
@@ -184,6 +185,26 @@
                             </td>
                             <td>{{ $participacion->distribuidor->nombre ?? '—' }}</td>
                             <td>{{ $participacion->anexosNoValidados->count() }}</td>
+                            <td>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>A</th>
+                                            <th>B</th>
+                                            <th>C</th>
+                                            <th>ES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ $participacion->confirmacion_nivel_a }}</td>
+                                            <td>{{ $participacion->confirmacion_nivel_b }}</td>
+                                            <td>{{ $participacion->confirmacion_nivel_c }}</td>
+                                            <td>{{ $participacion->confirmacion_nivel_especial }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
                             <td>{{ $participacion->estado }}</td>
                             <td>{{ $participacion->fecha_registro }}</td>
                             <td>
