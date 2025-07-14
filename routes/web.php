@@ -46,6 +46,10 @@ Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.back
 Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
 
 Route::get('admin/logros/reporte', [LogrosController::class, 'reporte'])->name('logros.reporte');
+Route::delete('admin/logros/borrar_sku', [LogrosController::class, 'borrar_sku'])->middleware('auth')->name('logros.borrar_sku');
+Route::post('admin/logros/agregar_sku', [LogrosController::class, 'agregar_sku'])->middleware('auth')->name('logros.agregar_sku');
+Route::get('admin/logros/descargar_sku', [LogrosController::class, 'descargar_sku'])->name('logros.descargar_sku');
+Route::post('/sku_masivo', [CsvController::class, 'sku_masivo'])->name('sku_masivo');
 
 Route::get('admin/acciones', [AccionesController::class, 'lista_acciones'])->middleware('auth')->name('acciones');
 

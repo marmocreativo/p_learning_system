@@ -58,6 +58,11 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->where('id_temporada', $this->id_temporada)
             ->get();
 
+        $participaciones = LogroParticipacion::with(['usuario'])
+            ->where('id_logro', $this->id_logro)
+            ->where('id_temporada', $this->id_temporada)
+            ->get();
+
         $listado_productos = [];
         foreach($anexos_productos as $producto){
             $usuario = $producto->usuario;

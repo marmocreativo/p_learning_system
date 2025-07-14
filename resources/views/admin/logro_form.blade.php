@@ -145,8 +145,9 @@
                 <hr>
                 
                 <div class="form-group">
-                    <label for="NivelUsuario">Nivel Usuario</label>
+                    <label for="NivelUsuario">Categoría Usuario</label>
                     <select name="NivelUsuario" id="" class="form-control">
+                        <option value="todos">Todos</option>
                         <option value="ventas">Ventas</option>
                         <option value="especialista">Especialista</option>
                     </select>

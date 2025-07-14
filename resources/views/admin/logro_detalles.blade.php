@@ -97,9 +97,10 @@
                             <td>{{ $sku->sku }}</td>
                             <td>
                                 <!-- Botón de borrar -->
-                                <form method="POST" action="" onsubmit="return confirm('¿Estás seguro?');">
+                                <form method="POST" action="{{route('logros.borrar_sku')}}" onsubmit="return confirm('¿Estás seguro?');">
                                     @csrf
                                     @method('DELETE')
+                                    <input type="hidden" name="id" value="{{$sku->id}}">
                                     <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
                                 </form>
                             </td>
@@ -112,17 +113,34 @@
                 </tbody>
             </table>
         </div>
+        <div class="my-4">
+            <a href="{{route('logros.descargar_sku', ['id_logro' => $logro->id])}}" class="btn btn-success w-100">Descargar Lista SKUs</a>
+        </div>
         <!-- Formulario para agregar SKU -->
         <div class="border border-dashed p-3">
-            <form method="POST" action="" class="mt-2">
+            <form method="POST" action="{{route('logros.agregar_sku')}}" class="mt-2">
+                <input type="hidden" name="id_logro" value='{{$logro->id}}'>
+                <input type="hidden" name="desafio" value='{{$logro->nombre}}'>
                 @csrf
                 <div class="form-group">
                     <label>Nuevo SKU</label>
-                    <input type="text" name="Sku" class="form-control" required>
+                    <input type="text" name="sku" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
-                    <textarea name="Descripcion" class="form-control" rows="3"></textarea>
+                    <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                </div>
+                <button class="btn btn-success w-100 mt-3" type="submit">Agregar</button>
+            </form>
+        </div>
+        <hr>
+        <div class="border border-dashed p-3">
+            <form method="POST" action="{{route('sku_masivo')}}" class="mt-2" enctype="multipart/form-data">
+                <input type="hidden" name="id_logro" value="{{$logro->id}}">
+                @csrf
+                <div class="form-group">
+                    <label>Excel</label>
+                    <input type="file" name="file" class="form-control" required>
                 </div>
                 <button class="btn btn-success w-100 mt-3" type="submit">Agregar</button>
             </form>

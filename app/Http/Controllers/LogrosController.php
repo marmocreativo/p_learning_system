@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 
 
 use App\Exports\LogrosExport;
+use App\Exports\SkusExport;
 
 use App\Mail\ConfirmacionNivelChampions;
 use App\Mail\FinalizacionChampions;
@@ -898,5 +899,40 @@ public function reporte_excel(Request $request)
         // Retornar la descarga
         return Excel::download(new LogrosExport($request), $nombreArchivo);
         
+    }
+
+    public function descargar_sku(Request $request)
+    {
+        // Validar los parámetros requeridos
+        $request->validate([
+            'id_logro' => 'integer',
+        ]);
+
+        $nombreArchivo = 'sku_export_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new SkusExport($request), $nombreArchivo);
+    }
+
+    public function borrar_sku(Request $request)
+    {
+        $sku = Sku::where('id', $request->id)->first();
+
+
+        $sku->delete();
+        return redirect()->route('logros.show', $sku->id_logro);
+    }
+
+    public function agregar_sku(Request $request)
+    {
+        $sku = new Sku();
+        $sku->desafio = $request->desafio;
+        $sku->sku = $request->sku;
+        $sku->sku_clean = $request->sku;
+        $sku->detalles = $request->descripcion;
+        $sku->id_logro = $request->id_logro;
+        $sku->save();
+
+
+        return redirect()->route('logros.show', $request->id_logro);
     }
 }

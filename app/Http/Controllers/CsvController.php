@@ -14,6 +14,8 @@ use App\Models\Sucursal;
 use App\Models\DistribuidoresSuscripciones;
 use App\Models\SesionVis;
 use App\Models\PuntosExtra;
+use App\Models\Logro;
+use App\Models\Sku;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,6 +27,7 @@ use App\Imports\DistribuidoresImport;
 use App\Imports\SucursalesImport;
 use App\Imports\PuntosExtraImport;
 use App\Imports\UsuariosImport;
+use App\Imports\SkusImport;
 
 class CsvController extends Controller
 {
@@ -105,6 +108,55 @@ class CsvController extends Controller
             'resultados' => $resultados,
             'id_temporada' => $id_temporada
         ]);
+}
+
+    public function sku_masivo(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx',
+        'id_logro' => 'integer'
+    ]);
+
+    $import = new SkusImport;
+    Excel::import($import, $request->file('file'));
+
+    $rows = $import->rows;
+    $resultados = [];
+    $id_logro = $request->input('id_logro');
+    $logro = Logro::where('id', $id_logro)->first();
+
+    $agregados = 0;
+    $existentes = 0;
+
+    foreach ($rows as $row) {
+        $sku = $row['sku'];
+        $descripcion = $row['descripcion'];
+
+        $sku_existente = Sku::where('sku_clean', $sku)->where('desafio', $logro->nombre)->first();
+        
+        if(!$sku_existente){
+            $nuevo = new Sku;
+            $nuevo->sku = $sku;
+            $nuevo->sku_clean = $sku;
+            $nuevo->detalles = $descripcion;  
+            $nuevo->desafio = $logro->nombre;  
+            $nuevo->id_logro = $logro->id;
+            $nuevo->save();
+            $agregados ++;
+        }else{
+            $existentes ++;
+        }
+
+        $resultados[] = [
+                'agregados' => $agregados,
+                'existentes' => $existentes
+            ];
+    }
+
+    return view('importacion.resultado_skus', [
+        'resultados' => $resultados,
+        'id_logro' => $id_logro
+    ]);
 }
 
     public function importar_usuarios(Request $request)
