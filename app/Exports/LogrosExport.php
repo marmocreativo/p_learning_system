@@ -34,31 +34,50 @@ use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
+class LogrosExport implements WithMultipleSheets
 {
-
-        public function __construct(Request $request)
+    public function __construct(Request $request)
     {
         $this->id_temporada = $request->input('id_temporada');
         $this->id_logro = $request->input('id_logro');
         $this->region = $request->input('region');  
         $this->id_distribuidor = $request->input('id_distribuidor', null);  
     }
+
+    public function sheets(): array
+    {
+        return [
+            'Productos' => new ProductosSheet($this->id_temporada, $this->id_logro, $this->region, $this->id_distribuidor),
+            'Participaciones' => new ParticipacionesSheet($this->id_temporada, $this->id_logro, $this->region, $this->id_distribuidor),
+        ];
+    }
+}
+
+// Hoja para productos (tu lógica actual)
+class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
+{
+    protected $id_temporada;
+    protected $id_logro;
+    protected $region;
+    protected $id_distribuidor;
+
+    public function __construct($id_temporada, $id_logro, $region, $id_distribuidor)
+    {
+        $this->id_temporada = $id_temporada;
+        $this->id_logro = $id_logro;
+        $this->region = $region;
+        $this->id_distribuidor = $id_distribuidor;
+    }
+
     public function collection()
     {
-        
-        
         $temporada = Temporada::find($this->id_temporada);
         $cuenta = Cuenta::find($temporada->id_cuenta ?? null);
         $logro = Logro::find($this->id_logro);
         
         $anexos_productos = LogroAnexoProducto::with(['usuario', 'anexo', 'participacion'])
-            ->where('id_logro', $this->id_logro)
-            ->where('id_temporada', $this->id_temporada)
-            ->get();
-
-        $participaciones = LogroParticipacion::with(['usuario'])
             ->where('id_logro', $this->id_logro)
             ->where('id_temporada', $this->id_temporada)
             ->get();
@@ -77,7 +96,7 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
             $region_distribuidor = $suscripcion->distribuidor->region ?? '—';
             
             if($this->id_distribuidor){
-                if($distribuidor_id==$this->id_distribuidor){
+                if($distribuidor_id == $this->id_distribuidor){
                     $listado_productos[] = [
                         'desafio'=> $logro->nombre ?? '-',
                         'nombre' => $usuario->nombre ?? '—',
@@ -94,8 +113,8 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
                         'validado' => $anexo->validado ?? '—',
                     ];
                 }
-            }else{
-                if($region_distribuidor==$this->region){
+            } else {
+                if($region_distribuidor == $this->region){
                     $listado_productos[] = [
                         'desafio'=> $logro->nombre ?? '-',
                         'nombre' => $usuario->nombre ?? '—',
@@ -115,10 +134,9 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
             }
         }
 
-
         return collect($listado_productos);
-            
     }
+
     public function headings(): array
     {
         return [
@@ -143,7 +161,114 @@ class LogrosExport implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:L1')->applyFromArray([
+                $event->sheet->getStyle('A1:M1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF']
+                    ],
+                    'fill' => [
+                        'fillType' => 'solid',
+                        'startColor' => ['rgb' => '213746']
+                    ],
+                ]);
+            },
+        ];
+    }
+}
+
+// Nueva hoja para participaciones
+class ParticipacionesSheet implements FromCollection, WithHeadings, ShouldAutoSize
+{
+    protected $id_temporada;
+    protected $id_logro;
+    protected $region;
+    protected $id_distribuidor;
+
+    public function __construct($id_temporada, $id_logro, $region, $id_distribuidor)
+    {
+        $this->id_temporada = $id_temporada;
+        $this->id_logro = $id_logro;
+        $this->region = $region;
+        $this->id_distribuidor = $id_distribuidor;
+    }
+
+    public function collection()
+    {
+        $temporada = Temporada::find($this->id_temporada);
+        $logro = Logro::find($this->id_logro);
+        
+        $participaciones = LogroParticipacion::with(['usuario'])
+            ->where('id_logro', $this->id_logro)
+            ->where('id_temporada', $this->id_temporada)
+            ->get();
+
+        $listado_participaciones = [];
+        foreach($participaciones as $participacion){
+            $usuario = $participacion->usuario;
+            $suscripcion = UsuariosSuscripciones::with(['distribuidor'])
+                ->where('id_usuario', $usuario->id ?? null)
+                ->where('id_temporada', $temporada->id ?? null)
+                ->first();
+
+            $distribuidor_id = $suscripcion->distribuidor->id ?? '—';
+            $distribuidor_nombre = $suscripcion->distribuidor->nombre ?? '—';
+            $region_distribuidor = $suscripcion->distribuidor->region ?? '—';
+            
+            if($this->id_distribuidor){
+                if($distribuidor_id == $this->id_distribuidor){
+                    $listado_participaciones[] = [
+                        'desafio' => $logro->nombre ?? '-',
+                        'nombre' => $usuario->nombre ?? '—',
+                        'apellido' => $usuario->apellidos ?? '—',
+                        'correo' => $usuario->email ?? '—',
+                        'distribuidor' => $distribuidor_nombre ?? '—',
+                        'region' => $region_distribuidor ?? '—',
+                        'fecha_participacion' => $participacion->created_at ?? '—',
+                        'estado' => $participacion->estado ?? '—',
+                        'completado' => $participacion->completado ? 'Sí' : 'No',
+                    ];
+                }
+            } else {
+                if($region_distribuidor == $this->region){
+                    $listado_participaciones[] = [
+                        'desafio' => $logro->nombre ?? '-',
+                        'nombre' => $usuario->nombre ?? '—',
+                        'apellido' => $usuario->apellidos ?? '—',
+                        'correo' => $usuario->email ?? '—',
+                        'distribuidor' => $distribuidor_nombre ?? '—',
+                        'region' => $region_distribuidor ?? '—',
+                        'fecha_participacion' => $participacion->created_at ?? '—',
+                        'estado' => $participacion->estado ?? '—',
+                        'completado' => $participacion->completado ? 'Sí' : 'No',
+                    ];
+                }
+            }
+        }
+
+        return collect($listado_participaciones);
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Desafio',
+            'Nombre',
+            'Apellidos',
+            'Correo',
+            'Distribuidor',
+            'Region',
+            'Fecha Participación',
+            'Estado',
+            'Completado',
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Aplicar formato a los encabezados
+                $event->sheet->getStyle('A1:I1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']

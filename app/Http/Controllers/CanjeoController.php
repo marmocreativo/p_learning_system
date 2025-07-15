@@ -440,7 +440,7 @@ class CanjeoController extends Controller
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
         $distribuidor_nombre = $distribuidor->nombre;
         //$prueba =  $request->input('prueba');
-        $prueba = 'no';
+        $prueba = 'si';
 
         // consulta productos
         $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
