@@ -3,7 +3,7 @@
 @section('titulo', 'Canjeo Cortes')
 
 @section('contenido_principal')
-<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Ventanas de canje <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
            

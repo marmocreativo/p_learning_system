@@ -124,10 +124,12 @@ Route::post('admin/actualizar_premio_top_10', [TemporadasController::class, 'act
 Route::get('admin/publicaciones', [PublicacionesController::class, 'index'])->middleware('auth')->name('publicaciones');
 Route::get('admin/publicaciones/create', [PublicacionesController::class, 'create'])->middleware('auth')->name('publicaciones.create');
 Route::post('admin/publicaciones/store', [PublicacionesController::class, 'store'])->middleware('auth')->name('publicaciones.store');
+Route::get('admin/publicaciones/reporte_clicks', [PublicacionesController::class, 'reporte_clicks'])->name('publicaciones.reporte_clicks');
 Route::get('admin/publicaciones/{post}', [PublicacionesController::class, 'show'])->middleware('auth')->name('publicaciones.show');
 Route::get('admin/publicaciones/edit/{post}', [PublicacionesController::class, 'edit'])->middleware('auth')->name('publicaciones.edit');
 Route::put('admin/publicaciones/update/{post}', [PublicacionesController::class, 'update'])->middleware('auth')->name('publicaciones.update');
 Route::delete('admin/publicaciones/destroy/{post}', [PublicacionesController::class, 'destroy'])->middleware('auth')->name('publicaciones.destroy');
+
 
 // Rutas CRUD para las'sesiones'
 Route::get('admin/sesiones', [SesionesController::class, 'index'])->middleware('auth')->name('sesiones');
@@ -219,6 +221,7 @@ Route::get('admin/notificaciones/{post}', [NotificacionesController::class, 'sho
 Route::get('admin/notificaciones/edit/{post}', [NotificacionesController::class, 'edit'])->middleware('auth')->name('notificaciones.edit');
 Route::put('admin/notificaciones/update/{post}', [NotificacionesController::class, 'update'])->middleware('auth')->name('notificaciones.update');
 Route::delete('admin/notificaciones/destroy/{post}', [NotificacionesController::class, 'destroy'])->middleware('auth')->name('notificaciones.destroy');
+
 
 // Rutas CRUD para los popups y cintillos
 Route::get('admin/popups', [PopupsController::class, 'index'])->middleware('auth')->name('popups');

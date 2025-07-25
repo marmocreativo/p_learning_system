@@ -223,7 +223,10 @@
                                                 <td><b>{{$transacciones}}</b></td>
                                             </tr>
                                             <tr>
-                                                <td><a class="btn btn-info" href="{{ route('canjeo.productos', ['id_temporada'=> $temporada->id]) }}">Ver productos</a></td>
+                                                <td>
+                                                    <a class="btn btn-info" href="{{ route('canjeo.productos', ['id_temporada'=> $temporada->id, 'region'=>'RoLA']) }}">Ver productos RoLA</a>
+                                                    <a class="btn btn-info" href="{{ route('canjeo.productos', ['id_temporada'=> $temporada->id, 'region'=>'México']) }}">Ver productos México</a>
+                                                </td>
                                                 <td><a class="btn btn-info" href="{{ route('canjeo.cortes', ['id_temporada'=> $temporada->id]) }}">Ver pedidos</a></td>
                                             </tr>
                                         </table>

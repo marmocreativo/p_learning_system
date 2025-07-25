@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 use App\Models\Temporada;
 use App\Models\Publicacion;
 use App\Models\Clase;
+use App\Models\Cuenta;
+
+use App\Exports\NoticiasExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use Illuminate\Http\Request;
 
@@ -18,17 +22,34 @@ class PublicacionesController extends Controller
         $id_temporada = $request->input('id_temporada');
         $clase = $request->input('clase');
         $temporada = Temporada::find($id_temporada);
+        $id_temporada = $request->input('id_temporada');
+        $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+
         $publicaciones = Publicacion::where(['id_temporada' => $id_temporada, 'clase' => $clase])->paginate();
-        return view('admin/publicacion_lista', compact('publicaciones', 'temporada'));
+        return view('admin/publicacion_lista', compact('publicaciones',
+        'temporada',
+        'cuenta',
+        'cuentas',
+        'color_barra_superior',
+        'logo_cuenta',
+    ));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        $temporada = Temporada::find($request->input('id_temporada'));
         $clases = Clase::where('elementos','publicaciones')->get();
+        $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         return view('admin/publicacion_form', compact('clases'));
     }
 
@@ -98,6 +119,10 @@ class PublicacionesController extends Controller
         //
         $publicacion = Publicacion::find($id);
         $temporada = Temporada::find($publicacion->id_temporada);
+        $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         return view('admin/publicacion_detalles', compact('publicacion', 'temporada'));
 
     }
@@ -183,6 +208,18 @@ class PublicacionesController extends Controller
         $clase =$publicacion->clase; 
         $publicacion->delete();
         return redirect()->route('publicaciones',['id_temporada'=>$id_temporada, 'clase'=>$clase]);
+    }
+
+    public function reporte_clicks(Request $request)
+    {
+        // Validar los parámetros requeridos
+        $request->validate([
+            'id_temporada' => 'integer',
+        ]);
+
+        $nombreArchivo = 'clicks_en_noticias_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new NoticiasExport($request), $nombreArchivo);
     }
 
     /**

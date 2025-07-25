@@ -17,12 +17,9 @@ use App\Models\Trivia;
 use App\Models\JackpotIntentos;
 use App\Models\JackpotRes;
 use App\Models\Jackpot;
-use App\Models\Sku;
 use App\Models\Cuenta;
-use App\Models\Logro;
-use App\Models\LogroAnexo;
-use App\Models\LogroAnexoProducto;
-use App\Models\LogroParticipacion;
+use App\Models\Publicacion;
+use App\Models\AccionesUsuarios;
 use App\Models\Tokens;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,44 +31,45 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class SkusExport implements FromCollection, WithHeadings, ShouldAutoSize
+class NoticiasExport implements FromCollection, WithHeadings
 {
+    protected $request;
 
     public function __construct(Request $request)
     {
-        $this->id_logro = $request->input('id_logro', null);
+        $this->request = $request;
     }
     public function collection()
     {
-        if ($this->id_logro) {
-            $logro = Logro::find($this->id_logro);
-            $skus = Sku::where('desafio', $logro->nombre)->get();
-        } else {
-            $skus = Sku::all();
-        }
+        $id_temporada = $this->request->input('id_temporada');
 
-        $listado_skus = [];
-        foreach($skus as $sku){
-            $listado_skus[] = [
-                'desafio' => $sku->desafio,
-                'sku' => $sku->sku_clean,
-                'descripcion' => $sku->detalles,
+        // Obtener las publicaciones tipo "noticia" de la temporada
+        $publicaciones = Publicacion::where('id_temporada', $id_temporada)
+                                    ->where('clase', 'noticia')
+                                    ->get();
+
+        $reporte = [];
+
+        foreach ($publicaciones as $pub) {
+            // Contar las acciones de usuarios relacionadas con esta publicación
+            $clicks = AccionesUsuarios::where('accion', 'click en noticia')
+                ->where('descripcion', 'like', '%Se dio click en la noticia id: '.$pub->id.'%')
+                ->count();
+
+            $reporte[] = [
+                'Publicacion' => $pub->titulo ?? 'Publicación '.$pub->id,
+                'Clicks' => $clicks,
             ];
         }
 
-
-        return collect($listado_skus);
-            
+        return collect($reporte);
     }
     public function headings(): array
     {
         return [
-            'Desafío al que pertenece',
-            'SKU',
-            'Detalle producto',
-            
+            'Publicacion',
+            'Clicks',
         ];
     }
 
@@ -79,8 +77,8 @@ class SkusExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                // Estilo para el encabezado
-                $event->sheet->getStyle('A1:C1')->applyFromArray([
+                // Aplicar formato a los encabezados
+                $event->sheet->getStyle('A1:G1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']
@@ -88,17 +86,6 @@ class SkusExport implements FromCollection, WithHeadings, ShouldAutoSize
                     'fill' => [
                         'fillType' => 'solid',
                         'startColor' => ['rgb' => '213746']
-                    ],
-                ]);
-
-                // Obtener la cantidad de filas para aplicar el estilo a toda la columna A
-                $rowCount = $event->sheet->getDelegate()->getHighestRow();
-
-                // Aplicar color de fondo #DDEBF8 a la columna A (Desafío al que pertenece)
-                $event->sheet->getStyle("A2:A{$rowCount}")->applyFromArray([
-                    'fill' => [
-                        'fillType' => 'solid',
-                        'startColor' => ['rgb' => 'DDEBF8']
                     ],
                 ]);
             },

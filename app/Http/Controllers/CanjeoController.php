@@ -52,15 +52,26 @@ class CanjeoController extends Controller
     //Productos
     public function productos(Request $request)
     {
-        //
         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
-        $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
         $cuenta = Cuenta::find($temporada->id_cuenta);
         $cuentas = Cuenta::all();
         $color_barra_superior = $cuenta->fondo_menu;
-        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
-        return view('admin/canjeo_productos', compact('productos', 'temporada', 'cuenta','cuentas','color_barra_superior','logo_cuenta'));
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/' . $cuenta->logotipo;
+
+        // Filtro condicional por región
+        $region = $request->input('region'); // usa 'region' en minúscula
+        $productos = CanjeoProductos::where('id_temporada', $id_temporada)
+            ->when($region, function ($query) use ($region) {
+                $query->where(function ($q) use ($region) {
+                    $q->where('region', $region)
+                    ->orWhere('region', 'todas');
+                });
+            })
+            ->with('transacciones')
+            ->get();
+
+        return view('admin/canjeo_productos', compact('productos', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function productos_crear(Request $request)
@@ -96,6 +107,7 @@ class CanjeoController extends Controller
         $producto = new CanjeoProductos();
 
         $producto->id_temporada = $request->input('IdTemporada');
+        $producto->region = $request->input('Region');
         $producto->nombre = $request->input('Nombre');
         $producto->descripcion = $request->input('Descripcion');
         $producto->contenido = $request->input('Contenido');
@@ -144,6 +156,7 @@ class CanjeoController extends Controller
         }
 
         $producto->id_temporada = $request->input('IdTemporada');
+        $producto->region = $request->input('Region');
         $producto->nombre = $request->input('Nombre');
         $producto->descripcion = $request->input('Descripcion');
         $producto->contenido = $request->input('Contenido');
@@ -438,12 +451,21 @@ class CanjeoController extends Controller
         $usuario = User::find($id_usuario);
         $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
         $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+        $region = $distribuidor->region;
+        if($region == 'Interna'){
+            $region = 'México'; 
+        }
         $distribuidor_nombre = $distribuidor->nombre;
         //$prueba =  $request->input('prueba');
-        $prueba = 'si';
+        $prueba = 'no';
 
         // consulta productos
-        $productos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
+       $productos = CanjeoProductos::where('id_temporada', $id_temporada)
+            ->where(function ($query) use ($region) {
+                $query->where('region', $region)
+                    ->orWhere('region', 'todas');
+            })
+            ->get();
 
         // Si está activa la prueba
         if($prueba=='si'){
@@ -656,19 +678,21 @@ class CanjeoController extends Controller
     }
 
     public function detalles_producto_api(Request $request)
-    {
-        //
-        $producto = CanjeoProductos::find($request->input('id'));
-        $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden')->get();
-        $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->get();
-        $completo = [
-            'producto' => $producto,
-            'galeria' => $galeria,
-            'canjeados' => $canjeados,
-            ];
-    
-            return response()->json($completo);
-    }
+{
+    $producto = CanjeoProductos::find($request->input('id'));
+    $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden')->get();
+    $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->get();
+
+    // Forzar arrays por si acaso
+    $producto->variaciones = is_array($producto->variaciones) ? $producto->variaciones : json_decode($producto->variaciones, true) ?? [];
+    $producto->variaciones_cantidad = is_array($producto->variaciones_cantidad) ? $producto->variaciones_cantidad : json_decode($producto->variaciones_cantidad, true) ?? [];
+
+    return response()->json([
+        'producto' => $producto,
+        'galeria' => $galeria,
+        'canjeados' => $canjeados,
+    ]);
+}
 
     public function canje_checkout_api(Request $request)
     {

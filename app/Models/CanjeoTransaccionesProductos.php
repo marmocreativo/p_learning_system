@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class CanjeoTransaccionesProductos extends Model
 {
-    protected $table = "canjeo_transacciones_productos";
+    protected $table = 'canjeo_transacciones_productos';
     public $timestamps = false;
-    use HasFactory;
+
+    public function producto()
+    {
+        return $this->belongsTo(CanjeoProductos::class, 'id_producto', 'id');
+    }
 }
