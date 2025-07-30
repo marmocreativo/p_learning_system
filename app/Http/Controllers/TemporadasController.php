@@ -329,7 +329,7 @@ class TemporadasController extends Controller
                 ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
                 ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
                 ->when($region !== 'todas', function ($query) use ($region) {
-                    return $query->where('usuarios_suscripciones.region', $region);
+                    return $query->where('distribuidores.region', $region);
                 })
                 ->when($distribuidor != 0, function ($query) use ($distribuidor) {
                     return $query->where('distribuidores.id', $distribuidor);

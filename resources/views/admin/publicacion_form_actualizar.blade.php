@@ -104,7 +104,7 @@
                         <label for="Descripcion">Descripción corta</label>
                         <textarea name="Descripcion" class="form-control"rows="3">{{$publicacion->descripcion}}</textarea>
                     </div>
-                    <input type="hidden" name="Keywords" value="{{$publicacion->keywords}}">
+                    <input type="hidden" name="BtnCarruselLink" value="{{$publicacion->keywords}}">
                     <input type="hidden" name="Contenido" value="{{$publicacion->contenido}}">
                     <div class="row mb-4">
                         <div class="col-6">
@@ -115,8 +115,8 @@
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label for="BtnCarruselLink">Botón del carrusel Link</label>
-                                <input type="text" class="form-control" name="BtnCarruselLink" value="{{$publicacion->btn_carrusel_link}}">
+                                <label for="Keywords">Botón del carrusel Link</label>
+                                <input type="text" class="form-control" name="Keywords" value="{{$publicacion->keywords}}">
                             </div>
                         </div>
                     </div>

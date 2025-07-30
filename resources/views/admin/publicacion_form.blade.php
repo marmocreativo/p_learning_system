@@ -104,7 +104,7 @@
                         <label for="Descripcion">Descripción corta</label>
                         <textarea name="Descripcion" class="form-control"rows="3"></textarea>
                     </div>
-                    <input type="hidden" name="Keywords" value="">
+                    <input type="hidden" name="BtnCarruselLink" value="">
                     <input type="hidden" name="Contenido" value="">
                     
                     <div class="row mb-4">
@@ -116,8 +116,8 @@
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label for="BtnCarruselLink">Botón del carrusel Link</label>
-                                <input type="text" class="form-control" name="BtnCarruselLink" value="">
+                                <label for="Keywords">Botón del carrusel Link</label>
+                                <input type="text" class="form-control" name="Keywords" value="">
                             </div>
                         </div>
                     </div>
