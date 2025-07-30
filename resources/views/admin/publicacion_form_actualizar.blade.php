@@ -26,6 +26,8 @@
                             <textarea name="Contenido" class="form-control TextEditor" rows="20">{{$publicacion->contenido}}</textarea>
                         </div>
                         <input type="hidden" name="Keywords" value="{{$publicacion->keywords}}">
+                        <input type="hidden" name="BtnCarruselText" value="{{$publicacion->btn_carrusel_text}}">
+                        <input type="hidden" name="BtnCarruselLink" value="{{$publicacion->btn_carrusel_link}}">
                     </div>
                     <div class="col-4">
                         <input type="hidden" name="Clase" value='{{$publicacion->clase}}'>
@@ -74,6 +76,8 @@
                     </div>
                     <input type="hidden" name="Contenido" value="{{$publicacion->contenido}}">
                     <input type="hidden" name="Keywords" value="{{$publicacion->keywords}}">
+                    <input type="hidden" name="BtnCarruselText" value="{{$publicacion->btn_carrusel_text}}">
+                        <input type="hidden" name="BtnCarruselLink" value="{{$publicacion->btn_carrusel_link}}">
                 </div>
                 <div class="col-4">
                     <input type="hidden" name="Funcion" value="normal">
@@ -100,11 +104,22 @@
                         <label for="Descripcion">Descripción corta</label>
                         <textarea name="Descripcion" class="form-control"rows="3">{{$publicacion->descripcion}}</textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="Keywords">Link externo</label>
-                        <input type="text" class="form-control" name="Keywords" value="{{$publicacion->keywords}}">
-                    </div>
+                    <input type="hidden" name="Keywords" value="{{$publicacion->keywords}}">
                     <input type="hidden" name="Contenido" value="{{$publicacion->contenido}}">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="BtnCarruselText">Botón del carrusel Texto</label>
+                                <input type="text" class="form-control" name="BtnCarruselText" value="{{$publicacion->btn_carrusel_text}}">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="BtnCarruselLink">Botón del carrusel Link</label>
+                                <input type="text" class="form-control" name="BtnCarruselLink" value="{{$publicacion->btn_carrusel_link}}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-4">
                     <input type="hidden" name="Clase" value='{{$publicacion->clase}}'>

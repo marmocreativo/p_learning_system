@@ -27,6 +27,8 @@
                             <textarea name="Contenido" class="form-control TextEditor" rows="20"></textarea>
                         </div>
                         <input type="hidden" name="Keywords" value="">
+                        <input type="hidden" name="BtnCarruselText" value="">
+                        <input type="hidden" name="BtnCarruselLink" value="">
                     </div>
                     <div class="col-4">
         
@@ -74,6 +76,8 @@
                     </div>
                     <input type="hidden" name="Contenido" value="">
                     <input type="hidden" name="Keywords" value="">
+                    <input type="hidden" name="BtnCarruselText" value="">
+                    <input type="hidden" name="BtnCarruselLink" value="">
                 </div>
                 <div class="col-4">
                     <input type="hidden" name="Funcion" value="normal">
@@ -100,14 +104,25 @@
                         <label for="Descripcion">Descripción corta</label>
                         <textarea name="Descripcion" class="form-control"rows="3"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="Keywords">Link externo</label>
-                        <input type="text" class="form-control" name="Keywords" value="">
-                    </div>
+                    <input type="hidden" name="Keywords" value="">
                     <input type="hidden" name="Contenido" value="">
+                    
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="BtnCarruselText">Botón del carrusel Texto</label>
+                                <input type="text" class="form-control" name="BtnCarruselText" value="">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="BtnCarruselLink">Botón del carrusel Link</label>
+                                <input type="text" class="form-control" name="BtnCarruselLink" value="">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4">
-    
+                <div class="col-4">    
                     <div class="form-group">
                         <label for="Imagen">Imagen Frente</label>
                         <input type="file" class="form-control" name="Imagen" >

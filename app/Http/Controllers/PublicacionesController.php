@@ -103,6 +103,8 @@ class PublicacionesController extends Controller
         $publicacion->destacar = $request->Destacar;
         $publicacion->funcion = $request->Funcion; // Corregido, antes estaba sobrescrito con Destacar
         $publicacion->estado = $request->Estado;
+        $publicacion->btn_carrusel_text = $request->BtnCarruselText;
+        $publicacion->btn_carrusel_link = $request->BtnCarruselLink;
         $publicacion->orden = 0;
 
         $publicacion->save();
@@ -189,6 +191,8 @@ class PublicacionesController extends Controller
         $publicacion->destacar = $request->Destacar;
         $publicacion->funcion = $request->Funcion; // Se asegura de que la función se actualice
         $publicacion->estado = $request->Estado;
+        $publicacion->btn_carrusel_text = $request->BtnCarruselText;
+        $publicacion->btn_carrusel_link = $request->BtnCarruselLink;
         $publicacion->orden = 0;
 
         $publicacion->save();
