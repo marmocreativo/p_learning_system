@@ -315,6 +315,10 @@ class TemporadasController extends Controller
         $unaSemanaAtras = Carbon::now()->subDay();
         $region = $request->input('region');
         $distribuidor = $request->input('distribuidor');
+        $ocultar_lideres = false;
+        if($cuenta->id==1){
+            $ocultar_lideres = true;
+        }
 
         // Buscar si existe un corte con menos de una semana de antigüedad
         $corte = top10Corte::where('temporada', $temporada->id)
@@ -331,6 +335,9 @@ class TemporadasController extends Controller
                 ->when($region !== 'todas', function ($query) use ($region) {
                     return $query->where('distribuidores.region', $region);
                 })
+                ->when($ocultar_lideres, function ($query) use ($region) {
+                    return $query->where('usuarios_suscripciones.funcion', 'usuario');
+                })
                 ->when($distribuidor != 0, function ($query) use ($distribuidor) {
                     return $query->where('distribuidores.id', $distribuidor);
                 })
@@ -344,7 +351,8 @@ class TemporadasController extends Controller
                     'distribuidores.nombre as distribuidor',
                     'usuarios_suscripciones.id as id_suscripcion',
                     'usuarios_suscripciones.confirmacion_puntos as confirmacion_puntos',
-                    'usuarios_suscripciones.premio as premio'
+                    'usuarios_suscripciones.premio as premio',
+                    'usuarios_suscripciones.funcion as funcion'
                 )
                 ->get();
 
@@ -401,7 +409,8 @@ class TemporadasController extends Controller
                     'region' => $usuario->region,
                     'puntaje' => $puntaje_total,
                     'puntaje_oculto' => $puntaje_oculto,
-                    'premio' => $usuario->premio
+                    'premio' => $usuario->premio,
+                    'funcion' => $usuario->funcion
                 ];
 
                 // Verificación de premios
