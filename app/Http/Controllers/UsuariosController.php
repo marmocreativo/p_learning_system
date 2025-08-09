@@ -2153,10 +2153,10 @@ public function suscribir_full_update(Request $request, string $id)
 
         for ($fecha = $fecha_inicio; $fecha->lte($fecha_final); $fecha->addDay()) {
             $fechas_array[] = $fecha->toDateString();
-            $engagement_visualizaciones[] = (int) SesionVis::where('id_temporada', $id_temporada)->whereDate('fecha_ultimo_video', $fecha->toDateString())->count();
-            $engagement_evaluaciones[] = (int) EvaluacionRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
-            $engagement_trivias[] = (int) TriviaRes::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
-            $engagement_jackpots[] = (int) JackpotIntentos::where('id_temporada', $id_temporada)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_visualizaciones[] = (int) SesionVis::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->whereDate('fecha_ultimo_video', $fecha->toDateString())->count();
+            $engagement_evaluaciones[] = (int) EvaluacionRes::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_trivias[] = (int) TriviaRes::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->whereDate('fecha_registro', $fecha->toDateString())->count();
+            $engagement_jackpots[] = (int) JackpotIntentos::where('id_temporada', $id_temporada)->where('id_distribuidor', $distribuidor->id)->whereDate('fecha_registro', $fecha->toDateString())->count();
         }
 
 
