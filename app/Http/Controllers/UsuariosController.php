@@ -2188,7 +2188,7 @@ public function suscribir_full_update(Request $request, string $id)
                 'participaciones_sesiones' => $participaciones_sesiones,
                 'participaciones_trivias' => $participaciones_trivias,
                 'participaciones_jackpots' => $participaciones_jackpots,
-                'fechas_array' => $fechas_array,
+                'array_fechas' => $fechas_array,
                 'engagement_visualizaciones' => $engagement_visualizaciones,
                 'engagement_evaluaciones' => $engagement_evaluaciones,
                 'engagement_trivias' => $engagement_trivias,

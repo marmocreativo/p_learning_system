@@ -41,11 +41,17 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
 {
     protected $request;
     protected $id;
+    protected $incluir_sesiones;
+    protected $incluir_trivias;
+    protected $incluir_jackpot;
 
-    public function __construct(Request $request, $id)
+    public function __construct(Request $request, $id, $incluir_sesiones, $incluir_trivias, $incluir_jackpot )
     {
         $this->request = $request;
         $this->id = $id;
+        $this->incluir_sesiones = $incluir_sesiones;
+        $this->incluir_trivias = $incluir_trivias;
+        $this->incluir_jackpot = $incluir_jackpot;
     }
     public function collection()
     {
@@ -109,6 +115,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             
             if(!empty($usuario->fecha_terminos)){
                 /* Sesiones */
+                if ($this->incluir_sesiones) {
                 foreach ($sesiones as $sesion) {
                     $visita = $visitas->first(function ($visita) use ($usuario, $sesion) {
                         return $visita->id_usuario == $usuario->id_usuario && $visita->id_sesion == $sesion->id;
@@ -142,8 +149,10 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                     }
                     $s++;
                 }
+                }
                 /* Trivias, Minijuegos y Ruletas Trivias */
                 if($temporada->id_cuenta==3){
+                    if ($this->incluir_jackpot) {
                     foreach ($jackpots as $jackpot) {
                         $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
                             return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
@@ -160,6 +169,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                         }
                         $j ++;
                     }
+                    }
+                    if ($this->incluir_trivias) {
                     foreach ($trivias as $trivia) {
                         $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
                             return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
@@ -178,9 +189,11 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                         }
                         $t++;
                     }
+                    }
                     
 
                 }else{
+                    if ($this->incluir_trivias) {
                     foreach ($trivias as $trivia) {
                         $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
                             return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
@@ -205,6 +218,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                         }
                         $t++;
                     }
+                    }
+                    if ($this->incluir_jackpot) {
                     foreach ($jackpots as $jackpot) {
                         $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
                             return $intento->id_usuario == $usuario->id_usuario && $intento->id_jackpot == $jackpot->id;
@@ -220,6 +235,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                             $coleccion[$index]['j'.$j] = '-';
                         }
                         $j ++;
+                    }
                     }
                 }
                 $puntos_usuario = $puntos_extra->filter(function ($entrada) use ($usuario) {
@@ -244,32 +260,44 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 $coleccion[$index]['activo'] = (string) 'Si';
             }else{
                 /* Sesiones */
+                
+                if ($this->incluir_sesiones) {
                 foreach ($sesiones as $sesion) {
                     $coleccion[$index]['s'.$s.'-v'] = 'X';
                     $coleccion[$index]['s'.$s.'-e'] = 'X';
                     $s++;
                 }
+                }
+                
                 /* Trivias, Minijuegos y Ruletas Trivias */
                 if($temporada->id_cuenta==3){
+                    if ($this->incluir_jackpot) {
                     foreach ($jackpots as $jackpot) {
                         $coleccion[$index]['r'.$j] = 'X';
                         $j ++;
                     }
+                    }
+                    if ($this->incluir_trivias) {
                     foreach ($trivias as $trivia) {
                         $coleccion[$index]['t'.$t.'-G'] = 'X';
                         $t++;
                     }
+                    }
                     
 
                 }else{
+                    if ($this->incluir_trivias) {
                     foreach ($trivias as $trivia) {
                         $coleccion[$index]['t'.$t] = 'X';
                         $coleccion[$index]['t'.$t.'-G'] = 'X';
                         $t++;
                     }
+                    }
+                    if ($this->incluir_jackpot) {
                     foreach ($jackpots as $jackpot) {
                         $coleccion[$index]['j'.$j] = 'X';
                         $j ++;
+                    }
                     }
                 }
                 $coleccion[$index]['puntos_extra'] = 'X';
@@ -315,30 +343,40 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         $t = 1;
         $j = 1;
         
+        if ($this->incluir_sesiones) {
         foreach ($sesiones as $sesion) {
             $encabezados[] = 'S'.$s.'-V';
             $encabezados[] = 'S'.$s.'-E';
             $s++;
         }
+        }
         if($temporada->id_cuenta==3){
+            if ($this->incluir_jackpot) {
             foreach ($jackpots as $jackpot) {
                 $encabezados[] = 'R'.$j;
                 $j++;
             }
+            }
+            if ($this->incluir_trivias) {
             foreach ($trivias as $trivia) {
                 $encabezados[] = 'T'.$t.'-G';
                 $t++;
             }
+            }
             
         }else{
+            if ($this->incluir_trivias) {
             foreach ($trivias as $trivia) {
                 $encabezados[] = 'T'.$t;
                 $encabezados[] = 'T'.$t.'-G';
                 $t++;
             }
+            }
+            if ($this->incluir_jackpot) {
             foreach ($jackpots as $jackpot) {
                 $encabezados[] = 'J'.$j;
                 $j++;
+            }
             }
         }
         
