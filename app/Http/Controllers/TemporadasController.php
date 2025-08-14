@@ -292,13 +292,14 @@ class TemporadasController extends Controller
     {
 
          // Obtener los parámetros booleanos (por defecto true si no se envían)
+         $incluir_inactivos = $request->get('inactivos', 'true') === 'true';
         $incluir_sesiones = $request->get('sesiones', 'true') === 'true';
         $incluir_trivias = $request->get('trivias', 'true') === 'true';
         $incluir_jackpot = $request->get('jackpot', 'true') === 'true';
 
 
         // Crear una instancia del exportador con los parámetros requeridos
-        $export = new ReporteTemporadaExport($request, $id, $incluir_sesiones, $incluir_trivias, $incluir_jackpot);
+        $export = new ReporteTemporadaExport($request, $id, $incluir_inactivos, $incluir_sesiones, $incluir_trivias, $incluir_jackpot);
         
         // Generar un nombre de archivo único usando timestamp
         $filename = 'reporte_temporada_'.$id.'_region_'.$request->region.'_distribuidor_'.$request->distribuidor.'_'. time() . '.xlsx';

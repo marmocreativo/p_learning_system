@@ -41,14 +41,16 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
 {
     protected $request;
     protected $id;
+    protected $incluir_inactivos;
     protected $incluir_sesiones;
     protected $incluir_trivias;
     protected $incluir_jackpot;
 
-    public function __construct(Request $request, $id, $incluir_sesiones, $incluir_trivias, $incluir_jackpot )
+    public function __construct(Request $request, $id,$incluir_inactivos, $incluir_sesiones, $incluir_trivias, $incluir_jackpot )
     {
         $this->request = $request;
         $this->id = $id;
+        $this->incluir_inactivos = $incluir_inactivos;
         $this->incluir_sesiones = $incluir_sesiones;
         $this->incluir_trivias = $incluir_trivias;
         $this->incluir_jackpot = $incluir_jackpot;
@@ -259,7 +261,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 $coleccion[$index]['creditos'] = (string) $creditos_consumidos;
                 $coleccion[$index]['activo'] = (string) 'Si';
             }else{
-                /* Sesiones */
+                if($this->incluir_inactivos){
+                    /* Sesiones */
                 
                 if ($this->incluir_sesiones) {
                 foreach ($sesiones as $sesion) {
@@ -304,6 +307,8 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 $coleccion[$index]['total'] = 'X';
                 $coleccion[$index]['creditos'] = 'X';
                 $coleccion[$index]['activo'] = (string) 'No';
+                }
+                
             }
             
             
