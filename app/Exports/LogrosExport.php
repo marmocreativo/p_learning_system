@@ -48,10 +48,36 @@ class LogrosExport implements WithMultipleSheets
 
     public function sheets(): array
     {
-        return [
-            'Productos' => new ProductosSheet($this->id_temporada, $this->id_logro, $this->region, $this->id_distribuidor),
-            'Participaciones' => new ParticipacionesSheet($this->id_temporada, $this->id_logro, $this->region, $this->id_distribuidor),
-        ];
+        $sheets = [];
+
+        // Si no se pasa id_logro, obtener todos los logros de la temporada
+        if ($this->id_logro) {
+            $logros = Logro::where('id_temporada', $this->id_temporada)
+                ->where('id', $this->id_logro)
+                ->get();
+        } else {
+            $logros = Logro::where('id_temporada', $this->id_temporada)->get();
+        }
+
+        foreach ($logros as $logro) {
+            $nombre = $logro->nombre ?? 'Desafío '.$logro->id;
+
+            $sheets["Productos - $nombre"] = new ProductosSheet(
+                $this->id_temporada, 
+                $logro->id, 
+                $this->region, 
+                $this->id_distribuidor
+            );
+
+            $sheets["Participaciones - $nombre"] = new ParticipacionesSheet(
+                $this->id_temporada, 
+                $logro->id, 
+                $this->region, 
+                $this->id_distribuidor
+            );
+        }
+
+        return $sheets;
     }
 }
 

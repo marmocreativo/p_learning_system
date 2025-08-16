@@ -54,9 +54,9 @@ class UsersExport implements FromCollection, WithHeadings
                     'usuarios.apellidos',
                     'usuarios.email',
                     'usuarios_suscripciones.nivel_usuario',
-                    'usuarios_suscripciones.champions_a',
-                    'usuarios_suscripciones.champions_b',
-                    'usuarios_suscripciones.temporada_completa',
+                    'usuarios_suscripciones.funcion',
+                    'usuarios_suscripciones.created_at',
+                    'usuarios_suscripciones.fecha_terminos',
                     'distribuidores.nombre as nombre_distribuidor')
             ->get();
         
@@ -89,17 +89,18 @@ class UsersExport implements FromCollection, WithHeadings
 
             if($participante=='si'){ $activo = 'si'; }
 
-            switch ($usuario->nivel_usuario) {
-                case 'ventas':
-                    if($usuario->champions_a=='si'){
-                        $champions = 'Participando';
-                    }
+            $funcion = 'Usuario';
+
+            switch ($usuario->funcion) {
+                case 'lider':
+                    $funcion = 'Lider';
+                    break;
+                case 'super_lider':
+                    $funcion = 'Super Lider';
                     break;
                 
-                case 'especialista':
-                    if($usuario->champions_a=='si'&&$usuario->champions_b=='si'){
-                        $champions = 'Participando';
-                    }
+                default:
+                    $funcion = 'Usuario';
                     break;
             }
 
@@ -109,13 +110,9 @@ class UsersExport implements FromCollection, WithHeadings
                 'apellidos' => $usuario->apellidos,
                 'email' => $usuario->email,
                 'nombre_distribuidor' => $usuario->nombre_distribuidor,
-                'tokens' => (string)$tokens,
-                'champions_a' => $usuario->champions_a,
-                'temporada_completa' => $usuario->temporada_completa,
-                'nivel_usuario' => $usuario->nivel_usuario,
-                'activo' => $activo,
-                'participante' => $participante,
-                'champions' => $champions,
+                'lider' => $funcion,
+                'fecha_registro' => $usuario->created_at,
+                'terminos' => $usuario->fecha_terminos,
 
             ];
 
@@ -131,13 +128,9 @@ class UsersExport implements FromCollection, WithHeadings
             'Apellidos',
             'Email',
             'Distribuidor',
-            'Inicios de sesión activos',
-            'Sesiones 2023',
-            'Sesiones 2024',
-            'Ventas/Especialista',
-            'Activo',
-            'Participante',
-            'Champions'
+            'Lider',
+            'Fecha de registro',
+            'Terminos y condiciones'
         ];
     }
 

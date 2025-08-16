@@ -889,7 +889,7 @@ public function reporte_excel(Request $request)
         // Validar los parámetros requeridos
         $request->validate([
             'id_temporada' => 'required|integer',
-            'id_logro' => 'required|integer',
+            'id_logro' => 'nullable|integer',
             'region' => 'required',
         ]);
         

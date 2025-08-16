@@ -2455,11 +2455,17 @@ foreach ($fechas_array as $fecha) {
     ->slice(0, 10)
     ->values(); // reindexar
 
+    // participants unicos
+    $numero_participantes_unicos = count($lista_participantes);
+
+
+
     return response()->json([
         'distribuidor' => $distribuidor,
         'logros' => $lista_logros,
         'top_participaciones' => $top_participaciones,
-        'conteo_skus'=> $conteo_skus
+        'conteo_skus'=> $conteo_skus,
+        'participantes_unicos' => $numero_participantes_unicos
     ]);
 }
 }
