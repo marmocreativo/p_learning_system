@@ -12,6 +12,7 @@ use App\Models\UsuariosSuscripciones;
 
 use App\Exports\ReporteDistribuidorActividades;
 use App\Exports\ReporteDistribuidorSesiones;
+use Maatwebsite\Excel\Facades\Excel;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -214,7 +215,7 @@ class DistribuidoresController extends Controller
         $suscripciones = DB::table('distribuidores')
             ->join('distribuidores_suscripciones', 'distribuidores.id', '=', 'distribuidores_suscripciones.id_distribuidor')
             ->where('distribuidores_suscripciones.id_temporada', '=', $id_temporada)
-            ->select('distribuidores.*', 'distribuidores_suscripciones.*')
+            ->select('distribuidores.*', 'distribuidores_suscripciones.*', 'distribuidores.nivel as nivel_distribuidor')
             ->get();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
         return view('admin/distribuidor_lista_suscripciones', compact('suscripciones', 'cuenta', 'temporada', 'cuentas',
@@ -339,7 +340,7 @@ class DistribuidoresController extends Controller
         $id_distribuidor = $request->input('id_distribuidor');
 
         // Crear una instancia del exportador con los parámetros requeridos
-        $export = new ReporteDistribuidorActividades($request, $id_cuenta, $id_distribuidor);
+        $export = new ReporteDistribuidorSesiones($request, $id_cuenta, $id_distribuidor);
         
         // Generar un nombre de archivo único usando timestamp
         $filename = 'reporte_sesiones'. time() . '.xlsx';

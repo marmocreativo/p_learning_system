@@ -33,11 +33,14 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeSheet;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ReporteDistribuidorActividades implements FromCollection, WithHeadings
+class ReporteDistribuidorActividades implements FromCollection, WithHeadings, WithEvents, WithCustomStartCell
 {
     protected $request;
     protected $id_cuenta;
@@ -57,7 +60,9 @@ class ReporteDistribuidorActividades implements FromCollection, WithHeadings
     {
         $cuenta = Cuenta::find($this->id_cuenta);
         $temporada = Temporada::find($cuenta->temporada_actual);
-        $distribuidor = Distribuidor::find($id_distribuidor);
+        $distribuidor = Distribuidor::find($this->id_distribuidor);
+        $fecha_inicio = $this->fecha_inicio;
+        $fecha_final = $this->fecha_final;
 
         $usuarios_suscritos = DB::table('usuarios_suscripciones')
             ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
@@ -66,7 +71,7 @@ class ReporteDistribuidorActividades implements FromCollection, WithHeadings
             ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
             // Añade la condición de distribuidor si no es 0
             ->when($distribuidor != null, function ($query) use ($distribuidor) {
-                return $query->where('distribuidores.id', $distribuidor);
+                return $query->where('distribuidores.id', $distribuidor->id);
             })
             ->select(
                 'usuarios.id as id_usuario',
@@ -88,7 +93,6 @@ class ReporteDistribuidorActividades implements FromCollection, WithHeadings
         $trivias_respuestas = TriviaRes::where('id_temporada', $temporada->id)->get();
         $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
         $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
-        
         //dd($usuarios_suscritos);
         $coleccion = array();
         $index = 0;
@@ -105,96 +109,77 @@ class ReporteDistribuidorActividades implements FromCollection, WithHeadings
             $t = 1;
             $j = 1;
             
-            if(!empty($usuario->fecha_terminos)){
+            $inicio_sesion = $inicios_sesion->first(function ($inicios_sesion) use ($usuario, $fecha_inicio, $fecha_final) {
+                return $inicios_sesion->id_usuario == $usuario->id_usuario
+                    && $inicios_sesion->created_at >= $fecha_inicio
+                    && $inicios_sesion->created_at <= $fecha_final;
+            });
+            if ($inicio_sesion){
+                $coleccion[$index]['inicio_sesion']= 'Si';
+                
+            }else{ 
+                $coleccion[$index]['inicio_sesion'] = 'No';
+            }
+            
+            foreach ($sesiones as $sesion) {
 
-                $inicio_sesion = $inicios_sesion->first(function ($inicios_sesion) use ($usuario, $fecha_inicio, $fecha_final) {
-                        return $inicios_sesion->id_usuario == $usuario->id_usuario
-                            && $inicios_sesion->created_at >= $fecha_inicio
-                            && $inicios_sesion->created_at <= $fecha_final;
-                    });
-                if ($inicio_sesion){
-                    $coleccion[$index]['inicio_sesion']= 'Si';
+                $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion, $fecha_inicio, $fecha_final) {
+                    return $visualizacion->id_usuario == $usuario->id_usuario
+                        && $visualizacion->id_sesion == $sesion->id
+                        && $visualizacion->fecha_ultimo_video >= $fecha_inicio
+                        && $visualizacion->fecha_ultimo_video <= $fecha_final;
+                });
+                $evaluacion = $respuestas->first(function ($respuesta) use ($usuario, $sesion, $fecha_inicio, $fecha_final) {
+                    return $respuesta->id_usuario == $usuario->id_usuario
+                        && $respuesta->id_sesion == $sesion->id
+                        && $respuesta->fecha_registro >= $fecha_inicio
+                        && $respuesta->fecha_registro <= $fecha_final;
+                });
+                
+
+                if ($visualizacion){
+                    $coleccion[$index]['s'.$s.'-v']= (string) $visualizacion->fecha_ultimo_video;
                     
                 }else{ 
-                    $coleccion[$index]['inicio_sesion'] = 'No';
-                }
-                
-                foreach ($sesiones as $sesion) {
-
-                    $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion, $fecha_inicio, $fecha_final) {
-                        return $visualizacion->id_usuario == $usuario->id_usuario
-                            && $visualizacion->id_sesion == $sesion->id
-                            && $visualizacion->fecha_ultimo_video >= $fecha_inicio
-                            && $visualizacion->fecha_ultimo_video <= $fecha_final;
-                    });
-                    $evaluacion = $respuestas->filter(function ($respuesta) use ($usuario, $sesion) {
-                        return $respuesta->id_usuario == $usuario->id_usuario
-                            && $respuesta->id_sesion == $sesion->id
-                            && $visualizacion->fecha_registro >= $fecha_inicio
-                            && $visualizacion->fecha_registro <= $fecha_final;
-                    });
-
-                    if ($visualizacion){
-                        $coleccion[$index]['s'.$s.'-v']= (string) $visualizacion->fecha_ultimo_video;
-                        
-                    }else{ 
-                        $coleccion[$index]['s'.$s.'-v'] = '-';
-                    }
-
-                    if ($evaluacion){
-                        $coleccion[$index]['s'.$s.'-e']= (string) $evaluacion->fecha_registro;
-                    }else{ 
-                        $coleccion[$index]['s'.$s.'-e'] = '-';
-                    }
-                    $s++;
-                }
-                foreach ($trivias as $trivia) {
-                    $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
-                        return $respuesta->id_usuario == $usuario->id_usuario
-                            && $respuesta->id_trivia == $trivia->id
-                            && $respuesta->fecha_registro >= $fecha_inicio
-                            && $respuesta->fecha_registro <= $fecha_final;
-                    });
-
-                    if($t_respuestas){
-                        $coleccion[$index]['t'.$t] = (string) $respuesta->fecha_registro;
-                    }else{
-                        $coleccion[$index]['t'.$t] = '-';
-                    }
-                    $t++;
-                }
-                foreach ($jackpots as $jackpot) {
-                    $intentos = $jackpots_intentos->filter(function ($intento) use ($usuario, $jackpot) {
-                        return $intento->id_usuario == $usuario->id_usuario 
-                            && $intento->id_jackpot == $jackpot->id
-                            && $intento->fecha_registro >= $fecha_inicio
-                            && $intento->fecha_registro <= $fecha_final;
-                    });
-
-                    if($intentos){
-                        $coleccion[$index]['j'.$j] = (string) $intento->fecha_registro;
-                    }else{
-                        $coleccion[$index]['j'.$j] = '-';
-                    }
-                    $j ++;
-                }
-            }else{
-
-                foreach ($sesiones as $sesion) {
-                    $coleccion[$index]['s'.$s.'-v'] = 'X';
-                    $coleccion[$index]['s'.$s.'-e'] = 'X';
-                    $s++;
-                }
-                foreach ($trivias as $trivia) {
-                    $coleccion[$index]['t'.$t] = 'X';
-                    $t++;
+                    $coleccion[$index]['s'.$s.'-v'] = '-';
                 }
 
-                foreach ($jackpots as $jackpot) {
-                    $coleccion[$index]['j'.$j] = 'X';
-                    $j ++;
+                if ($evaluacion){
+                    $coleccion[$index]['s'.$s.'-e']= (string) $evaluacion->fecha_registro;
+                }else{ 
+                    $coleccion[$index]['s'.$s.'-e'] = '-';
                 }
-                
+                $s++;
+            }
+            foreach ($trivias as $trivia) {
+                $t_respuestas = $trivias_respuestas->first(function ($respuesta) use ($usuario, $trivia, $fecha_inicio, $fecha_final) {
+                    return $respuesta->id_usuario == $usuario->id_usuario
+                        && $respuesta->id_trivia == $trivia->id
+                        && $respuesta->fecha_registro >= $fecha_inicio
+                        && $respuesta->fecha_registro <= $fecha_final;
+                });
+
+                if($t_respuestas){
+                    $coleccion[$index]['t'.$t] = (string) $t_respuestas->fecha_registro;
+                }else{
+                    $coleccion[$index]['t'.$t] = '-';
+                }
+                $t++;
+            }
+            foreach ($jackpots as $jackpot) {
+                $intentos = $jackpots_intentos->first(function ($intento) use ($usuario, $jackpot, $fecha_inicio, $fecha_final) {
+                    return $intento->id_usuario == $usuario->id_usuario 
+                        && $intento->id_jackpot == $jackpot->id
+                        && $intento->fecha_registro >= $fecha_inicio
+                        && $intento->fecha_registro <= $fecha_final;
+                });
+
+                if($intentos){
+                    $coleccion[$index]['j'.$j] = (string) $intentos->fecha_registro;
+                }else{
+                    $coleccion[$index]['j'.$j] = '-';
+                }
+                $j ++;
             }
             
             
@@ -242,12 +227,33 @@ class ReporteDistribuidorActividades implements FromCollection, WithHeadings
         
     }
 
-    public function registerEvents(): array
+    
+    public function startCell(): string
+    {
+        // Tus headings empiezan en A6 (porque dejarás 5 filas para la info extra)
+        return 'A6';
+    }
+     public function registerEvents(): array
     {
         return [
+            BeforeSheet::class => function(BeforeSheet $event) {
+                $cuenta = Cuenta::find($this->id_cuenta);
+                $temporada = Temporada::find($cuenta->temporada_actual);
+                $distribuidor = Distribuidor::find($this->id_distribuidor);
+                $fecha_inicio = $this->fecha_inicio;
+                $fecha_final = $this->fecha_final;
+
+                $sheet = $event->sheet;
+
+                $sheet->setCellValue('A1', 'Cuenta: ' . $cuenta->nombre);
+                $sheet->setCellValue('A2', 'Temporada: ' . $temporada->nombre);
+                $sheet->setCellValue('A3', 'Distribuidor: ' . ($distribuidor ? $distribuidor->nombre : 'Todos'));
+                $sheet->setCellValue('A4', 'Fecha inicio: ' . $fecha_inicio);
+                $sheet->setCellValue('A5', 'Fecha final: ' . $fecha_final);
+            },
             AfterSheet::class => function(AfterSheet $event) {
-                // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:H1')->applyFromArray([
+                // Dar estilo a encabezados (fila 6)
+                $event->sheet->getStyle('A6:Z6')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']

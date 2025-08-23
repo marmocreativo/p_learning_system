@@ -67,6 +67,7 @@
             <th>Correo</th>
             <th>Distribuidor</th>
             <th>Permisos</th>
+            <th>Reportes</th>
             <th>Controles</th>
         </tr>
         @foreach ($suscripciones as $suscripcion)
@@ -75,7 +76,32 @@
                     <td>{{$suscripcion->nombre}}</td>
                     <td>{{$suscripcion->pais}} </td>
                     <td>{{$suscripcion->region}}</td>
-                    <td>{{$suscripcion->nivel}}</td>
+                    <td>{{$suscripcion->nivel_distribuidor}}</td>
+                    <td>
+                        <a  class="btn btn-success" href="{{route('distribuidores.reporte_sesiones', ['id_cuenta'=>$cuenta->id,'id_distribuidor'=>$suscripcion->id_distribuidor])}}">Visualización de sesiones</a>
+                        <hr>
+                        <form action="{{route('distribuidores.reporte_actividades', $suscripcion->id)}}" method="GET">
+                            @csrf
+                            
+                            <input type="hidden" name="id_cuenta" value='{{$cuenta->id}}'>
+                            <input type="hidden" name="id_distribuidor" value='{{$suscripcion->id_distribuidor}}'>
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="fecha_inicio">Fecha de inicio</label>
+                                    <input class="form-control" type="date" name="fecha_inicio">
+                                </div>
+                                <div class="col-4">
+                                    <label for="fecha_final">Fecha de final</label>
+                                    <input class="form-control" type="date" name="fecha_final">
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="btn btn-success">Descargar reporte actividades</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+
+                    </td>
                     <td>
                         <form action="{{route('distribuidores_suscritos.desuscribir', $suscripcion->id)}}" method="POST">
                             @csrf
