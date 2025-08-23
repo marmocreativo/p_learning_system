@@ -2070,12 +2070,30 @@ public function datos_basicos_super_lider_api(Request $request)
     $lista_jackpots = Jackpot::where('id_temporada', $id_temporada)
                         ->whereDate('fecha_publicacion', '<=', now())->get();
 
+    $participaciones_logros_conteo = 0;
+    $participaciones_anexos_conteo = 0;
+    $participaciones_productos_conteo = 0;
     // Participaciones logros y anexos
     $participaciones_logros = LogroParticipacion::where('id_temporada', $id_temporada)
-                                ->where('id_distribuidor', $distribuidor->id)
-                                ->count();
-    $anexos_logros = LogroAnexo::where('id_temporada', $id_temporada)->count();
-    $productos_logros = LogroAnexoProducto::where('id_temporada', $id_temporada)->count();
+    ->where('id_distribuidor', $distribuidor->id)
+    ->get();
+
+    $participaciones_logros_unicas = LogroParticipacion::where('id_temporada', $id_temporada)
+    ->where('id_distribuidor', $distribuidor->id)
+    ->distinct()
+    ->get();
+
+    $participaciones_logros_conteo = $participaciones_logros_unicas->count();
+
+    foreach ($participaciones_logros as $p) {
+        $anexos = LogroAnexo::where('id_participacion', $p->id)->count();
+        $productos = LogroAnexoProducto::where('id_participacion', $p->id)->count();
+
+        $participaciones_anexos_conteo += $anexos;
+        $participaciones_productos_conteo += $productos;
+    }
+
+
 
     // Suscriptores
     $suscriptores = DB::table('usuarios_suscripciones')
@@ -2147,17 +2165,23 @@ public function datos_basicos_super_lider_api(Request $request)
         $array_nombres_jackpots[$jackpot->id] = $jackpot->titulo;
     }
 
+        //inicializo conteo de recompenzas
+    $participaciones_canje_conteo = 0;
+    $recompensas_conteo = 0;
     // Iterar suscriptores
     foreach($suscriptores as $suscriptor){
         $array_nombres[$suscriptor->id_usuario] = $suscriptor->nombre.' '.$suscriptor->apellidos;
 
-        $activo = Tokens::where('tokenable_id', $suscriptor->id_usuario)->exists();
-        $participante = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
+        $activo = false;
+        $participante = false;
+        if($suscriptor->fecha_terminos){
+            $activo = true;
+            $check_participante = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
                         EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
                         TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
                         JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists();
-
-        if($participante) $activo = true;
+            $participante =     $check_participante;
+        }
         if(EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_sesiones++;
         if(TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_trivias++;
         if(JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_jackpots++;
@@ -2191,6 +2215,20 @@ public function datos_basicos_super_lider_api(Request $request)
         if($activo) $suscriptores_activos++;
         if($participante) $suscriptores_participantes++;
         $suscriptores_totales++;
+
+        // Conteo de canjeo 
+        $participaciones_canjeo = CanjeoTransacciones::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->distinct('id_usuario')->count();
+        $participaciones_canje_conteo += $participaciones_canjeo;
+        //$participaciones_canjeo = CanjeoCortesUsuarios::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->distinct('id_usuario')->count();
+        //$participaciones_canje_conteo += $participaciones_canjeo;
+        $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->get();
+        
+        foreach($transacciones as $t){
+            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $t->id)->count();
+            $recompensas_conteo += $productos;
+        }
+
+
     }
 
     // Ordenar top arrays
@@ -2291,9 +2329,11 @@ foreach ($fechas_array as $fecha) {
         'engagement_evaluaciones' => $engagement_evaluaciones,
         'engagement_trivias' => $engagement_trivias,
         'engagement_jackpots' => $engagement_jackpots,
-        'no_participaciones_logros' => $participaciones_logros,
-        'no_anexos' => $anexos_logros,
-        'no_anexos_productos' => $productos_logros,
+        'no_participaciones_logros' => $participaciones_logros_conteo,
+        'no_anexos' => $participaciones_anexos_conteo,
+        'no_anexos_productos' => $participaciones_productos_conteo,
+        'no_participaciones_canje' => $participaciones_canje_conteo,
+        'no_recompensas' => $recompensas_conteo,
     ];
 
     return response()->json($completo);
@@ -2325,7 +2365,9 @@ foreach ($fechas_array as $fecha) {
                 ->orWhere('id_distribuidor', '')
                 ->orWhere('id_distribuidor', $distribuidor->id);
         })
-        ->with('participaciones')
+        ->with([
+        'participaciones.anexos.productos' // <---- Esto anida hasta productos
+        ])
         ->get();
 
     $lista_participantes = [];
@@ -2333,10 +2375,17 @@ foreach ($fechas_array as $fecha) {
     foreach ($lista_logros as $logro) {
         $participaciones = $logro->participaciones;
 
+        $total_importes = 0;
         // Hago la lista de participantes
         foreach($participaciones as $participacion){
             if($participacion->id_distribuidor == $distribuidor->id){
                 $lista_participantes[] = $participacion->id_usuario;
+                foreach ($participacion->anexos as $anexo) {
+                    foreach ($anexo->productos as $producto) {
+                        $total_importes += (float) $producto->importe_total; 
+                    }
+                }
+
             }
             
         }
@@ -2371,6 +2420,7 @@ foreach ($fechas_array as $fecha) {
         $logro->total_c = $total_c;
         $logro->total_especial = $total_especial;
         $logro->total_acumulado = $total_acumulado;
+        $logro->total_importes = $total_importes;
     }
 
     // calculando el top de participantes

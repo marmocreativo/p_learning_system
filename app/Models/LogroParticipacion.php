@@ -37,6 +37,11 @@ class LogroParticipacion extends Model
         return $this->hasMany(LogroAnexo::class, 'id_participacion');
     }
 
+    public function productos()
+    {
+        return $this->hasMany(LogroAnexoProducto::class, 'id_participacion');
+    }
+
     public function anexosNoValidados()
     {
         return $this->hasMany(LogroAnexo::class, 'id_participacion')->where('validado', 'no');

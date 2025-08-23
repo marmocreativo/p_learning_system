@@ -10,6 +10,9 @@ use App\Models\Cuenta;
 use App\Models\User;
 use App\Models\UsuariosSuscripciones;
 
+use App\Exports\ReporteDistribuidorActividades;
+use App\Exports\ReporteDistribuidorSesiones;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -200,16 +203,23 @@ class DistribuidoresController extends Controller
     public function distribuidores_suscritos(Request $request)
     {
         //
-        $id_temporada = $request->input('id_temporada');
+         $id_temporada = $request->input('id_temporada');
         $temporada = Temporada::find($id_temporada);
         $cuenta = Cuenta::find($temporada->id_cuenta);
+        $id_cuenta = $temporada->id_cuenta;
+        $cuentas = Cuenta::all();
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+
         $suscripciones = DB::table('distribuidores')
             ->join('distribuidores_suscripciones', 'distribuidores.id', '=', 'distribuidores_suscripciones.id_distribuidor')
             ->where('distribuidores_suscripciones.id_temporada', '=', $id_temporada)
             ->select('distribuidores.*', 'distribuidores_suscripciones.*')
             ->get();
         //$usuarios = UsuariosSuscripciones::where('id_temporada', $id_temporada)->paginate();
-        return view('admin/distribuidor_lista_suscripciones', compact('suscripciones', 'cuenta', 'temporada'));
+        return view('admin/distribuidor_lista_suscripciones', compact('suscripciones', 'cuenta', 'temporada', 'cuentas',
+'color_barra_superior',
+'logo_cuenta',));
     }
 
     public function reporte_usuarios(Request $request)
@@ -296,4 +306,53 @@ class DistribuidoresController extends Controller
         return redirect()->route('distribuidores.show', $request->IdDistribuidor);
         
     }
+
+    public function reporte_actividades (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $fecha_inicio = $request->input('fecha_inicio');
+        $fecha_final = $request->input('fecha_final');
+        $id_distribuidor = $request->input('id_distribuidor');
+
+        // Crear una instancia del exportador con los parámetros requeridos
+        $export = new ReporteDistribuidorActividades($request, $id_cuenta, $id_distribuidor, $fecha_inicio, $fecha_final);
+        
+        // Generar un nombre de archivo único usando timestamp
+        $filename = 'reporte_actividades'. time() . '.xlsx';
+
+        // Generar la respuesta de descarga con los encabezados HTTP
+        $response = Excel::download($export, $filename);
+
+        // Establecer encabezados para desactivar la caché
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        // Retornar la respuesta al navegador
+        return $response;
+
+
+    }
+    public function reporte_sesiones (Request $request)
+    {
+        $id_cuenta = $request->input('id_cuenta');
+        $id_distribuidor = $request->input('id_distribuidor');
+
+        // Crear una instancia del exportador con los parámetros requeridos
+        $export = new ReporteDistribuidorActividades($request, $id_cuenta, $id_distribuidor);
+        
+        // Generar un nombre de archivo único usando timestamp
+        $filename = 'reporte_sesiones'. time() . '.xlsx';
+
+        // Generar la respuesta de descarga con los encabezados HTTP
+        $response = Excel::download($export, $filename);
+
+        // Establecer encabezados para desactivar la caché
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        // Retornar la respuesta al navegador
+        return $response;
+    } 
 }

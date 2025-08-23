@@ -96,6 +96,8 @@ Route::get('admin/distribuidores', [DistribuidoresController::class, 'index'])->
 Route::get('admin/distribuidores/create', [DistribuidoresController::class, 'create'])->middleware('auth')->name('distribuidores.create');
 Route::post('admin/distribuidores/store', [DistribuidoresController::class, 'store'])->middleware('auth')->name('distribuidores.store');
 Route::get('admin/distribuidores/{post}', [DistribuidoresController::class, 'show'])->middleware('auth')->name('distribuidores.show');
+Route::get('admin/distribuidores/reporte_actividades', [DistribuidoresController::class, 'reporte_actividades'])->name('distribuidores.reporte_actividades');
+Route::get('admin/distribuidores/reporte_sesiones', [DistribuidoresController::class, 'reporte_sesiones'])->name('distribuidores.reporte_sesiones');
 Route::get('admin/distribuidores/edit/{post}', [DistribuidoresController::class, 'edit'])->middleware('auth')->name('distribuidores.edit');
 Route::put('admin/distribuidores/update/{post}', [DistribuidoresController::class, 'update'])->middleware('auth')->name('distribuidores.update');
 Route::delete('admin/distribuidores/destroy/{post}', [DistribuidoresController::class, 'destroy'])->middleware('auth')->name('distribuidores.destroy');

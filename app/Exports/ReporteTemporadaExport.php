@@ -114,8 +114,10 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
             $s = 1;
             $t = 1;
             $j = 1;
+            $es_participante = false;
             
             if(!empty($usuario->fecha_terminos)){
+                
                 /* Sesiones */
                 if ($this->incluir_sesiones) {
                 foreach ($sesiones as $sesion) {
@@ -136,7 +138,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                     }
                     if ($visualizacion){
                         $puntaje_total +=$visualizacion->puntaje+$puntaje_evaluacion;
-                        
+                        $es_participante = true;
                         $coleccion[$index]['s'.$s.'-v']= (string) $visualizacion->puntaje;
                         $coleccion[$index]['s'.$s.'-e']= (string) $puntaje_evaluacion;
                     }else{  
@@ -164,6 +166,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                             $puntaje_jackpot += $int->puntaje;
                         }
                         if(count($intentos) > 0 ){
+                            $es_participante = true;
                             $puntaje_total +=$puntaje_jackpot;
                             $coleccion[$index]['r'.$j] = (string) $puntaje_jackpot;
                         }else{
@@ -173,24 +176,25 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                     }
                     }
                     if ($this->incluir_trivias) {
-                    foreach ($trivias as $trivia) {
-                        $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
-                            return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
-                        });
-                        $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
-                            return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
-                        });
-                        $puntaje_trivias = 0;
-                        foreach($t_respuestas as $res){
-                            $puntaje_trivias += $res->puntaje;
+                        foreach ($trivias as $trivia) {
+                            $t_respuestas = $trivias_respuestas->filter(function ($respuesta) use ($usuario, $trivia) {
+                                return $respuesta->id_usuario == $usuario->id_usuario && $respuesta->id_trivia == $trivia->id;
+                            });
+                            if($t_respuestas){$es_participante = true;}
+                            $ganador = $trivias_ganadores->first(function ($ganador) use ($usuario, $trivia) {
+                                return $ganador->id_usuario == $usuario->id_usuario && $ganador->id_trivia == $trivia->id;
+                            });
+                            $puntaje_trivias = 0;
+                            foreach($t_respuestas as $res){
+                                $puntaje_trivias += $res->puntaje;
+                            }
+                            if($ganador){
+                                $coleccion[$index]['t'.$t.'-G'] = 'Si';
+                            }else{
+                                $coleccion[$index]['t'.$t.'-G'] = '-';
+                            }
+                            $t++;
                         }
-                        if($ganador){
-                            $coleccion[$index]['t'.$t.'-G'] = 'Si';
-                        }else{
-                            $coleccion[$index]['t'.$t.'-G'] = '-';
-                        }
-                        $t++;
-                    }
                     }
                     
 
@@ -208,6 +212,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                             $puntaje_trivias += $res->puntaje;
                         }
                         if(count($t_respuestas) > 0){
+                            $es_participante = true;
                             $puntaje_total +=$puntaje_trivias; 
                             $coleccion[$index]['t'.$t] = (string) $puntaje_trivias;
                         }else{
@@ -231,6 +236,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                             $puntaje_jackpot += $int->puntaje;
                         }
                         if(count($intentos) > 0){
+                            $es_participante = true;
                             $puntaje_total +=$puntaje_jackpot;
                             $coleccion[$index]['j'.$j] = (string) $puntaje_jackpot;
                         }else{
@@ -260,6 +266,11 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 $coleccion[$index]['total'] = (string) $puntaje_total;
                 $coleccion[$index]['creditos'] = (string) $creditos_consumidos;
                 $coleccion[$index]['activo'] = (string) 'Si';
+                if($es_participante){
+                  $coleccion[$index]['participante'] = (string) 'Si';  
+                }else{
+                    $coleccion[$index]['participante'] = (string) 'No'; 
+                }
             }else{
                 if($this->incluir_inactivos){
                     /* Sesiones */
@@ -307,6 +318,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
                 $coleccion[$index]['total'] = 'X';
                 $coleccion[$index]['creditos'] = 'X';
                 $coleccion[$index]['activo'] = (string) 'No';
+                $coleccion[$index]['participante'] = (string) 'No';
                 }
                 
             }
@@ -389,6 +401,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         $encabezados[] = 'Total';
         $encabezados[] = 'Creditos Consumidos';
         $encabezados[] = 'Activo';
+        $encabezados[] = 'Participante';
         
         return $encabezados;
         
