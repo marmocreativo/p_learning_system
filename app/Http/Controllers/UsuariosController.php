@@ -2243,56 +2243,58 @@ public function datos_basicos_super_lider_api(Request $request)
     $top_10_ordenado = array_map(fn($id,$p)=>['id'=>$id,'puntos'=>$p], array_keys($top_10), $top_10);
 
     // --- Fecha para 15 días atrás ---
-$fecha_inicio = Carbon::now()->subDays(15)->startOfDay();
-$fecha_final = Carbon::now()->endOfDay();
-$fechas_array = [];
-$engagement_visualizaciones = [];
-$engagement_evaluaciones = [];
-$engagement_trivias = [];
-$engagement_jackpots = [];
 
-// Genero array de fechas
-for ($fecha = $fecha_inicio->copy(); $fecha->lte($fecha_final); $fecha->addDay()) {
-    $fechas_array[] = $fecha->toDateString();
-}
+    $fecha_inicio = $request->input('fecha_inicio') ? Carbon::parse($request->input('fecha_inicio')) : Carbon::now()->subDays(15);
+    $fecha_final = $request->input('fecha_final') ? Carbon::parse($request->input('fecha_final')) : Carbon::now()->endOfDay();
 
-// Optimización: Consultas únicas para cada tipo
-$vis_counts = SesionVis::select(DB::raw('DATE(fecha_ultimo_video) as fecha'), DB::raw('count(*) as total'))
-    ->where('id_temporada', $id_temporada)
-    ->where('id_distribuidor', $distribuidor->id)
-    ->whereBetween('fecha_ultimo_video', [$fecha_inicio, $fecha_final])
-    ->groupBy(DB::raw('DATE(fecha_ultimo_video)'))
-    ->pluck('total','fecha');
+    $fechas_array = [];
+    $engagement_visualizaciones = [];
+    $engagement_evaluaciones = [];
+    $engagement_trivias = [];
+    $engagement_jackpots = [];
 
-$eval_counts = EvaluacionRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(distinct id_usuario, id_sesion) as total'))
-    ->where('id_temporada', $id_temporada)
-    ->where('id_distribuidor', $distribuidor->id)
-    ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
-    ->groupBy(DB::raw('DATE(fecha_registro)'))
-    ->pluck('total','fecha');
+    // Genero array de fechas
+    for ($fecha = $fecha_inicio->copy(); $fecha->lte($fecha_final); $fecha->addDay()) {
+        $fechas_array[] = $fecha->toDateString();
+    }
 
-$trivia_counts = TriviaRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(*) as total'))
-    ->where('id_temporada', $id_temporada)
-    ->where('id_distribuidor', $distribuidor->id)
-    ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
-    ->groupBy(DB::raw('DATE(fecha_registro)'))
-    ->pluck('total','fecha');
+    // Optimización: Consultas únicas para cada tipo
+    $vis_counts = SesionVis::select(DB::raw('DATE(fecha_ultimo_video) as fecha'), DB::raw('count(*) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_ultimo_video', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_ultimo_video)'))
+        ->pluck('total','fecha');
 
-$jackpot_counts = JackpotIntentos::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(*) as total'))
-    ->where('id_temporada', $id_temporada)
-    ->where('id_distribuidor', $distribuidor->id)
-    ->where('puntaje', '>', 0)
-    ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
-    ->groupBy(DB::raw('DATE(fecha_registro)'))
-    ->pluck('total','fecha');
+    $eval_counts = EvaluacionRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(distinct id_usuario) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
 
-// Relleno arrays por fecha (0 si no hay datos)
-foreach ($fechas_array as $fecha) {
-    $engagement_visualizaciones[] = isset($vis_counts[$fecha]) ? (int)$vis_counts[$fecha] : 0;
-    $engagement_evaluaciones[] = isset($eval_counts[$fecha]) ? (int)$eval_counts[$fecha] : 0;
-    $engagement_trivias[] = isset($trivia_counts[$fecha]) ? (int)$trivia_counts[$fecha] : 0;
-    $engagement_jackpots[] = isset($jackpot_counts[$fecha]) ? (int)$jackpot_counts[$fecha] : 0;
-}
+    $trivia_counts = TriviaRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(distinct id_usuario) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
+
+    $jackpot_counts = JackpotIntentos::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(*) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->where('puntaje', '>', 0)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
+
+    // Relleno arrays por fecha (0 si no hay datos)
+    foreach ($fechas_array as $fecha) {
+        $engagement_visualizaciones[] = isset($vis_counts[$fecha]) ? (int)$vis_counts[$fecha] : 0;
+        $engagement_evaluaciones[] = isset($eval_counts[$fecha]) ? (int)$eval_counts[$fecha] : 0;
+        $engagement_trivias[] = isset($trivia_counts[$fecha]) ? (int)$trivia_counts[$fecha] : 0;
+        $engagement_jackpots[] = isset($jackpot_counts[$fecha]) ? (int)$jackpot_counts[$fecha] : 0;
+    }
 
     // Retorno
     $completo = [
@@ -2341,8 +2343,30 @@ foreach ($fechas_array as $fecha) {
 
 
 
-    public function datos_champions_super_lider_api(Request $request)
+public function datos_champions_super_lider_api(Request $request)
 {
+    // Función helper para convertir a USD
+    $convertirAUSD = function($importe, $moneda) {
+        $tiposCambio = [
+            'USD' => 1,
+            'MXN' => 19.48,
+            'COP' => 4072.55
+        ];
+        
+        $moneda = strtoupper($moneda ?? 'USD');
+        $importe = floatval($importe);
+        
+        switch ($moneda) {
+            case 'MXN':
+                return $importe / $tiposCambio['MXN'];
+            case 'COP':
+                return $importe / $tiposCambio['COP'];
+            case 'USD':
+            default:
+                return $importe;
+        }
+    };
+
     $id_cuenta = $request->input('id_cuenta');
     $id_usuario = $request->input('id_usuario');
     $id_distribuidor = $request->input('id_distribuidor');
@@ -2366,7 +2390,7 @@ foreach ($fechas_array as $fecha) {
                 ->orWhere('id_distribuidor', $distribuidor->id);
         })
         ->with([
-        'participaciones.anexos.productos' // <---- Esto anida hasta productos
+            'participaciones.anexos.productos' // <---- Esto anida hasta productos
         ])
         ->get();
 
@@ -2380,16 +2404,21 @@ foreach ($fechas_array as $fecha) {
         foreach($participaciones as $participacion){
             if($participacion->id_distribuidor == $distribuidor->id){
                 $lista_participantes[] = $participacion->id_usuario;
+                
+                // CONVERSIÓN A USD AQUÍ
                 foreach ($participacion->anexos as $anexo) {
+                    $monedaAnexo = $anexo->moneda ?? 'USD';
                     foreach ($anexo->productos as $producto) {
-                        $total_importes += (float) $producto->importe_total; 
+                        // Convertir cada producto a USD
+                        $importeUSD = $convertirAUSD($producto->importe_total, $monedaAnexo);
+                        $total_importes += $importeUSD;
                     }
                 }
-
             }
-            
         }
+        
         $lista_participantes = array_unique($lista_participantes);
+        
         // Conteo y cálculos
         $cantidad_participantes = $participaciones->whereIn('estado', ['participante', 'validando'])->where('id_distribuidor', $distribuidor->id)->count();
         $cantidad_finalizados = $participaciones->where('estado', 'finalizado')->where('id_distribuidor', $distribuidor->id)->count();
@@ -2397,7 +2426,7 @@ foreach ($fechas_array as $fecha) {
         $total_a = $participaciones->where('confirmacion_nivel_a', 'si')->where('id_distribuidor', $distribuidor->id)->count();
         $total_b = $participaciones->where('confirmacion_nivel_b', 'si')->where('id_distribuidor', $distribuidor->id)->count();
         $total_c = $participaciones->where('confirmacion_nivel_c', 'si')->where('id_distribuidor', $distribuidor->id)->count();
-        $total_especial = $participaciones->where('confirmacion_nivel_d', 'si')->where('id_distribuidor', $distribuidor->id)->count();
+        $total_especial = $participaciones->where('confirmacion_nivel_especial', 'si')->where('id_distribuidor', $distribuidor->id)->count();
 
         if ($distribuidor->region == 'RoLA') {
             $total_acumulado = 
@@ -2420,7 +2449,7 @@ foreach ($fechas_array as $fecha) {
         $logro->total_c = $total_c;
         $logro->total_especial = $total_especial;
         $logro->total_acumulado = $total_acumulado;
-        $logro->total_importes = $total_importes;
+        $logro->total_importes = round($total_importes, 2); // Total en USD
     }
 
     // calculando el top de participantes
@@ -2435,10 +2464,10 @@ foreach ($fechas_array as $fecha) {
 
         // Inicializar acumulado del usuario
         $acumulado_usuario = 0;
+        $ventas_usuario = 0; // Esto será en USD
 
         // Recorrer todos los logros
         foreach ($lista_logros as $logro) {
-            // MOVER EL CÁLCULO DE BONOS AQUÍ DENTRO DEL BUCLE
             if ($distribuidor->region == 'RoLA') {
                 $bono_a = $logro->premio_rola_a;
                 $bono_b = $logro->premio_rola_b;
@@ -2453,6 +2482,7 @@ foreach ($fechas_array as $fecha) {
 
             foreach ($logro->participaciones as $participacion) {
                 if ($participacion->id_usuario == $datos_usuario->id && $participacion->id_distribuidor == $distribuidor->id) {
+                    // Calcular bonos
                     if ($participacion->confirmacion_nivel_a == 'si') {
                         $acumulado_usuario += $bono_a;
                     }
@@ -2462,10 +2492,18 @@ foreach ($fechas_array as $fecha) {
                     if ($participacion->confirmacion_nivel_c == 'si') {
                         $acumulado_usuario += $bono_c;
                     }
-                    // NOTA: Aquí hay una inconsistencia - arriba usas 'confirmacion_nivel_d' 
-                    // pero aquí 'confirmacion_nivel_especial'. Verifica cuál es el correcto.
                     if ($participacion->confirmacion_nivel_especial == 'si') {
                         $acumulado_usuario += $bono_especial;
+                    }
+                    
+                    // CONVERSIÓN A USD PARA VENTAS DEL USUARIO
+                    foreach ($participacion->anexos as $anexo) {
+                        $monedaAnexo = $anexo->moneda ?? 'USD';
+                        foreach ($anexo->productos as $producto) {
+                            // Convertir cada producto a USD
+                            $importeUSD = $convertirAUSD($producto->importe_total, $monedaAnexo);
+                            $ventas_usuario += $importeUSD;
+                        }
                     }
                 }
             }
@@ -2475,13 +2513,14 @@ foreach ($fechas_array as $fecha) {
         $top_participaciones[] = [
             'id' => $datos_usuario->id,
             'nombre' => $datos_usuario->nombre . ' ' . $datos_usuario->apellidos,
-            'acumulado' => $acumulado_usuario
+            'acumulado' => round($acumulado_usuario, 2),
+            'ventas' => round($ventas_usuario, 2) // Ventas en USD
         ];
     }
 
     // Ordenamos de mayor a menor por acumulado
     usort($top_participaciones, function($a, $b) {
-        return $b['acumulado'] <=> $a['acumulado'];
+        return $b['ventas'] <=> $a['ventas'];
     });
 
     // Asignamos la posición (ranking)
@@ -2490,25 +2529,19 @@ foreach ($fechas_array as $fecha) {
     }
     unset($participante); // buena práctica
 
-    // Limitar a los primeros 10
-    /*
-    $top_participaciones = array_slice($top_participaciones, 0, 10);
-    */
     $conteo_skus = LogroAnexoProducto::select('sku', DB::raw('count(*) as total'))
-    ->groupBy('sku')
-    ->orderByDesc('total')
-    ->get()
-    ->map(function ($sku, $index) {
-        $sku->posicion = $index + 1;
-        return $sku;
-    })
-    ->slice(0, 10)
-    ->values(); // reindexar
+        ->groupBy('sku')
+        ->orderByDesc('total')
+        ->get()
+        ->map(function ($sku, $index) {
+            $sku->posicion = $index + 1;
+            return $sku;
+        })
+        ->slice(0, 10)
+        ->values(); // reindexar
 
     // participants unicos
     $numero_participantes_unicos = count($lista_participantes);
-
-
 
     return response()->json([
         'distribuidor' => $distribuidor,

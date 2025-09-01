@@ -81,7 +81,7 @@ class LogrosExport implements WithMultipleSheets
     }
 }
 
-// Hoja para productos (tu lógica actual)
+// Hoja para productos (ACTUALIZADA con filtro de folio y columna USD)
 class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
 {
     protected $id_temporada;
@@ -95,6 +95,36 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
         $this->id_logro = $id_logro;
         $this->region = $region;
         $this->id_distribuidor = $id_distribuidor;
+    }
+
+    /**
+     * Función para convertir importes a USD
+     */
+    private function convertirAUSD($importe, $moneda)
+    {
+        $tiposCambio = [
+            'USD' => 1,
+            'MXN' => 19.48,
+            'COP' => 4072.55
+        ];
+        
+        // Manejar casos donde no hay moneda capturada
+        if (empty($moneda) || $moneda == '—' || $moneda == '-' || $moneda == null) {
+            $moneda = 'USD';
+        }
+        
+        $moneda = strtoupper(trim($moneda));
+        $importe = floatval($importe);
+        
+        switch ($moneda) {
+            case 'MXN':
+                return $importe / $tiposCambio['MXN'];
+            case 'COP':
+                return $importe / $tiposCambio['COP'];
+            case 'USD':
+            default:
+                return $importe;
+        }
     }
 
     public function collection()
@@ -112,6 +142,12 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
         foreach($anexos_productos as $producto){
             $usuario = $producto->usuario;
             $anexo = $producto->anexo;
+            
+            // FILTRO: Solo procesar si el anexo tiene folio
+            if (empty($anexo->folio) || is_null($anexo->folio) || $anexo->folio == '—') {
+                continue; // Saltar este producto si no tiene folio
+            }
+            
             $suscripcion = UsuariosSuscripciones::with(['distribuidor'])
                 ->where('id_usuario', $usuario->id ?? null)
                 ->where('id_temporada', $temporada->id ?? null)
@@ -120,6 +156,9 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
             $distribuidor_id = $suscripcion->distribuidor->id ?? '—';
             $distribuidor_nombre = $suscripcion->distribuidor->nombre ?? '—';
             $region_distribuidor = $suscripcion->distribuidor->region ?? '—';
+            
+            // Calcular importe en USD
+            $importeUSD = $this->convertirAUSD($producto->importe_total ?? 0, $anexo->moneda);
             
             if($this->id_distribuidor){
                 if($distribuidor_id == $this->id_distribuidor){
@@ -137,6 +176,7 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
                         'importe' => $producto->importe_total ?? 0,
                         'fecha' => $anexo->emision ?? '—',
                         'validado' => $anexo->validado ?? '—',
+                        'importe_usd' => round($importeUSD, 2), // NUEVA COLUMNA
                     ];
                 }
             } else {
@@ -155,6 +195,7 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
                         'importe' => $producto->importe_total ?? 0,
                         'fecha' => $anexo->emision ?? '—',
                         'validado' => $anexo->validado ?? '—',
+                        'importe_usd' => round($importeUSD, 2), // NUEVA COLUMNA
                     ];
                 }
             }
@@ -179,6 +220,7 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
             'Importe',
             'Fecha',
             'Validado',
+            'Importe USD', // NUEVA COLUMNA
         ];
     }
 
@@ -186,8 +228,8 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:M1')->applyFromArray([
+                // Aplicar formato a los encabezados (actualizado para incluir nueva columna)
+                $event->sheet->getStyle('A1:N1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']
@@ -197,12 +239,18 @@ class ProductosSheet implements FromCollection, WithHeadings, ShouldAutoSize
                         'startColor' => ['rgb' => '213746']
                     ],
                 ]);
+                
+                // Formatear las columnas de importes como números
+                $event->sheet->getStyle('K:K')->getNumberFormat()
+                    ->setFormatCode('#,##0.00'); // Columna Importe
+                $event->sheet->getStyle('N:N')->getNumberFormat()
+                    ->setFormatCode('#,##0.00'); // Columna Importe USD
             },
         ];
     }
 }
 
-// Nueva hoja para participaciones
+// Nueva hoja para participaciones (sin cambios)
 class ParticipacionesSheet implements FromCollection, WithHeadings, ShouldAutoSize
 {
     protected $id_temporada;

@@ -63,7 +63,7 @@ class AccionesController extends Controller
         }
 
         if($id_usuario){
-            $intentos_login = IntentoLogin::where('id_usuario', $id_usuario)->get();
+            $intentos_login = IntentoLogin::where('id_usuario', $id_usuario)->orderBy('id', 'desc')->get();
         }else{
             $intentos_login = null;
         }

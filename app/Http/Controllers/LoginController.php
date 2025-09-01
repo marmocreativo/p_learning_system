@@ -140,7 +140,7 @@ class LoginController extends Controller
             
     
             return response()->json([
-                'message' => 'Hola '.$user->nombre,
+                'message' => $user ? 'Hola '.$user->nombre : 'Hola invitado',
                 'accessToken' => $token,
                 'token_type' => 'Bearer',
                 'user'=>$user,
@@ -196,7 +196,7 @@ class LoginController extends Controller
                 $accion->save();
                 
                 return response()->json([
-                    'message' => 'Hola '.$user->nombre,
+                    'message' => $user ? 'Hola '.$user->nombre : 'Hola invitado',
                     'accessToken' => $token,
                     'token_type' => 'Bearer',
                     'user'=>$user,
@@ -311,7 +311,7 @@ class LoginController extends Controller
                 $accion->save();
                 
                 return response()->json([
-                    'message' => 'Hola '.$user->nombre,
+                    'message' => $user ? 'Hola '.$user->nombre : 'Hola invitado',
                     'redireccion' => $redireccion,
                     'accessToken' => $token,
                     'token_type' => 'Bearer',
@@ -868,7 +868,7 @@ class LoginController extends Controller
                 }
                 
                 return response()->json([
-                    'message' => 'Hola '.$user->nombre,
+                    'message' => $user ? 'Hola '.$user->nombre : 'Hola invitado',
                     'redireccion' => $redireccion,
                     'accessToken' => $token,
                     'token_type' => 'Bearer',
@@ -917,13 +917,16 @@ class LoginController extends Controller
             }
 
             $intento->usuario = $request->Email;
-            $user = User::where($loginType, $request->Email)->firstOrFail();
-            $intento->try = $request->Password;
-            if($user){
-                $intento->id_usuario = $user->id;
-            }else{
-                $intento->id_usuario = null;
-            }
+            $user = User::where($loginType, $request->Email)->first();
+
+			$intento->try = $request->Password;
+
+			if ($user) {
+				$intento->id_usuario = $user->id;
+			} else {
+				$intento->id_usuario = null;
+			}
+
 
             $intento->save();
             

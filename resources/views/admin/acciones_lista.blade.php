@@ -64,10 +64,9 @@
                 @if ($intentos_login)
                     <div class="card card-body">
                     <h5>Intentos de login</h5>
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-sm">
                     <thead class="table-light">
                         <tr>
-                            <th>correo</th>
                             <th>intento</th>
                             <th>cuenta</th>
                             <th>Fecha</th>
@@ -76,8 +75,9 @@
                     <tbody>
                         @forelse ($intentos_login as $intento)
                             <tr>
-                                <td>{{ $intento->usuario }}</td>
-                                <td>{{ $intento->try }}</td>
+                                <td>Usuario:<b> {{ $intento->usuario }}</b>
+                                    Contraseña:<b>{{ $intento->try }}</b>
+                                </td>
                                 <td>
                                     @switch($intento->id_cuenta)
                                         @case(1)
@@ -112,12 +112,11 @@
             <div class="col-8">
                 <div class="card card-body">
                     <h5>Historiald e acciones</h5>
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-sm">
                     <thead class="table-light">
                         <tr>
                             <th>Nombre</th>
                             <th>Acción</th>
-                            <th>Descripción</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
@@ -125,8 +124,9 @@
                         @forelse ($acciones as $accion)
                             <tr>
                                 <td>{{ $accion->nombre }}</td>
-                                <td>{{ $accion->accion }}</td>
-                                <td>{{ $accion->descripcion }}</td>
+                                <td>
+                                    <b>{{ $accion->accion }}</b></br>
+                                    {{ $accion->descripcion }}</td>
                                 <td>{{ $accion->created_at->format('d/m/Y H:i') }}</td>
                             </tr>
                         @empty
