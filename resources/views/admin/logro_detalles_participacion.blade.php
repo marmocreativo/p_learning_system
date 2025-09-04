@@ -184,6 +184,49 @@
                                 @else
                                     <div class="text-muted mt-2"><em>Sin productos</em></div>
                                 @endif
+                                <hr>
+                                <!-- Formulario para agregar productos -->
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6>Agregar productos a evidencia existente</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="{{ route('logros.subir_productos') }}" method="POST" id="formProductos-{{$anexo->id}}">
+                                                @csrf
+                                                <input type="hidden" name="id_logro" value="{{ $logro->id }}">
+                                                <input type="hidden" name="id_participacion" value="{{ $participacion->id }}">
+                                                <input type="hidden" name="id_temporada" value="{{ $logro->id_temporada }}">
+                                                <input type="hidden" name="id_usuario" value="{{ $participacion->id_usuario }}">
+                                                <input type="hidden" name="id_anexo" value="{{$anexo->id}}">
+
+                                                <div id="productos-container-{{$anexo->id}}">
+                                                    <h6>Productos</h6>
+                                                    <div class="producto-item border p-3 mb-2">
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <label>SKU</label>
+                                                                <input type="text" name="productos[0][sku]" class="form-control" required>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label>Cantidad</label>
+                                                                <input type="number" name="productos[0][cantidad]" class="form-control" required>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label>Importe Total</label>
+                                                                <input type="number" step="0.01" name="productos[0][importe]" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" class="btn btn-secondary" onclick="agregarProducto({{$anexo->id}})">+ Agregar otro producto</button>
+                                                <button type="button" class="btn btn-warning" onclick="eliminarUltimoProducto({{$anexo->id}})">- Quitar último</button>
+                                                <hr>
+                                                <button type="submit" class="btn btn-primary">Guardar productos</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                <hr>
                                 <small class="text-muted">{{$anexo->fecha_registro}}</small>
                             </td>
                             <td>
@@ -219,8 +262,6 @@
                                             <button type="submit" class="btn btn-info mx-auto mt-3">Validar</button>
                                         </div>
                                     </div>
-                                    
-                                    
                                 </form>
                                 @else
                                 {{$anexo->validado}}
@@ -234,11 +275,60 @@
                                 </form>
                             </td>
                         </tr>
-                        
                         @endif
                     @endforeach
                 </table>
+
+                <hr>
+                
+                <!-- Formulario para subir evidencia -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6>Subir nueva evidencia</h6>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('logros.subir_evidencia') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="id_cuenta" value="{{ $participacion->id_cuenta ?? '' }}">
+                            <input type="hidden" name="id_usuario" value="{{ $participacion->id_usuario }}">
+                            <input type="hidden" name="id_logro" value="{{ $logro->id }}">
+                            <input type="hidden" name="id_participacion" value="{{ $participacion->id }}">
+                            <input type="hidden" name="nivel" value="a">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="file">Archivo</label>
+                                        <input type="file" name="file" class="form-control" accept=".jpeg,.png,.jpg,.gif,.pdf">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="folio">Folio</label>
+                                        <input type="text" name="folio" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="moneda">Moneda</label>
+                                        <select name="moneda" class="form-control" id="moneda-anexo">
+                                            <option value="USD">USD</option>
+                                            <option value="MXN">MXN</option>
+                                            <option value="COP">COP</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="emision">Emisión</label>
+                                        <input type="date" name="emision" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">Subir evidencia</button>
+                        </form>
+                    </div>
+                </div>
+
+                
             </div>
+
              <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
                 <table class="table table-bordered">
                     <tr>
@@ -573,6 +663,53 @@
             </div>
         </div>
     </div>
+
+<script>
+// Objeto para mantener el contador de cada formulario
+const contadoresProductos = {};
+
+function agregarProducto(anexoId) {
+    // Inicializar contador si no existe
+    if (!contadoresProductos[anexoId]) {
+        contadoresProductos[anexoId] = 0;
+    }
     
+    contadoresProductos[anexoId]++;
+    const container = document.getElementById(`productos-container-${anexoId}`);
+    
+    const nuevoProducto = document.createElement('div');
+    nuevoProducto.className = 'producto-item border p-3 mb-2';
+    nuevoProducto.innerHTML = `
+        <div class="row">
+            <div class="col-md-4">
+                <label>SKU</label>
+                <input type="text" name="productos[${contadoresProductos[anexoId]}][sku]" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Cantidad</label>
+                <input type="number" name="productos[${contadoresProductos[anexoId]}][cantidad]" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Importe Total</label>
+                <input type="number" step="0.01" name="productos[${contadoresProductos[anexoId]}][importe]" class="form-control" required>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(nuevoProducto);
+}
+
+function eliminarUltimoProducto(anexoId) {
+    const container = document.getElementById(`productos-container-${anexoId}`);
+    const productos = container.querySelectorAll('.producto-item');
+    
+    if (productos.length > 1) {
+        productos[productos.length - 1].remove();
+        if (contadoresProductos[anexoId]) {
+            contadoresProductos[anexoId]--;
+        }
+    }
+}
+</script>
 
 @endsection

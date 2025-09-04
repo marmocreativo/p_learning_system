@@ -15,11 +15,16 @@ use App\Models\DistribuidoresSuscripciones;
 use App\Models\SesionVis;
 use App\Models\PuntosExtra;
 use App\Models\Logro;
+use App\Models\LogroParticipacion;
+use App\Models\LogroAnexo;
+use App\Models\LogroAnexoProducto;
 use App\Models\Sku;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Carbon\Carbon;
+
 use Illuminate\Support\Str;
 
 use App\Imports\UsersImport;
@@ -28,6 +33,7 @@ use App\Imports\SucursalesImport;
 use App\Imports\PuntosExtraImport;
 use App\Imports\UsuariosImport;
 use App\Imports\SkusImport;
+use App\Imports\AnexosImport;
 
 class CsvController extends Controller
 {
@@ -1003,5 +1009,255 @@ private function generarLegacyIdUnico($base)
 
     return $id;
 }
+
+public function subir_anexos(Request $request)
+{
+    try {
+        $request->validate([
+            'file' => 'required|mimes:xlsx',
+            'id_temporada' => 'required|integer',
+            'id_logro' => 'required|integer'
+        ]);
+
+        $import = new AnexosImport;
+        Excel::import($import, $request->file('file'));
+
+        $rows = $import->rows;
+        
+        if (empty($rows)) {
+            return redirect()->back()->with('error', 'El archivo está vacío o no tiene datos válidos.');
+        }
+
+        $resultados = [];
+        $procesados = 0;
+        $errores = 0;
+        $id_temporada = $request->input('id_temporada');
+        $id_logro = $request->input('id_logro');
+        
+        // Validar que temporada y logro existan
+        $temporada = Temporada::find($id_temporada);
+        if (!$temporada) {
+            return redirect()->back()->with('error', 'Temporada no encontrada.');
+        }
+        
+        $logro = Logro::find($id_logro);
+        if (!$logro) {
+            return redirect()->back()->with('error', 'Desafío no encontrado.');
+        }
+
+        foreach ($rows as $index => $row) {
+            $filaNumero = $index + 2; // +2 porque Excel empieza en 1 y asumimos header
+            $emailUsuario = $row['email'] ?? null;
+            $nombreDistribuidor = $row['distribuidor'] ?? null;
+            $folio = $row['folio'] ?? null;
+            $sku = $row['sku'] ?? null;
+            
+            // Debug: Log de la fila actual
+            \Log::info("Procesando fila {$filaNumero}", [
+                'email' => $emailUsuario,
+                'distribuidor' => $nombreDistribuidor,
+                'folio' => $folio,
+                'sku' => $sku,
+                'row_data' => $row
+            ]);
+            
+            // Validar que los campos requeridos no estén vacíos
+            if (empty($emailUsuario) || empty($folio) || empty($sku)) {
+                $error_msg = 'Campos requeridos vacíos: ';
+                if (empty($emailUsuario)) $error_msg .= 'email ';
+                if (empty($folio)) $error_msg .= 'folio ';
+                if (empty($sku)) $error_msg .= 'sku ';
+                
+                $resultados[] = [
+                    'fila' => $filaNumero,
+                    'usuario' => $emailUsuario ?: 'N/A',
+                    'folio' => $folio ?: 'N/A',
+                    'sku' => $sku ?: 'N/A',
+                    'estado' => $error_msg,
+                    'folio_creado' => 'no',
+                    'sku_creado' => 'no'
+                ];
+                $errores++;
+                continue;
+            }
+
+            // Validar que el usuario existe
+            $usuario = User::where('email', $emailUsuario)->first();
+            if (!$usuario) {
+                $resultados[] = [
+                    'fila' => $filaNumero,
+                    'usuario' => $emailUsuario,
+                    'folio' => $folio,
+                    'sku' => $sku,
+                    'estado' => 'Usuario con email "' . $emailUsuario . '" no encontrado en el sistema',
+                    'folio_creado' => 'no',
+                    'sku_creado' => 'no'
+                ];
+                $errores++;
+                continue;
+            }
+
+            // Validar que existe una participación para este usuario
+            $participacion = LogroParticipacion::where('id_temporada', $id_temporada)
+                ->where('id_logro', $id_logro)
+                ->where('id_usuario', $usuario->id)
+                ->first();
+                
+            if (!$participacion) {
+                $resultados[] = [
+                    'fila' => $filaNumero,
+                    'usuario' => $emailUsuario,
+                    'folio' => $folio,
+                    'sku' => $sku,
+                    'estado' => 'El usuario "' . $usuario->nombre . '" no está registrado en este desafío',
+                    'folio_creado' => 'no',
+                    'sku_creado' => 'no'
+                ];
+                $errores++;
+                continue;
+            }
+
+            // Procesar datos si todas las validaciones pasaron
+            try {
+                $moneda = $row['moneda'] ?? 'MXN';
+                
+                 try {
+                    // Si la fecha viene como número serial de Excel
+                    if (is_numeric($row['emision'])) {
+                        $fecha_emision = Carbon::instance(Date::excelToDateTimeObject($row['emision']))->startOfDay();
+                    } else {
+                        // Si viene como string, usar el formato original
+                        $fecha_emision = Carbon::createFromFormat('d/m/Y', $row['emision'])->startOfDay();
+                    }
+                    
+                    // resto de tu código...
+                    
+                } catch (\Exception $e) {
+                    // Para debuggear qué está pasando
+                    dd([
+                        'valor_original' => $row['emision'],
+                        'tipo' => gettype($row['emision']),
+                        'es_numerico' => is_numeric($row['emision']),
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                
+                // Convertir tipos de datos
+                $cantidad = (int) ($row['cantidad'] ?? 1);
+                $importe_total = round((float) ($row['importe_total'] ?? 0), 2);
+
+                // Revisar si ya existe el anexo
+                $anexo = LogroAnexo::where('id_usuario', $usuario->id)
+                    ->where('id_participacion', $participacion->id)
+                    ->where('folio', $folio)
+                    ->first();
+                
+                $folio_creado = 'no';
+                $sku_creado = 'no';
+                $estado = 'Procesado correctamente';
+
+                if ($anexo) {
+                    // El anexo ya existe, verificar si el SKU ya existe
+                    $sku_existente = LogroAnexoProducto::where('sku', $sku)
+                        ->where('id_anexo', $anexo->id)
+                        ->first();
+                        
+                    if (!$sku_existente) {
+                        // Solo agregar el SKU
+                        $producto = new LogroAnexoProducto;
+                        $producto->id_logro = $id_logro;
+                        $producto->id_participacion = $participacion->id;
+                        $producto->id_temporada = $id_temporada;
+                        $producto->id_usuario = $usuario->id;
+                        $producto->id_anexo = $anexo->id;
+                        $producto->sku = $sku;
+                        $producto->cantidad = $cantidad;
+                        $producto->importe_total = $importe_total;
+                        $producto->save();
+                        $sku_creado = 'si';
+                    } else {
+                        $estado = 'SKU "' . $sku . '" ya existe en el folio "' . $folio . '"';
+                    }
+                } else {
+                    // Crear nuevo anexo
+                    $nuevo_anexo = new LogroAnexo;
+                    $nuevo_anexo->id_logro = $id_logro;
+                    $nuevo_anexo->id_participacion = $participacion->id;
+                    $nuevo_anexo->id_temporada = $id_temporada;
+                    $nuevo_anexo->id_usuario = $usuario->id;
+                    $nuevo_anexo->nivel = 'a';
+                    $nuevo_anexo->documento = 'empty.pdf';
+                    $nuevo_anexo->validado = 'no';
+                    $nuevo_anexo->comentario = null;
+                    $nuevo_anexo->folio = $folio;
+                    $nuevo_anexo->moneda = $moneda;
+                    $nuevo_anexo->emision = $fecha_emision;
+                    $nuevo_anexo->save();
+                    $folio_creado = 'si';
+                    
+                    // Agregar el SKU
+                    $producto = new LogroAnexoProducto;
+                    $producto->id_logro = $id_logro;
+                    $producto->id_participacion = $participacion->id;
+                    $producto->id_temporada = $id_temporada;
+                    $producto->id_usuario = $usuario->id;
+                    $producto->id_anexo = $nuevo_anexo->id;
+                    $producto->sku = $sku;
+                    $producto->cantidad = $cantidad;
+                    $producto->importe_total = $importe_total;
+                    $producto->save();
+                    $sku_creado = 'si';
+                }
+
+                $procesados++;
+
+            } catch (Exception $e) {
+                $estado = 'Error en base de datos: ' . $e->getMessage();
+                $errores++;
+                
+                // Log del error específico
+                \Log::error("Error procesando fila {$filaNumero}", [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'data' => $row
+                ]);
+            }
+
+            $resultados[] = [
+                'fila' => $filaNumero,
+                'usuario' => $emailUsuario,
+                'folio' => $folio,
+                'sku' => $sku,
+                'estado' => $estado,
+                'folio_creado' => $folio_creado,
+                'sku_creado' => $sku_creado
+            ];
+        }
+
+        // SIEMPRE mostrar la vista de resultados para ver los detalles
+        return view('importacion.resultado_anexos', [
+            'resultados' => $resultados,
+            'id_logro' => $id_logro,
+            'id_temporada' => $id_temporada,
+            'mensaje' => "Procesamiento completado. Registros procesados: {$procesados}, Errores: {$errores}",
+            'procesados' => $procesados,
+            'errores' => $errores,
+            'logro' => $logro
+        ]);
+
+    } catch (ValidationException $e) {
+        return redirect()->back()->withErrors($e->validator)->withInput();
+    } catch (Exception $e) {
+        \Log::error('Error crítico en subir_anexos: ' . $e->getMessage(), [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return redirect()->back()->with('error', 'Error crítico del servidor: ' . $e->getMessage());
+    }
+}
+
 
 }

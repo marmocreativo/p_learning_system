@@ -200,11 +200,14 @@ Route::post('admin/logros/crear_sku', [LogrosController::class, 'crear_sku'])->m
 Route::get('admin/logros/{post}', [LogrosController::class, 'show'])->middleware('auth')->name('logros.show');
 Route::get('admin/logros/edit/{post}', [LogrosController::class, 'edit'])->middleware('auth')->name('logros.edit');
 Route::put('admin/logros/update/{post}', [LogrosController::class, 'update'])->middleware('auth')->name('logros.update');
+Route::post('admin/logros/subir_evidencia', [LogrosController::class, 'subir_evidencia'])->middleware('auth')->name('logros.subir_evidencia');
+Route::post('admin/logros/subir_productos', [LogrosController::class, 'subir_productos'])->middleware('auth')->name('logros.subir_productos');
 Route::put('admin/logros/participacion_update/{post}', [LogrosController::class, 'participacion_update'])->middleware('auth')->name('logros.participacion_update');
 Route::delete('admin/logros/destroy/{post}', [LogrosController::class, 'destroy'])->middleware('auth')->name('logros.destroy');
 Route::delete('admin/logros/destroy_participacion/{post}', [LogrosController::class, 'destroy_participacion'])->middleware('auth')->name('logros.destroy_participacion');
 Route::delete('admin/logros/destroy_anexo/{post}', [LogrosController::class, 'destroy_anexo'])->middleware('auth')->name('logros.destroy_anexo');
 Route::put('admin/logros/actualizar_anexo/{post}', [LogrosController::class, 'actualizar_anexo'])->middleware('auth')->name('logros.actualizar_anexo');
+Route::post('admin/logros/subir_anexos', [CsvController::class, 'subir_anexos'])->name('logros.subir_anexos');
 
 
 // Rutas CRUD para las'sliders'

@@ -1476,7 +1476,7 @@ public function suscribir_full_update(Request $request, string $id)
 
 
     }
-
+    /*
     public function datos_basicos_lider_api (Request $request)
     {
         $id_cuenta = $request->input('id_cuenta');
@@ -1735,6 +1735,319 @@ public function suscribir_full_update(Request $request, string $id)
 
 
     }
+    */
+
+    public function datos_basicos_lider_api(Request $request)
+{
+    $id_cuenta = $request->input('id_cuenta');
+    $id_usuario = $request->input('id_usuario');
+    
+    $cuenta = Cuenta::find($id_cuenta);
+    if (!$cuenta) return response()->json(['error' => 'Cuenta no encontrada'], 404);
+    
+    $usuario = User::find($id_usuario);
+    if (!$usuario) return response()->json(['error' => 'Usuario no encontrado'], 404);
+    
+    $id_temporada = $cuenta->temporada_actual;
+    $temporada = Temporada::find($id_temporada);
+    $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)
+                    ->where('id_usuario', $id_usuario)
+                    ->first();
+
+    if (!$suscripcion) {
+        return response()->json(['error' => 'No se encontró suscripción'], 404);
+    }
+
+    $distribuidor = Distribuidor::find($suscripcion->id_distribuidor);
+    if (!$distribuidor) return response()->json(['error' => 'Distribuidor no encontrado'], 404);
+
+    // Contar sesiones, trivias y jackpots
+    $sesiones = SesionEv::where('id_temporada', $id_temporada)->count();
+    $sesiones_pendientes = SesionEv::where('id_temporada', $id_temporada)
+                            ->whereDate('fecha_publicacion', '>', now())->count();
+    $lista_sesiones = SesionEv::where('id_temporada', $id_temporada)
+                        ->whereDate('fecha_publicacion', '<=', now())->get();
+
+    $trivias = Trivia::where('id_temporada', $id_temporada)->count();
+    $trivias_pendientes = Trivia::where('id_temporada', $id_temporada)
+                        ->whereDate('fecha_publicacion', '>', now())->count();
+    $lista_trivias = Trivia::where('id_temporada', $id_temporada)
+                        ->whereDate('fecha_publicacion', '<=', now())->get();
+
+    $jackpots = Jackpot::where('id_temporada', $id_temporada)->count();
+    $jackpots_pendientes = Jackpot::where('id_temporada', $id_temporada)
+                            ->whereDate('fecha_publicacion', '>', now())->count();
+    $lista_jackpots = Jackpot::where('id_temporada', $id_temporada)
+                        ->whereDate('fecha_publicacion', '<=', now())->get();
+
+    $participaciones_logros_conteo = 0;
+    $participaciones_anexos_conteo = 0;
+    $participaciones_productos_conteo = 0;
+    
+    // Participaciones logros y anexos - CORREGIDO para ser consistente con super_lider
+    $participaciones_logros = LogroParticipacion::where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->get();
+
+    $participaciones_logros_unicas = LogroParticipacion::where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->distinct()
+        ->get();
+
+    $participaciones_logros_conteo = $participaciones_logros_unicas->count();
+
+    foreach ($participaciones_logros as $p) {
+        $anexos = LogroAnexo::where('id_participacion', $p->id)->count();
+        $productos = LogroAnexoProducto::where('id_participacion', $p->id)->count();
+
+        $participaciones_anexos_conteo += $anexos;
+        $participaciones_productos_conteo += $productos;
+    }
+
+    // Suscriptores
+    $suscriptores = DB::table('usuarios_suscripciones')
+        ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
+        ->where('usuarios_suscripciones.id_temporada', $id_temporada)
+        ->where('usuarios_suscripciones.id_distribuidor', $suscripcion->id_distribuidor)
+        ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*')
+        ->get();
+
+    $array_suscriptores = [];
+    $suscriptores_totales = 0;
+    $suscriptores_activos = 0;
+    $suscriptores_participantes = 0;
+    $array_nombres = [];
+    $top_sesiones = [];
+    $array_nombres_sesiones = [];
+    $top_trivias = [];
+    $array_nombres_trivias = [];
+    $top_jackpots = [];
+    $array_nombres_jackpots = [];
+    $top_10 = [];
+    $no_usuarios_sesiones = 0;
+    $no_usuarios_trivias = 0;
+    $no_usuarios_jackpots = 0;
+    $participaciones_sesiones = 0;
+    $participaciones_trivias = 0;
+    $participaciones_jackpots = 0;
+
+    // Preparar arrays de IDs de usuarios para optimizar queries
+    $usuarios_ids = $suscriptores->pluck('id_usuario')->toArray();
+
+    // Conteos de sesiones - OPTIMIZADO
+    $sesion_vis_counts = SesionVis::whereIn('id_usuario', $usuarios_ids)
+                            ->where('id_distribuidor', $distribuidor->id)
+                            ->get()
+                            ->groupBy('id_sesion');
+    
+    foreach($lista_sesiones as $sesion){
+        $conteo_vis = $sesion_vis_counts->get($sesion->id) ? count($sesion_vis_counts[$sesion->id]) : 0;
+        $participaciones_sesiones += $conteo_vis;
+        $top_sesiones[$sesion->id] = $conteo_vis;
+        $array_nombres_sesiones[$sesion->id] = $sesion->titulo;
+    }
+
+    // Conteos trivias - OPTIMIZADO
+    $trivia_res_counts = TriviaRes::whereIn('id_usuario', $usuarios_ids)
+                            ->where('id_distribuidor', $distribuidor->id)
+                            ->get()
+                            ->groupBy('id_trivia');
+
+    foreach($lista_trivias as $trivia){
+        $conteo_res = $trivia_res_counts->get($trivia->id) ? count($trivia_res_counts[$trivia->id]->unique('id_usuario')) : 0;
+        $participaciones_trivias += $conteo_res;
+        $top_trivias[$trivia->id] = $conteo_res;
+        $array_nombres_trivias[$trivia->id] = $trivia->titulo;
+    }
+
+    // Conteos jackpots - OPTIMIZADO
+    $jackpot_counts = JackpotIntentos::whereIn('id_usuario', $usuarios_ids)
+                        ->where('id_distribuidor', $distribuidor->id)
+                        ->where('puntaje', '>', 0)
+                        ->get()
+                        ->groupBy('id_jackpot');
+
+    foreach($lista_jackpots as $jackpot){
+        $conteo_res = $jackpot_counts->get($jackpot->id) ? count($jackpot_counts[$jackpot->id]) : 0;
+        $participaciones_jackpots += $conteo_res;
+        $top_jackpots[$jackpot->id] = $conteo_res;
+        $array_nombres_jackpots[$jackpot->id] = $jackpot->titulo;
+    }
+
+    // Inicializo conteo de recompensas - NUEVO
+    $participaciones_canje_conteo = 0;
+    $recompensas_conteo = 0;
+
+    // Iterar suscriptores
+    foreach($suscriptores as $suscriptor){
+        $array_nombres[$suscriptor->id_usuario] = $suscriptor->nombre.' '.$suscriptor->apellidos;
+
+        // CORREGIDO: Lógica de activo unificada con super_lider
+        $activo = false;
+        $participante = false;
+        if($suscriptor->fecha_terminos){
+            $activo = true;
+            $check_participante = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
+                        EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
+                        TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists() ||
+                        JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists();
+            $participante = $check_participante;
+        }
+        
+        if(EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_sesiones++;
+        if(TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_trivias++;
+        if(JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->exists()) $no_usuarios_jackpots++;
+
+        // Cálculos de puntaje
+        $puntos_sesiones = SesionVis::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
+        $puntos_evaluaciones = EvaluacionRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
+        $puntos_trivias = TriviaRes::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
+        $puntos_jackpot = JackpotIntentos::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntaje');
+        $puntos_extras = PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
+
+        $puntos_totales = $puntos_sesiones + $puntos_evaluaciones + $puntos_trivias + $puntos_jackpot + $puntos_extras;
+        $top_10[$suscriptor->id_usuario] = $puntos_totales;
+
+        $array_suscriptores[$suscriptor->id_usuario] = [
+            'id' => $suscriptor->id_usuario,  // AGREGADO: campo id
+            'nombre' => $suscriptor->nombre,
+            'apellidos' => $suscriptor->apellidos,
+            'email' => $suscriptor->email,
+            'suscripcion' => $suscriptor->id,
+            'activo' => $activo,
+            'participante' => $participante,
+            'distribuidor' => $distribuidor->nombre,
+            'puntos_sesiones' => (int)$puntos_sesiones,
+            'puntos_evaluaciones' => (int)$puntos_evaluaciones,
+            'puntos_trivias' => (int)$puntos_trivias,
+            'puntos_jackpots' => (int)$puntos_jackpot,
+            'puntos_extra' => (int)$puntos_extras,
+            'puntos_totales' => (int)$puntos_totales
+        ];
+
+        if($activo) $suscriptores_activos++;
+        if($participante) $suscriptores_participantes++;
+        $suscriptores_totales++;
+
+        // NUEVO: Conteo de canjeo y recompensas
+        $participaciones_canjeo = CanjeoTransacciones::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->distinct('id_usuario')->count();
+        $participaciones_canje_conteo += $participaciones_canjeo;
+        
+        $transacciones = CanjeoTransacciones::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->get();
+        
+        foreach($transacciones as $t){
+            $productos = CanjeoTransaccionesProductos::where('id_transacciones', $t->id)->count();
+            $recompensas_conteo += $productos;
+        }
+    }
+
+    // Ordenar top arrays - OPTIMIZADO
+    arsort($top_sesiones);
+    arsort($top_trivias);
+    arsort($top_jackpots);
+    arsort($top_10);
+
+    $top_sesiones_ordenado = array_map(fn($id,$p)=>['id'=>$id,'puntos'=>$p], array_keys($top_sesiones), $top_sesiones);
+    $top_trivias_ordenado = array_map(fn($id,$p)=>['id'=>$id,'puntos'=>$p], array_keys($top_trivias), $top_trivias);
+    $top_jackpots_ordenado = array_map(fn($id,$p)=>['id'=>$id,'puntos'=>$p], array_keys($top_jackpots), $top_jackpots); // CORREGIDO: era $top_trivias_ordenado
+    $top_10_ordenado = array_map(fn($id,$p)=>['id'=>$id,'puntos'=>$p], array_keys($top_10), $top_10);
+
+    // NUEVO: Fechas configurables
+    $fecha_inicio = $request->input('fecha_inicio') ? Carbon::parse($request->input('fecha_inicio')) : Carbon::now()->subDays(15);
+    $fecha_final = $request->input('fecha_final') ? Carbon::parse($request->input('fecha_final')) : Carbon::now()->endOfDay();
+
+    $fechas_array = [];
+    $engagement_visualizaciones = [];
+    $engagement_evaluaciones = [];
+    $engagement_trivias = [];
+    $engagement_jackpots = [];
+
+    // Genero array de fechas
+    for ($fecha = $fecha_inicio->copy(); $fecha->lte($fecha_final); $fecha->addDay()) {
+        $fechas_array[] = $fecha->toDateString();
+    }
+
+    // OPTIMIZADO: Consultas únicas para cada tipo con distribuidor
+    $vis_counts = SesionVis::select(DB::raw('DATE(fecha_ultimo_video) as fecha'), DB::raw('count(*) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_ultimo_video', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_ultimo_video)'))
+        ->pluck('total','fecha');
+
+    $eval_counts = EvaluacionRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(distinct id_usuario) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
+
+    $trivia_counts = TriviaRes::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(distinct id_usuario) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
+
+    $jackpot_counts = JackpotIntentos::select(DB::raw('DATE(fecha_registro) as fecha'), DB::raw('count(*) as total'))
+        ->where('id_temporada', $id_temporada)
+        ->where('id_distribuidor', $distribuidor->id)
+        ->where('puntaje', '>', 0)
+        ->whereBetween('fecha_registro', [$fecha_inicio, $fecha_final])
+        ->groupBy(DB::raw('DATE(fecha_registro)'))
+        ->pluck('total','fecha');
+
+    // Relleno arrays por fecha (0 si no hay datos)
+    foreach ($fechas_array as $fecha) {
+        $engagement_visualizaciones[] = isset($vis_counts[$fecha]) ? (int)$vis_counts[$fecha] : 0;
+        $engagement_evaluaciones[] = isset($eval_counts[$fecha]) ? (int)$eval_counts[$fecha] : 0;
+        $engagement_trivias[] = isset($trivia_counts[$fecha]) ? (int)$trivia_counts[$fecha] : 0;
+        $engagement_jackpots[] = isset($jackpot_counts[$fecha]) ? (int)$jackpot_counts[$fecha] : 0;
+    }
+
+    $completo = [
+        'usuario' => $usuario,
+        'temporada' => $temporada,
+        'suscripcion' => $suscripcion,
+        'distribuidor' => $distribuidor,
+        'sesiones' => $sesiones,
+        'sesiones_pendientes' => $sesiones_pendientes,
+        'trivias' => $trivias,
+        'trivias_pendientes' => $trivias_pendientes,
+        'jackpots' => $jackpots,
+        'jackpots_pendientes' => $jackpots_pendientes,
+        'suscriptores' => $array_suscriptores,
+        'totales' => $suscriptores_totales,
+        'activos' => $suscriptores_activos,
+        'participantes' => $suscriptores_participantes,
+        'array_nombres' => $array_nombres,
+        'array_nombres_sesiones' => $array_nombres_sesiones,
+        'array_nombres_trivias' => $array_nombres_trivias,
+        'array_nombres_jackpots' => $array_nombres_jackpots, // CORREGIDO: faltaba esta línea
+        'top_sesiones' => $top_sesiones_ordenado,
+        'top_trivias' => $top_trivias_ordenado,
+        'top_jackpots' => $top_jackpots_ordenado,
+        'top_10' => $top_10_ordenado,
+        'no_usuarios_sesiones' => $no_usuarios_sesiones,
+        'no_usuarios_trivias' => $no_usuarios_trivias,
+        'no_usuarios_jackpots' => $no_usuarios_jackpots,
+        'participaciones_sesiones' => $participaciones_sesiones,
+        'participaciones_trivias' => $participaciones_trivias,
+        'participaciones_jackpots' => $participaciones_jackpots,
+        'array_fechas' => $fechas_array, // CORREGIDO: era 'fechas_array'
+        'engagement_visualizaciones' => $engagement_visualizaciones,
+        'engagement_evaluaciones' => $engagement_evaluaciones,
+        'engagement_trivias' => $engagement_trivias,
+        'engagement_jackpots' => $engagement_jackpots,
+        'no_participaciones_logros' => $participaciones_logros_conteo,
+        'no_anexos' => $participaciones_anexos_conteo,
+        'no_anexos_productos' => $participaciones_productos_conteo,
+        'no_participaciones_canje' => $participaciones_canje_conteo, // NUEVO
+        'no_recompensas' => $recompensas_conteo, // NUEVO
+    ];
+
+    return response()->json($completo);
+}
 
     public function eliminar_usuario_api (Request $request)
     {

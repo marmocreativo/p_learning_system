@@ -369,102 +369,156 @@ class LogrosController extends Controller
         
     }
 
-
-    public function participacion_update(Request $request, string $id)
+public function subir_evidencia(Request $request)
 {
-    try {
-        // Obtenemos y actualizamos la participación
-        $participacion = LogroParticipacion::find($id);
-        $logro = Logro::find($participacion->id_logro);
-        $nivel_email = '';
-        
-        switch ($request->ConfirmacionNivel) {
-            case 'a':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'no';
-                $participacion->confirmacion_nivel_c = 'no';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'A';
-                break;
-            case 'b':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'no';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'B';
-                break;
-            case 'c':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'si';
-                $participacion->confirmacion_nivel_especial = 'no';
-                $nivel_email = 'C';
-                break;
-            case 'especial':
-                $participacion->confirmacion_nivel_a = 'si';
-                $participacion->confirmacion_nivel_b = 'si';
-                $participacion->confirmacion_nivel_c = 'si';
-                $participacion->confirmacion_nivel_especial = 'si';
-                $nivel_email = 'Especial';
-                break;
-            default:
-                # code...
-                break;
-        }
-        
-        $participacion->estado = $request->Estado;
-        
-        // Primero guardamos los cambios en la base de datos
-        $participacion->save();
-        
-        // Luego intentamos enviar el correo, pero manejamos posibles errores
-        try {
-            if($participacion->estado=='finalizado'){
-                $data = [
-                    'titulo' => ' ¡Desafío completado! ',
-                    'contenido' => '<p>"Has superado los niveles de tu desafio Champions  ¡Gracias por participar, y prepárate para la próxima temporada!</p>',
-                    'boton_texto' => 'Desafío Champions',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new FinalizacionChampions($data));
-            } else {
-                $data = [
-                    'desafio' => $logro->nombre,
-                    'nivel' => $nivel_email,
-                    'estado' => $logro->estado,
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
-                ];
-                Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
-            }
-        } catch (\Exception $e) {
-            // Registramos el error pero continuamos con la ejecución
-            \Log::error('Error al enviar correo de actualización de participación: ' . $e->getMessage());
-        }
-        
-        return redirect()->route('logros.detalles_participacion', ['id'=>$participacion->id]);
-        
-    } catch (\Exception $e) {
-        \Log::error('Error en participacion_update: ' . $e->getMessage());
-        return back()->withErrors(['error' => 'Ha ocurrido un error al actualizar la participación.']);
-    }
-}
-public function reporte_excel(Request $request)
-{   
-    /*
-    // Validar los parámetros requeridos
     $request->validate([
-        'id_temporada' => 'required|integer',
-        'id_logro' => 'required|integer',
+        'file' => 'nullable|mimes:jpeg,png,jpg,gif,pdf|max:2048'
     ]);
 
-    // Nombre del archivo que se va a descargar
-    $nombreArchivo = 'logros_export_' . now()->format('Ymd_His') . '.xlsx';
+    if ($request->hasFile('file')) {
+        $archivo = $request->file('file');
+        $nombreArchivo = 'evidencia'.time().'.'.$archivo->extension();
+        $archivo->move(base_path('../public_html/img/evidencias'), $nombreArchivo);
 
-    // Retornar la descarga
-    return Excel::download(new LogrosExport($request), $nombreArchivo);
-    */
-    return 'Este es el reporte';
+        $id_cuenta = $request->input('id_cuenta');
+        $id_usuario = $request->input('id_usuario');
+        $id_logro = $request->input('id_logro');
+        $id_participacion = $request->input('id_participacion');
+        $cuenta = Cuenta::find($id_cuenta);
+        $logro = Logro::find($id_logro);
+        $id_temporada = $logro->id_temporada;
+        $nivel = $request->input('nivel');
+        $folio = $request->input('folio');
+        $moneda = $request->input('moneda');
+        $emision = $request->input('emision');
+        
+        $suscripcion = UsuariosSuscripciones::where('id_temporada', $id_temporada)->where('id_usuario', $id_usuario)->first();
+        $id_distribuidor = $suscripcion->id_distribuidor;
+        
+        $evidencia = new LogroAnexo();
+        $evidencia->id_logro = $id_logro;
+        $evidencia->id_participacion = $id_participacion;
+        $evidencia->id_temporada = $id_temporada;
+        $evidencia->id_usuario = $id_usuario;
+        $evidencia->documento = $nombreArchivo;
+        $evidencia->nivel = $nivel;
+        $evidencia->folio = $folio;
+        $evidencia->moneda = $moneda;
+        $evidencia->emision = $emision;
+        $evidencia->fecha_registro = date('Y-m-d H:i:s');
+        $evidencia->save();
+    }
+
+    return redirect()->route('logros.detalles_participacion', ['id' => $request->input('id_participacion')]);
 }
+
+public function subir_productos(Request $request)
+{
+    $productos = $request->input('productos', []);
+    $id_logro = $request->input('id_logro');
+    $id_participacion = $request->input('id_participacion');
+    $id_temporada = $request->input('id_temporada');
+    $id_usuario = $request->input('id_usuario');
+    $id_anexo = $request->input('id_anexo');
+
+    if (!empty($productos) && is_array($productos)) {
+        foreach ($productos as $producto) {
+            $nuevoProducto = new LogroAnexoProducto();
+            $nuevoProducto->id_logro = $id_logro;
+            $nuevoProducto->id_participacion = $id_participacion;
+            $nuevoProducto->id_temporada = $id_temporada;
+            $nuevoProducto->id_usuario = $id_usuario;
+            $nuevoProducto->id_anexo = $id_anexo;
+            $nuevoProducto->sku = $producto['sku'];
+            $nuevoProducto->cantidad = $producto['cantidad'];
+            $nuevoProducto->importe_total = $producto['importe'];
+            $nuevoProducto->save();
+        }
+    }
+    
+    return redirect()->route('logros.detalles_participacion', ['id' => $id_participacion]);
+}
+
+
+    public function participacion_update(Request $request, string $id)
+    {
+        try {
+            // Obtenemos y actualizamos la participación
+            $participacion = LogroParticipacion::find($id);
+            $logro = Logro::find($participacion->id_logro);
+            $nivel_email = '';
+            
+            switch ($request->ConfirmacionNivel) {
+                case 'a':
+                    $participacion->confirmacion_nivel_a = 'si';
+                    $participacion->confirmacion_nivel_b = 'no';
+                    $participacion->confirmacion_nivel_c = 'no';
+                    $participacion->confirmacion_nivel_especial = 'no';
+                    $nivel_email = 'A';
+                    break;
+                case 'b':
+                    $participacion->confirmacion_nivel_a = 'si';
+                    $participacion->confirmacion_nivel_b = 'si';
+                    $participacion->confirmacion_nivel_c = 'no';
+                    $participacion->confirmacion_nivel_especial = 'no';
+                    $nivel_email = 'B';
+                    break;
+                case 'c':
+                    $participacion->confirmacion_nivel_a = 'si';
+                    $participacion->confirmacion_nivel_b = 'si';
+                    $participacion->confirmacion_nivel_c = 'si';
+                    $participacion->confirmacion_nivel_especial = 'no';
+                    $nivel_email = 'C';
+                    break;
+                case 'especial':
+                    $participacion->confirmacion_nivel_a = 'si';
+                    $participacion->confirmacion_nivel_b = 'si';
+                    $participacion->confirmacion_nivel_c = 'si';
+                    $participacion->confirmacion_nivel_especial = 'si';
+                    $nivel_email = 'Especial';
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+            
+            $participacion->estado = $request->Estado;
+            
+            // Primero guardamos los cambios en la base de datos
+            $participacion->save();
+            
+            // Luego intentamos enviar el correo, pero manejamos posibles errores
+            try {
+                if($participacion->estado=='finalizado'){
+                    $data = [
+                        'titulo' => ' ¡Desafío completado! ',
+                        'contenido' => '<p>"Has superado los niveles de tu desafio Champions  ¡Gracias por participar, y prepárate para la próxima temporada!</p>',
+                        'boton_texto' => 'Desafío Champions',
+                        'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                    ];
+                    Mail::to($request->UsuarioEmail)->send(new FinalizacionChampions($data));
+                } else {
+                    $data = [
+                        'desafio' => $logro->nombre,
+                        'nivel' => $nivel_email,
+                        'estado' => $logro->estado,
+                        'boton_enlace' => 'https://pl-electrico.panduitlatam.com/champions'
+                    ];
+                    Mail::to($request->UsuarioEmail)->send(new ConfirmacionNivelChampions($data));
+                }
+            } catch (\Exception $e) {
+                // Registramos el error pero continuamos con la ejecución
+                \Log::error('Error al enviar correo de actualización de participación: ' . $e->getMessage());
+            }
+            
+            return redirect()->route('logros.detalles_participacion', ['id'=>$participacion->id]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error en participacion_update: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Ha ocurrido un error al actualizar la participación.']);
+        }
+    }
+
 
     public function lista_logros_api(Request $request)
     {
