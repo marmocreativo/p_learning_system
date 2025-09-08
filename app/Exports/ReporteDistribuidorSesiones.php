@@ -53,6 +53,10 @@ class ReporteDistribuidorSesiones implements FromCollection, WithHeadings
     {
         $cuenta = Cuenta::find($this->id_cuenta);
         $temporada = Temporada::find($cuenta->temporada_actual);
+        $temporadasActivas = Temporada::where('id_cuenta', $cuenta->id)
+            ->where('estado', 'activa')
+            ->pluck('id'); // devuelve un array solo con los ids
+        
         $distribuidor = Distribuidor::find($this->id_distribuidor);
 
         $usuarios_suscritos = DB::table('usuarios_suscripciones')
@@ -72,19 +76,24 @@ class ReporteDistribuidorSesiones implements FromCollection, WithHeadings
                 'distribuidores.region as region',
                 'distribuidores.nombre as distribuidor',
                 'sucursales.nombre as sucursal',
+                'usuarios_suscripciones.fecha_terminos as fecha_terminos',
+                'usuarios_suscripciones.id as id_suscripcion'
             )
             ->get();
+        //dd($usuarios_suscritos);
         
-        $sesiones = SesionEv::select('*')
-    ->where('id_cuenta', $cuenta->id)
-    ->orderByRaw('CAST(SUBSTRING(url, 2, 2) AS UNSIGNED)') // temporada
-    ->orderByRaw('CAST(SUBSTRING(url, 5, 2) AS UNSIGNED)') // sesión
-    ->get();
-        $visualizaciones = SesionVis::all();
+        $sesiones = SesionEv::where('id_cuenta', $cuenta->id)
+            ->whereIn('id_temporada', $temporadasActivas)
+            ->orderByRaw('CAST(SUBSTRING(url, 2, 2) AS UNSIGNED)') // temporada
+            ->orderByRaw('CAST(SUBSTRING(url, 5, 2) AS UNSIGNED)') // sesión
+            ->get();
+        
         
         //dd($usuarios_suscritos);
         $coleccion = array();
         $index = 0;
+
+        
 
         foreach($usuarios_suscritos as $usuario){
             $puntaje_total = 0;
@@ -97,11 +106,10 @@ class ReporteDistribuidorSesiones implements FromCollection, WithHeadings
             $s = 1;
             
             foreach ($sesiones as $sesion) {
+                $visualizacion = null;
 
-                    $visualizacion = $visualizaciones->first(function ($visualizacion) use ($usuario, $sesion) {
-                        return $visualizacion->id_usuario == $usuario->id_usuario
-                            && $visualizacion->id_sesion == $sesion->id;
-                    });
+                if(!empty($usuario->fecha_terminos)){
+                    $visualizacion = SesionVis::where('id_sesion', $sesion->id)->where('id_usuario', $usuario->id_usuario)->first();
 
                     if ($visualizacion){
                         $coleccion[$index][$sesion->url]= (string) $visualizacion->fecha_ultimo_video;
@@ -110,8 +118,10 @@ class ReporteDistribuidorSesiones implements FromCollection, WithHeadings
                         $coleccion[$index][$sesion->url] = '-';
                     }
                     $s++;
+                }else{
+                    $coleccion[$index][$sesion->url] = 'X'; 
                 }
-            
+            }
             
             $index ++;
         }
@@ -122,12 +132,14 @@ class ReporteDistribuidorSesiones implements FromCollection, WithHeadings
     {
         $cuenta = Cuenta::find($this->id_cuenta);
         $temporada = Temporada::find($cuenta->temporada_actual);
-        $sesiones = SesionEv::select('*')
-    ->where('id_cuenta', $cuenta->id)
-    ->orderByRaw('CAST(SUBSTRING(url, 2, 2) AS UNSIGNED)') // temporada
-    ->orderByRaw('CAST(SUBSTRING(url, 5, 2) AS UNSIGNED)') // sesión
-    ->get();
-
+        $temporadasActivas = Temporada::where('id_cuenta', $cuenta->id)
+            ->where('estado', 'activa')
+            ->pluck('id'); // devuelve un array solo con los ids
+        $sesiones = SesionEv::where('id_cuenta', $cuenta->id)
+            ->whereIn('id_temporada', $temporadasActivas)
+            ->orderByRaw('CAST(SUBSTRING(url, 2, 2) AS UNSIGNED)') // temporada
+            ->orderByRaw('CAST(SUBSTRING(url, 5, 2) AS UNSIGNED)') // sesión
+            ->get();
         $encabezados =  [
             'Nombre',
             'Apellidos',
