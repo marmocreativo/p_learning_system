@@ -1754,6 +1754,7 @@ public function suscribir_full_update(Request $request, string $id)
                     ->where('id_usuario', $id_usuario)
                     ->first();
 
+
     if (!$suscripcion) {
         return response()->json(['error' => 'No se encontró suscripción'], 404);
     }
@@ -1809,7 +1810,7 @@ public function suscribir_full_update(Request $request, string $id)
         ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
         ->where('usuarios_suscripciones.id_temporada', $id_temporada)
         ->where('usuarios_suscripciones.id_distribuidor', $suscripcion->id_distribuidor)
-        ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*')
+        ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*', 'usuarios_suscripciones.funcion as funcion')
         ->get();
 
     $array_suscriptores = [];
@@ -1906,7 +1907,9 @@ public function suscribir_full_update(Request $request, string $id)
         $puntos_extras = PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
 
         $puntos_totales = $puntos_sesiones + $puntos_evaluaciones + $puntos_trivias + $puntos_jackpot + $puntos_extras;
+        if($suscriptor->funcion=='usuario'){
         $top_10[$suscriptor->id_usuario] = $puntos_totales;
+        }
 
         $array_suscriptores[$suscriptor->id_usuario] = [
             'id' => $suscriptor->id_usuario,  // AGREGADO: campo id
@@ -2413,7 +2416,7 @@ public function datos_basicos_super_lider_api(Request $request)
         ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
         ->where('usuarios_suscripciones.id_temporada', $id_temporada)
         ->where('usuarios_suscripciones.id_distribuidor', $distribuidor->id)
-        ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*')
+        ->select('usuarios.nombre', 'usuarios.apellidos','usuarios.email', 'usuarios_suscripciones.*', 'usuarios_suscripciones.funcion as funcion')
         ->get();
 
     $array_suscriptores = [];
@@ -2506,7 +2509,10 @@ public function datos_basicos_super_lider_api(Request $request)
         $puntos_extras = PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
 
         $puntos_totales = $puntos_sesiones + $puntos_evaluaciones + $puntos_trivias + $puntos_jackpot + $puntos_extras;
-        $top_10[$suscriptor->id_usuario] = $puntos_totales;
+        if($suscriptor->funcion=='usuario'){
+            $top_10[$suscriptor->id_usuario] = $puntos_totales;
+        }
+        
 
         $array_suscriptores[$suscriptor->id_usuario] = [
             'id' => $suscriptor->id_usuario,
