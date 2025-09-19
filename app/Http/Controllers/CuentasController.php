@@ -8,6 +8,7 @@ use App\Models\Jackpot;
 use App\Models\Publicacion;
 use App\Models\Cintillo;
 use App\Models\Popup;
+use App\Models\PopupLider;
 
 use Illuminate\Http\Request;
 
@@ -217,62 +218,70 @@ class CuentasController extends Controller
          return response()->json($respuesta);
     }
 
-    public function context_2025(Request $request)
-    {
-        $cuenta = Cuenta::where('id', $request->input('idCuenta'))->first();
-        $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
-        $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->where('estado', 'activa')->orderBy('nombre', 'desc')->get();
-        $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
-        $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
-         $terminos_y_condiciones_champions = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos_champions')->first();
-        $proxima_trivia = Trivia::where('id_temporada', $cuenta->temporada_actual)
-            ->whereDate('fecha_publicacion', '>=', now()->toDateString())
-            ->orderBy('fecha_publicacion', 'asc')
-            ->first();
-        $proximo_jackpot = Jackpot::where('id_temporada', $cuenta->temporada_actual)
-            ->where('en_trivia', 'no')
-            ->whereDate('fecha_publicacion', '>=', now()->toDateString())
-            ->orderBy('fecha_publicacion', 'asc')
-            ->first();
-        $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
-        $cintillo = Cintillo::where('id_temporada', $cuenta->temporada_actual)
-                    ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
-                    ->where('fecha_final', '>=', now()) // Fecha final aún vigente
-                    ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
-                    ->first();
-        $popup = Popup::where('id_temporada', $cuenta->temporada_actual)
+public function context_2025(Request $request)
+{
+    $cuenta = Cuenta::where('id', $request->input('idCuenta'))->first();
+    $idDistribuidor = $request->input('idDistribuidor');
+    $temporada = Temporada::where('id', $cuenta->temporada_actual)->first();
+    $lista_temporada = Temporada::where('id_cuenta', $cuenta->id)->where('estado', 'activa')->orderBy('nombre', 'desc')->get();
+    $aviso_privacidad = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'aviso')->first();
+    $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
+     $terminos_y_condiciones_champions = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos_champions')->first();
+    $proxima_trivia = Trivia::where('id_temporada', $cuenta->temporada_actual)
+        ->whereDate('fecha_publicacion', '>=', now()->toDateString())
+        ->orderBy('fecha_publicacion', 'asc')
+        ->first();
+    $proximo_jackpot = Jackpot::where('id_temporada', $cuenta->temporada_actual)
+        ->where('en_trivia', 'no')
+        ->whereDate('fecha_publicacion', '>=', now()->toDateString())
+        ->orderBy('fecha_publicacion', 'asc')
+        ->first();
+    $terminos_y_condiciones = Publicacion::where('id_temporada', $cuenta->temporada_actual)->where('funcion', 'terminos')->first();
+    $cintillo = Cintillo::where('id_temporada', $cuenta->temporada_actual)
                 ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
                 ->where('fecha_final', '>=', now()) // Fecha final aún vigente
                 ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
                 ->first();
-        $multi_popup = Popup::where('id_temporada', $cuenta->temporada_actual)
-        ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
-        ->where('fecha_final', '>=', now()) // Fecha final aún vigente
-        ->orderBy('fecha_inicio', 'asc') // Ordenado por la fecha de inicio más reciente
+    $popup = Popup::where('id_temporada', $cuenta->temporada_actual)
+            ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
+            ->where('fecha_final', '>=', now()) // Fecha final aún vigente
+            ->orderBy('fecha_inicio', 'desc') // Ordenado por la fecha de inicio más reciente
+            ->first();
+    $multi_popup = Popup::where('id_temporada', $cuenta->temporada_actual)
+    ->where('fecha_inicio', '<=', now()) // Fecha de inicio pasada o hoy
+    ->where('fecha_final', '>=', now()) // Fecha final aún vigente
+    ->orderBy('fecha_inicio', 'asc') // Ordenado por la fecha de inicio más reciente
+    ->get();
+
+    // CONSULTA MODIFICADA: TODOS los PopUps Lideres publicados de la temporada
+    $popup_lideres = PopupLider::where('id_temporada', $cuenta->temporada_actual)
+        ->where('estado', 'publicado')
+        ->orderBy('created_at', 'desc')
         ->get();
 
-        $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
-            ->where('clase', 'noticia')
-            ->where('estado', 'activo')
-            ->orderBy('fecha_publicacion', 'desc')
-            ->limit(16)
-            ->get();
-        
-        $respuesta = [
-            'cuenta' => $cuenta ? $cuenta : null,
-            'temporada' => $temporada ? $temporada : null,
-            'lista_temporadas' => $lista_temporada ? $lista_temporada : null,
-            'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
-            'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
-            'terminos_y_condiciones_champions' => $terminos_y_condiciones_champions ? $terminos_y_condiciones_champions : null,
-            'noticias' => $noticias ? $noticias : null,
-            'cintillo' => $cintillo ? $cintillo : null,
-            'popup' => $popup ? $popup : null,
-            'multi_popup' => $multi_popup ? $multi_popup : null,
-            'proxima_trivia' => $proxima_trivia ? $proxima_trivia : null,
-            'proximo_jackpot' => $proximo_jackpot ? $proximo_jackpot : null,
-        ];
+    $noticias = Publicacion::where('id_temporada', $cuenta->temporada_actual)
+        ->where('clase', 'noticia')
+        ->where('estado', 'activo')
+        ->orderBy('fecha_publicacion', 'desc')
+        ->limit(16)
+        ->get();
+    
+    $respuesta = [
+        'cuenta' => $cuenta ? $cuenta : null,
+        'temporada' => $temporada ? $temporada : null,
+        'lista_temporadas' => $lista_temporada ? $lista_temporada : null,
+        'aviso_privacidad' => $aviso_privacidad ? $aviso_privacidad : null,
+        'terminos_y_condiciones' => $terminos_y_condiciones ? $terminos_y_condiciones : null,
+        'terminos_y_condiciones_champions' => $terminos_y_condiciones_champions ? $terminos_y_condiciones_champions : null,
+        'noticias' => $noticias ? $noticias : null,
+        'cintillo' => $cintillo ? $cintillo : null,
+        'popup' => $popup ? $popup : null,
+        'multi_popup' => $multi_popup ? $multi_popup : null,
+        'popup_lideres' => $popup_lideres ? $popup_lideres : null,
+        'proxima_trivia' => $proxima_trivia ? $proxima_trivia : null,
+        'proximo_jackpot' => $proximo_jackpot ? $proximo_jackpot : null,
+    ];
 
-         return response()->json($respuesta);
-    }
+     return response()->json($respuesta);
+}
 }

@@ -74,7 +74,7 @@
                                 foreach ($producto->transacciones as $transaccion) {
                                     $var = $transaccion->variacion;
                                     if (isset($conteo[$var])) {
-                                        $conteo[$var]++;
+                                        $conteo[$var]+= $transaccion->cantidad;
                                     }
                                 }
                             @endphp

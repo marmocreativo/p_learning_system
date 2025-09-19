@@ -40,6 +40,7 @@ class NoticiasExport implements FromCollection, WithHeadings
     {
         $this->request = $request;
     }
+    
     public function collection()
     {
         $id_temporada = $this->request->input('id_temporada');
@@ -51,25 +52,67 @@ class NoticiasExport implements FromCollection, WithHeadings
 
         $reporte = [];
 
+        // Calcular totales
+        $totalNoticias = $publicaciones->count();
+        $totalClicks = 0;
+        $usuariosUnicos = collect();
+
         foreach ($publicaciones as $pub) {
             // Contar las acciones de usuarios relacionadas con esta publicación
             $clicks = AccionesUsuarios::where('accion', 'click en noticia')
                 ->where('descripcion', 'like', '%Se dio click en la noticia id: '.$pub->id.'%')
                 ->count();
 
+            // Obtener usuarios únicos que hicieron click en esta noticia
+            $usuariosNoticia = AccionesUsuarios::where('accion', 'click en noticia')
+                ->where('descripcion', 'like', '%Se dio click en la noticia id: '.$pub->id.'%')
+                ->pluck('id_usuario')
+                ->unique();
+
+            // Contar clicks de usuarios únicos para esta noticia
+            $clicksUsuariosUnicos = $usuariosNoticia->count();
+
+            // Agregar al total de clicks
+            $totalClicks += $clicks;
+
+            // Agregar usuarios únicos al conjunto total (sin duplicados)
+            $usuariosUnicos = $usuariosUnicos->merge($usuariosNoticia)->unique();
+
             $reporte[] = [
                 'Publicacion' => $pub->titulo ?? 'Publicación '.$pub->id,
                 'Clicks' => $clicks,
+                'Clicks Usuarios Únicos' => $clicksUsuariosUnicos,
             ];
         }
 
+        // Agregar fila de totales al inicio
+        $reporte = array_merge([
+            [
+                'Publicacion' => 'TOTALES',
+                'Clicks' => $totalClicks,
+                'Clicks Usuarios Únicos' => $usuariosUnicos->count(),
+            ],
+            [
+                'Publicacion' => 'Total Noticias: ' . $totalNoticias,
+                'Clicks' => '',
+                'Clicks Usuarios Únicos' => '',
+            ],
+            [
+                'Publicacion' => '--- DETALLE POR NOTICIA ---',
+                'Clicks' => '',
+                'Clicks Usuarios Únicos' => '',
+            ]
+        ], $reporte);
+
         return collect($reporte);
     }
+    
     public function headings(): array
     {
         return [
             'Publicacion',
             'Clicks',
+            'Clicks Usuarios Únicos',
         ];
     }
 
@@ -78,7 +121,7 @@ class NoticiasExport implements FromCollection, WithHeadings
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:G1')->applyFromArray([
+                $event->sheet->getStyle('A1:C1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']
@@ -86,6 +129,17 @@ class NoticiasExport implements FromCollection, WithHeadings
                     'fill' => [
                         'fillType' => 'solid',
                         'startColor' => ['rgb' => '213746']
+                    ],
+                ]);
+
+                // Aplicar formato especial a las filas de totales (filas 2, 3 y 4)
+                $event->sheet->getStyle('A2:C4')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => 'solid',
+                        'startColor' => ['rgb' => 'E6E6E6']
                     ],
                 ]);
             },

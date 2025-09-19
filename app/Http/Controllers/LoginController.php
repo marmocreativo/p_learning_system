@@ -243,38 +243,72 @@ class LoginController extends Controller
             $temporada_accion = null;
             $redireccion = 'ninguna';
             switch ($request->id_cuenta) {
-                case '1':
-                    if($suscripcion_electrico&&$suscripcion_ni){
-                        $redireccion = 'gate_doble';
+            case '1': // Eléctrico
+                $temporada_accion = $pl_el->temporada_actual;
+                if($suscripcion_el){
+                    $redireccion = 'usuario';
+                } else {
+                    // No tiene suscripción eléctrica, revisar otras
+                    if($suscripcion_ni && $suscripcion_et){
+                        $redireccion = 'gate_ni_etailers'; // O decidir cuál priorizar
+                    } elseif($suscripcion_ni){
+                        $redireccion = 'gate_ni';
+                    } elseif($suscripcion_et){
+                        $redireccion = 'gate_etailers';
                     }
-                    
-                    if($suscripcion_electrico&&!$suscripcion_ni){
-                        $redireccion = 'usuario';
+                }
+                break;
+
+            case '3': // NI
+                $temporada_accion = $pl_ni->temporada_actual;
+                if($suscripcion_ni){
+                    $redireccion = 'usuario';
+                } else {
+                    // No tiene suscripción NI, revisar otras
+                    if($suscripcion_el && $suscripcion_et){
+                        $redireccion = 'gate_electrico_etailers'; // O decidir cuál priorizar
+                    } elseif($suscripcion_el){
+                        $redireccion = 'gate_electrico';
+                    } elseif($suscripcion_et){
+                        $redireccion = 'gate_etailers';
                     }
-                    if(!$suscripcion_electrico&&$suscripcion_ni){
+                }
+                break;
+
+            case '4': // ET
+                $temporada_accion = $pl_et->temporada_actual;
+                if($suscripcion_et){
+                    $redireccion = 'usuario';
+                } else {
+                    // No tiene suscripción ET, revisar otras
+                    if($suscripcion_el && $suscripcion_ni){
+                        $redireccion = 'gate_doble'; // O decidir cuál priorizar
+                    } elseif($suscripcion_el){
+                        $redireccion = 'gate_electrico';
+                    } elseif($suscripcion_ni){
                         $redireccion = 'gate_ni';
                     }
+                }
+                break;
 
-                    $temporada_accion = $pl_electrico->temporada_actual;
-                    break;
-
-                case '3':
-                    if($suscripcion_electrico&&$suscripcion_ni){
+            case '5': // Test
+                $temporada_accion = $pl_test->temporada_actual;
+                if($suscripcion_test){
+                    $redireccion = 'usuario';
+                } else {
+                    // Misma lógica que caso 4
+                    if($suscripcion_el && $suscripcion_ni){
                         $redireccion = 'gate_doble';
-                    }
-                    if($suscripcion_electrico&&!$suscripcion_ni){
+                    } elseif($suscripcion_el){
                         $redireccion = 'gate_electrico';
+                    } elseif($suscripcion_ni){
+                        $redireccion = 'gate_ni';
+                    } elseif($suscripcion_et){
+                        $redireccion = 'gate_etailers';
                     }
-                    if(!$suscripcion_electrico&&$suscripcion_ni){
-                        $redireccion = 'usuario';
-                    }
-                    $temporada_accion = $pl_ni->temporada_actual;
-                    break;
-                
-                default:
-                    $redireccion = 'ninguna';
-                    break;
-            }
+                }
+                break;
+        }
             
                 if($suscripcion_electrico){
                     $distribuidor_electrico = Distribuidor::where('id', $suscripcion_electrico->id_distribuidor)->first();
@@ -337,32 +371,7 @@ class LoginController extends Controller
 
     }
 
-    /*
-    public function olvide_pass_api(Request $request)
-    {
-        $user = User::where('email', $request->input('Email'))->first();
-        if($user){
-            $id_cuenta = $request->input('id_cuenta');
-            $cuenta = Cuenta::find($id_cuenta);
-            $suscripcion = UsuariosSuscripciones::where('id_usuario', $user->id)->where('id_temporada', $cuenta->temporada_actual)->first();
-            $distribuidor = Distribuidor::where('id', $suscripcion->id_distribuidor)->first();
-            if($id_cuenta==1){
-                $data = [
-                    'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PLe.jpg',
-                    'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
-                ];
-            }else{
-                $data = [
-                    'banner' => 'https://p-learning.panduitlatam.com/assets/images/micrositio/1600x-300-Email-Banner-PL.jpg',
-                    'boton_enlace' => 'https://p-learning.panduitlatam.com/login/restaurar/'.$user->id.'/'.$distribuidor->id
-                ];
-            }
-           
-            Mail::to($user->email)->send(new RestaurarPass($data));
-        }
-
-    }
-        */
+    
         public function olvide_pass_api(Request $request){
             try {
                 $user = User::where('email', $request->input('Email'))->first();
@@ -401,40 +410,6 @@ class LoginController extends Controller
                 return response()->json(['success' => false, 'error' => $e->getMessage()]);
             }
         }
-    
-        /*
-    public function restaurar_pass_api(Request $request){
-       
-
-        $usuario = User::find($request->input('id'));
-        $id_distribuidor = $request->input('di');
-        $distribuidor = Distribuidor::find($request->input('di'));
-        $suscripcion = UsuariosSuscripciones::where('id_usuario', $usuario->id)->where('id_distribuidor', $id_distribuidor)->first();
-        
-
-        
-
-        $usuario->password = Hash::make($distribuidor->default_pass);
-        $usuario->save();
-        if(!empty($suscripcion)&&$suscripcion->id_distribuidor==1){
-            $data = [
-                'newpass' => $distribuidor->default_pass,
-                'boton_enlace' => 'https://pl-electrico.panduitlatam.com/login'
-            ];
-        }else{
-            $data = [
-                'newpass' => $distribuidor->default_pass,
-                'boton_enlace' => 'https://p-learning.panduitlatam.com/login'
-            ];
-        }
-        
-        Mail::to($usuario->email)->send(new CambioPass($data));
-
-        
-        return response()->json($distribuidor->default_pass);
-
-    }
-        */ 
 
         public function restaurar_pass_api(Request $request){
             try {
@@ -596,72 +571,89 @@ class LoginController extends Controller
             $suscripcion_et = UsuariosSuscripciones::where('id_temporada', $pl_et->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $suscripcion_test = UsuariosSuscripciones::where('id_temporada', $pl_test->temporada_actual)->where('id_usuario', $id_usuario)->first();
             $redireccion = 'ninguna';
-
             $temporada_accion = null;
 
 
             switch ($request->id_cuenta) {
-                case '1':
-                    if($suscripcion_el&&$suscripcion_ni){
-                        $redireccion = 'gate_doble';
-                    }
-                    if($suscripcion_el&&!$suscripcion_ni){
-                        $redireccion = 'usuario';
-                    }
-                    if(!$suscripcion_el&&$suscripcion_ni){
-                        $redireccion = 'gate_ni';
-                    }
+                case '1': // Eléctrico
                     $temporada_accion = $pl_el->temporada_actual;
+
+                    // Contar suscripciones totales
+                    $total_suscripciones = 0;
+                    if($suscripcion_el) $total_suscripciones++;
+                    if($suscripcion_ni) $total_suscripciones++;
+                    if($suscripcion_et) $total_suscripciones++;
+
+
+                    
+                    if($suscripcion_el && $total_suscripciones == 1){
+                        $redireccion = 'usuario';  // Solo tiene eléctrica, va directo
+                    } elseif($suscripcion_el && $total_suscripciones > 1) {
+                        // Tiene eléctrica + otras, mostrar gate según combinación
+                        $redireccion = 'gate_doble';   // Eléctrica + NI
+                    } else {
+                        // No tiene eléctrica, redirigir a lo que tenga
+                        if($suscripcion_ni){
+                            $redireccion = 'gate_ni';
+                        }elseif($suscripcion_et){
+                            $redireccion = 'gate_etailers';
+                        }
+                    }
                     break;
 
-                case '3':
-                    if($suscripcion_el&&$suscripcion_ni){
-                        $redireccion = 'gate_doble';
-                    }
-                    if($suscripcion_el&&!$suscripcion_ni){
-                        $redireccion = 'gate_electrico';
-                    }
-                    if(!$suscripcion_el&&$suscripcion_ni){
-                        $redireccion = 'usuario';
-                    }
+                case '3': // NI
                     $temporada_accion = $pl_ni->temporada_actual;
-                    break;
-                case '4':
-                    if($suscripcion_et){
-                        $redireccion = 'usuario';
-                    }else{
-                        if($suscripcion_el&&$suscripcion_ni){
-                            $redireccion = 'gate_doble';
-                        }
-                        if($suscripcion_el&&!$suscripcion_ni){
-                            $redireccion = 'gate_electrico';
-                        }
-                        if(!$suscripcion_el&&$suscripcion_ni){
-                            $redireccion = 'gate_ni';
-                        }
-                    }
-                    $temporada_accion = $pl_et->temporada_actual;
+                    // Contar suscripciones totales
+                    $total_suscripciones = 0;
+                    if($suscripcion_el) $total_suscripciones++;
+                    if($suscripcion_ni) $total_suscripciones++;
+                    if($suscripcion_et) $total_suscripciones++;
+
+
                     
-                    break;
-                case '5':
-                    if($suscripcion_test){
-                        $redireccion = 'usuario';
-                    }else{
-                        if($suscripcion_el&&$suscripcion_ni){
-                            $redireccion = 'gate_doble';
-                        }
-                        if($suscripcion_el&&!$suscripcion_ni){
+                    if($suscripcion_ni && $total_suscripciones == 1){
+                        $redireccion = 'usuario';  // Solo tiene eléctrica, va directo
+                    } elseif($suscripcion_ni && $total_suscripciones > 1) {
+                        // Tiene eléctrica + otras, mostrar gate según combinación
+                        $redireccion = 'gate_doble';   // Eléctrica + NI
+                    } else {
+                        // No tiene eléctrica, redirigir a lo que tenga
+                        if($suscripcion_el){
                             $redireccion = 'gate_electrico';
+                        }elseif($suscripcion_et){
+                            $redireccion = 'gate_etailers';
                         }
-                        if(!$suscripcion_el&&$suscripcion_ni){
+                    }
+                    break;
+
+                case '4': // ET
+                    $temporada_accion = $pl_et->temporada_actual;
+                    // Contar suscripciones totales
+                    $total_suscripciones = 0;
+                    if($suscripcion_el) $total_suscripciones++;
+                    if($suscripcion_ni) $total_suscripciones++;
+                    if($suscripcion_et) $total_suscripciones++;
+
+
+                    
+                    if($suscripcion_et && $total_suscripciones == 1){
+                        $redireccion = 'usuario';  // Solo tiene eléctrica, va directo
+                    } elseif($suscripcion_et && $total_suscripciones > 1) {
+                        // Tiene eléctrica + otras, mostrar gate según combinación
+                        $redireccion = 'gate_doble';   // Eléctrica + NI
+                    } else {
+                        // No tiene eléctrica, redirigir a lo que tenga
+                        if($suscripcion_el){
+                            $redireccion = 'gate_electrico';
+                        }elseif($suscripcion_ni){
                             $redireccion = 'gate_ni';
                         }
                     }
-                    $temporada_accion = $pl_test->temporada_actual;
                     break;
-                
-                default:
-                    $redireccion = 'ninguna';
+
+                case '5': // Test
+                    $temporada_accion = $pl_test->temporada_actual;
+                    $redireccion = 'usuario';
                     break;
             }
             
@@ -709,7 +701,7 @@ class LoginController extends Controller
                 
                 $token = $user->createToken('auth_token')->plainTextToken;
 
-                /* Este fragmento guarda una acción agregar en cualquier acción que se desee guardar */
+                // Guardar acción
                 $accion = new AccionesUsuarios();
                 $accion->id_usuario = $user->id;
                 $accion->nombre = $user->nombre.''.$user->apellidos;
@@ -720,7 +712,6 @@ class LoginController extends Controller
                 $accion->id_temporada = $temporada_accion;
                 $accion->funcion = 'usuario';
                 $accion->save();
-                /* Este fragmento guarda una acción agregar en cualquier acción que se desee guardar */
 
                 // Premio de primer acceso
                 //

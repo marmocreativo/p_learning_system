@@ -355,5 +355,5 @@ class DistribuidoresController extends Controller
 
         // Retornar la respuesta al navegador
         return $response;
-    } 
+    }
 }

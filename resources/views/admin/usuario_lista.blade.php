@@ -22,6 +22,7 @@
                 <th>ID</th>
                 <th>NOMBRE</th>
                 <th>CORREO</th>
+                <th>CLASE</th>
                 <th>EDITAR</th>
                 <th>BORRAR</th>
             </tr>
@@ -34,6 +35,7 @@
                         {{$usuario->nombre}} {{$usuario->apellidos}}
                     </td>
                     <td>{{$usuario->email}}</td>
+                    <td>{{$usuario->clase}}</td>
                     <td>
                         <a href="{{route('admin_usuarios.edit', $usuario->id)}}">Editar</a>
                     </td>
