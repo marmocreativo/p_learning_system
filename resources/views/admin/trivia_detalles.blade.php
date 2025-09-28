@@ -7,7 +7,8 @@
         <h1 class="h3 mb-0">Detalles: {{$trivia->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{{route('trivias.resultados', $trivia->id)}}" class="btn btn-info">Resultados</a>
-                <a href="{{route('trivias.resultados_excel', ['id_trivia'=>$trivia->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('trivias.resultados_excel', ['id_trivia'=>$trivia->id])}}" class="btn btn-success enlace_pesado
+                    ">Resultados Excel</a>
                 <a href="{{route('trivias.edit', $trivia->id)}}" class="btn btn-warning">Editar trivia</a>
             </div>
     </div>

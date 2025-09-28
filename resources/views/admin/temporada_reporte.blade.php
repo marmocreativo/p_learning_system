@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Reporte de temporada <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <div class="btn-group" role="group" aria-label="Basic example">
-            <form action="{{ route('temporadas.reporte_excel', ['post' => $temporada->id]) }}" method="GET" class="d-flex">
+            <form action="{{ route('temporadas.reporte_excel', ['post' => $temporada->id]) }}" method="GET" class="d-flex form_pesado">
                 @csrf
                 <input type="hidden" name="region" value="{{request()->get('region')}}">
                 <input type="hidden" name="distribuidor" value="{{request()->get('distribuidor')}}">

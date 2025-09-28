@@ -178,7 +178,7 @@ class CuentasController extends Controller
         $cuenta->estado = $request->Estado;
         $cuenta->save();
 
-        return redirect()->route('cuentas.show', $cuenta->id);
+        return redirect()->route('cuentas');
     }
 
     /**

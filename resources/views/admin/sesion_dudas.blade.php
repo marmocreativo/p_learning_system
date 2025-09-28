@@ -20,7 +20,7 @@
         <div class="col-3">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-info">Contenido</a>
-                <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success">Resultados Excel</a>
+                <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success enlace_pesado">Resultados Excel</a>
                 <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
             </div>
         </div>

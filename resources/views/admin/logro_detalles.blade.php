@@ -440,7 +440,7 @@
                         
                         <div class="row justify-content-center">
                             <div class="col-lg-6">
-                                <form action="{{ route('logros.reporte') }}" method="GET" class="row g-3 align-items-end">
+                                <form action="{{ route('logros.reporte') }}" method="GET" class="row g-3 align-items-end form_pesado">
                                     <input type="hidden" name="id_temporada" value="{{ $logro->id_temporada }}">
                                     <input type="hidden" name="id_logro" value="{{ $logro->id }}">
 

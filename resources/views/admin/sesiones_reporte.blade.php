@@ -15,7 +15,7 @@
             </nav>
         </div>
         <div class="col-3">
-            <form action="{{ route('sesiones.reporte_completadas_excel', ['post' => $temporada->id]) }}" method="GET" class="d-flex">
+            <form action="{{ route('sesiones.reporte_completadas_excel', ['post' => $temporada->id]) }}" method="GET" class="d-flex form_pesado">
                 @csrf
                 <input type="hidden" name="id_temporada" value='{{$temporada->id}}'>
                 <input type="hidden" name="region" value="{{request()->get('region')}}">

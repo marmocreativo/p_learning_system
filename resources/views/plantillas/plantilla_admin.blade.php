@@ -194,17 +194,42 @@
                 const loader = document.getElementById('loader-container');
                 loader.classList.add('d-none');
 
+                // Verificar si hay un loader activo al cargar la página
+                if (sessionStorage.getItem('formSubmitting') === 'true') {
+                    sessionStorage.removeItem('formSubmitting');
+                    stopLoader();
+                }
+
                 
                 function startLoader() {
                     const loader = document.getElementById('loader-container');
                     loader.classList.remove('d-none');
+
+                    setTimeout(() => {
+                        loader.classList.add('d-none');
+                        // Limpiar el sessionStorage si existe
+                        if (sessionStorage.getItem('formSubmitting')) {
+                            sessionStorage.removeItem('formSubmitting');
+                        }
+                    }, 15000);
+                }
+
+                function startLoadershort() {
+                    const loader = document.getElementById('loader-container');
+                    loader.classList.remove('d-none');
+                }
+
+                function stopLoader() {
+                    const loader = document.getElementById('loader-container');
+                    loader.classList.add('d-none');
                 }
                 
                 const links = document.querySelectorAll('.link-loader');
-                 const forms = document.querySelectorAll('.form-loader');
+                const forms = document.querySelectorAll('.form-loader');
                 const confirmButtons = document.querySelectorAll('.btn-confirmar');
                 const confirmForms = document.querySelectorAll('.form-confirmar');
                 const enlacesPesados = document.querySelectorAll('.enlace_pesado');
+                const formsPesados = document.querySelectorAll('.form_pesado');
 
                 links.forEach(link => {
                     link.addEventListener('click', (event) => {
@@ -222,7 +247,18 @@
                 forms.forEach(form => {
                     form.addEventListener('submit', (event) => {
                         event.preventDefault();
+                        
+                        // Marcar que se está enviando un formulario
+                        sessionStorage.setItem('formSubmitting', 'true');
+                        
                         startLoader();
+                        
+                        // Timeout de seguridad para ocultar el loader si algo falla
+                        const safetyTimeout = setTimeout(() => {
+                            stopLoader();
+                            sessionStorage.removeItem('formSubmitting');
+                        }, 10000);
+                        
                         setTimeout(() => {
                             form.submit();
                         }, 500);
@@ -274,8 +310,9 @@
                             buttons: ["Cancelar", "Confirmar"],
                         }).then((result) => {
                             if (result) {
+                                // Marcar que se está enviando un formulario
+                                sessionStorage.setItem('formSubmitting', 'true');
                                 startLoader();
-                                // Si el usuario confirma, envía el formulario
                                 form.submit();
                             }
                         });
@@ -297,8 +334,30 @@
                         }).then((result) => {
                             if (result) {
                                 // Redirigir al enlace
-                                startLoader();
+                                startLoadershort();
                                 window.location.href = this.href;
+                            }
+                        });
+                    });
+                });
+
+                // Formularios pesados con advertencia
+                formsPesados.forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
+                        event.preventDefault(); // Evitar el envío inmediato
+                        
+                        swal({
+                            title: 'Atención',
+                            text: "Este proceso puede tardar un poco en completarse, por favor sé paciente.",
+                            icon: 'info',
+                            buttons: ["Cancelar", "Aceptar"],
+                        }).then((result) => {
+                            if (result) {
+                                // Marcar que se está enviando un formulario
+                                sessionStorage.setItem('formSubmitting', 'true');
+                                startLoader();
+                                // Enviar el formulario
+                                form.submit();
                             }
                         });
                     });

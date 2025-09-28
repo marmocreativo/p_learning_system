@@ -45,7 +45,7 @@
                                     <td><a href="{{route('jackpots.resultados', $jackpot->id)}}">Ver resultados</a></td>
                                 </tr>
                                 <tr>
-                                    <td><a href="{{route('jackpots.resultados_excel', ['id_jackpot' => $jackpot->id])}}" download="reporte-{{$jackpot->titulo}}" className="btn btn-primary">Resultados Excel</a></td>
+                                    <td><a href="{{route('jackpots.resultados_excel', ['id_jackpot' => $jackpot->id])}}" download="reporte-{{$jackpot->titulo}}" className="btn btn-primary enlace_pesado">Resultados Excel</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="{{route('jackpots.edit', $jackpot->id)}}">Editar</a></td>

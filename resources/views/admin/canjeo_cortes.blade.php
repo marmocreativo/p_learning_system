@@ -91,7 +91,7 @@
                     </div>
                     <div id="collapseCorte{{$corte->id}}" class="collapse">
                         <div class="card-body">
-                            <a href="{{ route('canjeo.exportar_corte', ['id_corte'=>$corte->id]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>
+                            <a class="enlace_pesado" href="{{ route('canjeo.exportar_corte', ['id_corte'=>$corte->id]) }}" download="reporte_usuarios_general.xls">Descargar EXCEL</a>
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>

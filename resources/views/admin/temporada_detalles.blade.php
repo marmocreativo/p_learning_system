@@ -49,7 +49,7 @@
                         </td>
                     </tr>
                 </table>
-                <a href="{{ route('temporadas.reporte', ['post' => $temporada->id, 'region' => 'todas', 'distribuidor' => '0']) }}" class="btn btn-info w-100 mb-2">Reporte</a>
+                <a href="{{ route('temporadas.reporte', ['post' => $temporada->id, 'region' => 'todas', 'distribuidor' => '0']) }}" class="btn btn-info w-100 mb-2 enlace_pesado">Reporte</a>
                 <a href="{{ route('acciones') }}" class="btn btn-info w-100">Acciones</a>
             </div>
         </div>
