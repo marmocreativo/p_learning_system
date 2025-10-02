@@ -8,6 +8,7 @@
         <a href="{{ route('cuentas.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Nueva Cuenta
         </a>
+        <a class="btn btn-outline-primary" href="./test-emails">Probar Mails</a>
     </div>
 
     <nav aria-label="breadcrumb" class="mb-4">

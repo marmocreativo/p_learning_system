@@ -680,7 +680,7 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="Resumen" class="form-label">Resumen</label>
-                                                <textarea name="Resumen" class="form-control" rows="6" required>{{ $popup_lider->resumen }}</textarea>
+                                                <textarea name="Resumen" class="form-control" rows="6">{{ $popup_lider->resumen }}</textarea>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="Distribuidores" class="form-label">Distribuidores</label>

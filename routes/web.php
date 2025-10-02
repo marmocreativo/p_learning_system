@@ -45,6 +45,11 @@ Route::get('admin/base_de_datos', [AdminController::class, 'base_de_datos'])->mi
 Route::get('admin/backup', [AdminController::class, 'backup'])->name('admin.backup');
 Route::get('admin/enviar_correo', [AdminController::class, 'enviarCorreo'])->name('admin.enviarCorreo');
 
+Route::get('admin/test-emails', [AdminController::class, 'test_emails_form'])->middleware(['auth', 'admin'])->name('admin.test_emails_form');
+Route::post('admin/test-emails', [AdminController::class, 'test_emails'])->middleware(['auth', 'admin'])->name('admin.test_emails');
+Route::post('admin/test-all-emails', [AdminController::class, 'test_all_emails'])->middleware(['auth', 'admin'])->name('admin.test_all_emails');
+
+
 Route::get('admin/logros/reporte', [LogrosController::class, 'reporte'])->name('logros.reporte');
 Route::delete('admin/logros/borrar_sku', [LogrosController::class, 'borrar_sku'])->middleware(['auth', 'admin'])->name('logros.borrar_sku');
 Route::post('admin/logros/agregar_sku', [LogrosController::class, 'agregar_sku'])->middleware(['auth', 'admin'])->name('logros.agregar_sku');
