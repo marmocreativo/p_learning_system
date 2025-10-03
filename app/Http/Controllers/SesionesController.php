@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Distribuidor;
+use App\Models\Sesion;
 use App\Models\SesionVisita;
 use App\Models\SesionEv;
 use App\Models\SesionVis;
@@ -446,6 +447,11 @@ class SesionesController extends Controller
     {
         //
         $sesion = SesionEv::find($id);
+         $temporada = Temporada::find($sesion->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
 
         $visualizaciones = DB::table('sesiones_visualizaciones')
@@ -497,6 +503,11 @@ class SesionesController extends Controller
     {
         //
         $sesion = SesionEv::find($id);
+         $temporada = Temporada::find($sesion->id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($sesion->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
         $dudas = DB::table('sesiones_dudas')
             ->join('usuarios', 'sesiones_dudas.id_usuario', '=', 'usuarios.id')
@@ -505,7 +516,7 @@ class SesionesController extends Controller
             ->orderBy('sesiones_dudas.created_at', 'desc')
             ->get();
 
-        return view('admin/sesion_dudas', compact('sesion', 'dudas'));
+        return view('admin/sesion_dudas', compact('sesion', 'dudas','temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
 
     public function dudas_edit(Request $request, string $id)
@@ -772,7 +783,10 @@ class SesionesController extends Controller
 
      public function resultados_excel (Request $request)
     {
-        return Excel::download(new ReporteSesionExport($request), 'reporte_sesion.xlsx');
+        $sesion = Sesion::find($request->input('id_sesion'));
+        $temporada = Temporada::find($sesion->id_temporada);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        return Excel::download(new ReporteSesionExport($request), 'Reporte_sesion_'.$sesion->titulo.'_'.$cuenta->nombre.'_'.$temporada->nombre.'.xlsx');
         
     }
 

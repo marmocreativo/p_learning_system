@@ -399,7 +399,7 @@ class ReporteTemporadaExport implements FromCollection, WithHeadings
         
         $encabezados[] = 'Puntos Extra';
         $encabezados[] = 'Total';
-        $encabezados[] = 'Creditos Consumidos';
+        $encabezados[] = 'Coins Consumidos';
         $encabezados[] = 'Activo';
         $encabezados[] = 'Participante';
         

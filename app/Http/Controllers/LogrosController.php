@@ -946,9 +946,22 @@ public function subir_productos(Request $request)
             'id_logro' => 'nullable|integer',
             'region' => 'required',
         ]);
+
+        $temporada = Temporada::find($request->input('id_temporada'));
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $logro = Logro::find($request->input('id_logro'));
+
+        $nombre_temporada = $temporada->nombre;
+        $nombre_cuenta = $cuenta->nombre;
+        if($logro!=null){
+            $nombre_logro = $logro->nombre;
+        }else{
+            $nombre_logro = 'todos_los_desafios';
+        }
+        
         
         // Nombre del archivo que se va a descargar
-        $nombreArchivo = 'logros_export_' . now()->format('Ymd_His') . '.xlsx';
+        $nombreArchivo = $nombre_cuenta.'_DCh_'.$nombre_logro.'_region_'.$request->input('region'). now()->format('Ymd_His') . '.xlsx';
 
         // Retornar la descarga
         return Excel::download(new LogrosExport($request), $nombreArchivo);

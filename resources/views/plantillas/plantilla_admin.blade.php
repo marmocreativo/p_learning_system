@@ -229,6 +229,7 @@
                 const confirmButtons = document.querySelectorAll('.btn-confirmar');
                 const confirmForms = document.querySelectorAll('.form-confirmar');
                 const enlacesPesados = document.querySelectorAll('.enlace_pesado');
+                const enlacesDescargaPesados = document.querySelectorAll('.enlace_descarga_pesado');
                 const formsPesados = document.querySelectorAll('.form_pesado');
 
                 links.forEach(link => {
@@ -340,6 +341,60 @@
                         });
                     });
                 });
+
+                // Agregar evento de clic a cada enlace
+                enlacesDescargaPesados.forEach(function(enlace) {
+                    enlace.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const href = this.href;
+                    
+                    swal({
+                        title: 'Atención',
+                        text: "El siguiente enlace puede tardar un poco en cargar, por favor sé paciente.",
+                        icon: 'info',
+                        buttons: ["Cancelar", "Aceptar"],
+                    }).then((result) => {
+                        if (result) {
+                            startLoadershort();
+                            
+                            fetch(href)
+                                .then(response => {
+                                    // Intentar obtener el nombre del archivo del header
+                                    const contentDisposition = response.headers.get('Content-Disposition');
+                                    let fileName = 'reporte.xlsx'; // Nombre por defecto
+                                    
+                                    if (contentDisposition) {
+                                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                                        if (matches != null && matches[1]) {
+                                            fileName = matches[1].replace(/['"]/g, '');
+                                        }
+                                    }
+                                    
+                                    return response.blob().then(blob => ({ blob, fileName }));
+                                })
+                                .then(({ blob, fileName }) => {
+                                    // Crear un enlace temporal para descargar
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = fileName;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(url);
+                                    
+                                    stopLoader();
+                                })
+                                .catch(error => {
+                                    console.error('Error en la descarga:', error);
+                                    stopLoader();
+                                    swal('Error', 'Hubo un problema al descargar el archivo', 'error');
+                                });
+                        }
+                    });
+                });
+            });
+
 
                 // Formularios pesados con advertencia
                 formsPesados.forEach(function(form) {

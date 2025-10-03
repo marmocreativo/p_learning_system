@@ -3,7 +3,7 @@
 @section('titulo', 'Minijuegos')
 
 @section('contenido_principal')
-<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">MiniJuegos <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
         <a href="{{ route('jackpots.create', ['id_temporada'=>$_GET['id_temporada']]) }}" class="btn btn-success">Crear Minijuego</a>
     </div>

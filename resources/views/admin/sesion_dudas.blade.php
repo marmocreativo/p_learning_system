@@ -3,28 +3,40 @@
 @section('titulo', 'Cuenta del sistema')
 
 @section('contenido_principal')
-    <h1>Detalles de la sesión: <small>{{$sesion->titulo}}</small></h1>
-    <div class="row">
-        <div class="col-9">
-            <nav aria-label="breadcrumb mb-3">
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin')}}">Home</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$sesion->id_cuenta])}}">Temporadas</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $sesion->id_temporada)}}">Temporada</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=>$sesion->id_temporada]) }}">Sesiones</a></li>
-                  <li class="breadcrumb-item"><a href="{{ route('sesiones.show', $sesion->id) }}">{{$sesion->titulo}}</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Resultados</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="col-3">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-info">Contenido</a>
-                <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success enlace_pesado">Resultados Excel</a>
-                <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
-            </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Comentarios sesión: {{$sesion->titulo}} <span class="badge badge-light">{{$temporada->nombre}}</span> <span class="badge badge-primary">{{$cuenta->nombre}}</span></h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}" class="btn btn-info">Salir</a>
+            <a href="{{route('sesiones.resultados', $sesion->id)}}" class="btn btn-info enlace_pesado">Reporte Sesión</a>
+            <a href="{{route('sesiones.show', $sesion->id)}}" class="btn btn-primary">Contenido</a>
+            <a href="{{route('sesiones.resultados_excel', ['id_sesion'=>$sesion->id])}}" class="btn btn-success enlace_descarga_pesado">Resultados Excel</a>
+            <a href="{{route('sesiones.edit', $sesion->id)}}" class="btn btn-warning">Editar sesión</a>
         </div>
     </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item"><a href="{{ route('sesiones', ['id_temporada'=> $temporada->id]) }}">Sesiones</a> </li>
+            <li class="breadcrumb-item">{{$sesion->titulo}}</li>
+        </ol>
+    </nav>
     <hr>
     <div class="row">
         <div class="col-12">

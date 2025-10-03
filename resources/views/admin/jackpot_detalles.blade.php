@@ -3,11 +3,36 @@
 @section('titulo', 'Jackpots')
 
 @section('contenido_principal')
-    <h1>Detalles del Minijuego: <small>{{$jackpot->titulo}}</small></h1>
-    <a href="{{ route('jackpots', ['id_temporada'=>$jackpot->id_temporada]) }}">Lista de minijuegos</a>
-    <hr>
-    <a href="{{route('jackpots.edit', $jackpot->id)}}">Editar minijuego</a>
-    <hr>
+<div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Detalles Minijuego {{$jackpot->titulo}}</h1>
+        <div class="d-flex">
+            <a href="{{ route('jackpots', ['id_temporada'=>$jackpot->id_temporada]) }}" class="btn btn-success">Lista de minijuegos</a>
+            <a href="{{route('jackpots.edit', $jackpot->id)}}" class="btn btn-warning">Editar jackpot</a>
+        </div>
+    </div>
+
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item dropdown">
+                <a class="dropdown-toggle text-decoration-none" href="#" id="breadcrumbDropdown" role="button"  data-mdb-dropdown-init
+                        data-mdb-ripple-init>
+                    Cuentas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="breadcrumbDropdown">
+                    @foreach($cuentas as $cuentaItem)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('temporadas', ['id_cuenta' => $cuentaItem->id]) }}">
+                                {{ $cuentaItem->nombre }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas', ['id_cuenta'=>$temporada->id_cuenta])}}">Temporadas</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('temporadas.show', $temporada->id)}}">{{$temporada->nombre}}</a> </li>
+            <li class="breadcrumb-item">Minijuegos</li>
+        </ol>
+    </nav>
     <div class="row">
         <div class="col-8">
             <h5>Datos generales</h5>

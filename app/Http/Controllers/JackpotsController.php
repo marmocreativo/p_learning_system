@@ -36,11 +36,11 @@ class JackpotsController extends Controller
         $color_barra_superior = $cuenta->fondo_menu;
         $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         return view('admin/jackpot_lista', compact('jackpots', 'temporada',
-'cuentas',
-'cuenta',
-'color_barra_superior',
-'logo_cuenta',));
-    }
+            'cuentas',
+            'cuenta',
+            'color_barra_superior',
+            'logo_cuenta',));
+                }
 
     /**
      * Show the form for creating a new resource.
@@ -48,8 +48,19 @@ class JackpotsController extends Controller
     public function create(Request $request)
     {
         //
-        $temporada = Temporada::find($request->input('id_temporada'));
-        return view('admin/jackpot_form');
+        $id_temporada = $request->input('id_temporada');
+        $jackpots = Jackpot::where('id_temporada', $id_temporada)->paginate();
+        $temporada = Temporada::find($id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+    
+        return view('admin/jackpot_form', compact('jackpots', 'temporada',
+            'cuentas',
+            'cuenta',
+            'color_barra_superior',
+            'logo_cuenta',));
     }
 
     /**
@@ -87,9 +98,20 @@ class JackpotsController extends Controller
     {
         //
         //
+        
+
         $jackpot = Jackpot::find($id);
         $preguntas = JackpotPreg::where('id_jackpot',$id)->get();
-        return view('admin/jackpot_detalles', compact('jackpot', 'preguntas'));
+        $id_temporada = $jackpot->id_temporada;
+        $temporada = Temporada::find($id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/jackpot_detalles', compact('jackpot', 'preguntas', 'temporada', 'cuentas',
+            'cuenta',
+            'color_barra_superior',
+            'logo_cuenta'));
     }
 
     public function resultados(string $id)
@@ -97,6 +119,12 @@ class JackpotsController extends Controller
         //
         $jackpot = Jackpot::find($id);
         $preguntas = JackpotPreg::where('id_jackpot',$id)->get();
+        $id_temporada = $jackpot->id_temporada;
+        $temporada = Temporada::find($id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
         
         $respuestas = DB::table('jackpot_respuestas')
             ->join('usuarios', 'jackpot_respuestas.id_usuario', '=', 'usuarios.id')
@@ -116,7 +144,10 @@ class JackpotsController extends Controller
             ->select('jackpot_intentos.id as id_ganador', 'jackpot_intentos.*', 'usuarios.id as id_usuario', 'usuarios.nombre as nombre_usuario', 'usuarios.*')
             ->orderBy('jackpot_intentos.fecha_registro', 'desc')
             ->get();
-        return view('admin/jackpot_resultados', compact('jackpot', 'preguntas', 'respuestas', 'ganadores'));
+        return view('admin/jackpot_resultados', compact('jackpot', 'preguntas', 'respuestas', 'ganadores', 'temporada', 'cuentas',
+            'cuenta',
+            'color_barra_superior',
+            'logo_cuenta'));
     }
 
     /**

@@ -27,11 +27,12 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ReporteSesionExport implements FromCollection, WithHeadings
+class ReporteSesionExport implements FromCollection, WithHeadings, WithEvents
 {
     protected $request;
 
@@ -44,58 +45,78 @@ class ReporteSesionExport implements FromCollection, WithHeadings
     {
         $id_sesion = $this->request->input('id_sesion');
         $sesion = SesionEv::find($id_sesion);
-        $usuarios_suscritos = UsuariosSuscripciones::where('id_temporada', $sesion->id_temporada)->distinct('id_usuario')->get();
-        $preguntas = EvaluacionPreg::where('id_sesion',$id_sesion)->get();
+        $usuarios_suscritos = UsuariosSuscripciones::where('id_temporada', $sesion->id_temporada)
+            ->distinct('id_usuario')
+            ->get();
+        $preguntas = EvaluacionPreg::where('id_sesion', $id_sesion)->get();
 
         $coleccion = array();
         $index = 0;
         
         foreach($usuarios_suscritos as $usr){
             $hay_login = Tokens::where('tokenable_id', $usr->id_usuario)->first();
-            $puntaje_total = 0;
             $detalles_usuario = User::find($usr->id_usuario);
             
             if($detalles_usuario){
-                // SOLUCIÓN 1: Verificar si el distribuidor existe antes de acceder a sus propiedades
                 $distribuidor = Distribuidor::find($usr->id_distribuidor);
-                
-                $visualizacion = SesionVis::where('id_usuario', $usr->id_usuario)->where('id_sesion',$id_sesion)->first();
+                $visualizacion = SesionVis::where('id_usuario', $usr->id_usuario)
+                    ->where('id_sesion', $id_sesion)
+                    ->first();
                 
                 if($visualizacion || $hay_login){
-                    $coleccion[$index]['nombre'] = $detalles_usuario->nombre ?? '-';
-                    $coleccion[$index]['apellidos'] = $detalles_usuario->apellidos ?? '-';
-                    $coleccion[$index]['correo'] = $detalles_usuario->email ?? '-';
-                    
-                    // OPCIÓN A: Usando operador ternario
+                    // Datos básicos
+                    $nombre_completo = ($detalles_usuario->nombre ?? '') . ' ' . ($detalles_usuario->apellidos ?? '');
+                    $coleccion[$index]['usuario'] = trim($nombre_completo) ?: '-';
                     $coleccion[$index]['distribuidor'] = $distribuidor ? $distribuidor->nombre : '-';
                     
-                    // OPCIÓN B: Usando null coalescing operator (alternativa)
-                    // $coleccion[$index]['distribuidor'] = $distribuidor->nombre ?? '-';
-                    
+                    // Fechas y puntaje de visualización
                     if(!empty($visualizacion)){
-                        $coleccion[$index]['puntos_visualizacion'] = $visualizacion->puntaje ?? '0';
-                        $coleccion[$index]['fecha_visualizacion'] = $visualizacion->fecha_ultimo_video ?? '-';
+                        $coleccion[$index]['fecha_visita'] = $visualizacion->created_at 
+                            ? Carbon::parse($visualizacion->created_at)->format('Y-m-d H:i:s') 
+                            : '-';
+                        $coleccion[$index]['fecha_vista'] = $visualizacion->fecha_ultimo_video 
+                            ? Carbon::parse($visualizacion->fecha_ultimo_video)->format('Y-m-d H:i:s') 
+                            : '-';
+                        $coleccion[$index]['puntaje_vista'] = $visualizacion->puntaje ?? 0;
                     } else {
-                        $coleccion[$index]['puntos_visualizacion'] = '0';
-                        $coleccion[$index]['fecha_visualizacion'] = '-';
+                        $coleccion[$index]['fecha_visita'] = '-';
+                        $coleccion[$index]['fecha_vista'] = '-';
+                        $coleccion[$index]['puntaje_vista'] = 0;
                     }
                     
-                    $i = 1; 
+                    // Procesar preguntas contestadas correctamente
+                    $preguntas_correctas = [];
+                    $puntaje_preguntas_total = 0;
+                    
+                    $i = 1;
                     foreach($preguntas as $pregunta){
                         $respuesta = EvaluacionRes::where('id_usuario', $usr->id_usuario)
-                                                  ->where('id_pregunta',$pregunta->id)
-                                                  ->first();
+                            ->where('id_pregunta', $pregunta->id)
+                            ->first();
+                        
                         if($respuesta){
-                            $coleccion[$index]['respuesta_pregunta_'.$i] = $respuesta->respuesta_usuario ?? '-';
-                            $coleccion[$index]['resultado_pregunta_'.$i] = $respuesta->respuesta_correcta ?? '-';
-                            $coleccion[$index]['puntaje_pregunta_'.$i] = $respuesta->puntaje ?? '0';
-                        } else {
-                            $coleccion[$index]['respuesta_pregunta_'.$i] = '-';
-                            $coleccion[$index]['resultado_pregunta_'.$i] = '-';
-                            $coleccion[$index]['puntaje_pregunta_'.$i] = '0';
+                            $puntaje = $respuesta->puntaje ?? 0;
+                            $puntaje_preguntas_total += $puntaje;
+                            
+                            // Si la respuesta fue correcta (tiene puntaje > 0)
+                            if($puntaje > 0){
+                                $preguntas_correctas[] = 'Q' . $i;
+                            }
                         }
                         $i++;
                     }
+                    
+                    // Columna de preguntas (ej: "Q1, Q4, Q5")
+                    $coleccion[$index]['preguntas'] = !empty($preguntas_correctas) 
+                        ? implode(', ', $preguntas_correctas) 
+                        : '-';
+                    
+                    // Puntaje de preguntas
+                    $coleccion[$index]['puntaje_preguntas'] = $puntaje_preguntas_total;
+                    
+                    // Total
+                    $coleccion[$index]['total'] = $coleccion[$index]['puntaje_vista'] + $puntaje_preguntas_total;
+                    
                     $index++;
                 }
             }
@@ -106,29 +127,16 @@ class ReporteSesionExport implements FromCollection, WithHeadings
     
     public function headings(): array
     {
-        $id_sesion = $this->request->input('id_sesion');
-        // CORRECCIÓN: Faltaba el parámetro $id_sesion en el find()
-        $sesion = SesionEv::find($id_sesion);
-        $preguntas = EvaluacionPreg::where('id_sesion',$id_sesion)->get();
-
-        $encabezados = [
-            'Nombre',
-            'Apellidos',
-            'Correo',
+        return [
+            'Usuario',
             'Distribuidor',
-            'Puntaje Visualizacion',
-            'Fecha Visualizacion'
+            'Fecha Visita',
+            'Fecha Vista',
+            'Puntaje Vista',
+            'Preguntas',
+            'Puntaje preguntas',
+            'Total'
         ];
-
-        $i = 1; 
-        foreach($preguntas as $pregunta){
-            $encabezados[] = 'Respuesta pregunta '.$i;
-            $encabezados[] = 'Resultado pregunta '.$i;
-            $encabezados[] = 'Puntaje pregunta '.$i;
-            $i++;
-        }
-
-        return $encabezados;
     }
 
     public function registerEvents(): array
@@ -136,7 +144,7 @@ class ReporteSesionExport implements FromCollection, WithHeadings
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 // Aplicar formato a los encabezados
-                $event->sheet->getStyle('A1:G1')->applyFromArray([
+                $event->sheet->getStyle('A1:H1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF']
@@ -146,6 +154,11 @@ class ReporteSesionExport implements FromCollection, WithHeadings
                         'startColor' => ['rgb' => '213746']
                     ],
                 ]);
+                
+                // Auto ajustar el ancho de las columnas
+                foreach(range('A','H') as $col) {
+                    $event->sheet->getDelegate()->getColumnDimension($col)->setAutoSize(true);
+                }
             },
         ];
     }

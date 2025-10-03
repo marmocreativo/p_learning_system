@@ -292,7 +292,7 @@ class TemporadasController extends Controller
     {
 
          // Obtener los parámetros booleanos (por defecto true si no se envían)
-         $incluir_inactivos = $request->get('inactivos', 'true') === 'true';
+        $incluir_inactivos = $request->get('inactivos', 'true') === 'true';
         $incluir_sesiones = $request->get('sesiones', 'true') === 'true';
         $incluir_trivias = $request->get('trivias', 'true') === 'true';
         $incluir_jackpot = $request->get('jackpot', 'true') === 'true';
@@ -300,9 +300,24 @@ class TemporadasController extends Controller
 
         // Crear una instancia del exportador con los parámetros requeridos
         $export = new ReporteTemporadaExport($request, $id, $incluir_inactivos, $incluir_sesiones, $incluir_trivias, $incluir_jackpot);
+        // Datos para nombre de archivo
+        $temporada = Temporada::find($id);
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        if($request->distribuidor!=0){
+            $distribuidor = Distribuidor::find($request->distribuidor);
+            $distribuidor_nombre = $distribuidor->nombre;
+        }else{
+            $distribuidor = null;
+            $distribuidor_nombre = 'Todos_los_distribuidores';
+        }
+        
+
+        $cuenta_nombre = $cuenta->nombre;
+        $temporada_nombre = $temporada->nombre;
+        
         
         // Generar un nombre de archivo único usando timestamp
-        $filename = 'reporte_temporada_'.$id.'_region_'.$request->region.'_distribuidor_'.$request->distribuidor.'_'. time() . '.xlsx';
+        $filename = 'Reporte_General_'.$cuenta_nombre.'_'.$temporada_nombre.'_Region_'.$request->region.'_'.$distribuidor_nombre.'_'. time() . '.xlsx';
 
         // Generar la respuesta de descarga con los encabezados HTTP
         $response = Excel::download($export, $filename);
