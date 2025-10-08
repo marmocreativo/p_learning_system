@@ -335,18 +335,18 @@ class TemporadasController extends Controller
     {
         $cuenta = Cuenta::find($request->id);
         $temporada = Temporada::find($cuenta->temporada_actual);
-        $unaSemanaAtras = Carbon::now()->subDay();
+        $veinticuatroHorasAtras = Carbon::now()->subHours(24); 
         $region = $request->input('region');
         $distribuidor = $request->input('distribuidor');
         $ocultar_lideres = false;
-        if($cuenta->id==1){
+        if($cuenta->id == 1 || $cuenta->id == 3){
             $ocultar_lideres = true;
         }
 
         // Buscar si existe un corte con menos de una semana de antigüedad
         $corte = top10Corte::where('temporada', $temporada->id)
             ->where('region', $region)
-            ->where('created_at', '>=', $unaSemanaAtras)
+            ->where('created_at', '>=', $veinticuatroHorasAtras)
             ->first();
 
         // Si no hay corte, calcular los puntajes y generar la lista
@@ -358,7 +358,7 @@ class TemporadasController extends Controller
                 ->when($region !== 'todas', function ($query) use ($region) {
                     return $query->where('distribuidores.region', $region);
                 })
-                ->when($ocultar_lideres, function ($query) use ($region) {
+                ->when($ocultar_lideres, function ($query) {
                     return $query->where('usuarios_suscripciones.funcion', 'usuario');
                 })
                 ->when($distribuidor != 0, function ($query) use ($distribuidor) {
@@ -372,6 +372,7 @@ class TemporadasController extends Controller
                     'usuarios.imagen as imagen',
                     'distribuidores.region as region',
                     'distribuidores.nombre as distribuidor',
+                    'distribuidores.nivel as nivel_distribuidor',
                     'usuarios_suscripciones.id as id_suscripcion',
                     'usuarios_suscripciones.confirmacion_puntos as confirmacion_puntos',
                     'usuarios_suscripciones.premio as premio',
@@ -416,9 +417,10 @@ class TemporadasController extends Controller
 
                 $puntaje_total = $suma_visualizaciones + $suma_evaluaciones + $suma_trivias + $suma_jackpots + $suma_extras;
                 $puntaje_oculto = $cantidad_visualizaciones + $cantidad_evaluaciones + $cantidad_trivias;
-
-                if (!in_array($puntaje_total, $puntajes_completos)) {
-                    $puntajes_completos[] = $puntaje_total;
+                if($usuario->nivel_distribuidor == 'Medio' || $usuario->nivel_distribuidor == 'Completo'){
+                    if (!in_array($puntaje_total, $puntajes_completos)) {
+                        $puntajes_completos[] = $puntaje_total;
+                    }
                 }
 
                 // Agregar usuario al array con su información y puntajes
@@ -613,33 +615,26 @@ class TemporadasController extends Controller
     
     public function top_10_region_api(Request $request)
     {
-        //
         $cuenta = Cuenta::find($request->id);
         $temporada = Temporada::find($cuenta->temporada_actual);
-        $hoy = date('Y-m-d H:i:s');
-        $unaSemanaAtras = Carbon::now()->subWeek();
+        $veinticuatroHorasAtras = Carbon::now()->subHours(24);
         $region = $request->input('region');
+        $distribuidor = $request->input('distribuidor');
+        
+        // NUEVO: Configurar ocultar_lideres igual que en top_10_region
+        $ocultar_lideres = false;
+        if($cuenta->id == 1 || $cuenta->id == 3){
+            $ocultar_lideres = true;
+        }
+        
+        // Buscar si existe un corte con menos de 24 horas de antigüedad
         $corte = top10Corte::where('temporada', $temporada->id)
             ->where('region', $region)
-            ->where('created_at', '>=', $unaSemanaAtras)
+            ->where('created_at', '>=', $veinticuatroHorasAtras)
             ->first();
-        $fecha_corte = '';
+        
         if(!$corte){
-            $sesiones = SesionEv::where('id_temporada', $temporada->id)->get();
-            $visualizaciones = SesionVis::where('id_temporada', $temporada->id)->get();
-            $respuestas = EvaluacionRes::where('id_temporada', $temporada->id)->get();
-            $trivias = Trivia::where('id_temporada', $temporada->id)->get();
-            $trivias_respuestas = TriviaRes::where('id_temporada', $temporada->id)->get();
-            $trivias_ganadores = TriviaGanador::where('id_temporada', $temporada->id)->get();
-            $jackpots = Jackpot::where('id_temporada', $temporada->id)->get();
-            $jackpots_intentos = JackpotIntentos::where('id_temporada', $temporada->id)->get();
-            $puntos_extra = PuntosExtra::where('id_temporada', $temporada->id)->get();
-            $region = $request->input('region');
-            $distribuidor = $request->input('distribuidor');
-            $distribuidores = Distribuidor::all();
-            if($region!='todas'){
-                $distribuidores = Distribuidor::where('region',$region)->get();
-            }
+            // CÓDIGO IDÉNTICO A top_10_region
             $usuarios_suscritos = DB::table('usuarios_suscripciones')
                 ->join('usuarios', 'usuarios_suscripciones.id_usuario', '=', 'usuarios.id')
                 ->join('distribuidores', 'usuarios_suscripciones.id_distribuidor', '=', 'distribuidores.id')
@@ -647,7 +642,9 @@ class TemporadasController extends Controller
                 ->when($region !== 'todas', function ($query) use ($region) {
                     return $query->where('distribuidores.region', $region);
                 })
-                // Añade la condición de distribuidor si no es 0
+                ->when($ocultar_lideres, function ($query) {
+                    return $query->where('usuarios_suscripciones.funcion', 'usuario');
+                })
                 ->when($distribuidor != 0, function ($query) use ($distribuidor) {
                     return $query->where('distribuidores.id', $distribuidor);
                 })
@@ -659,100 +656,125 @@ class TemporadasController extends Controller
                     'usuarios.imagen as imagen',
                     'distribuidores.region as region',
                     'distribuidores.nombre as distribuidor',
+                    'distribuidores.nivel as nivel_distribuidor',
                     'usuarios_suscripciones.id as id_suscripcion',
-                    'usuarios_suscripciones.premio as premio'
+                    'usuarios_suscripciones.confirmacion_puntos as confirmacion_puntos',
+                    'usuarios_suscripciones.premio as premio',
+                    'usuarios_suscripciones.funcion as funcion'
                 )
                 ->get();
-            $array_usuarios = array();
-            $puntajes_completos = array();
-            $puntajes_top = array();
-            $i=1;
-            foreach($usuarios_suscritos as $usuario){
-                // visualizaciones
-                // Cuento las visualizaciones
-                //$puntos_visualizaciones = SesionVis::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->pluck('puntaje')->sum();
-                $visualizaciones = SesionVis::where('id_usuario', $usuario->id_usuario)->where('id_temporada', $temporada->id)->get();
-                $suma_visualizaciones = $visualizaciones->sum('puntaje');
-                $cantidad_visualizaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
-                $cantidad_visualizaciones = $cantidad_visualizaciones*1;
-                // Evaluaciones
-                $evaluaciones = EvaluacionRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
-                $suma_evaluaciones = $visualizaciones->sum('puntaje');
-                $cantidad_evaluaciones = $visualizaciones->pluck('id_sesion')->unique()->count();
-                $cantidad_evaluaciones = $cantidad_evaluaciones*2;
-                // trivias
-                $trivias = TriviaRes::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
-                $suma_trivias = $trivias->sum('puntaje');
-                $cantidad_trivias = $trivias->pluck('id_sesion')->unique()->count();
-                $cantidad_trivias = $cantidad_trivias*3;
-                // Jackpot
-                $jackpots = JackpotIntentos::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
-                $suma_jackpots = $jackpots->sum('puntaje');
-                $cantidad_jackpots = $jackpots->pluck('id_sesion')->unique()->count();
-                $cantidad_jackpots = $cantidad_jackpots*0;
-                // Puntos extra
-                $puntos_extra = PuntosExtra::where('id_usuario',$usuario->id_usuario)->where('id_temporada',$temporada->id)->get();
-                $suma_extras = $puntos_extra->sum('puntos');
-                $cantidad_extras = $puntos_extra->pluck('id_sesion')->unique()->count();
-                $cantidad_extras = $cantidad_extras*-1;
 
-                $puntaje_total = $suma_visualizaciones+$suma_evaluaciones+$suma_trivias+$suma_jackpots+$suma_extras;
-                $puntaje_oculto = $cantidad_visualizaciones+$cantidad_evaluaciones+$cantidad_trivias+$cantidad_jackpots+$cantidad_extras;
+            // ... (resto del código de cálculo se mantiene igual)
+            
+            $array_usuarios = [];
+            $puntajes_completos = [];
+            $ganadores_distribuidor = [];
+            $ganadores_region = ['México' => 0, 'RoLA' => 0, 'Interna' => 0];
 
-                if (!in_array($puntaje_total, $puntajes_completos)) {
-                    $puntajes_completos[] = $puntaje_total;
+            foreach (Distribuidor::all() as $dist) {
+                $ganadores_distribuidor[$dist->nombre] = 0;
+            }
+
+            foreach ($usuarios_suscritos as $usuario) {
+                $suma_visualizaciones = SesionVis::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->sum('puntaje');
+                $cantidad_visualizaciones = SesionVis::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->distinct('id_sesion')->count();
+
+                $suma_evaluaciones = EvaluacionRes::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->sum('puntaje');
+                $cantidad_evaluaciones = EvaluacionRes::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->distinct('id_sesion')->count();
+
+                $suma_trivias = TriviaRes::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->sum('puntaje');
+                $cantidad_trivias = TriviaRes::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->count();
+
+                $suma_jackpots = JackpotIntentos::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->sum('puntaje');
+
+                $suma_extras = PuntosExtra::where('id_usuario', $usuario->id_usuario)
+                    ->where('id_temporada', $temporada->id)->sum('puntos');
+
+                $puntaje_total = $suma_visualizaciones + $suma_evaluaciones + $suma_trivias + $suma_jackpots + $suma_extras;
+                $puntaje_oculto = $cantidad_visualizaciones + $cantidad_evaluaciones + $cantidad_trivias;
+                if($usuario->nivel_distribuidor == 'Medio' || $usuario->nivel_distribuidor == 'Completo'){
+                    if (!in_array($puntaje_total, $puntajes_completos)) {
+                        $puntajes_completos[] = $puntaje_total;
+                    }
                 }
 
                 $array_usuarios[] = [
-                    'id'=>  $usuario->id_usuario,
-                    'nombre'=>  $usuario->nombre.' '.$usuario->apellidos,
-                    'email'=>  $usuario->email,
-                    'imagen'=>  $usuario->imagen,
-                    'suscripcion'=>  $usuario->id_suscripcion,
-                    'distribuidor'=>  $usuario->distribuidor,
-                    'region'=>  $usuario->region,
-                    'puntaje'=> $puntaje_total,
-                    'puntaje_oculto'=> $puntaje_oculto,
-                    'premio'=>  $usuario->premio,
+                    'id' => $usuario->id_usuario,
+                    'nombre' => $usuario->nombre . ' ' . $usuario->apellidos,
+                    'email' => $usuario->email,
+                    'imagen' => $usuario->imagen,
+                    'suscripcion' => $usuario->id_suscripcion,
+                    'distribuidor' => $usuario->distribuidor,
+                    'region' => $usuario->region,
+                    'puntaje' => $puntaje_total,
+                    'puntaje_oculto' => $puntaje_oculto,
+                    'premio' => $usuario->premio,
+                    'funcion' => $usuario->funcion
                 ];
-                $i++;
+
+                if ($usuario->premio == 'experiencia') {
+                    $ganadores_region[$usuario->region]++;
+                } elseif ($usuario->premio == 'bono') {
+                    $ganadores_distribuidor[$usuario->distribuidor]++;
+                }
             }
-            // obtengo los puntajes_top 
+
             rsort($puntajes_completos);
             $puntajes_top = array_slice($puntajes_completos, 0, 10);
 
-            // Filtro los usuarios
             $usuarios_filtrados = array_filter($array_usuarios, function($usuario) use ($puntajes_top) {
                 return in_array($usuario['puntaje'], $puntajes_top);
             });
 
             usort($usuarios_filtrados, function($a, $b) {
                 if ($a['puntaje'] === $b['puntaje']) {
-                    // Si los puntajes son iguales, comparar por puntaje oculto
                     return $b['puntaje_oculto'] <=> $a['puntaje_oculto'];
                 }
-                // Si los puntajes son diferentes, comparar por puntaje
                 return $b['puntaje'] <=> $a['puntaje'];
             });
 
-            $fecha_corte = date('d/m/Y');
+            $guardar_corte = new top10Corte();
+            $guardar_corte->cuenta = $cuenta->id;
+            $guardar_corte->temporada = $temporada->id;
+            $guardar_corte->nombre_corte = 'Corte API ' . $region . ' ' . date('Y-m-d H:i:s');
+            $guardar_corte->region = $region;
+            $guardar_corte->lista = json_encode([
+                'puntajes_top' => $puntajes_top,
+                'usuarios' => $usuarios_filtrados,
+                'ganadores_region' => $ganadores_region,
+                'ganadores_distribuidor' => $ganadores_distribuidor
+            ]);
+            $guardar_corte->save();
+
             $completo = [
                 'puntajes_top' => $puntajes_top,
                 'usuarios' => $usuarios_filtrados,
-                'fecha_corte' => $fecha_corte
+                'ganadores_region' => $ganadores_region,
+                'ganadores_distribuidor' => $ganadores_distribuidor,
+                'fecha_corte' => date('d/m/Y H:i:s')
             ];
             return response()->json($completo);
-        }else{
-            // Si hay un corte existente, usar los datos almacenados
-            $lista = json_decode($corte->lista, true);  // Decodificar JSON
+            
+        } else {
+            $lista = json_decode($corte->lista, true);
             $puntajes_top = $lista['puntajes_top'];
             $usuarios_filtrados = $lista['usuarios'];
             $ganadores_region = $lista['ganadores_region'];
             $ganadores_distribuidor = $lista['ganadores_distribuidor'];
+
             $completo = [
                 'puntajes_top' => $puntajes_top,
                 'usuarios' => $usuarios_filtrados,
-                'fecha_corte' => $corte->created_at
+                'ganadores_region' => $ganadores_region,
+                'ganadores_distribuidor' => $ganadores_distribuidor,
+                'fecha_corte' => $corte->created_at->format('d/m/Y H:i:s')
             ];
             return response()->json($completo);
         }

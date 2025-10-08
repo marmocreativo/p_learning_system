@@ -159,7 +159,16 @@ class JackpotsController extends Controller
         
         //
         $jackpot = Jackpot::find($id);
-        return view('admin/jackpot_form_actualizar', compact('jackpot'));
+        $id_temporada = $jackpot->id_temporada;
+        $temporada = Temporada::find($id_temporada);
+        $cuentas = Cuenta::all();
+        $cuenta = Cuenta::find($temporada->id_cuenta);
+        $color_barra_superior = $cuenta->fondo_menu;
+        $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+        return view('admin/jackpot_form_actualizar', compact('jackpot', 'temporada', 'cuentas',
+            'cuenta',
+            'color_barra_superior',
+            'logo_cuenta'));
     }
 
     /**

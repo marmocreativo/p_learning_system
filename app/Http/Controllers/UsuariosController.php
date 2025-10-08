@@ -1665,9 +1665,16 @@ public function suscribir_full_update(Request $request, string $id)
         $puntos_extras = PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
 
         $puntos_totales = $puntos_sesiones + $puntos_evaluaciones + $puntos_trivias + $puntos_jackpot + $puntos_extras;
-        if($suscriptor->funcion=='usuario'){
-        $top_10[$suscriptor->id_usuario] = $puntos_totales;
+
+        if($cuenta->id==1 || $cuenta->id==3){
+            if($suscriptor->funcion=='usuario'){
+                $top_10[$suscriptor->id_usuario] = $puntos_totales;
+            }
+        }else{
+            $top_10[$suscriptor->id_usuario] = $puntos_totales;
         }
+
+        
 
         $array_suscriptores[$suscriptor->id_usuario] = [
             'id' => $suscriptor->id_usuario,  // AGREGADO: campo id
@@ -2267,9 +2274,15 @@ public function datos_basicos_super_lider_api(Request $request)
         $puntos_extras = PuntosExtra::where('id_temporada', $id_temporada)->where('id_usuario', $suscriptor->id_usuario)->sum('puntos');
 
         $puntos_totales = $puntos_sesiones + $puntos_evaluaciones + $puntos_trivias + $puntos_jackpot + $puntos_extras;
-        if($suscriptor->funcion=='usuario'){
+
+        if($cuenta->id==1 || $cuenta->id==3){
+            if($suscriptor->funcion=='usuario'){
+                $top_10[$suscriptor->id_usuario] = $puntos_totales;
+            }
+        }else{
             $top_10[$suscriptor->id_usuario] = $puntos_totales;
         }
+        
         
 
         $array_suscriptores[$suscriptor->id_usuario] = [

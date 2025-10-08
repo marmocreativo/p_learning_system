@@ -91,6 +91,11 @@
                         {{$sesion->evaluacion_obligatoria}}
                     </td>
                 </tr>
+                <tr>
+                    <td>Finalizaron Sesion (Total): </td>
+                    <td>Finalizaron Sesion (MEX):</td>
+                    <td>Finalizaron Sesion (RoLA):</td>
+                </tr>
                 
             </table>
         </div>
@@ -110,6 +115,7 @@
                     <th>Control</th>
                 </tr>
                 @foreach($visualizaciones as $vis)
+                
                 @php
                     $total = 0;
                 @endphp
