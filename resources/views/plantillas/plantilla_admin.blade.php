@@ -9,7 +9,8 @@
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
       rel="stylesheet"
     /><!-- Place the first <script> tag in your HTML's <head> -->
-    <script src="https://cdn.tiny.cloud/1/mf3wrbsfok871wwp8idgz02dg1fp195sjuj5eyr08o1woihw/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
@@ -17,77 +18,48 @@
     <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Inicializar TinyMCE en las áreas de texto con la clase TextEditor
-        tinymce.init({
-            selector: "textarea.TextEditor",
-            plugins: "autolink lists link code codesample textcolor colorpicker", // Sin el plugin 'format'
-            toolbar: "undo redo | formatselect | bold italic | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | code",
-            menubar: false,
-            
-            // Configuración de formatos personalizados
-            formats: {
-                h1: { block: 'h1' },
-                h2: { block: 'h2' },
-                h3: { block: 'h3' },
-                h4: { block: 'h4' },
-                h5: { block: 'h5' },
-                h6: { block: 'h6' },
-                p: { block: 'p' },
-                div: { block: 'div' },
-                pre: { block: 'pre' },
-                address: { block: 'address' }
-            },
-            
-            // Definir qué formatos aparecen en el dropdown
-            block_formats: 'Párrafo=p; Encabezado 1=h1; Encabezado 2=h2; Encabezado 3=h3; Encabezado 4=h4; Encabezado 5=h5; Encabezado 6=h6; Preformateado=pre; Dirección=address; Div=div',
-            
-            // Configuración para el selector de formato
-            format_block_elements: 'div,h1,h2,h3,h4,h5,h6,p,pre,address',
-            
-            // Configuración de colores personalizados
-            color_map: [
-                "000000", "Negro",
-                "993300", "Marrón oscuro",
-                "333300", "Verde oscuro",
-                "003300", "Verde muy oscuro",
-                "003366", "Azul marino",
-                "000080", "Azul marino",
-                "333399", "Azul índigo",
-                "333333", "Gris muy oscuro",
-                "800000", "Granate",
-                "FF6600", "Naranja",
-                "808000", "Oliva",
-                "008000", "Verde",
-                "008080", "Verde azulado",
-                "0000FF", "Azul",
-                "666699", "Gris azulado",
-                "808080", "Gris",
-                "FF0000", "Rojo",
-                "FF9900", "Ámbar",
-                "99CC00", "Lima amarillenta",
-                "339966", "Verde mar",
-                "33CCCC", "Turquesa",
-                "3366FF", "Azul real",
-                "800080", "Púrpura",
-                "999999", "Gris medio",
-                "FF00FF", "Fucsia",
-                "FFCC00", "Dorado",
-                "FFFF00", "Amarillo",
-                "00FF00", "Lima",
-                "00FFFF", "Agua",
-                "00CCFF", "Azul cielo",
-                "993366", "Marrón",
-                "C0C0C0", "Plata",
-                "FF99CC", "Rosa",
-                "FFCC99", "Melocotón",
-                "FFFF99", "Amarillo claro",
-                "CCFFCC", "Verde claro",
-                "CCFFFF", "Azul claro",
-                "99CCFF", "Azul muy claro",
-                "CC99FF", "Púrpura claro",
-                "FFFFFF", "Blanco"
-            ]
-        });
+        // Buscar todos los textareas con clase TextEditor
+            document.querySelectorAll('textarea.TextEditor').forEach(function(textarea) {
+                // Crear un div contenedor para Quill
+                const editorDiv = document.createElement('div');
+                editorDiv.style.minHeight = '200px';
+                textarea.style.display = 'none';
+                textarea.parentNode.insertBefore(editorDiv, textarea);
+                
+                // Inicializar Quill
+                const quill = new Quill(editorDiv, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'align': [] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'code-block'],
+                            ['clean']
+                        ]
+                    }
+                });
+                
+                // Cargar contenido inicial
+                if (textarea.value) {
+                    quill.root.innerHTML = textarea.value;
+                }
+                
+                // Sincronizar con el textarea al cambiar
+                quill.on('text-change', function() {
+                    textarea.value = quill.root.innerHTML;
+                });
+                
+                // Sincronizar antes de enviar el formulario
+                const form = textarea.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        textarea.value = quill.root.innerHTML;
+                    });
+                }
+            });
     });
     </script>
     <link rel="stylesheet" href="{{ asset('css/estilos_admin_new.css') }}">
@@ -119,6 +91,8 @@
         transform: translateX(-38px);
         animation: l26 2s infinite linear;
         }
+
+        
         @keyframes l26 {
         12.5% {box-shadow: 
             19px -19px 0 0px, 38px -19px 0 0px, 57px -19px 0 5px,
@@ -146,6 +120,7 @@
             19px 19px  0 5px, 38px 19px  0 0px, 57px 19px  0 0px}
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
   <body>
    <div id="loader-container" class="d-none"> <div class="loader"></div></div>
@@ -471,7 +446,7 @@
                     }
                 });
             </script>
-
+            @yield('scripts')  <!-- ⬅️ AGREGAR ESTA LÍNEA -->
             
     </body>
 </html>

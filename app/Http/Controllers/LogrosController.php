@@ -184,6 +184,90 @@ class LogrosController extends Controller
         ));
     }
 
+/**
+ * Display a listing of all SKUs with search and filters
+ */
+public function lista_skus(Request $request)
+{
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::where('id', $temporada->id_cuenta)->first();
+    $cuentas = Cuenta::all();
+    $color_barra_superior = $cuenta->fondo_menu;
+    $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
+
+    // Obtener los parámetros de búsqueda
+    $busqueda_sku = $request->input('busqueda_sku');
+    $busqueda_desafio = $request->input('busqueda_desafio');
+
+    // Obtener todos los logros de la temporada
+    $logros = Logro::where('id_temporada', $id_temporada)
+        ->orderBy('nombre', 'asc')
+        ->get();
+
+    // Recolectar todos los SKUs con información del logro
+    $todosLosSkus = collect();
+
+    foreach ($logros as $logro) {
+        $skusDelLogro = Sku::where('id_logro', $logro->id)->get();
+        
+        // Agregar información del logro a cada SKU
+        foreach ($skusDelLogro as $sku) {
+            $sku->nombre_logro = $logro->nombre;
+            $sku->imagen_logro = $logro->imagen;
+            $todosLosSkus->push($sku);
+        }
+    }
+
+    // Aplicar filtros si existen
+    if ($busqueda_sku) {
+        $todosLosSkus = $todosLosSkus->filter(function($sku) use ($busqueda_sku) {
+            return stripos($sku->sku, $busqueda_sku) !== false || 
+                   stripos($sku->sku_clean, $busqueda_sku) !== false;
+        });
+    }
+
+    if ($busqueda_desafio) {
+        $todosLosSkus = $todosLosSkus->filter(function($sku) use ($busqueda_desafio) {
+            return stripos($sku->desafio, $busqueda_desafio) !== false;
+        });
+    }
+
+    // Ordenar por desafío y SKU
+    $todosLosSkus = $todosLosSkus->sortBy([
+        ['desafio', 'asc'],
+        ['sku', 'asc']
+    ]);
+
+    // Paginar manualmente
+    $perPage = 50;
+    $currentPage = request()->get('page', 1);
+    $total = $todosLosSkus->count();
+    
+    $skus = new \Illuminate\Pagination\LengthAwarePaginator(
+        $todosLosSkus->forPage($currentPage, $perPage),
+        $total,
+        $perPage,
+        $currentPage,
+        ['path' => request()->url(), 'query' => request()->query()]
+    );
+
+    // Obtener lista única de desafíos para el filtro
+    $desafios = $logros->pluck('nombre')->unique()->sort();
+
+    return view('admin/sku_lista', compact(
+        'skus',
+        'desafios',
+        'temporada',
+        'cuenta',
+        'cuentas',
+        'color_barra_superior',
+        'logo_cuenta',
+        'busqueda_sku',
+        'busqueda_desafio'
+    ));
+}
+
     public function participacion(Request $request)
     {
         //

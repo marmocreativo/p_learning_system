@@ -50,6 +50,7 @@ use Illuminate\Http\Request;
 class CanjeoController extends Controller
 {
     //Productos
+    /*
     public function productos(Request $request)
     {
         $id_temporada = $request->input('id_temporada');
@@ -69,10 +70,48 @@ class CanjeoController extends Controller
                 });
             })
             ->with('transacciones')
+            ->orderBy('orden', 'asc')
             ->get();
 
         return view('admin/canjeo_productos', compact('productos', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
     }
+    */
+
+    public function productos(Request $request)
+{
+    $id_temporada = $request->input('id_temporada');
+    $temporada = Temporada::find($id_temporada);
+    $cuenta = Cuenta::find($temporada->id_cuenta);
+    $cuentas = Cuenta::all();
+    $color_barra_superior = $cuenta->fondo_menu;
+    $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/' . $cuenta->logotipo;
+
+    // Filtro condicional por región
+    $region = $request->input('region');
+    $productos = CanjeoProductos::where('id_temporada', $id_temporada)
+        ->when($region, function ($query) use ($region) {
+            $query->where(function ($q) use ($region) {
+                $q->where('region', $region)
+                ->orWhere('region', 'todas');
+            });
+        })
+        ->with(['transacciones.transaccion.corte']) // Cargar la relación anidada incluyendo corte
+        ->orderBy('orden', 'asc')
+        ->get();
+
+    // Obtener todos los cortes con sus títulos de esta temporada
+    $cortes = \DB::table('canjeo_cortes')
+        ->join('canjeo_transacciones', 'canjeo_cortes.id', '=', 'canjeo_transacciones.id_corte')
+        ->join('canjeo_transacciones_productos', 'canjeo_transacciones.id', '=', 'canjeo_transacciones_productos.id_transacciones')
+        ->join('canjeo_productos', 'canjeo_transacciones_productos.id_producto', '=', 'canjeo_productos.id')
+        ->where('canjeo_productos.id_temporada', $id_temporada)
+        ->select('canjeo_cortes.id', 'canjeo_cortes.titulo')
+        ->distinct()
+        ->orderBy('canjeo_cortes.id')
+        ->get();
+
+    return view('admin/canjeo_productos', compact('productos', 'temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta', 'cortes'));
+}
 
     public function productos_crear(Request $request)
     {
@@ -128,7 +167,7 @@ class CanjeoController extends Controller
         $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->count();
         $id_temporada = $producto->id_temporada;
         $temporada = Temporada::find($id_temporada);
-        $galeria = CanjeoProductosGaleria::where('id_producto', $id)->orderBy('orden')->get();
+        $galeria = CanjeoProductosGaleria::where('id_producto', $id)->orderBy('orden', 'asc')->get();
         $cuenta = Cuenta::find($temporada->id_cuenta);
         $cuentas = Cuenta::all();
         $color_barra_superior = $cuenta->fondo_menu;
@@ -412,7 +451,7 @@ class CanjeoController extends Controller
         $corte = CanjeoCortes::find($transaccion->id_corte);
         $temporada = Temporada::find($transaccion->id_temporada);
         $usuario = User::find($transaccion->id_usuario);
-        $productos_completos = CanjeoProductos::where('id_temporada', $id_temporada)->get();
+        $productos_completos = CanjeoProductos::where('id_temporada', $id_temporada)->orderBy('orden', 'asc')->get();
         $productos_transaccion = CanjeoTransaccionesProductos::where('id_transaccion', $id_transaccion)->get();
         return view('admin/canjeo_detalle_transaccion', compact('transaccion',
         'corte',
@@ -464,6 +503,7 @@ class CanjeoController extends Controller
             $query->where('region', $region)
                 ->orWhere('region', 'todas');
         })
+        ->orderBy('orden', 'asc')
         ->get();
 
     // Inicializar variables que siempre deben tener valor
@@ -705,7 +745,7 @@ class CanjeoController extends Controller
     public function detalles_producto_api(Request $request)
 {
     $producto = CanjeoProductos::find($request->input('id'));
-    $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden')->get();
+    $galeria = CanjeoProductosGaleria::where('id_producto', $producto->id)->orderBy('orden', 'asc')->get();
     $canjeados = CanjeoTransaccionesProductos::where('id_producto', $producto->id)->get();
 
     // Forzar arrays por si acaso
@@ -948,6 +988,22 @@ class CanjeoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack(); // Revertir la transacción en caso de error
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function productos_actualizar_orden(Request $request)
+    {
+        try {
+            $orden = $request->input('orden');
+            
+            foreach ($orden as $item) {
+                CanjeoProductos::where('id', $item['id'])
+                    ->update(['orden' => $item['orden']]);
+            }
+            
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }

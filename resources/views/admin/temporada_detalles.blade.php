@@ -208,6 +208,7 @@
                                             </tr>
                                         </table>
                                         <a class="btn btn-info" href="{{ route('logros', ['id_temporada'=> $temporada->id]) }}">Logros</a>
+                                        <a class="btn btn-warning" href="{{ route('logros.lista_skus', ['id_temporada'=> $temporada->id]) }}">SKUs</a>
                                     </div>
                                 </div>
                                 <div class="col-6">

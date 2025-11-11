@@ -13,8 +13,23 @@ class CanjeoProductos extends Model
     protected $table = "canjeo_productos";
     public $timestamps = false;
 
+    protected $fillable = [
+        'id_temporada',
+        'nombre',
+        'descripcion',
+        'variaciones',
+        'imagen',
+        'creditos',
+        'limite_total',
+        'limite_usuario',
+        'contenido',
+        'variaciones_cantidad',
+        'region',
+        'orden',
+    ];
+
     protected $casts = [
-        'variaciones' => 'array', // importante para acceder como array
+        'variaciones' => 'array',
         'variaciones_cantidad' => 'array',
     ];
 

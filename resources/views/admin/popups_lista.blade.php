@@ -734,25 +734,37 @@
                                                     </div>
                                                 @endif
                                                 
-                                                <!-- Tabs para elegir tipo de enlace -->
-                                                <ul class="nav nav-pills nav-sm mb-2" id="enlaceTabsEdit{{ $popup_lider->id }}" role="tablist">
+                                                <!-- Tabs para elegir tipo de enlace - CORREGIDO PARA MDB -->
+                                                <ul class="nav nav-pills nav-sm mb-2" id="enlaceTabsEdit{{ $popup_lider->id }}" role="tablist" data-mdb-pills-init>
                                                     <li class="nav-item" role="presentation">
-                                                        <button class="nav-link active" id="url-tab-edit{{ $popup_lider->id }}" data-bs-toggle="pill" data-bs-target="#url-content-edit{{ $popup_lider->id }}" type="button" role="tab">URL</button>
+                                                        <a class="nav-link active" 
+                                                        id="url-tab-edit{{ $popup_lider->id }}" 
+                                                        data-mdb-pill-init 
+                                                        href="#url-content-edit{{ $popup_lider->id }}" 
+                                                        role="tab" 
+                                                        aria-controls="url-content-edit{{ $popup_lider->id }}"
+                                                        aria-selected="true">URL</a>
                                                     </li>
                                                     <li class="nav-item" role="presentation">
-                                                        <button class="nav-link" id="archivo-tab-edit{{ $popup_lider->id }}" data-bs-toggle="pill" data-bs-target="#archivo-content-edit{{ $popup_lider->id }}" type="button" role="tab">Nuevo Archivo</button>
+                                                        <a class="nav-link" 
+                                                        id="archivo-tab-edit{{ $popup_lider->id }}" 
+                                                        data-mdb-pill-init 
+                                                        href="#archivo-content-edit{{ $popup_lider->id }}" 
+                                                        role="tab"
+                                                        aria-controls="archivo-content-edit{{ $popup_lider->id }}"
+                                                        aria-selected="false">Nuevo Archivo</a>
                                                     </li>
                                                 </ul>
                                                 
                                                 <div class="tab-content">
                                                     <!-- Pestaña URL manual -->
-                                                    <div class="tab-pane fade show active" id="url-content-edit{{ $popup_lider->id }}" role="tabpanel">
+                                                    <div class="tab-pane fade show active" id="url-content-edit{{ $popup_lider->id }}" role="tabpanel" aria-labelledby="url-tab-edit{{ $popup_lider->id }}">
                                                         <input type="url" class="form-control" name="EnlaceBoton" value="{{ $popup_lider->enlace_boton }}" placeholder="https://ejemplo.com/archivo.pdf">
                                                         <small class="text-muted">Modifica la URL o mantén la actual</small>
                                                     </div>
                                                     
                                                     <!-- Pestaña subida de archivo -->
-                                                    <div class="tab-pane fade" id="archivo-content-edit{{ $popup_lider->id }}" role="tabpanel">
+                                                    <div class="tab-pane fade" id="archivo-content-edit{{ $popup_lider->id }}" role="tabpanel" aria-labelledby="archivo-tab-edit{{ $popup_lider->id }}">
                                                         <input type="file" class="form-control" name="ArchivoDescarga" 
                                                             accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt">
                                                         <small class="text-muted">Sube un nuevo archivo (reemplazará el enlace actual)</small>

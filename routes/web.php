@@ -198,6 +198,7 @@ Route::delete('admin/jackpots/destroy_respuesta/{post}', [JackpotsController::cl
 
 // Rutas CRUD para las'logros'
 Route::get('admin/logros', [LogrosController::class, 'index'])->middleware(['auth', 'admin'])->name('logros');
+Route::get('admin/logros/skus', [LogrosController::class, 'lista_skus'])->middleware(['auth', 'admin'])->name('logros.lista_skus');
 Route::get('admin/logros/create', [LogrosController::class, 'create'])->middleware(['auth', 'admin'])->name('logros.create');
 Route::get('admin/logros/detalles_participacion', [LogrosController::class, 'detalles_participacion'])->middleware(['auth', 'admin'])->name('logros.detalles_participacion');
 Route::post('admin/logros/store', [LogrosController::class, 'store'])->middleware(['auth', 'admin'])->name('logros.store');
@@ -268,6 +269,7 @@ Route::post('admin/canjeo/productos/galeria/reorder', [CanjeoController::class, 
 Route::get('admin/canjeo/productos/editar/{post}', [CanjeoController::class, 'productos_editar'])->middleware(['auth', 'admin'])->name('canjeo.productos_editar');
 Route::put('admin/canjeo/productos/actualizar/{post}', [CanjeoController::class, 'productos_actualizar'])->middleware(['auth', 'admin'])->name('canjeo.productos_actualizar');
 Route::delete('admin/canjeo/productos/borrar{post}', [CanjeoController::class, 'productos_borrar'])->middleware(['auth', 'admin'])->name('canjeo.productos_borrar');
+Route::post('admin/canjeo/productos/actualizar-orden', [CanjeoController::class, 'productos_actualizar_orden'])->middleware(['auth', 'admin'])->name('canjeo.productos_actualizar_orden');
 
 Route::get('admin/canjeo/transacciones', [CanjeoController::class, 'transacciones'])->middleware(['auth', 'admin'])->name('canjeo.transacciones');
 Route::get('admin/canjeo/transacciones_usuario', [CanjeoController::class, 'transacciones_usuario'])->middleware(['auth', 'admin'])->name('canjeo.transacciones_usuario');

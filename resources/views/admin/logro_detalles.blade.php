@@ -352,6 +352,7 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>SKU</th>
+                                                <th>SKU LIMPIO</th>
                                                 <th>Descripción</th>
                                                 <th>Controles</th>
                                             </tr>
@@ -360,6 +361,7 @@
                                             @forelse ($skus as $sku)
                                                 <tr>
                                                     <td><strong>{{ $sku->sku }}</strong></td>
+                                                    <td><strong>{{ $sku->sku_clean }}</strong></td>
                                                     <td>{{ $sku->descripcion ?? '—' }}</td>
                                                     <td>
                                                         <!-- Botón de borrar -->
@@ -416,12 +418,28 @@
                                     <h6 class="mb-3"><i class="fas fa-file-excel"></i> Carga Masiva</h6>
                                     <form method="POST" action="{{route('sku_masivo')}}" enctype="multipart/form-data">
                                         <input type="hidden" name="id_logro" value="{{$logro->id}}">
+                                        <input type="hidden" name="id_temporada" value="{{$logro->id_temporada}}">
                                         @csrf
+                                        
                                         <div class="form-group mb-3">
                                             <label class="form-label">Archivo Excel</label>
                                             <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
                                             <div class="form-text">Formatos soportados: Excel (.xlsx, .xls)</div>
                                         </div>
+                                        
+                                        <!-- ✅ NUEVO SELECT -->
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Modo de Operación</label>
+                                            <select name="modo" class="form-select" required>
+                                                <option value="cotejar" selected>Cotejar (Solo verificar)</option>
+                                                <option value="actualizar">Actualizar (Procesar cambios)</option>
+                                            </select>
+                                            <div class="form-text">
+                                                <strong>Cotejar:</strong> Solo muestra qué SKUs se agregarían sin hacer cambios.<br>
+                                                <strong>Actualizar:</strong> Procesa y guarda los SKUs en la base de datos.
+                                            </div>
+                                        </div>
+                                        
                                         <button class="btn btn-success w-100" type="submit">
                                             <i class="fas fa-upload"></i> Cargar Archivo
                                         </button>

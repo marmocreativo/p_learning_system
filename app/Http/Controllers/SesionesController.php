@@ -456,10 +456,22 @@ class SesionesController extends Controller
 
         $visualizaciones = DB::table('sesiones_visualizaciones')
             ->join('usuarios', 'sesiones_visualizaciones.id_usuario', '=', 'usuarios.id')
+            ->join('usuarios_suscripciones', 'usuarios.id', '=', 'usuarios_suscripciones.id_usuario')
             ->where('sesiones_visualizaciones.id_sesion', '=', $id)
-            ->select('sesiones_visualizaciones.id as id_visualizacion', 'sesiones_visualizaciones.*', 'usuarios.id as id_usuario', 'usuarios.*')
+            ->where('usuarios_suscripciones.id_temporada', '=', $temporada->id)
+            ->select('sesiones_visualizaciones.id as id_visualizacion',
+                        'sesiones_visualizaciones.*',
+                        'usuarios.id as id_usuario',
+                        'usuarios.*',
+                        'usuarios_suscripciones.id as id_suscripcion',
+                        'usuarios_suscripciones.*')
             ->orderBy('sesiones_visualizaciones.fecha_ultimo_video', 'desc')
             ->get();
+        
+        $total_visualizaciones = 0;
+        $total_mexico = 0;
+        $total_rola = 0;
+        $total_interna = 0;
 
         foreach($visualizaciones as $visualizacion){
             
@@ -467,8 +479,32 @@ class SesionesController extends Controller
             
             if($detalles_distribuidor){
                 $visualizacion->nombre_distribuidor = $detalles_distribuidor->nombre;
+                $visualizacion->region = $detalles_distribuidor->region;
+                if($visualizacion->fecha_ultimo_video && $visualizacion->fecha_terminos){
+                    switch ($detalles_distribuidor->region) {
+                        case 'México':
+                            $total_visualizaciones ++;
+                            $total_mexico ++;
+                            break;
+                        case 'RoLA':
+                            $total_visualizaciones ++;
+                            $total_rola ++;
+                            break;
+                        case 'Interna':
+                            $total_visualizaciones ++;
+                            $total_interna ++;
+                            break;
+                        
+                        default:
+                            $total_visualizaciones ++;
+                            break;
+                    }
+                }
+                
+
             }else{
                 $visualizacion->nombre_distribuidor = 'N/A';
+                $visualizacion->region = 'N/A';
             }
             $visita = SesionVisita::where('id_sesion', $visualizacion->id_sesion)->where('id_usuario', $visualizacion->id_usuario)->first();
             if($visita){
@@ -496,7 +532,23 @@ class SesionesController extends Controller
         $color_barra_superior = $cuenta->fondo_menu;
         $logo_cuenta = 'https://system.panduitlatam.com/img/publicaciones/'.$cuenta->logotipo;
 
-        return view('admin/sesion_resultados', compact('sesion', 'visualizaciones', 'respuestas', 'preguntas', 'dudas', 'anexos','temporada', 'cuenta', 'cuentas', 'color_barra_superior', 'logo_cuenta'));
+        return view('admin/sesion_resultados', compact(
+                'sesion',
+                'visualizaciones',
+                'respuestas',
+                'preguntas',
+                'dudas',
+                'anexos',
+                'temporada',
+                'cuenta',
+                'cuentas',
+                'color_barra_superior',
+                'logo_cuenta',
+                'total_visualizaciones',
+                'total_mexico',
+                'total_rola',
+                'total_interna'
+            ));
     }
 
     public function dudas(string $id)

@@ -92,9 +92,10 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Finalizaron Sesion (Total): </td>
-                    <td>Finalizaron Sesion (MEX):</td>
-                    <td>Finalizaron Sesion (RoLA):</td>
+                    <td>Finalizaron Sesion (Total): <b>{{$total_visualizaciones}}</b></td>
+                    <td>Finalizaron Sesion (MEX): <b>{{$total_mexico}}</b></td>
+                    <td>Finalizaron Sesion (RoLA): <b>{{$total_rola}}</b></td>
+                    <td>Finalizaron Sesion (Interna): <b>{{$total_interna}}</b></td>
                 </tr>
                 
             </table>

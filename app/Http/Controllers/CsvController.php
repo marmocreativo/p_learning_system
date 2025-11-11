@@ -116,53 +116,132 @@ class CsvController extends Controller
         ]);
 }
 
-    public function sku_masivo(Request $request)
+public function sku_masivo(Request $request)
 {
     $request->validate([
         'file' => 'required|mimes:xlsx',
-        'id_logro' => 'integer'
+        'id_temporada' => 'required|integer',
+        'modo' => 'required|in:cotejar,actualizar'
     ]);
 
-    $import = new SkusImport;
-    Excel::import($import, $request->file('file'));
+    $id_temporada = $request->input('id_temporada');
+    $modo = $request->input('modo');
+    $temporada = Temporada::find($id_temporada);
 
-    $rows = $import->rows;
-    $resultados = [];
-    $id_logro = $request->input('id_logro');
-    $logro = Logro::where('id', $id_logro)->first();
-
-    $agregados = 0;
-    $existentes = 0;
-
-    foreach ($rows as $row) {
-        $sku = $row['sku'];
-        $descripcion = $row['descripcion'];
-
-        $sku_existente = Sku::where('sku_clean', $sku)->where('desafio', $logro->nombre)->first();
-        
-        if(!$sku_existente){
-            $nuevo = new Sku;
-            $nuevo->sku = $sku;
-            $nuevo->sku_clean = $sku;
-            $nuevo->detalles = $descripcion;  
-            $nuevo->desafio = $logro->nombre;  
-            $nuevo->id_logro = $logro->id;
-            $nuevo->save();
-            $agregados ++;
-        }else{
-            $existentes ++;
-        }
-
-        $resultados[] = [
-                'agregados' => $agregados,
-                'existentes' => $existentes
-            ];
+    if (!$temporada) {
+        return back()->withErrors(['error' => 'La temporada no existe.']);
     }
 
-    return view('importacion.resultado_skus', [
-        'resultados' => $resultados,
-        'id_logro' => $id_logro
-    ]);
+    try {
+        $import = new SkusImport;
+        Excel::import($import, $request->file('file'));
+        $rows = $import->rows;
+
+        $agregados = 0;
+        $existentes = 0;
+        $errores = [];
+        $desafios_no_encontrados = [];
+        $skus_a_procesar = []; // ✅ NUEVO: Para modo cotejar
+
+        foreach ($rows as $index => $row) {
+            $fila = $index + 2;
+
+            // Validar que existan las columnas necesarias
+            if (!isset($row['nombre_del_desafio']) || empty(trim($row['nombre_del_desafio']))) {
+                $errores[] = "Fila $fila: Falta el nombre del desafío";
+                continue;
+            }
+
+            if (!isset($row['sku']) || empty(trim($row['sku']))) {
+                $errores[] = "Fila $fila: SKU vacío";
+                continue;
+            }
+
+            $nombre_desafio = trim($row['nombre_del_desafio']);
+            $sku_original = trim($row['sku']);
+            $descripcion = isset($row['descripcion']) ? trim($row['descripcion']) : '';
+
+            // Buscar el logro por nombre en la temporada
+            $logro = Logro::where('nombre', $nombre_desafio)
+                ->where('id_temporada', $id_temporada)
+                ->first();
+
+            if (!$logro) {
+                if (!in_array($nombre_desafio, $desafios_no_encontrados)) {
+                    $desafios_no_encontrados[] = $nombre_desafio;
+                }
+                $errores[] = "Fila $fila: Desafío '$nombre_desafio' no encontrado en la temporada";
+                continue;
+            }
+
+            // Generar SKU limpio
+            $sku_limpio = preg_replace('/[\s\-\.\,]/', '', $sku_original);
+            $sku_limpio = strtoupper($sku_limpio);
+
+            // Verificar si ya existe el SKU en este desafío
+            $sku_existente = Sku::where('sku_clean', $sku_limpio)
+                ->where('id_logro', $logro->id)
+                ->first();
+            
+            if (!$sku_existente) {
+                // ✅ NUEVO: Decidir según el modo
+                if ($modo === 'actualizar') {
+                    // MODO ACTUALIZAR: Guardar en BD
+                    $nuevo = new Sku;
+                    $nuevo->sku = $sku_original;
+                    $nuevo->sku_clean = $sku_limpio;
+                    $nuevo->detalles = $descripcion;  
+                    $nuevo->desafio = $logro->nombre;  
+                    $nuevo->id_logro = $logro->id;
+                    $nuevo->save();
+                    $agregados++;
+                } else {
+                    // MODO COTEJAR: Solo registrar
+                    $skus_a_procesar[] = [
+                        'fila' => $fila,
+                        'desafio' => $logro->nombre,
+                        'sku_original' => $sku_original,
+                        'sku_limpio' => $sku_limpio,
+                        'descripcion' => $descripcion,
+                        'estado' => 'nuevo'
+                    ];
+                    $agregados++;
+                }
+            } else {
+                // SKU ya existe
+                if ($modo === 'cotejar') {
+                    $skus_a_procesar[] = [
+                        'fila' => $fila,
+                        'desafio' => $logro->nombre,
+                        'sku_original' => $sku_original,
+                        'sku_limpio' => $sku_limpio,
+                        'descripcion' => $descripcion,
+                        'estado' => 'existente'
+                    ];
+                }
+                $existentes++;
+            }
+        }
+
+        $resultados = [
+            'agregados' => $agregados,
+            'existentes' => $existentes,
+            'total' => count($rows),
+            'errores' => $errores,
+            'desafios_no_encontrados' => $desafios_no_encontrados,
+            'modo' => $modo, // ✅ NUEVO
+            'skus_a_procesar' => $skus_a_procesar // ✅ NUEVO
+        ];
+
+        return view('importacion.resultado_skus', [
+            'resultados' => $resultados,
+            'id_temporada' => $id_temporada,
+            'temporada' => $temporada
+        ]);
+
+    } catch (\Exception $e) {
+        return back()->withErrors(['error' => 'Error al procesar el archivo: ' . $e->getMessage()]);
+    }
 }
 
     public function importar_usuarios(Request $request)
@@ -1121,25 +1200,35 @@ public function subir_anexos(Request $request)
             try {
                 $moneda = $row['moneda'] ?? 'MXN';
                 
-                 try {
+                try {
                     // Si la fecha viene como número serial de Excel
                     if (is_numeric($row['emision'])) {
                         $fecha_emision = Carbon::instance(Date::excelToDateTimeObject($row['emision']))->startOfDay();
                     } else {
-                        // Si viene como string, usar el formato original
-                        $fecha_emision = Carbon::createFromFormat('d/m/Y', $row['emision'])->startOfDay();
+                        // Intentar ambos formatos: con guiones y con slashes
+                        $fechaString = trim($row['emision']);
+                        
+                        // Primero intentar con guiones (dd-mm-yyyy)
+                        try {
+                            $fecha_emision = Carbon::createFromFormat('d-m-Y', $fechaString)->startOfDay();
+                        } catch (\Exception $e) {
+                            // Si falla, intentar con slashes (dd/mm/yyyy)
+                            $fecha_emision = Carbon::createFromFormat('d/m/Y', $fechaString)->startOfDay();
+                        }
                     }
                     
-                    // resto de tu código...
-                    
                 } catch (\Exception $e) {
-                    // Para debuggear qué está pasando
-                    dd([
-                        'valor_original' => $row['emision'],
-                        'tipo' => gettype($row['emision']),
-                        'es_numerico' => is_numeric($row['emision']),
-                        'error' => $e->getMessage()
-                    ]);
+                    $resultados[] = [
+                        'fila' => $filaNumero,
+                        'usuario' => $emailUsuario,
+                        'folio' => $folio,
+                        'sku' => $sku,
+                        'estado' => 'Error en formato de fecha: "' . ($row['emision'] ?? 'vacío') . '". Use formato dd-mm-yyyy o dd/mm/yyyy',
+                        'folio_creado' => 'no',
+                        'sku_creado' => 'no'
+                    ];
+                    $errores++;
+                    continue;
                 }
                 
                 // Convertir tipos de datos
@@ -1210,6 +1299,17 @@ public function subir_anexos(Request $request)
                 }
 
                 $procesados++;
+                
+                // Agregar el resultado cuando todo sale bien
+                $resultados[] = [
+                    'fila' => $filaNumero,
+                    'usuario' => $emailUsuario,
+                    'folio' => $folio,
+                    'sku' => $sku,
+                    'estado' => $estado,
+                    'folio_creado' => $folio_creado,
+                    'sku_creado' => $sku_creado
+                ];
 
             } catch (Exception $e) {
                 $estado = 'Error en base de datos: ' . $e->getMessage();
@@ -1222,17 +1322,18 @@ public function subir_anexos(Request $request)
                     'line' => $e->getLine(),
                     'data' => $row
                 ]);
+                
+                // Agregar el resultado cuando hay error
+                $resultados[] = [
+                    'fila' => $filaNumero,
+                    'usuario' => $emailUsuario,
+                    'folio' => $folio,
+                    'sku' => $sku,
+                    'estado' => $estado,
+                    'folio_creado' => 'no',
+                    'sku_creado' => 'no'
+                ];
             }
-
-            $resultados[] = [
-                'fila' => $filaNumero,
-                'usuario' => $emailUsuario,
-                'folio' => $folio,
-                'sku' => $sku,
-                'estado' => $estado,
-                'folio_creado' => $folio_creado,
-                'sku_creado' => $sku_creado
-            ];
         }
 
         // SIEMPRE mostrar la vista de resultados para ver los detalles
